@@ -2,6 +2,8 @@ package com.bitat.viewModel
 
 import android.content.Context
 import android.net.Uri
+import android.os.FileUtils
+import androidx.camera.core.internal.utils.VideoUtil
 import androidx.lifecycle.ViewModel
 import com.amap.api.services.core.LatLonPoint
 import com.bitat.MainCo
@@ -22,6 +24,7 @@ import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
 import com.bitat.utils.FileType
 import com.bitat.utils.QiNiuUtil
+import com.bitat.utils.getCover
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -133,19 +136,38 @@ class PublishViewModel : ViewModel() {
     fun addPicture(path: List<Uri>) {
         mediaState.update {
             it.localImages.addAll(path)
+            it.currentImage.apply {
+                path.last()
+            }
             it
         }
     }
 
-    fun addVideo(path: Uri) {
+    fun setCurrentImage(uri: Uri) {
         mediaState.update {
-            it.copy(localVideo = path)
+            it.copy(currentImage = uri)
         }
+    }
+
+    fun addVideo(path: Uri) {
+        MainCo.launch {
+            val cover = getCover(path.toString())
+            mediaState.update {
+                it.copy(localVideo = path, localCover = cover)
+            }
+        }
+
     }
 
     fun addAudio(path: Uri) {
         mediaState.update {
             it.copy(localAudio = path)
+        }
+    }
+
+    fun selectImage(uri: Uri) {
+        mediaState.update {
+            it.copy(currentImage = uri)
         }
     }
 

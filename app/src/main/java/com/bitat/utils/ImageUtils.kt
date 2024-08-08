@@ -56,7 +56,7 @@ object ImageUtils {
     }
 
     fun getParams(uri: Uri): ImageParams = MediaMetadataRetriever().use {
-        it.setDataSource(Local.ctx, uri)
+        it.setDataSource(uri)
         val width =
             it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
         val height =

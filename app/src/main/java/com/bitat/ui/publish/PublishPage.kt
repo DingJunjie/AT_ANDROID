@@ -24,8 +24,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -112,34 +116,28 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
             previewView)
     }
 
-//    DisposableEffect(Unit) {
-//        videoCapture
-//    }
-
-    // 绑定imageCapture和lifecycle和相机
-    val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
-        ProcessCameraProvider.getInstance(context)
-    val processCameraProvider = cameraProviderFuture.get()
-    processCameraProvider.bindToLifecycle(lifecycleOwner,
-        CameraSelector.DEFAULT_BACK_CAMERA,
-        imageCapture)
-
-    fun switchCamera() {
-        cameraSelector.value =
-            if (cameraSelector.value == CameraSelector.DEFAULT_BACK_CAMERA) CameraSelector.DEFAULT_FRONT_CAMERA
-            else CameraSelector.DEFAULT_BACK_CAMERA
-
-        processCameraProvider.apply {
-            cameraSelector.value = cameraSelector.value
-        }
+    lifecycleOwner.lifecycleScope.launch {
+        // 绑定imageCapture和lifecycle和相机
+        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+            ProcessCameraProvider.getInstance(context)
+        val processCameraProvider = cameraProviderFuture.get()
+        processCameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector.value,
+            imageCapture
+        )
     }
 
+    if (permissionState.allPermissionsGranted) {
+        // 全部允许
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AndroidView(
+                factory = { previewView },
+                modifier = Modifier.fillMaxSize()
+            )
 
-
-
-    if (permissionState.allPermissionsGranted) { // 全部允许
-        Box(modifier = Modifier.fillMaxSize()) {
-            AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
             Box(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
                     .pointerInput(Unit) {
@@ -151,22 +149,55 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                                         File(it, "at").apply { mkdirs() }
                                     }
 
-                                    recording = startRecordingVideo(context = context,
-                                        filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
-                                        videoCapture = videoCapture,
-                                        outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
-                                        executor = context.mainExecutor,
-                                        audioEnabled = audioEnabled.value) { event ->
-                                        if (event is VideoRecordEvent.Finalize) {
-                                            val uri = event.outputResults.outputUri
-                                            if (uri != Uri.EMPTY) {
-                                                val uriEncoded = URLEncoder.encode(uri.toString(),
-                                                    StandardCharsets.UTF_8.toString())
-                                                vm.addVideo(uri) //                                        navHostController.navigate("${Route.VIDEO_PREVIEW}/$uriEncoded")
-                                                navHostController.navigate(NavigationItem.PublishDetail.route)
+                                        recording = startRecordingVideo(
+                                            context = context,
+                                            filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
+                                            videoCapture = videoCapture,
+                                            outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
+                                            executor = context.mainExecutor,
+                                            audioEnabled = audioEnabled.value
+                                        ) { event ->
+                                            if (event is VideoRecordEvent.Finalize) {
+                                                val uri = event.outputResults.outputUri
+                                                if (uri != Uri.EMPTY) {
+                                                    val uriEncoded = URLEncoder.encode(
+                                                        uri.toString(),
+                                                        StandardCharsets.UTF_8.toString()
+                                                    )
+                                                    vm.addVideo(uri)
+//                                        navHostController.navigate("${Route.VIDEO_PREVIEW}/$uriEncoded")
+                                                    navHostController.navigate(NavigationItem.VideoDisplay.route)
+                                                }
                                             }
                                         }
                                     }
+                                }
+                            },
+                            onTap = {
+                                if (!recordingStarted.value) {
+                                    val mediaDir =
+                                        context.externalCacheDirs
+                                            .firstOrNull()
+                                            ?.let {
+                                                File(it, "at").apply { mkdirs() }
+                                            }
+                                    // 拍照
+                                    takePhoto(
+                                        context,
+                                        filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
+                                        imageCapture,
+                                        outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
+                                        executor = context.mainExecutor,
+                                        onError = {
+                                        },
+                                        onImageCaptured = { uri ->
+                                            vm.addPicture(listOf(uri))
+                                            navHostController.navigate(NavigationItem.PictureDisplay.route)
+                                        }
+                                    )
+                                } else {
+                                    recordingStarted.value = false
+                                    recording?.stop()
                                 }
                             }
                         }, onTap = {
@@ -191,21 +222,32 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                         })
                     },
 
-
                 ) {
                 Icon(painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
                     contentDescription = "",
                     modifier = Modifier.size(64.dp))
             }
-            if (!recordingStarted.value) {
-                IconButton(onClick = {
-                    audioEnabled.value = !audioEnabled.value
-                }, modifier = Modifier.align(Alignment.BottomStart).padding(bottom = 32.dp)) {
-                    Icon(painter = painterResource(if (audioEnabled.value) R.drawable.nav_msg_fill else R.drawable.nav_search_fill),
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 32.dp)
+            ) {
+                ImagePicker(onSelected = {
+                    vm.addPicture(it)
+                    navHostController.navigate(NavigationItem.PictureDisplay.route)
+                }) {
+//                  audioEnabled.value = !audioEnabled.value
+                    Icon(
+                        Icons.Filled.AccountBox,
                         contentDescription = "",
-                        modifier = Modifier.size(64.dp))
+                        Modifier.size(30.dp)
+                    )
                 }
             }
+
+
+
             if (!recordingStarted.value) {
                 IconButton(onClick = {
                     cameraSelector.value =
