@@ -1,0 +1,297 @@
+package com.bitat.viewModel
+
+import android.content.Context
+import android.net.Uri
+import androidx.lifecycle.ViewModel
+import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.consts.Commentable
+import com.bitat.repository.consts.Followable
+import com.bitat.repository.consts.Visibility
+import com.bitat.repository.dto.common.ResourceDto
+import com.bitat.repository.dto.req.BlogTagFindDto
+import com.bitat.repository.dto.req.PublishBlogDto
+import com.bitat.repository.dto.req.UploadTokenDto
+import com.bitat.repository.dto.resp.BlogTagDto
+import com.bitat.repository.http.auth.LoginReq
+import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.http.service.BlogTagReq
+import com.bitat.state.PublishCommonState
+import com.bitat.state.PublishMediaState
+import com.bitat.utils.FileType
+import com.bitat.utils.QiNiuUtil
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
+
+class PublishViewModel : ViewModel() {
+    val mediaState = MutableStateFlow(PublishMediaState())
+    val commonState = MutableStateFlow(PublishCommonState())
+
+
+    private fun updateKind(): Unit {
+        var kind = -2
+        val hasPicture = mediaState.value.localImages.isNotEmpty()
+        val hasVideo = mediaState.value.localVideo != Uri.EMPTY
+        val text = commonState.value.content
+        if (hasPicture && !hasVideo) {
+            kind = if (text === "") 2 else 3
+        } else if (!hasPicture && hasVideo) {
+            kind = if (text === "") 4 else 5
+        } else if (hasPicture) {
+            kind = if (text === "") 6 else 7
+        } else {
+            kind = 1
+        }
+        commonState.update {
+            it.copy(kind = kind.toByte())
+        }
+    }
+
+    fun onContentChange(content: String) {
+        commonState.update {
+            it.copy(content = content)
+        }
+    }
+
+    fun searchTopic(topicKeyWord: String) {
+        MainCo.launch {
+            BlogTagReq.find(
+                BlogTagFindDto(
+                    searchWord = topicKeyWord, pageSize = 20, pageNo = 0
+                )
+            ).await().map { res ->
+                commonState.update {
+                    it.tagSearchResult.clear()
+                    it.tagSearchResult.addAll(res)
+                    it
+                }
+            }.errMap {
+                CuLog.error(CuTag.Publish, "get tags error $it")
+            }
+        }
+    }
+
+    fun initTags() {
+        searchTopic("")
+    }
+
+    //话题
+    fun onTopicClick(tag: BlogTagDto) {
+        val newContent = commonState.value.content + "#${tag.name} ";
+        commonState.update {
+            it.apply {
+                tags.toMutableList().add(tag)
+            }
+        }
+        onContentChange(newContent)
+    }
+
+    fun removeMedia(uri: Uri) {
+        mediaState.update {
+            it.localImages.remove(uri)
+            it
+        }
+    }
+
+    fun onAtClick() {
+
+    }
+
+    fun onFollowClick(followable: Followable) {
+        commonState.update {
+            it.copy(followId = followable.toCode())
+        }
+    }
+
+    fun onVisibilityClick(visibility: Visibility) {
+        commonState.update {
+            it.copy(visibility = visibility)
+        }
+    }
+
+    fun updateVisibility(v: Visibility): Unit {
+        commonState.update {
+            it.copy(visibility = v)
+        }
+    }
+
+    fun updateCommentable(c: Commentable): Unit {
+        commonState.update {
+            it.copy(commentable = c)
+        }
+    }
+
+    fun updateFollowable(f: Followable): Unit {
+        mediaState.update {
+            it.copy(albumOps = f)
+        }
+    }
+
+    fun addPicture(path: List<Uri>) {
+        mediaState.update {
+            it.localImages.addAll(path)
+            it
+        }
+    }
+
+    fun addVideo(path: Uri) {
+        mediaState.update {
+            it.copy(localVideo = path)
+        }
+    }
+
+    fun addAudio(path: Uri) {
+        mediaState.update {
+            it.copy(localAudio = path)
+        }
+    }
+
+    private suspend fun uploadMedia() {
+        val cancelTag = AtomicBoolean()
+        LoginReq.uploadToken(UploadTokenDto(ops = 1)).await().map { token ->
+            mediaState.value.localImages.forEach {
+                val cd = CompletableDeferred<Boolean>()
+                val key = QiNiuUtil.genKey(FileType.Image)
+                QiNiuUtil.uploadFile(
+                    it,
+                    token,
+                    FileType.Image,
+                    key,
+                    cancelTag,
+                    progressFn = { a, b -> // key, percent
+                        CuLog.info(CuTag.Publish, "the key $a current percentage is $b")
+                    },
+                ).await()
+
+                // key | progress | response
+                mediaState.update { img ->
+                    img.images.add(key)
+                    img
+                }
+            }
+
+            val video = mediaState.value.localVideo.path;
+            if (!video.isNullOrBlank()) {
+                val key = QiNiuUtil.genKey(FileType.Video)
+                QiNiuUtil.uploadFile(
+                    mediaState.value.localVideo,
+                    token,
+                    FileType.Video,
+                    key,
+                    cancelTag,
+                    progressFn = { a, b ->
+                    },
+                ).await()
+
+                // key | progress | response
+                mediaState.update { state ->
+                    state.copy(video = key)
+                }
+            }
+        }
+    }
+
+    fun publishMedia(completeFn: () -> Unit) {
+
+        val dto = PublishBlogDto().apply {
+            adCode = commonState.value.adCode
+            longitude = commonState.value.longitude
+            latitude = commonState.value.latitude
+            location = commonState.value.location
+            cover = mediaState.value.cover
+            content = commonState.value.content
+            vote = mediaState.value.vote
+            musicId = commonState.value.musicId
+            musicKind = commonState.value.musicKind
+
+            openComment = commonState.value.commentable.toCode()
+            visible = commonState.value.visibility.toCode()
+            albumOps =
+                if (mediaState.value.followId > 0) mediaState.value.followId else mediaState.value.albumOps.toCode()
+        }
+
+        MainCo.launch {
+            uploadMedia()
+
+            dto.kind = commonState.value.kind
+            dto.resource = ResourceDto()
+            dto.resource.images = mediaState.value.images.toTypedArray()
+            dto.resource.video = mediaState.value.video
+
+            val result = BlogReq.publish(dto).await()
+            result.map {
+                completeFn()
+                println("update success $it")
+            }.errMap {
+                println("update failed, message is ${it.msg}")
+            }
+        }
+    }
+
+    private fun publishText(completeFn: () -> Unit) {
+        //发布逻辑
+        MainCo.launch {
+            val dto = PublishBlogDto().apply {
+                adCode = commonState.value.adCode
+                longitude = commonState.value.longitude
+                latitude = commonState.value.latitude
+                location = commonState.value.location
+                content = commonState.value.content
+
+                visible = commonState.value.visibility.toCode()
+            }
+
+            val cancelTag = AtomicBoolean()
+            MainCo.launch {
+                dto.kind = 1
+
+                val result = BlogReq.publish(dto).await()
+                result.map {
+                    completeFn()
+                    println("update success $it")
+                }.errMap {
+                    println("update failed, message is ${it.msg}")
+                }
+            }
+        }
+    }
+
+    fun publish(completeFn: () -> Unit) {
+        updateKind()
+        val kind = commonState.value.kind
+        if (kind.toInt() == 1) {
+            publishText { completeFn() }
+        } else {
+            publishMedia { completeFn() }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,12 @@
+package  com.bitat.repository.dto.req
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+class CreateUserReportDto(
+    var kind: Byte, //举报分类
+    var sourceId: Long, //用户举报类型,详情见常量
+    var images: Array<String>, //图片资源
+    var reason: IntArray, // 举报理由
+    var remark: String //其他类型,用过用户输入
+)

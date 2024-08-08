@@ -1,0 +1,159 @@
+package com.bitat.ui.theme
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+
+
+private val LightColorPalette = WeComposeColors(
+
+    bottomBar = white1,
+    background = white2,
+    divider = white3,
+    chatPage = white2,
+    textPrimary = black3,
+    textPrimaryMe = black3,
+    textSecondary = grey1,
+    onBackground = white1,
+    icon = black,
+    iconCurrent = green3,
+    badge = red1,
+    bubbleMe = green1,
+    more = grey4,
+    chatPageBgAlpha = 0f,
+
+
+    )
+private val DarkColorPalette = WeComposeColors(
+    bottomBar = black1,
+    background = black2,
+    divider = black4,
+    chatPage = black2,
+    textPrimary = white4,
+    textPrimaryMe = black6,
+    textSecondary = grey1,
+    onBackground = grey1,
+    icon = white5,
+    iconCurrent = green3,
+    badge = red1,
+    bubbleMe = green2,
+    more = grey5,
+    chatPageBgAlpha = 0f,
+)
+
+private val LocalWeComposeColors = compositionLocalOf {
+    LightColorPalette
+}
+
+object WeComposeTheme {
+    val colors: WeComposeColors
+        @Composable get() = LocalWeComposeColors.current
+
+    enum class Theme {
+        Light, Dark, NewYear
+    }
+}
+
+@Stable
+class WeComposeColors(
+    bottomBar: Color,
+    background: Color,
+    divider: Color,
+    chatPage: Color,
+    textPrimary: Color,
+    textPrimaryMe: Color,
+    textSecondary: Color,
+    onBackground: Color,
+    icon: Color,
+    iconCurrent: Color,
+    badge: Color,
+    bubbleMe: Color,
+    more: Color,
+    chatPageBgAlpha: Float,
+) {
+    var bottomBar: Color by mutableStateOf(bottomBar)
+        private set
+    var background: Color by mutableStateOf(background)
+        private set
+    var chatListDivider: Color by mutableStateOf(divider)
+        private set
+    var chatPage: Color by mutableStateOf(chatPage)
+        private set
+    var textPrimary: Color by mutableStateOf(textPrimary)
+        private set
+    var textPrimaryMe: Color by mutableStateOf(textPrimaryMe)
+        private set
+    var textSecondary: Color by mutableStateOf(textSecondary)
+        private set
+    var onBackground: Color by mutableStateOf(onBackground)
+        private set
+    var icon: Color by mutableStateOf(icon)
+        private set
+    var iconCurrent: Color by mutableStateOf(iconCurrent)
+        private set
+    var badge: Color by mutableStateOf(badge)
+        private set
+    var bubbleMe: Color by mutableStateOf(bubbleMe)
+        private set
+    var more: Color by mutableStateOf(more)
+        private set
+    var chatPageBgAlpha: Float by mutableStateOf(chatPageBgAlpha)
+        private set
+
+
+}
+
+@Composable
+fun WeComposeTheme(theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light, content: @Composable() () -> Unit) {
+    val targetColors = when (theme) {
+        WeComposeTheme.Theme.Light -> LightColorPalette
+        WeComposeTheme.Theme.Dark -> DarkColorPalette
+        WeComposeTheme.Theme.NewYear -> LightColorPalette
+    }
+
+    val bottomBar = animateColorAsState(targetColors.bottomBar, TweenSpec(600))
+    val background = animateColorAsState(targetColors.background, TweenSpec(600))
+    val chatListDivider = animateColorAsState(targetColors.chatListDivider, TweenSpec(600))
+    val chatPage = animateColorAsState(targetColors.chatPage, TweenSpec(600))
+    val textPrimary = animateColorAsState(targetColors.textPrimary, TweenSpec(600))
+    val textPrimaryMe = animateColorAsState(targetColors.textPrimaryMe, TweenSpec(600))
+    val textSecondary = animateColorAsState(targetColors.textSecondary, TweenSpec(600))
+    val onBackground = animateColorAsState(targetColors.onBackground, TweenSpec(600))
+    val icon = animateColorAsState(targetColors.icon, TweenSpec(600))
+    val iconCurrent = animateColorAsState(targetColors.iconCurrent, TweenSpec(600))
+    val badge = animateColorAsState(targetColors.badge, TweenSpec(600))
+    val bubbleMe = animateColorAsState(targetColors.bubbleMe, TweenSpec(600))
+    val more = animateColorAsState(targetColors.more, TweenSpec(600))
+    val chatPageBgAlpha = animateFloatAsState(targetColors.chatPageBgAlpha, TweenSpec(600))
+
+    val colors = WeComposeColors(
+        bottomBar = bottomBar.value,
+        background = background.value,
+        divider = chatListDivider.value,
+        chatPage = chatPage.value,
+        textPrimary = textPrimary.value,
+        textPrimaryMe = textPrimaryMe.value,
+        textSecondary = textSecondary.value,
+        onBackground = onBackground.value,
+        icon = icon.value,
+        iconCurrent = iconCurrent.value,
+        badge = badge.value,
+        bubbleMe = bubbleMe.value,
+        more = more.value,
+        chatPageBgAlpha = chatPageBgAlpha.value,
+    )
+    CompositionLocalProvider(LocalWeComposeColors provides colors) {
+        MaterialTheme(colorScheme = lightColorScheme(), shapes = shapes, content = content, typography = Typography)
+    }
+}
