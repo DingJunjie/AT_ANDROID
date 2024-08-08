@@ -6,7 +6,7 @@ import com.bitat.Local
 
 data class VideoParams(val width: Int, val height: Int, val duration: Int)
 
-class VideoUtils {
+object VideoUtils {
 
     fun getParams(uri: Uri): VideoParams = MediaMetadataRetriever().use {
         it.setDataSource(Local.ctx, uri)
@@ -22,14 +22,14 @@ class VideoUtils {
     fun getCover(path: String, time: Long = 0): Uri {
         val retriever = MediaMetadataRetriever();
         retriever.setDataSource(path)
-    
+
         val firstFrame = retriever.getFrameAtTime(time)
         retriever.release()
-    
+
         val bmPath = saveBitmap(firstFrame!!, path)
         return Uri.parse(bmPath)
-    
-    //    return firstFrame
+
+        //    return firstFrame
     }
 
 }

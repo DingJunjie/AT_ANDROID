@@ -24,7 +24,7 @@ import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
 import com.bitat.utils.FileType
 import com.bitat.utils.QiNiuUtil
-import com.bitat.utils.getCover
+import com.bitat.utils.VideoUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -151,7 +151,7 @@ class PublishViewModel : ViewModel() {
 
     fun addVideo(path: Uri) {
         MainCo.launch {
-            val cover = getCover(path.toString())
+            val cover = VideoUtils.getCover(path.toString())
             mediaState.update {
                 it.copy(localVideo = path, localCover = cover)
             }
@@ -291,7 +291,7 @@ class PublishViewModel : ViewModel() {
     }
 
     fun locationUpdate(point: LatLonPoint, addName: String) {
-        CuLog.debug(CuTag.Publish,"获取到定位$addName,${point.latitude}")
+        CuLog.debug(CuTag.Publish, "获取到定位$addName,${point.latitude}")
         commonState.update {
             it.copy(longitude = point.longitude, latitude = point.latitude, location = addName)
         }

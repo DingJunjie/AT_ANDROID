@@ -1,5 +1,7 @@
 package com.bitat.utils
 
+
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.bitat.Local
@@ -54,13 +56,20 @@ object ImageUtils {
         }
     }
 
-    fun getParams(uri: Uri): ImageParams = MediaMetadataRetriever().use {
-        it.setDataSource(uri)
+    fun getParams(uri: Uri): ImageParams {
+        val retriever = MediaMetadataRetriever();
+        retriever.setDataSource(uri.path)
+
         val width =
-            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
         val height =
-            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)?.toInt() ?: 0
-        ImageParams(width, height)
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)?.toInt()
+                ?: 0
+
+        retriever.release()
+
+        return ImageParams(width = width, height = height)
     }
 
 }
+

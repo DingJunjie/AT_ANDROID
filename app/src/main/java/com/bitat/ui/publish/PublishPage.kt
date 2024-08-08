@@ -54,6 +54,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.router.NavigationItem
+import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.component.rememberDialogState
 import com.bitat.viewModel.PublishViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -75,12 +76,14 @@ import kotlin.coroutines.suspendCoroutine
 fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val permissionState = rememberMultiplePermissionsState(permissions = listOf(
-        android.Manifest.permission.CAMERA,
-        android.Manifest.permission.RECORD_AUDIO, //            android.Manifest.permission.READ_MEDIA_AUDIO,
-        //            android.Manifest.permission.READ_MEDIA_VIDEO,
-        //            android.Manifest.permission.READ_MEDIA_IMAGES,
-    ))
+    val permissionState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO, //            android.Manifest.permission.READ_MEDIA_AUDIO,
+            //            android.Manifest.permission.READ_MEDIA_VIDEO,
+            //            android.Manifest.permission.READ_MEDIA_IMAGES,
+        )
+    )
 
     val vm = viewModelProvider[PublishViewModel::class]
     val mediaState by vm.mediaState.collectAsState()
@@ -111,9 +114,11 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
     }
 
     LaunchedEffect(previewView) {
-        videoCapture.value = context.createVideoCaptureUseCase(lifecycleOwner,
+        videoCapture.value = context.createVideoCaptureUseCase(
+            lifecycleOwner,
             cameraSelector = cameraSelector.value,
-            previewView)
+            previewView
+        )
     }
 
     lifecycleOwner.lifecycleScope.launch {
@@ -139,40 +144,44 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
             )
 
             Box(
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
                     .pointerInput(Unit) {
                         detectTapGestures(onLongPress = {
                             if (!recordingStarted.value) {
                                 videoCapture.value?.let { videoCapture ->
                                     recordingStarted.value = true
-                                    val mediaDir = context.externalCacheDirs.firstOrNull()?.let {
-                                        File(it, "at").apply { mkdirs() }
-                                    }
+                                    val mediaDir = context.externalCacheDirs
+                                        .firstOrNull()
+                                        ?.let {
+                                            File(it, "at").apply { mkdirs() }
+                                        }
 
-                                        recording = startRecordingVideo(
-                                            context = context,
-                                            filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
-                                            videoCapture = videoCapture,
-                                            outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
-                                            executor = context.mainExecutor,
-                                            audioEnabled = audioEnabled.value
-                                        ) { event ->
-                                            if (event is VideoRecordEvent.Finalize) {
-                                                val uri = event.outputResults.outputUri
-                                                if (uri != Uri.EMPTY) {
-                                                    val uriEncoded = URLEncoder.encode(
-                                                        uri.toString(),
-                                                        StandardCharsets.UTF_8.toString()
-                                                    )
-                                                    vm.addVideo(uri)
+                                    recording = startRecordingVideo(
+                                        context = context,
+                                        filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
+                                        videoCapture = videoCapture,
+                                        outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
+                                        executor = context.mainExecutor,
+                                        audioEnabled = audioEnabled.value
+                                    ) { event ->
+                                        if (event is VideoRecordEvent.Finalize) {
+                                            val uri = event.outputResults.outputUri
+                                            if (uri != Uri.EMPTY) {
+                                                val uriEncoded = URLEncoder.encode(
+                                                    uri.toString(),
+                                                    StandardCharsets.UTF_8.toString()
+                                                )
+                                                vm.addVideo(uri)
 //                                        navHostController.navigate("${Route.VIDEO_PREVIEW}/$uriEncoded")
-                                                    navHostController.navigate(NavigationItem.VideoDisplay.route)
-                                                }
+                                                navHostController.navigate(NavigationItem.VideoDisplay.route)
                                             }
                                         }
                                     }
                                 }
-                            },
+                            }
+                        },
                             onTap = {
                                 if (!recordingStarted.value) {
                                     val mediaDir =
@@ -199,33 +208,17 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                                     recordingStarted.value = false
                                     recording?.stop()
                                 }
-                            }
-                        }, onTap = {
-                            if (!recordingStarted.value) {
-                                val mediaDir = context.externalCacheDirs.firstOrNull()?.let {
-                                    File(it, "at").apply { mkdirs() }
-                                } // 拍照
-                                takePhoto(context,
-                                    filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
-                                    imageCapture,
-                                    outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
-                                    executor = context.mainExecutor,
-                                    onError = {},
-                                    onImageCaptured = { uri ->
-                                        vm.addPicture(listOf(uri))
-                                        navHostController.navigate(NavigationItem.PublishDetail.route)
-                                    })
-                            } else {
-                                recordingStarted.value = false
-                                recording?.stop()
-                            }
-                        })
+
+
+                            })
                     },
 
                 ) {
-                Icon(painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
+                Icon(
+                    painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
                     contentDescription = "",
-                    modifier = Modifier.size(64.dp))
+                    modifier = Modifier.size(64.dp)
+                )
             }
 
             Surface(
@@ -255,14 +248,20 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                         else CameraSelector.DEFAULT_BACK_CAMERA
                     lifecycleOwner.lifecycleScope.launch {
                         videoCapture.value =
-                            context.createVideoCaptureUseCase(lifecycleOwner = lifecycleOwner,
+                            context.createVideoCaptureUseCase(
+                                lifecycleOwner = lifecycleOwner,
                                 cameraSelector = cameraSelector.value,
-                                previewView = previewView)
+                                previewView = previewView
+                            )
                     }
-                }, modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 32.dp)) {
-                    Icon(painter = painterResource(R.drawable.nav_homed),
+                }, modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 32.dp)) {
+                    Icon(
+                        painter = painterResource(R.drawable.nav_homed),
                         contentDescription = "",
-                        modifier = Modifier.size(64.dp))
+                        modifier = Modifier.size(64.dp)
+                    )
                 }
             }
         }
@@ -316,16 +315,22 @@ fun CameraPreview(
     val videoCapture: MutableState<VideoCapture<Recorder>?> = remember { mutableStateOf(null) }
 
     LaunchedEffect(previewView) {
-        videoCapture.value = context.createVideoCaptureUseCase(lifecycleOwner = lifecycleOwner,
+        videoCapture.value = context.createVideoCaptureUseCase(
+            lifecycleOwner = lifecycleOwner,
             cameraSelector = cameraSelector.value,
-            previewView = previewView)
+            previewView = previewView
+        )
     }
 
     AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
-suspend fun Context.createVideoCaptureUseCase(lifecycleOwner: LifecycleOwner, cameraSelector: CameraSelector, previewView: PreviewView): VideoCapture<Recorder> {
+suspend fun Context.createVideoCaptureUseCase(
+    lifecycleOwner: LifecycleOwner,
+    cameraSelector: CameraSelector,
+    previewView: PreviewView
+): VideoCapture<Recorder> {
     val preview =
         Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
 
@@ -361,8 +366,10 @@ fun takePhoto(
     onError: (ImageCaptureException) -> Unit,
     onImageCaptured: (Uri) -> Unit,
 ) {
-    val photoFile = File(outputDirectory,
-        SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".jpg")
+    val photoFile = File(
+        outputDirectory,
+        SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".jpg"
+    )
 
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
@@ -380,9 +387,19 @@ fun takePhoto(
 }
 
 
-fun startRecordingVideo(context: Context, filenameFormat: String, videoCapture: VideoCapture<Recorder>, outputDirectory: File, executor: Executor, audioEnabled: Boolean, consumer: Consumer<VideoRecordEvent>): Recording {
-    val videoFile = File(outputDirectory,
-        SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".mp4")
+fun startRecordingVideo(
+    context: Context,
+    filenameFormat: String,
+    videoCapture: VideoCapture<Recorder>,
+    outputDirectory: File,
+    executor: Executor,
+    audioEnabled: Boolean,
+    consumer: Consumer<VideoRecordEvent>
+): Recording {
+    val videoFile = File(
+        outputDirectory,
+        SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".mp4"
+    )
 
     val outputOptions = FileOutputOptions.Builder(videoFile).build()
 
