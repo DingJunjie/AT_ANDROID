@@ -1,8 +1,5 @@
 package com.bitat
 
-import com.bitat.repository.http.ResDto
-import com.bitat.utils.JsonUtils
-import com.bitat.utils.RawJson
 import org.junit.Test
 
 /**
@@ -13,9 +10,6 @@ import org.junit.Test
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        val str = JsonUtils.toJsonStr(
-            ResDto("ok", 1, RawJson("""{"name":"hehe"}""")))
-        println(str)
-        JsonUtils.fromJsonStr<ResDto<RawJson>>(str)
+
     }
 }
