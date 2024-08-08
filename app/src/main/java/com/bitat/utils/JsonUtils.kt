@@ -24,13 +24,3 @@ object JsonUtils {
         Json.encodeToStream(data, it)
     }.toByteArray()
 }
-
-object RawJsonSerializer : KSerializer<RawJson> {
-    override val descriptor = buildClassSerialDescriptor("RawJson")
-
-    override fun serialize(encoder: Encoder, value: RawJson) = encoder.encodeString(value.json)
-
-    override fun deserialize(decoder: Decoder) = RawJson(decoder.decodeString())
-}
-
-class RawJson(val json: String)
