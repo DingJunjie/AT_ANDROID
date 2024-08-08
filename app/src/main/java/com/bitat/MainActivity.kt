@@ -26,21 +26,19 @@ import com.bitat.ui.theme.WeComposeTheme
 import com.bitat.utils.ScreenUtils
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import com.qiniu.android.storage.GlobalConfiguration as QiniuCfg
 
 val MainCo = MainScope()
+
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         //        window.setDecorFitsSystemWindows(false)
-
         //设置全屏显示
         enableEdgeToEdge()
         setContent {
             CuLog.level = CuLog.DEBUG
-            QiniuCfg.appContext = LocalContext.current
             BaseStore.init(LocalContext.current) //
             // SqlDB.init(this)
             ScreenUtils.init(LocalConfiguration.current) ////         DisposableEffect(Unit) {
@@ -59,11 +57,9 @@ class MainActivity : ComponentActivity() {
                 AtNavigation(navController)
             }
             WeComposeTheme {
-                AppNavHost(
-                    navController,
+                AppNavHost(navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
             }
         }
 

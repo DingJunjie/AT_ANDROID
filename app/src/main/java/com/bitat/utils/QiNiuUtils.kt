@@ -1,6 +1,7 @@
 package com.bitat.utils
 
 import android.net.Uri
+import com.bitat.Local
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.store.UserStore
@@ -51,7 +52,12 @@ object QiNiuUtil {
             cd.complete(info.isOK)
         }
         when (file) {
-            is Uri -> uploadManager.put(file, null, upKey, token, completionFn, options)
+            is Uri -> uploadManager.put(file,
+                Local.ctx?.contentResolver,
+                upKey,
+                token,
+                completionFn,
+                options)
             is ByteArray -> uploadManager.put(file, upKey, token, completionFn, options)
             is String -> uploadManager.put(file, upKey, token, completionFn, options)
             is File -> uploadManager.put(file, upKey, token, completionFn, options)

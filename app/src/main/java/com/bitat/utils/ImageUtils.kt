@@ -3,6 +3,7 @@ package com.bitat.utils
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import com.bitat.Local
 import kotlin.math.abs
 
 data class ImageParams(val width: Int, val height: Int)
@@ -41,11 +42,9 @@ object ImageUtils {
             } else {
                 fixedWidth;
             }
-        } else if (x == y) {
-            // 正方形
+        } else if (x == y) { // 正方形
             return fixedWidth;
-        } else {
-            // 竖图
+        } else { // 竖图
             return if (abs(y / x - 16 / 9) < 0.22 || y / x > 16 / 9) {
                 (16f / 9f * fixedWidth).toInt();
             } else if (abs(y / x - 4 / 3) < 0.1) {
@@ -56,8 +55,8 @@ object ImageUtils {
         }
     }
 
-    fun getParams(context: Context, uri: Uri): ImageParams = MediaMetadataRetriever().use {
-        it.setDataSource(context, uri)
+    fun getParams(uri: Uri): ImageParams = MediaMetadataRetriever().use {
+        it.setDataSource(Local.ctx, uri)
         val width =
             it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
         val height =

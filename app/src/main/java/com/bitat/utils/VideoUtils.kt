@@ -1,15 +1,15 @@
 package com.bitat.utils
 
-import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import com.bitat.Local
 
 data class VideoParams(val width: Int, val height: Int, val duration: Int)
 
 class VideoUtils {
 
-    fun getParams(context: Context, uri: Uri): VideoParams = MediaMetadataRetriever().use {
-        it.setDataSource(context, uri)
+    fun getParams(uri: Uri): VideoParams = MediaMetadataRetriever().use {
+        it.setDataSource(Local.ctx, uri)
         val width =
             it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toInt() ?: 0
         val height =

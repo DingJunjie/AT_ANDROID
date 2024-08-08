@@ -30,18 +30,4 @@ data class PublishCommonState(
     val content: String = "",
 )
 
-data class PublishMediaState(
-    val cover: String = "",
-    val localCover: String = "",
-    val vote: Byte = 0,
-    val coCreates: ArrayList<Int> = arrayListOf(),
-    val albumOps: Followable = Followable.None,
-    val albumMember: ArrayList<Int> = arrayListOf(),
-    val followId: Long = -1,
-    val images: ArrayList<String> = arrayListOf(),
-    val localImages: SnapshotStateList<Uri> = mutableStateListOf(),
-    val video: String = "",
-    val localVideo: Uri = Uri.EMPTY,
-    val localAudio: Uri = Uri.EMPTY,
-    val audio: String = ""
-)
+data class PublishMediaState(val cover: String = "", val localCover: String = "", val vote: Byte = 0, val coCreates: ArrayList<Int> = arrayListOf(), val albumOps: Followable = Followable.None, val albumMember: ArrayList<Int> = arrayListOf(), val followId: Long = -1, val images: ArrayList<String> = arrayListOf(), val localImages: SnapshotStateList<Uri> = mutableStateListOf(), val video: String = "", val localVideo: Uri = Uri.EMPTY, val localAudio: Uri = Uri.EMPTY, val audio: String = "")

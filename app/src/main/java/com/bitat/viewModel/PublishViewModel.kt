@@ -3,6 +3,7 @@ package com.bitat.viewModel
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.amap.api.services.core.LatLonPoint
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -60,19 +61,16 @@ class PublishViewModel : ViewModel() {
 
     fun searchTopic(topicKeyWord: String) {
         MainCo.launch {
-            BlogTagReq.find(
-                BlogTagFindDto(
-                    searchWord = topicKeyWord, pageSize = 20, pageNo = 0
-                )
-            ).await().map { res ->
-                commonState.update {
-                    it.tagSearchResult.clear()
-                    it.tagSearchResult.addAll(res)
-                    it
+            BlogTagReq.find(BlogTagFindDto(searchWord = topicKeyWord, pageSize = 20, pageNo = 0))
+                .await().map { res ->
+                    commonState.update {
+                        it.tagSearchResult.clear()
+                        it.tagSearchResult.addAll(res)
+                        it
+                    }
+                }.errMap {
+                    CuLog.error(CuTag.Publish, "get tags error $it")
                 }
-            }.errMap {
-                CuLog.error(CuTag.Publish, "get tags error $it")
-            }
         }
     }
 
@@ -233,8 +231,7 @@ class PublishViewModel : ViewModel() {
         }
     }
 
-    private fun publishText(completeFn: () -> Unit) {
-        //发布逻辑
+    private fun publishText(completeFn: () -> Unit) { //发布逻辑
         MainCo.launch {
             val dto = PublishBlogDto().apply {
                 adCode = commonState.value.adCode
@@ -268,6 +265,13 @@ class PublishViewModel : ViewModel() {
             publishText { completeFn() }
         } else {
             publishMedia { completeFn() }
+        }
+    }
+
+    fun locationUpdate(point: LatLonPoint, addName: String) {
+        CuLog.debug(CuTag.Publish,"获取到定位$addName,${point.latitude}")
+        commonState.update {
+            it.copy(longitude = point.longitude, latitude = point.latitude, location = addName)
         }
     }
 }

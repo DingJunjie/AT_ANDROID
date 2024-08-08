@@ -21,8 +21,6 @@ import com.bitat.log.CuTag
  */
 
 object GaoDeUtils {
-
-
     fun doSearchQuery(ctx: Context, result: (List<PoiItemV2>) -> Unit) {
         val keyWord = ""
         var lp: LatLonPoint? = null
@@ -67,15 +65,18 @@ object GaoDeUtils {
         }
     }
 
-    fun getLocation(ctx: Context, result: (point: LatLonPoint, name: String) -> Unit) { //声明mlocationClient对象
-
+    fun getLocation(ctx: Context, result: (point: LatLonPoint, addName: String) -> Unit) { //声明mlocationClient对象
         val mLocationOption = AMapLocationClientOption() //设置发起定位的模式和相关参数
         val mLocationClient = AMapLocationClient(ctx) //初始化定位参数
-        mLocationClient.setLocationListener { p0 ->
-            CuLog.debug(CuTag.Publish, "获取到定位信息 ${p0?.address}")
-            p0?.let {
-                result(LatLonPoint(it.latitude, it.longitude), it.address) //完成定位后释放对象
-                mLocationClient.onDestroy()
+        mLocationClient.setLocationListener {
+            object : AMapLocationListener {
+                override fun onLocationChanged(p0: AMapLocation?) {
+                    CuLog.debug(CuTag.Publish, "获取到定位${it.address}")
+                    p0?.let {
+                        CuLog.debug(CuTag.Publish, "获取到定位${it.address}")
+                        result(LatLonPoint(it.longitude, it.latitude), it.address)
+                    }
+                }
             }
         } //设置定位模式为 高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy) //设置定位间隔,单位毫秒,默认为2000ms
