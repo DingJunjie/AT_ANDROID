@@ -2,6 +2,8 @@ package  com.bitat.utils
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
@@ -31,4 +33,5 @@ object RawJsonSerializer : KSerializer<RawJson> {
     override fun deserialize(decoder: Decoder) = RawJson(decoder.decodeString())
 }
 
+@Serializable
 class RawJson(val json: String)
