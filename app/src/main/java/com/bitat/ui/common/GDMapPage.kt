@@ -24,7 +24,7 @@ import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolylineOptions
 import com.bitat.R
-import com.bitat.utils.getLocation
+import com.bitat.utils.GaoDeUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -80,9 +80,10 @@ fun GDMapPage() { // 使用 remember 确保 effect 只会在状态改变时执�
 
 
     if (permissionState.allPermissionsGranted) {
-        getLocation(ctx, {
+        GaoDeUtils.getLocation(ctx) { point, name ->
 
-        })
+            //绘制标记点
+        }
         AndroidView(modifier = Modifier.fillMaxSize(), factory = {
             mapView
         }, update = { //            it.onCreate()

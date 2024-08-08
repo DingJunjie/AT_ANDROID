@@ -162,6 +162,9 @@ dependencies {
 
     implementation(libs.lottie.compose)
 
+    implementation(libs.commons.io)
+
+
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
 

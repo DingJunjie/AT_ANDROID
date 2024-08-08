@@ -26,6 +26,7 @@ import com.bitat.ui.blog.BlogPage
 import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
+import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.viewModel.HomeViewModel
 
 /****
@@ -34,13 +35,11 @@ import com.bitat.viewModel.HomeViewModel
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val viewModel: HomeViewModel = viewModel()
-    val tabList = listOf(
-        HomeTabCfg.Home,
+    val tabList = listOf(HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine
-    )
+        HomeTabCfg.Mine)
 
     var selectIndex by remember {
         mutableIntStateOf(0)
@@ -55,25 +54,19 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                     tabList.forEachIndexed { index, tab -> //
                         IconButton(onClick = {
                             selectIndex = index
-                            if (selectIndex == 2) {
-//                                AtNavigation(navController).navigateToPublishDetail()
+                            if (selectIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
                                 AtNavigation(navController).navigateToPublish()
                             }
 
                         }) {
-                            Icon(
-                                if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                                    id = tab.iconUnselect
-                                ),
+                            Icon(if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                                id = tab.iconUnselect),
                                 contentDescription = "",
-                                modifier = Modifier.size(
-                                    when (index) {
-                                        2 -> 60.cdp
-                                        1 -> 50.cdp
-                                        else -> 40.cdp
-                                    }
-                                )
-                            )
+                                modifier = Modifier.size(when (index) {
+                                    2 -> 60.cdp
+                                    1 -> 50.cdp
+                                    else -> 40.cdp
+                                }))
                         }
                     }
                 }
@@ -82,13 +75,9 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     }) { innerPadding ->
 
         when (selectIndex) {
-            0 -> BlogPage(
-                Modifier.padding(innerPadding),
+            0 -> BlogPage(Modifier.padding(innerPadding),
                 navController,
-                viewModelProvider = viewModelProvider
-
-            )
-
+                viewModelProvider = viewModelProvider)
             1 -> DiscoveryPage(navController)
             2 -> { //                PublishTextPage(navController)
                 //                PublishPage(
@@ -96,11 +85,10 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                    viewModelProvider = viewModelProvider
                 //                )
                 //                AtNavigation(navController).navigateToPublishText
+
             }
 
-            3 ->
-                ChatPage(navController)
-//                ChatDetailsPage(navController)
+            3 -> ChatPage(navController)
             4 -> ProfilePage(navController)
         }
     }

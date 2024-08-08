@@ -35,6 +35,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.router.AtNavigation
 import com.bitat.style.FontStyle
+import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.theme.white
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.statusBarHeight
@@ -77,6 +78,7 @@ fun BlogPage(modifier: Modifier,
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
+
                 LazyColumn(modifier = Modifier.fillMaxSize()) { // println("blogState.blogList>>>>>>>>>>>>>>"+vm.blogs.size)
                     items(blogState.blogList) { item -> //Text(item.content)
                         Surface(

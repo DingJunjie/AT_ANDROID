@@ -7,7 +7,6 @@ import kotlinx.serialization.Serializable
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
 
-
 @Serializable
 class PublishBlogDto(
     var albumOps: Long = -1,  //专辑id：-1，自己可跟随,-2:团队可跟随,-3:好友可跟随,-4粉丝可跟 -5所有人可跟随, 0：无操作 >0 跟随专辑id

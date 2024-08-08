@@ -5,7 +5,6 @@ import com.amap.api.services.core.PoiItemV2
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.state.PoiDLState
-import com.bitat.utils.doSearchQuery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 

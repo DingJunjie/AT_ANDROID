@@ -9,12 +9,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.bitat.ui.common.CarmeraOpen
 import com.bitat.viewModel.ChatDetailsViewModel
 
 /**
@@ -35,6 +37,10 @@ fun ChatDetailsPage(navHostController: NavHostController) {
 
         Button(onClick = { vm.sendClick(statte.chatMsg) }) {
             Text("发送")
+        }
+
+
+        LaunchedEffect(Unit) { //            CarmeraOpen()
         }
 
     }

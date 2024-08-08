@@ -103,7 +103,6 @@ fun AppNavHost(
 
         composable(NavigationItem.GDMap.route) {
             GDMapPage()
-
         }
     }
 }
