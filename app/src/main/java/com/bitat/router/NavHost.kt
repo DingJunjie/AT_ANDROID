@@ -14,13 +14,15 @@ import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.ProfilePage
+import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.ui.publish.PublishPage
+import com.bitat.ui.publish.VideoDisplay
 import com.bitat.ui.reel.ReelPageDemo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 enum class Screen {
-    LOGIN, HOME, DISCOVERY, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GDMAP
+    LOGIN, HOME, DISCOVERY, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GDMAP, PICTURE_DISPLAY, VIDEO_DISPLAY
 }
 
 sealed class NavigationItem(val route: String) {
@@ -37,6 +39,8 @@ sealed class NavigationItem(val route: String) {
     data object ChatDetails : NavigationItem(Screen.CHAT_DETAIL.name)
     data object ReelPageDemo : NavigationItem(Screen.REEL_PAGE_DEMO.name)
     data object GDMap : NavigationItem(Screen.GDMAP.name)
+    data object PictureDisplay : NavigationItem(Screen.PICTURE_DISPLAY.name)
+    data object VideoDisplay : NavigationItem(Screen.VIDEO_DISPLAY.name)
 }
 
 
@@ -98,11 +102,18 @@ fun AppNavHost(
 
         composable(NavigationItem.ChatDetails.route) {
             ChatDetailsPage(navController)
-
         }
 
         composable(NavigationItem.GDMap.route) {
             GDMapPage()
+        }
+
+        composable(NavigationItem.PictureDisplay.route) {
+            PictureDisplay(navController, viewModelProvider)
+        }
+
+        composable(NavigationItem.VideoDisplay.route) {
+            VideoDisplay(navController, viewModelProvider)
         }
     }
 }

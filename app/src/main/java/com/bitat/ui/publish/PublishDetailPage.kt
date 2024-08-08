@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -167,7 +168,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     },
                     addPicture = {
                         vm.addPicture(it)
-                    })
+                    }, coverPath = mediaState.localCover
+                )
                 InputBox(hasMedia = mediaState.localImages.isNotEmpty(),
                     content = commonState.content,
                     addPicture = { vm.addPicture(it) },
@@ -286,10 +288,22 @@ fun TopBar(backTapFn: () -> Unit) {
 }
 
 @Composable
-fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: (List<Uri>) -> Unit) {
-    Row(Modifier.fillMaxWidth()) {
-        LazyRow(Modifier //                .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 10.dp), contentPadding = PaddingValues(start = 15.dp)) {
+fun MediaBox(
+    pictureList: List<Uri>,
+    selectUri: (Uri) -> Unit,
+    addPicture: (List<Uri>) -> Unit,
+    coverPath: Uri? = null
+) {
+    Row(
+        Modifier.fillMaxWidth()
+    ) {
+        if (coverPath != null) VideoBox(coverPath) {}
+        LazyRow(
+            Modifier
+//                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 10.dp),
+            contentPadding = PaddingValues(start = 15.dp)
+        ) {
             items(pictureList.size) { index ->
                 PictureBox(uri = pictureList[index], tapFn = {
                     selectUri(it)
@@ -323,20 +337,39 @@ fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
 }
 
 @Composable
-fun InputBox(hasMedia: Boolean = false, content: String, addPicture: (List<Uri>) -> Unit, updateContent: (String) -> Unit) { //    OutlinedTextField(modifier = Modifier
-    //        .fillMaxWidth()
-    //        .padding(5.dp),
-    //        colors = OutlinedTextFieldDefaults.colors(
-    //            unfocusedContainerColor = Color.Transparent,
-    //            unfocusedBorderColor = Color.Transparent,
-    //            focusedBorderColor = Color.Transparent,
-    //            unfocusedLabelColor = Color.LightGray
-    //        ),
-    //        value = title,
-    //        label = { Text(text = "标题: (填写)") },
-    //        onValueChange = {
-    //            updateTitle(it)
-    //        })
+fun VideoBox(uri: Uri, tapFn: (Uri) -> Unit) {
+    Surface(shape = RoundedCornerShape(10.dp),
+        modifier = Modifier
+            .width(60.dp)
+            .height(80.dp)
+            .padding(5.dp)
+            .clickable { tapFn(uri) }) {
+        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
+        Icon(Icons.Filled.PlayArrow, contentDescription = "")
+    }
+}
+
+@Composable
+fun InputBox(
+    hasMedia: Boolean = false,
+    content: String,
+    addPicture: (List<Uri>) -> Unit,
+    updateContent: (String) -> Unit
+) {
+//    OutlinedTextField(modifier = Modifier
+//        .fillMaxWidth()
+//        .padding(5.dp),
+//        colors = OutlinedTextFieldDefaults.colors(
+//            unfocusedContainerColor = Color.Transparent,
+//            unfocusedBorderColor = Color.Transparent,
+//            focusedBorderColor = Color.Transparent,
+//            unfocusedLabelColor = Color.LightGray
+//        ),
+//        value = title,
+//        label = { Text(text = "标题: (填写)") },
+//        onValueChange = {
+//            updateTitle(it)
+//        })
 
     Column(
 
