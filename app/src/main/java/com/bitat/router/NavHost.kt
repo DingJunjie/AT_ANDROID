@@ -133,6 +133,12 @@ class AtNavigation(navController: NavHostController) {
         navController.navigate((NavigationItem.BlogDetail.route))
     }
 
+    val navigateToPublish: () -> Unit = {
+        navController.navigate((NavigationItem.Publish.route)) {
+
+        }
+    }
+
     val navigateToPublishDetail: () -> Unit = {
 
         navController.navigate((NavigationItem.PublishDetail.route)) {

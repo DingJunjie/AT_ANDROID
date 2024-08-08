@@ -34,11 +34,13 @@ import com.bitat.viewModel.HomeViewModel
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val viewModel: HomeViewModel = viewModel()
-    val tabList = listOf(HomeTabCfg.Home,
+    val tabList = listOf(
+        HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine)
+        HomeTabCfg.Mine
+    )
 
     var selectIndex by remember {
         mutableIntStateOf(0)
@@ -54,17 +56,24 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                         IconButton(onClick = {
                             selectIndex = index
                             if (selectIndex == 2) {
-                                AtNavigation(navController).navigateToPublishDetail()
+//                                AtNavigation(navController).navigateToPublishDetail()
+                                AtNavigation(navController).navigateToPublish()
                             }
+
                         }) {
-                            Icon(if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                                id = tab.iconUnselect),
+                            Icon(
+                                if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                                    id = tab.iconUnselect
+                                ),
                                 contentDescription = "",
-                                modifier = Modifier.size(when (index) {
-                                    2 -> 60.cdp
-                                    1 -> 50.cdp
-                                    else -> 40.cdp
-                                }))
+                                modifier = Modifier.size(
+                                    when (index) {
+                                        2 -> 60.cdp
+                                        1 -> 50.cdp
+                                        else -> 40.cdp
+                                    }
+                                )
+                            )
                         }
                     }
                 }
@@ -73,7 +82,8 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     }) { innerPadding ->
 
         when (selectIndex) {
-            0 -> BlogPage(Modifier.padding(innerPadding),
+            0 -> BlogPage(
+                Modifier.padding(innerPadding),
                 navController,
                 viewModelProvider = viewModelProvider
 
@@ -89,7 +99,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
             }
 
             3 ->
-                                ChatPage(navController)
+                ChatPage(navController)
 //                ChatDetailsPage(navController)
             4 -> ProfilePage(navController)
         }
