@@ -40,12 +40,15 @@ quicklogin = "3.4.3"
 qiniuAndroidSdk = "8.7.0"
 okhttp = "4.12.0"
 material3Android = "1.2.1"
+junitJunit = "4.13.2"
+junitKtx = "1.2.1"
 
 
 [libraries]
 #noinspection SimilarGradleDependency
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" } # 支持kotlin
 
+#noinspection SimilarGradleDependency
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -104,6 +107,8 @@ quicklogin = { module = "io.github.yidun:quicklogin", version.ref = "quicklogin"
 qiniu-android-sdk = { module = "com.qiniu:qiniu-android-sdk", version.ref = "qiniuAndroidSdk" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 #三方库
 [plugins]

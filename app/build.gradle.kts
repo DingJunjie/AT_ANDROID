@@ -109,6 +109,8 @@ dependencies {
     // Feature module Support
     implementation(libs.androidx.navigation.dynamic.features.fragment)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.junit.junit)
 
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)

@@ -33,5 +33,4 @@ object RawJsonSerializer : KSerializer<RawJson> {
     override fun deserialize(decoder: Decoder) = RawJson(decoder.decodeString())
 }
 
-@Serializable
 class RawJson(val json: String)
