@@ -80,7 +80,7 @@ fun GDMapPage() { // 使用 remember 确保 effect 只会在状态改变时执�
 
 
     if (permissionState.allPermissionsGranted) {
-        GaoDeUtils.getLocation(ctx) { point, name ->
+        GaoDeUtils.getLocation() { point, name ->
 
             //绘制标记点
         }
