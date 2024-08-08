@@ -2,22 +2,22 @@ package com.bitat.utils
 
 import kotlin.math.abs
 
-data class ImgSize(val width: Int, val height: Int)
+data class ImageParam(val width: Int, val height: Int)
 
 object ImageUtils {
 
     private val regex = """x_(\d+)&y_(\d+)""".toRegex()
 
-    fun getSizeFromUrl(url: String): ImgSize {
+    fun getSizeFromUrl(url: String): ImageParam {
 
         val matchResult = regex.find(url)
 
         if (matchResult != null) {
             val (x, y) = matchResult.destructured
-            return ImgSize(width = x.toInt(), height = y.toInt())
+            return ImageParam(width = x.toInt(), height = y.toInt())
         } else {
             println("No match found")
-            return ImgSize(0, 0)
+            return ImageParam(0, 0)
         }
     }
 
@@ -60,7 +60,7 @@ object ImageUtils {
     }
 
     fun getResourceImageHeight(
-        size: ImgSize,
+        size: ImageParam,
         fixedWidth: Int,
     ): Int {
         if (size.height == 0 || size.width == 0 || fixedWidth == 0) {
@@ -98,7 +98,7 @@ object ImageUtils {
      */
 
     fun getResourceHeight(
-        size: ImgSize,
+        size: ImageParam,
         fixedWidth: Int,
     ): Int {
         val (x, y) = size;
