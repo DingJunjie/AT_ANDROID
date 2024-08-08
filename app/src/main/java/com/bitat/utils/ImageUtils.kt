@@ -11,7 +11,7 @@ object ImageUtils {
 
     private val regex = """x_(\d+)&y_(\d+)""".toRegex()
 
-    fun getParamFromUrl(url: String): ImageParams {
+    fun getParamsFromUrl(url: String): ImageParams {
 
         val matchResult = regex.find(url)
 

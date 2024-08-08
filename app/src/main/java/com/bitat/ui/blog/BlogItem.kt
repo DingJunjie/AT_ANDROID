@@ -179,7 +179,7 @@ fun getHeight(item: BlogBaseDto): Int {
             item.cover.ifEmpty { item.resource.images.first() }
         // 获得屏幕的宽度
         val imageMaxWidth = (ScreenUtils.screenWidth * 0.88).toInt()
-        val resSize = ImageUtils.getParamFromUrl(firstImageUrl)
+        val resSize = ImageUtils.getParamsFromUrl(firstImageUrl)
         height = ImageUtils.getHeight(resSize, imageMaxWidth)
     }
     return height
