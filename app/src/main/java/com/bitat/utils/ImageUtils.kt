@@ -1,6 +1,5 @@
 package com.bitat.utils
 
-import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.bitat.Local
