@@ -5,8 +5,10 @@ import kotlin.math.abs
 data class ImgSize(val width: Int, val height: Int)
 
 object ImageUtils {
+
+    private val regex = """x_(\d+)&y_(\d+)""".toRegex()
+
     fun getSizeFromUrl(url: String): ImgSize {
-        val regex = """x_(\d+)&y_(\d+)""".toRegex()
 
         val matchResult = regex.find(url)
 
@@ -24,7 +26,6 @@ object ImageUtils {
         fixedWidth: Double,
     ): Double {
         // type 在博文专辑中使用时，调整长图比例
-        val regex = """x_(\d+)&y_(\d+)""".toRegex();
         val matchResult = regex.find(url)
 
         if (matchResult != null) {
@@ -111,24 +112,24 @@ object ImageUtils {
         var height = y;
 
         if (x > y) {
-            if (abs(y / x - 9 / 16) < 0.1 || y / x < 9 / 16) {
-                height = (0.75 * fixedWidth).toInt();
+            height = if (abs(y / x - 9 / 16) < 0.1 || y / x < 9 / 16) {
+                (0.75 * fixedWidth).toInt();
             } else if (abs(y / x - 0.75) < 0.1) {
-                height = (0.75 * fixedWidth).toInt();
+                (0.75 * fixedWidth).toInt();
             } else {
-                height = fixedWidth;
+                fixedWidth;
             }
         } else if (x == y) {
             // 正方形
             height = fixedWidth;
         } else {
             // 竖图
-            if (abs(y / x - 16 / 9) < 0.22 || y / x > 16 / 9) {
-                height = (16f / 9f * fixedWidth).toInt();
+            height = if (abs(y / x - 16 / 9) < 0.22 || y / x > 16 / 9) {
+                (16f / 9f * fixedWidth).toInt();
             } else if (abs(y / x - 4 / 3) < 0.1) {
-                height = (4 / 3 * fixedWidth).toInt();
+                (4 / 3 * fixedWidth);
             } else {
-                height = (4 / 3 * fixedWidth).toInt();
+                (4 / 3 * fixedWidth);
             }
         }
         return height
