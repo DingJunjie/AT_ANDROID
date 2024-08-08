@@ -1,31 +1,34 @@
 package com.bitat.utils
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import kotlin.math.abs
 
-data class ImageParam(val width: Int, val height: Int)
+data class ImageParams(val width: Int, val height: Int)
 
 object ImageUtils {
 
     private val regex = """x_(\d+)&y_(\d+)""".toRegex()
 
-    fun getSizeFromUrl(url: String): ImageParam {
+    fun getParamFromUrl(url: String): ImageParams {
 
         val matchResult = regex.find(url)
 
         if (matchResult != null) {
             val (x, y) = matchResult.destructured
-            return ImageParam(width = x.toInt(), height = y.toInt())
+            return ImageParams(width = x.toInt(), height = y.toInt())
         } else {
             println("No match found")
-            return ImageParam(0, 0)
+            return ImageParams(0, 0)
         }
     }
 
-    fun getResourceHeight(
-        size: ImageParam,
+    fun getHeight(
+        param: ImageParams,
         fixedWidth: Int,
     ): Int {
-        val (x, y) = size;
+        val (x, y) = param;
         if (x == 0 || y == 0 || fixedWidth == 0) {
             return (ScreenUtils.screenWidth * 0.88 * 1.25).toInt()
         }
@@ -52,4 +55,14 @@ object ImageUtils {
             }
         }
     }
+
+    fun getParams(context: Context, uri: Uri): ImageParams = MediaMetadataRetriever().use {
+        it.setDataSource(context, uri)
+        val width =
+            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
+        val height =
+            it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)?.toInt() ?: 0
+        ImageParams(width, height)
+    }
+
 }
