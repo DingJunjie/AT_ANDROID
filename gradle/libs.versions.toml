@@ -25,7 +25,7 @@ material = "1.6.8"
 protobufKotlin = "4.27.3"
 activity-compose = "1.9.1"
 
-kotlinx-serialization-json = "1.6.3"
+kotlinx-serialization-json = "1.7.1"
 kotlinx-serialization = "2.0.0"
 lifecycle-runtime-compose-android = "2.8.4"
 accompanist-permissions = "0.34.0"
