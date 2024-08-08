@@ -69,14 +69,13 @@ object GaoDeUtils {
     fun getLocation(result: (point: LatLonPoint, addName: String) -> Unit) { //声明mlocationClient对象
         val mLocationOption = AMapLocationClientOption() //设置发起定位的模式和相关参数
         val mLocationClient = AMapLocationClient(Local.ctx) //初始化定位参数
-        mLocationClient.setLocationListener {
-            AMapLocationListener { p0 ->
+        mLocationClient.setLocationListener { p0 ->
+            CuLog.debug(CuTag.Publish, "获取到定位${p0.address}")
+            p0?.let {
                 CuLog.debug(CuTag.Publish, "获取到定位${it.address}")
-                p0?.let {
-                    CuLog.debug(CuTag.Publish, "获取到定位${it.address}")
-                    result(LatLonPoint(it.longitude, it.latitude), it.address)
-                }
+                result(LatLonPoint(it.longitude, it.latitude), it.address)
             }
+
         } //设置定位模式为 高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy) //设置定位间隔,单位毫秒,默认为2000ms
         // 注意设置合适的定位时间的间隔（最小间隔支持为1000ms），并且在合适时间调用stopLocation()方法来取消定位请求

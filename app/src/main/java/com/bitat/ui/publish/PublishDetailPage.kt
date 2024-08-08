@@ -1,5 +1,6 @@
 package com.bitat.ui.publish
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -44,6 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -65,21 +68,29 @@ import com.bitat.ext.clickableWithoutRipple
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.resp.BlogTagDto
+import com.bitat.router.AtNavigation
 import com.bitat.ui.common.CarmeraOpen
+import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.BackButton
+import com.bitat.utils.GaoDeUtils
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.PublishViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.melody.dialog.any_pop.AnyPopDialog
 import com.melody.dialog.any_pop.AnyPopDialogProperties
 import com.melody.dialog.any_pop.DirectionState
 
 enum class PublishTextOption {
-    Topic, At, Follow, Font, Visibility, None, Media
+    Topic, At, Follow, Font, Visibility, None, Media, Location
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalPermissionsApi::class
+)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
@@ -91,6 +102,14 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     var option by remember {
         mutableStateOf(PublishTextOption.None)
     }
+
+    val permissionState =
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
 
     val selectedUri = remember {
         mutableStateOf(Uri.EMPTY)
@@ -135,7 +154,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 })
             }
 
-            else -> Text("hahaha")
+            else ->
+                Text("hahaha")
+
+
         }
     }
 
@@ -145,11 +167,13 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         if (option == opt) {
             option = PublishTextOption.None
             showTopicDialog = false
-        } else {
+        }  else {
             option = opt
             showTopicDialog = true
         }
     }
+
+
 
     Scaffold(topBar = {
         TopBar(backTapFn = {
@@ -157,110 +181,129 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         })
     }, modifier = Modifier.fillMaxSize()) { padding ->
         Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.padding(padding) //                    .fillMaxHeight()
-            ) {
-                if (mediaState.localImages.isNotEmpty() || mediaState.localCover != Uri.EMPTY) MediaBox(
-                    mediaState.localImages,
-                    selectUri = {
-                        selectedUri.value = it
-                        option = PublishTextOption.Media
-                        showTopicDialog = true
-                    },
-                    addPicture = {
-                        vm.addPicture(it)
-                    },
-                    coverPath = mediaState.localCover
-                )
-                InputBox(hasMedia = mediaState.localImages.isNotEmpty(),
-                    content = commonState.content,
-                    addPicture = { vm.addPicture(it) },
-                    updateContent = { vm.onContentChange(it) })
+            if (permissionState.allPermissionsGranted) {
+
+                Column(
+                    modifier = Modifier.padding(padding) //                    .fillMaxHeight()
+                ) {
+
+
+                    if (mediaState.localImages.isNotEmpty() || mediaState.localCover != Uri.EMPTY) MediaBox(
+                        mediaState.localImages,
+                        selectUri = {
+                            selectedUri.value = it
+                            option = PublishTextOption.Media
+                            showTopicDialog = true
+                        },
+                        addPicture = {
+                            vm.addPicture(it)
+                        },
+                        coverPath = mediaState.localCover
+                    )
+                    InputBox(hasMedia = mediaState.localImages.isNotEmpty(),
+                        content = commonState.content,
+                        addPicture = { vm.addPicture(it) },
+                        updateContent = { vm.onContentChange(it) })
+
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.padding(start = 20.dp)
+                    ) {
+                        Options(title = stringResource(id = R.string.publish_option_topic),
+                            iconPath = "svg/topic.svg",
+                            selected = option == PublishTextOption.Topic,
+                            tapFn = {
+                                tapOption(PublishTextOption.Topic)
+                            })
+
+                        Options(title = stringResource(id = R.string.publish_option_at),
+                            iconPath = "svg/at.svg",
+                            selected = option == PublishTextOption.At,
+                            modifier = Modifier.size(18.dp),
+                            tapFn = {
+                                tapOption(PublishTextOption.At)
+                            })
+
+                        Options(title = if (commonState.location == "") stringResource(id = R.string.publish_location_add) else commonState.location,
+                            iconPath = "svg/location_line.svg",
+                            selected = option == PublishTextOption.Location,
+                            modifier = Modifier.size(18.dp),
+                            tapFn = {
+//                                tapOption(PublishTextOption.Location)
+
+                                GaoDeUtils.getLocation() { point, name ->
+                                    vm.locationUpdate(point, name)
+
+                                }
+//                                showTopicDialog = false;
+//                                option = PublishTextOption.None
+
+                            })
+                    }
+
+                    HorizontalDivider(
+                        color = Color(0xffeeeeee),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 30.dp)
+                    )
+
+                    //                Spacer(modifier = Modifier.height(2.dp))
+
+                    Follow() {
+                        tapOption(PublishTextOption.Follow)
+                    }
+
+                    VisibilityRow(commonState.visibility) {
+                        tapOption(PublishTextOption.Visibility)
+                    }
+                }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier.padding(start = 20.dp)
-                ) {
-                    Options(title = stringResource(id = R.string.publish_option_topic),
-                        iconPath = "svg/topic.svg",
-                        selected = option == PublishTextOption.Topic,
-                        tapFn = {
-                            tapOption(PublishTextOption.Topic)
-                        })
-
-                    Options(title = stringResource(id = R.string.publish_option_at),
-                        iconPath = "svg/at.svg",
-                        selected = option == PublishTextOption.At,
-                        modifier = Modifier.size(18.dp),
-                        tapFn = {
-                            tapOption(PublishTextOption.At)
-                        })
-
-                    Options(title = stringResource(id = R.string.publish_option_follow),
-                        iconPath = "svg/follow_blog.svg",
-                        selected = option == PublishTextOption.Follow,
-                        modifier = Modifier.size(18.dp),
-                        tapFn = {
-                            tapOption(PublishTextOption.Follow)
-                        })
-                }
-
-                HorizontalDivider(
-                    color = Color(0xffeeeeee),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 30.dp)
-                )
-
-                //                Spacer(modifier = Modifier.height(2.dp))
-
-                Location()
-
-                VisibilityRow(commonState.visibility) {
-                    tapOption(PublishTextOption.Visibility)
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
-            ) {
-                Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .fillMaxWidth(0.3f)
-                        .padding(end = 10.dp)
+                        .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
                 ) {
-                    Text(text = "保存")
+                    Button(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier
+                            .fillMaxWidth(0.3f)
+                            .padding(end = 10.dp)
+                    ) {
+                        Text(text = "保存")
+                    }
+                    Button(onClick = {
+                        vm.publish { }
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(text = "发布")
+                    }
                 }
-                Button(onClick = {
-                    vm.publish { }
-                }, modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "发布")
+
+
+                //            if (showDialog) {
+                //                val pageType = listOf("文本", "图文", "视文")
+                //                Dialog(
+                //                    onDismissRequest = {
+                ////                        showDialog = false
+                //                    }
+                //                ) {
+                //                    // 对话框的内容
+                //                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                //                        pageType.forEach { _ ->
+                //                            Button(onClick = {
+                ////                                dialogResult = it
+                //                            }) {
+                //                                Text("确定")
+                //                            }
+                //                        }
+                //                    }
+                //                }
+                //            }
+            } else {
+                LaunchedEffect(Unit) {
+                    permissionState.launchMultiplePermissionRequest()
                 }
             }
-
-
-            //            if (showDialog) {
-            //                val pageType = listOf("文本", "图文", "视文")
-            //                Dialog(
-            //                    onDismissRequest = {
-            ////                        showDialog = false
-            //                    }
-            //                ) {
-            //                    // 对话框的内容
-            //                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            //                        pageType.forEach { _ ->
-            //                            Button(onClick = {
-            ////                                dialogResult = it
-            //                            }) {
-            //                                Text("确定")
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //            }
         }
     }
 }
@@ -284,15 +327,25 @@ fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
 }
 
 @Composable
-fun Location() {
+fun Follow(clickFn: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                clickFn()
+            },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.Gray)
-        Text(text = stringResource(id = R.string.publish_location_add), color = Color.Gray)
+//        Icon(R.drawable, contentDescription = null, tint = Color.Gray)
+        SvgIcon(
+            path = "svg/follow_blog.svg",
+            contentDescription = "",
+            modifier = Modifier
+                .size(20.dp)
+                .padding(end = 5.dp)
+        )
+        Text(text = stringResource(id = R.string.publish_option_follow), color = Color.Gray)
         Box(modifier = Modifier.width(60.dp))
     }
 }
@@ -473,7 +526,7 @@ fun Options(
                     .size(20.dp)
                     .padding(end = 5.dp)
             )
-            Text(title)
+            Text(text = title, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
         }
     }
 }
