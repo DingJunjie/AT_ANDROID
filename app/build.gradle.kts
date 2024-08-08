@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "com.bitat"
-        minSdk = 30
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -124,13 +124,30 @@ dependencies {
     implementation(libs.quicklogin)
 
     // 相机
-    implementation(libs.androidx.camera.core)
-    implementation(libs.androidx.camera.camera2.v110beta01)
-    implementation(libs.androidx.camera.lifecycle.v110beta01)
-    implementation(libs.androidx.camera.video)
+//    implementation(libs.androidx.camera.core)
+//    implementation(libs.androidx.camera.camera2.v110beta01)
+//    implementation(libs.androidx.camera.lifecycle.v110beta01)
+//    implementation(libs.androidx.camera.video)
+//    implementation(libs.androidx.camera.view.v110beta01)
+//    implementation(libs.androidx.camera.extensions)
 
-    implementation(libs.androidx.camera.view.v110beta01)
-    implementation(libs.androidx.camera.extensions)
+    // CameraX core library using the camera2 implementation
+    // The following line is optional, as the core library is included indirectly by camera-camera2
+    implementation(libs.camera.core.v140rc01)
+    implementation(libs.camera.camera2.v140rc01)
+    // If you want to additionally use the CameraX Lifecycle library
+    implementation(libs.camera.lifecycle.v140rc01)
+    // If you want to additionally use the CameraX VideoCapture library
+    implementation(libs.camera.video)
+    // If you want to additionally use the CameraX View class
+    implementation(libs.androidx.camera.view)
+    // If you want to additionally add CameraX ML Kit Vision Integration
+    implementation(libs.androidx.camera.mlkit.vision)
+    // If you want to additionally use the CameraX Extensions library
+    implementation(libs.camera.extensions.v140rc01)
+
+
+
     implementation(libs.accompanist.permissions)
     implementation(libs.ui)
     implementation(libs.com.google.protobuf.protobuf.java)
