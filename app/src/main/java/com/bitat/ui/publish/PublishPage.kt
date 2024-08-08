@@ -1,12 +1,14 @@
 package com.bitat.ui.publish
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.webkit.PermissionRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.video.VideoCapture
@@ -68,6 +70,7 @@ import com.bitat.viewModel.PublishViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
 import java.io.File
 import java.net.URLEncoder
@@ -108,6 +111,10 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
     val videoCapture: MutableState<VideoCapture<Recorder>?> = remember { mutableStateOf(null) }
     val recordingStarted: MutableState<Boolean> = remember { mutableStateOf(false) }
 
+    val imageCapture: ImageCapture = remember {
+        ImageCapture.Builder().build()
+    }
+
     val audioEnabled: MutableState<Boolean> = remember { mutableStateOf(false) }
     val cameraSelector: MutableState<CameraSelector> = remember {
         mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
@@ -125,6 +132,29 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
         )
     }
 
+    // 绑定imageCapture和lifecycle和相机
+    val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+        ProcessCameraProvider.getInstance(context)
+    val processCameraProvider = cameraProviderFuture.get()
+    processCameraProvider.bindToLifecycle(
+        lifecycleOwner,
+        CameraSelector.DEFAULT_BACK_CAMERA,
+        imageCapture
+    )
+
+    fun switchCamera() {
+        cameraSelector.value =
+            if (cameraSelector.value == CameraSelector.DEFAULT_BACK_CAMERA) CameraSelector.DEFAULT_FRONT_CAMERA
+            else CameraSelector.DEFAULT_BACK_CAMERA
+
+        processCameraProvider.apply {
+            cameraSelector.value = cameraSelector.value
+        }
+    }
+
+
+
+
     if (permissionState.allPermissionsGranted) {
         // 全部允许
         Box(
@@ -134,33 +164,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                 factory = { previewView },
                 modifier = Modifier.fillMaxSize()
             )
-            Column(modifier = Modifier.padding(top = 100.dp)) {
-
-                ImagePicker(onSelected = {
-                    vm.addPicture(it)
-                }) {
-                    Text("选择图片")
-                }
-
-                MediaPicker(CuMType.Video) {
-                    vm.addVideo(it)
-                }
-
-                MediaPicker(CuMType.Audio) {
-                    vm.addAudio(it)
-                }
-                IconButton(onClick = {
-                    MainCo.launch {
-                        vm.publishMedia {
-                            dialogState.show("Upload Success")
-                        }
-                    }
-                }) {
-                    Text("发布", color = Color.White)
-                }
-
-            }
-            IconButton(
+            Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 32.dp)
@@ -203,8 +207,26 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                             },
                             onTap = {
                                 if (!recordingStarted.value) {
+                                    val mediaDir =
+                                        context.externalCacheDirs
+                                            .firstOrNull()
+                                            ?.let {
+                                                File(it, "at").apply { mkdirs() }
+                                            }
                                     // 拍照
-
+                                    takePhoto(
+                                        context,
+                                        filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
+                                        imageCapture,
+                                        outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
+                                        executor = context.mainExecutor,
+                                        onError = {
+                                        },
+                                        onImageCaptured = { uri ->
+                                            vm.addPicture(listOf(uri))
+                                            navHostController.navigate(NavigationItem.PublishDetail.route)
+                                        }
+                                    )
                                 } else {
                                     recordingStarted.value = false
                                     recording?.stop()
@@ -212,42 +234,6 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                             }
                         )
                     },
-                onClick = {
-                    if (!recordingStarted.value) {
-                        // 拍照
-//                        videoCapture.value?.let { videoCapture ->
-//                            recordingStarted.value = true
-//                            val mediaDir = context.externalCacheDirs.firstOrNull()?.let {
-//                                File(it, "at").apply { mkdirs() }
-//                            }
-//
-//                            recording = startRecordingVideo(
-//                                context = context,
-//                                filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
-//                                videoCapture = videoCapture,
-//                                outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
-//                                executor = context.mainExecutor,
-//                                audioEnabled = audioEnabled.value
-//                            ) { event ->
-//                                if (event is VideoRecordEvent.Finalize) {
-//                                    val uri = event.outputResults.outputUri
-//                                    if (uri != Uri.EMPTY) {
-//                                        val uriEncoded = URLEncoder.encode(
-//                                            uri.toString(),
-//                                            StandardCharsets.UTF_8.toString()
-//                                        )
-//                                        vm.addVideo(uri)
-////                                        navHostController.navigate("${Route.VIDEO_PREVIEW}/$uriEncoded")
-//                                        navHostController.navigate(NavigationItem.PublishDetail.route)
-//                                    }
-//                                }
-//                            }
-//                        }
-                    } else {
-                        recordingStarted.value = false
-                        recording?.stop()
-                    }
-                },
 
 
                 ) {
@@ -410,14 +396,29 @@ fun takePhoto(
     imageCapture: ImageCapture,
     outputDirectory: File,
     executor: Executor,
+    onError: (ImageCaptureException) -> Unit,
+    onImageCaptured: (Uri) -> Unit,
 ) {
     val photoFile = File(
-        outputDirectory, SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".jpg"
+        outputDirectory,
+        SimpleDateFormat(filenameFormat, Locale.US).format(System.currentTimeMillis()) + ".jpg"
     )
 
-    val outputOptions = FileOutputOptions.Builder(photoFile).build()
+    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-//    return ImageCapture(ImageCaptureConfig.Builder())
+    return imageCapture.takePicture(
+        outputOptions,
+        executor,
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onError(exception: ImageCaptureException) {
+                onError(exception)
+            }
+
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                onImageCaptured(Uri.fromFile((photoFile)))
+            }
+        }
+    )
 }
 
 
