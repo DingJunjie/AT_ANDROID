@@ -227,7 +227,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 showOptDialog = false
             })
         } else if (option == PublishTextOption.Settings) {
-            SettingsOptions()
+            SettingsOptions(tapFn = {
+                option = PublishTextOption.None
+                showOptDialog = false
+            })
         }
     }
 
@@ -275,7 +278,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 Column(
                     modifier = Modifier.padding(padding)
                 ) {
-                    if (mediaState.localImages.isNotEmpty() || mediaState.localCover != Uri.EMPTY) MediaBox(
+                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY) MediaBox(
                         mediaState.localImages,
                         selectUri = {
                             selectedUri.value = it
@@ -285,10 +288,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         addPicture = {
                             vm.addPicture(it)
                         },
-                        coverPath = mediaState.localCover
+//                        coverPath = mediaState.localCover
                     )
 
-                    InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localCover != Uri.EMPTY,
+                    InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
                         textFieldValue,
                         focusRequester,
                         focusManager,
@@ -351,7 +354,9 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         tapOption(PublishTextOption.Visibility)
                     }
 
-                    SettingsRow()
+                    SettingsRow(tapFn = {
+                        tapOption(PublishTextOption.Settings)
+                    })
                 }
 
 
@@ -778,17 +783,17 @@ fun CommentOptions(currentComment: Commentable, setCommentFn: (Commentable) -> U
 }
 
 @Composable
-fun SettingsOptions() {
+fun SettingsOptions(tapFn: () -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(PublishSettings.entries) {
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
-
+                    tapFn()
                 }) {
                 Text(
-                    PublishSettings.GetUiTitle(settings = it).toString()
+                    PublishSettings.getUiTitle(settings = it)
                 )
             }
         }

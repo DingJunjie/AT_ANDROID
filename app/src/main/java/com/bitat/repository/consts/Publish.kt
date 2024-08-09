@@ -79,9 +79,9 @@ enum class PublishSettings {
 
     companion object {
 
-        @Composable
-        fun GetUiTitle(settings: PublishSettings) {
-            when (settings) {
+//        @Composable
+        fun getUiTitle(settings: PublishSettings): String {
+            return when (settings) {
                 SaveToGallery -> "直接保存至手机"
                 SaveWatermark -> "保存自己内容水印"
                 Recommendable -> "可以推荐到动态"

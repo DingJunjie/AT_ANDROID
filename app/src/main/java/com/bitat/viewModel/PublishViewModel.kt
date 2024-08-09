@@ -101,7 +101,7 @@ class PublishViewModel : ViewModel() {
 
     //话题
     fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
-        val newContent=""
+        val newContent = ""
         val content = commonState.value.content
         if (content.last().toString() == "#") {
             commonState.update {
@@ -190,9 +190,9 @@ class PublishViewModel : ViewModel() {
 
     fun addVideo(path: Uri) {
         MainCo.launch {
-            val cover = VideoUtils.getCover(path.toString())
+//            val cover = VideoUtils.getCover(path.toString())
             mediaState.update {
-                it.copy(localVideo = path, localCover = cover)
+                it.copy(localVideo = path)
             }
         }
 
@@ -264,28 +264,28 @@ class PublishViewModel : ViewModel() {
                     },
                 ).await()
 
-                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
-                val coverKey = QiNiuUtil.genKey(
-                    FileType.Image,
-                    UserStore.userInfo.id,
-                    0,
-                    coverParams.width,
-                    coverParams.height
-                )
-
-                QiNiuUtil.uploadFile(
-                    mediaState.value.localCover,
-                    token,
-                    FileType.Image,
-                    coverKey,
-                    cancelTag,
-                    progressFn = { a, b ->
-                    }
-                ).await()
+//                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
+//                val coverKey = QiNiuUtil.genKey(
+//                    FileType.Image,
+//                    UserStore.userInfo.id,
+//                    0,
+//                    coverParams.width,
+//                    coverParams.height
+//                )
+//
+//                QiNiuUtil.uploadFile(
+//                    mediaState.value.localCover,
+//                    token,
+//                    FileType.Image,
+//                    coverKey,
+//                    cancelTag,
+//                    progressFn = { a, b ->
+//                    }
+//                ).await()
 
                 // key | progress | response
                 mediaState.update { state ->
-                    state.copy(video = key, cover = coverKey)
+                    state.copy(video = key)
                 }
             }
         }
@@ -298,11 +298,10 @@ class PublishViewModel : ViewModel() {
             longitude = commonState.value.longitude
             latitude = commonState.value.latitude
             location = commonState.value.location
-            cover = mediaState.value.cover
+
             content = commonState.value.content
             vote = mediaState.value.vote
             musicId = commonState.value.musicId
-
 
             openComment = commonState.value.commentable.toCode()
             visible = commonState.value.visibility.toCode()
@@ -318,10 +317,11 @@ class PublishViewModel : ViewModel() {
             dto.resource.images = mediaState.value.images.toTypedArray()
             dto.resource.video = mediaState.value.video
 
-            if (dto.resource.video != "") { // 设置视频封面
-            } else if (dto.resource.images.isNotEmpty()) {
-                dto.cover = dto.resource.images[0]
-            }
+//            if (dto.resource.video != "") { // 设置视频封面
+//                dto.cover = mediaState.value.cover
+//            } else if (dto.resource.images.isNotEmpty()) {
+//                dto.cover = dto.resource.images[0]
+//            }
 
             CuLog.info(CuTag.Publish, dto.toString())
 
@@ -381,6 +381,7 @@ class PublishViewModel : ViewModel() {
             it.copy(longitude = point.longitude, latitude = point.latitude, location = addName)
         }
     }
+
 }
 
 
