@@ -74,6 +74,26 @@ enum class Commentable {
     }
 }
 
+enum class PublishSettings {
+    SaveToGallery, SaveWatermark, Recommendable, CoCreateOptions, HDPublish, AllowDownload;
+
+    companion object {
+
+        @Composable
+        fun GetUiTitle(settings: PublishSettings) {
+            when (settings) {
+                SaveToGallery -> "直接保存至手机"
+                SaveWatermark -> "保存自己内容水印"
+                Recommendable -> "可以推荐到动态"
+                CoCreateOptions -> "谁可以合拍"
+                HDPublish -> "高清发布"
+                AllowDownload -> "允许下载"
+            }
+        }
+
+    }
+}
+
 enum class Followable {
     All, Team, None, Friend, Fans, Self;
 
