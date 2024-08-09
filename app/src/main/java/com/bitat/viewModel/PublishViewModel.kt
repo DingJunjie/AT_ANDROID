@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.FileUtils
 import androidx.camera.core.internal.utils.VideoUtil
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import com.amap.api.services.core.LatLonPoint
 import com.bitat.MainCo
@@ -58,6 +60,7 @@ class PublishViewModel : ViewModel() {
         }
     }
 
+
     fun onContentChange(content: String) {
         commonState.update {
             it.copy(content = content)
@@ -73,6 +76,19 @@ class PublishViewModel : ViewModel() {
                         it.tagSearchResult.addAll(res)
                         it
                     }
+                    if (commonState.value.tagSearchResult.isEmpty()) {
+                        val defaultTag = BlogTagDto().apply {
+                            id = -1
+                            name = ""
+                            useNum = 0
+                            createTime = 0
+                        }
+
+                        commonState.update {
+                            it.tagSearchResult.add(defaultTag)
+                            it
+                        }
+                    }
                 }.errMap {
                     CuLog.error(CuTag.Publish, "get tags error $it")
                 }
@@ -84,8 +100,22 @@ class PublishViewModel : ViewModel() {
     }
 
     //话题
-    fun onTopicClick(tag: BlogTagDto) {
-        val newContent = commonState.value.content + " #${tag.name} "
+    fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
+        val content = commonState.value.content
+        if (content.last().toString() == "#") {
+            commonState.update {
+                it.copy(content = it.content + tag.name + " ")
+            }
+        } else {
+            val contentSplit = content.split("#")
+            val newContent =
+                contentSplit.subList(0, contentSplit.size - 1)
+                    .joinToString { "#" } + "#" + tag.name + " "
+            commonState.update {
+                it.copy(content = newContent)
+            }
+        }
+
         commonState.update {
             it.apply {
                 tags.add(tag)
