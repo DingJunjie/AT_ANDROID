@@ -82,14 +82,12 @@ class PublishViewModel : ViewModel() {
     }
 
     //话题
-    fun onTopicClick(tag: BlogTagDto) {
-        val newContent = commonState.value.content + "#${tag.name} ";
+    fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
         commonState.update {
             it.apply {
-                tags.toMutableList().add(tag)
+                tags.add(tag)
             }
-        }
-        onContentChange(newContent)
+        } //        onContentChange(newContent)
     }
 
     fun removeMedia(uri: Uri) {
