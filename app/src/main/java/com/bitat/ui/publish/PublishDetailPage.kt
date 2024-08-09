@@ -3,6 +3,7 @@ package com.bitat.ui.publish
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -60,9 +63,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -76,7 +83,9 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.resp.BlogTagDto
+import com.bitat.repository.dto.resp.UserDto
 import com.bitat.router.AtNavigation
+import com.bitat.ui.blog.Avatar
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.common.ImagePicker
@@ -106,6 +115,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     val mediaState by vm.mediaState.collectAsState()
     val showDialog by remember { mutableStateOf(false) }
     val dialogResult by rememberSaveable { mutableStateOf("") }
+
+
     var option by remember {
         mutableStateOf(PublishTextOption.None)
     }
@@ -156,8 +167,14 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 })
             }
 
-            else -> Text("hahaha")
+            PublishTextOption.At -> { //                TopicOptions(tags = commonState.atUserSearchResult, tapTopicFn = {
+                //                    vm.onTopicClick(it)
+                //                    option = PublishTextOption.None
+                //                    showTopicDialog = false
+                //                })
+            }
 
+            else -> Text("hahaha")
 
         }
     }
@@ -201,21 +218,20 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty(),
                         content = commonState.content,
                         addPicture = { vm.addPicture(it) },
-                        updateContent = { vm.onContentChange(it) })
-                    LazyRow(modifier = Modifier.padding(10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        items(commonState.tags) { item ->
-                            Box(modifier = Modifier.border(1.dp,
-                                Color.Black,
-                                RoundedCornerShape(20.dp)).padding(all = 10.dp)) {
-                                Text(text = "#${item.name}")
-                                IconButton(onClick = {}) { //                                    Icon(painterResource(R.drawable.))
-
-
-                                }
-                            }
-                        }
-                    }
+                        updateContent = { vm.onContentChange(it) }) //                    LazyRow(modifier = Modifier.padding(10.dp),
+                    //                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    //                        items(commonState.tags) { item ->
+                    //                            Box(modifier = Modifier.border(1.dp,
+                    //                                Color.Black,
+                    //                                RoundedCornerShape(20.dp)).padding(all = 10.dp)) {
+                    //                                Text(text = "#${item.name}")
+                    //                                IconButton(onClick = {}) { //                                    Icon(painterResource(R.drawable.))
+                    //
+                    //
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                    }
                     Row(horizontalArrangement = Arrangement.Start,
                         modifier = Modifier.padding(start = 20.dp)) {
                         Options(title = stringResource(id = R.string.publish_option_topic),
@@ -264,12 +280,12 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
                 Row(modifier = Modifier.fillMaxWidth()
                     .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)) {
-                    Button(onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth(0.3f).padding(end = 10.dp)) {
+                    Button(onClick = { /*TODO*/ //存草稿
+                    }, modifier = Modifier.fillMaxWidth(0.3f).padding(end = 10.dp)) {
                         Text(text = "保存")
                     }
                     Button(onClick = {
-                        vm.publish { }
+                        vm.publish { CuLog.debug(CuTag.Publish, "发布成功") }
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(text = "发布")
                     }
@@ -415,7 +431,6 @@ fun InputBox(hasMedia: Boolean = false, content: String, addPicture: (List<Uri>)
     Column {
         OutlinedTextField(modifier = Modifier.fillMaxWidth() //            .fillMaxHeight()
             .height(if (hasMedia) 200.dp else 300.dp).padding(5.dp),
-
             colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
                 focusedBorderColor = Color.Transparent,
@@ -520,6 +535,26 @@ fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
                     tapTopicFn(tags[it])
                 }) {
                 Text(tags[it].name)
+            }
+        }
+    }
+}
+
+@Composable
+fun AtOptions(users: List<UserDto>, tapUserFn: (UserDto) -> Unit) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
+    LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
+        items(users) { item ->
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
+                .clickable {
+                    tapUserFn(item)
+                }) {
+
+                Row {
+                    Avatar(item.profile)
+                    Text(item.nickname)
+                    Text("最近@次数：${item.ats}")
+                }
+
             }
         }
     }

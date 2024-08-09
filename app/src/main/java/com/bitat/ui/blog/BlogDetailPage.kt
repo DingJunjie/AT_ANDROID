@@ -120,7 +120,6 @@ fun UserInfo() {
 
 @Composable
 fun Avatar(url: String) {
-
     Surface(
         shape = CircleShape, modifier = Modifier.padding(start = 10.dp)
     ) {

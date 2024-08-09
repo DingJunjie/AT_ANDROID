@@ -19,7 +19,7 @@ data class PublishCommonState(
     val latitude: Double = 0.0,
     val location: String = "",
     val musicId: Long = -1,
-    val musicKind: Byte = 0,
+//    val musicKind: Byte = 0,
     val followId: Long = -1,
     val commentable: Commentable = Commentable.All,
     val showLocation: Boolean = true,

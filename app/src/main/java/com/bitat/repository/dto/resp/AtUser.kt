@@ -38,7 +38,7 @@ class BlogAtDto {
     var visible: Byte = 0 //可见性
     var openComment: Byte = 0 //是否开放评论
     var kind: Byte = 0 //博文类型
-    var musicKind: Byte = 0 //音乐类型
+//    var musicKind: Byte = 0 //音乐类型
     var status: Byte = 0 //状态
     var vote: Byte = 0//投票
     var cover: String = "" //封面

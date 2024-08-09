@@ -1,8 +1,8 @@
 package  com.bitat.repository.http
 
 import com.bitat.repository.common.CuRes
-import com.bitat.repository.socket.EmptyBytes
 import com.bitat.repository.store.TokenStore
+import com.bitat.utils.EmptyArray
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -75,7 +75,7 @@ object Http {
     }
 
     suspend inline fun <reified R> get(url: String, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
-        common<Unit, R>({ EmptyBytes }, JsonUtils::fromJson, "GET", url, null, headers, login)
+        common<Unit, R>({ EmptyArray.byte }, JsonUtils::fromJson, "GET", url, null, headers, login)
 
     suspend inline fun <reified T, reified R> post(url: String, data: T, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
         common<T, R>(JsonUtils::toJson, JsonUtils::fromJson, "POST", url, data, headers, login)

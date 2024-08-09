@@ -20,9 +20,11 @@ import com.bitat.repository.dto.resp.BlogTagDto
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.BlogTagReq
+import com.bitat.repository.store.UserStore
 import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
 import com.bitat.utils.FileType
+import com.bitat.utils.ImageUtils
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.VideoUtils
 import kotlinx.coroutines.CompletableDeferred
@@ -83,7 +85,7 @@ class PublishViewModel : ViewModel() {
 
     //话题
     fun onTopicClick(tag: BlogTagDto) {
-        val newContent = commonState.value.content + "#${tag.name} ";
+        val newContent = commonState.value.content + " #${tag.name} "
         commonState.update {
             it.apply {
                 tags.add(tag)
@@ -173,10 +175,17 @@ class PublishViewModel : ViewModel() {
 
     private suspend fun uploadMedia() {
         val cancelTag = AtomicBoolean()
-        LoginReq.uploadToken(UploadTokenDto(ops = 1)).await().map { token ->
-            mediaState.value.localImages.forEach {
+        LoginReq.uploadToken(UploadTokenDto(ops = 1)).await().errMap {
+            CuLog.error(CuTag.Publish, it.msg)
+        }.map { token ->
+            mediaState.value.localImages.forEachIndexed { index, it ->
                 val cd = CompletableDeferred<Boolean>()
-                val key = QiNiuUtil.genKey(FileType.Image)
+                val imgParams = ImageUtils.getParams(it)
+                val key = QiNiuUtil.genKey(FileType.Image,
+                    UserStore.userInfo.id,
+                    index,
+                    imgParams.width,
+                    imgParams.height)
                 QiNiuUtil.uploadFile(
                     it,
                     token,
@@ -197,7 +206,13 @@ class PublishViewModel : ViewModel() {
 
             val video = mediaState.value.localVideo.path;
             if (!video.isNullOrBlank()) {
-                val key = QiNiuUtil.genKey(FileType.Video)
+                val videoParams = VideoUtils.getParams(mediaState.value.localVideo)
+                val key = QiNiuUtil.genKey(FileType.Video,
+                    UserStore.userInfo.id,
+                    0,
+                    videoParams.width,
+                    videoParams.height,
+                    videoParams.duration)
                 QiNiuUtil.uploadFile(
                     mediaState.value.localVideo,
                     token,
@@ -227,7 +242,7 @@ class PublishViewModel : ViewModel() {
             content = commonState.value.content
             vote = mediaState.value.vote
             musicId = commonState.value.musicId
-            musicKind = commonState.value.musicKind
+
 
             openComment = commonState.value.commentable.toCode()
             visible = commonState.value.visibility.toCode()
@@ -243,12 +258,17 @@ class PublishViewModel : ViewModel() {
             dto.resource.images = mediaState.value.images.toTypedArray()
             dto.resource.video = mediaState.value.video
 
+            if (dto.resource.video != "") { // 设置视频封面
+            } else if (dto.resource.images.isNotEmpty()) {
+                dto.cover = dto.resource.images[0]
+            }
+
             val result = BlogReq.publish(dto).await()
             result.map {
                 completeFn()
-                println("update success $it")
+                CuLog.info(CuTag.Publish, "update success $it")
             }.errMap {
-                println("update failed, message is ${it.msg}")
+                CuLog.info(CuTag.Publish, "update failed, message is ${it.msg}")
 
             }
         }
@@ -283,6 +303,7 @@ class PublishViewModel : ViewModel() {
 
     fun publish(completeFn: () -> Unit) {
         updateKind()
+
         val kind = commonState.value.kind
         if (kind.toInt() == 1) {
             publishText { completeFn() }

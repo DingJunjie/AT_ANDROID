@@ -1,8 +1,11 @@
 package com.bitat.utils
 
 
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import kotlin.math.abs
 
 data class ImageParams(val width: Int, val height: Int)
@@ -55,18 +58,26 @@ object ImageUtils {
     }
 
     fun getParams(uri: Uri): ImageParams {
-        val retriever = MediaMetadataRetriever();
-        retriever.setDataSource(uri.path)
+        //        val retriever = MediaMetadataRetriever();
+        //        retriever.setDataSource(uri.path)
+        //
+        //        val width =
+        //            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
+        //        val height =
+        //            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)?.toInt()
+        //                ?: 0
+        //
+        //        retriever.release()
+        //
+        //
 
-        val width =
-            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH)?.toInt() ?: 0
-        val height =
-            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT)?.toInt()
-                ?: 0
+        val options = BitmapFactory.Options(); //在不加载图片的情况下创建
+        options.inJustDecodeBounds = true;
 
-        retriever.release()
-
-        return ImageParams(width = width, height = height)
+        // 使用 BitmapFactory.decodeFile 方法解码图片并仅获取尺寸信息
+        BitmapFactory.decodeFile(uri.path, options);
+        CuLog.debug(CuTag.Base, "获取到图片宽：${options.outWidth} 高:${options.outHeight}")
+        return ImageParams(width = options.outWidth, height = options.outHeight)
     }
 
 }

@@ -2,11 +2,10 @@ package  com.bitat.repository.dto.req
 
 import com.bitat.repository.consts.BLOG_COMMENTABLE_ALL
 import com.bitat.repository.consts.BLOG_VISIBLE_ALL
-import com.bitat.repository.consts.MUSIC_KIND_OTHER
-import kotlinx.serialization.Serializable
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
 import com.bitat.utils.EmptyArray
+import kotlinx.serialization.Serializable
 
 @Serializable
 class PublishBlogDto(
@@ -15,7 +14,6 @@ class PublishBlogDto(
     var visible: Byte = BLOG_VISIBLE_ALL.toByte(), //博文可见性 1、仅自己可见  2、仅好友可见  3、所有人可见
     var openComment: Byte = BLOG_COMMENTABLE_ALL.toByte(),  //详情见comment常量
     var kind: Byte = -1,  //详情见blog常量
-    var musicKind: Byte = MUSIC_KIND_OTHER.toByte(), //详情见music常量
     var vote: Byte = 0, //0:不是,如果是请使用 BLOG_VOTE_YES 常量
     var cover: String = "",  //博文封面
     var adCode: String = "", //行政编码
