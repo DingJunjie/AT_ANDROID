@@ -2,6 +2,7 @@ package com.bitat.repository.socket
 
 import com.bitat.MainCo
 import com.bitat.repository.http.service.MsgReq
+import com.bitat.utils.EmptyArray
 import com.bitat.utils.TimeUtils
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
@@ -9,7 +10,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.experimental.xor
 
-val EmptyBytes = byteArrayOf()
 
 object KeySecret {
     private var timing: Job? = null
@@ -18,9 +18,9 @@ object KeySecret {
     private var currKey: Short = 0
     private var nextKey: Short = 0
 
-    private var prev: ByteArray = EmptyBytes
-    private var curr: ByteArray = EmptyBytes
-    private var next: ByteArray = EmptyBytes
+    private var prev: ByteArray = EmptyArray.byte
+    private var curr: ByteArray = EmptyArray.byte
+    private var next: ByteArray = EmptyArray.byte
 
     private var expire: Long = 0
 
@@ -74,7 +74,7 @@ object KeySecret {
         currKey -> curr
         nextKey -> next
         prevKey -> prev
-        else -> EmptyBytes
+        else -> EmptyArray.byte
     }
 
 }

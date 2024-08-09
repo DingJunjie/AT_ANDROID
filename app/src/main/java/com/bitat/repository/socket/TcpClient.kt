@@ -9,6 +9,7 @@ import com.bitat.repository.pbDto.MsgDto.ChatRecMsg
 import com.bitat.repository.pbDto.MsgDto.NoticeMsg
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
+import com.bitat.utils.EmptyArray
 import com.bitat.utils.TimeUtils
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers.IO
@@ -64,7 +65,7 @@ object TcpClient {
                     readBuf.bufOffset += TcpMsgHead.SIZE
                     val size = head.size // body的size为0，直接返回头部即可
                     if (size == 0) {
-                        msgHandler(head, EmptyBytes)
+                        msgHandler(head, EmptyArray.byte)
                     } else {
                         readBuf.head = head
                         readBuf.body = ByteArray(size)
@@ -299,7 +300,7 @@ object TcpClient {
         conn?.close()
         conn = null
         readTime = 0
-        readBuf.buffer = EmptyBytes
+        readBuf.buffer = EmptyArray.byte
         readBuf.bufOffset = 0
         readBuf.head = null
         readBuf.body = null
@@ -336,7 +337,7 @@ class TcpMsgHead(val secret: Short, val event: Short, val size: Int) {
 
 class TcpReadBuf {
     var byteBuffer: ByteBuffer = ByteBuffer.allocate(0)
-    var buffer = EmptyBytes
+    var buffer = EmptyArray.byte
     var head: TcpMsgHead? = null
     var body: ByteArray? = null
     var bufOffset: Int = 0
