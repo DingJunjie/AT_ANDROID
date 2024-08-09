@@ -1,8 +1,10 @@
 package com.bitat.utils
 
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import com.bitat.Local
 import kotlin.math.abs
 
 data class ImageParams(val width: Int, val height: Int)

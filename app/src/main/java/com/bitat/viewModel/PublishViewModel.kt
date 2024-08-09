@@ -86,7 +86,7 @@ class PublishViewModel : ViewModel() {
         val newContent = commonState.value.content + "#${tag.name} ";
         commonState.update {
             it.apply {
-                tags.toMutableList().add(tag)
+                tags.add(tag)
             }
         }
         onContentChange(newContent)
@@ -249,6 +249,7 @@ class PublishViewModel : ViewModel() {
                 println("update success $it")
             }.errMap {
                 println("update failed, message is ${it.msg}")
+
             }
         }
     }

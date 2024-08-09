@@ -6,11 +6,14 @@ import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -23,6 +26,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolylineOptions
+import com.amap.api.services.core.LatLonPoint
 import com.bitat.R
 import com.bitat.utils.GaoDeUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -41,49 +45,31 @@ fun GDMapPage() { // 使用 remember 确保 effect 只会在状态改变时执�
     val ctx =
         LocalContext.current //    aMapOptionsFactory: () -> AMapOptions = { AMapOptions() //    var permission = remember { false }
     val permissionState =
-        rememberMultiplePermissionsState(permissions = listOf(android.Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION))
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+
+//   var aMapOptionsFactory: () -> AMapOptions = { }
     var mapView: MapView = remember {
-        MapView(ctx, AMapOptions()).apply { //            id = R.id.map
+        MapView(ctx,  AMapOptions()).apply {
+//            id = R.id.map
         }
     }
-
-    //        DisposableEffect(key) {
-    //            val observer = LifecycleEventObserver { source, event ->
-    //                when (event) { //根据Event执行不同生命周期的操作
-    //                    Lifecycle.Event.ON_CREATE -> {
-    //                        CuLog.debug(CuTag.Publish, "testLiveData:DisposableEffect ON_CREATE")
-    //
-    //                    }
-    //                    Lifecycle.Event.ON_RESUME -> {
-    //                        CuLog.debug(CuTag.Publish, "testLiveData:DisposableEffect ON_RESUME")
-    //                    }
-    //                    Lifecycle.Event.ON_PAUSE -> {
-    //                        CuLog.debug(CuTag.Publish, "testLiveData:DisposableEffect ON_PAUSE")
-    //                    }
-    //                    Lifecycle.Event.ON_DESTROY -> {
-    //                        CuLog.debug(CuTag.Publish, "testLiveData:DisposableEffect ON_DESTROY")
-    //                    }
-    //                    else -> {}
-    //                }
-    //            }
-    //            lifecycleOwner.lifecycle.addObserver(observer)
-    //
-    //            onDispose {
-    //                CuLog.debug(CuTag.Publish, "testLiveData:DisposableEffect onDispose ")
-    //                lifecycleOwner.lifecycle.removeObserver(observer)
-    //
-    //            }
-    //
-    //
-    //        }
+    var lp: LatLonPoint? = null
 
 
     if (permissionState.allPermissionsGranted) {
         GaoDeUtils.getLocation() { point, name ->
 
             //绘制标记点
+            lp=point
+
         }
+
+
         AndroidView(modifier = Modifier.fillMaxSize(), factory = {
             mapView
         }, update = { //            it.onCreate()
@@ -92,15 +78,17 @@ fun GDMapPage() { // 使用 remember 确保 effect 只会在状态改变时执�
         MapLifecycle(mapView, onCreate = {
             mapView.onCreate(Bundle())
             val aMap = mapView.map
-
             //绘制marker
-            val marker: Marker =
-                aMap.addMarker(MarkerOptions().position(LatLng(39.986919, 116.353369))
-                    .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(ctx.resources,
-                        R.drawable.nav_add))).draggable(true))
+//
 
-            aMap.addPolyline(PolylineOptions().add(LatLng(43.828, 87.621), LatLng(45.808, 126.55))
-                .geodesic(true).color(R.color.purple_200))
+            aMap.addMarker(
+                MarkerOptions().position(LatLng(43.828, 87.621))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start)).draggable(true)
+            )
+//            aMap.addPolyline(
+//                PolylineOptions().add(LatLng(43.828, 87.621), LatLng(45.808, 126.55))
+//                    .geodesic(true).color(R.color.purple_200)
+//            )
 
 
         }, // 从mapView.lifecycleObserver回调回来即可
@@ -128,7 +116,12 @@ fun GDMapPage() { // 使用 remember 确保 effect 只会在状态改变时执�
 }
 
 @Composable
-fun MapLifecycle(mapView: MapView, onCreate: (() -> Unit), onResume: (() -> Unit), onPause: (() -> Unit)) {
+fun MapLifecycle(
+    mapView: MapView,
+    onCreate: (() -> Unit),
+    onResume: (() -> Unit),
+    onPause: (() -> Unit)
+) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(context, lifecycle, mapView) {

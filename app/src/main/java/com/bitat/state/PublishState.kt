@@ -24,7 +24,9 @@ data class PublishCommonState(
     val commentable: Commentable = Commentable.All,
     val showLocation: Boolean = true,
     val tagSearchResult: SnapshotStateList<BlogTagDto> = mutableStateListOf(),
-    val tags: ArrayList<BlogTagDto> = arrayListOf(),
+//    val tags: ArrayList<BlogTagDto> = arrayListOf(),
+
+    val tags:  SnapshotStateList<BlogTagDto> = mutableStateListOf(),
     val atUserSearchResult: SnapshotStateList<UserDto> = mutableStateListOf(),
     val atUsers: ArrayList<Int> = arrayListOf(),
     val content: String = "",

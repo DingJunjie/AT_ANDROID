@@ -192,7 +192,6 @@ fun BlogVideoTextShow(mBlogBaseDto: BlogBaseDto, maxHeight: Int) {
 
                     val videopath1 = mBlogBaseDto.resource.video
                     //val videopath = "https://media6.smartstudy.com/ae/07/3997/2/dest.m3u8"
-//                    println("videopath>>>>>>>>"+videopath)
                     VideoItem(videoUrl = videopath1)
 
                 }

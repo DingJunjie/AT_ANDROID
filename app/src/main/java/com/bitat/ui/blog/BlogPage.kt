@@ -79,7 +79,7 @@ fun BlogPage(modifier: Modifier,
                     .fillMaxHeight()
             ) {
 
-                LazyColumn(modifier = Modifier.fillMaxSize()) { // println("blogState.blogList>>>>>>>>>>>>>>"+vm.blogs.size)
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(blogState.blogList) { item -> //Text(item.content)
                         Surface(
                             modifier = Modifier
