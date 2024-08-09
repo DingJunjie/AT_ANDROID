@@ -52,12 +52,10 @@ object QiNiuUtil {
             cd.complete(info.isOK)
         }
         when (file) {
-            is Uri -> uploadManager.put(file,
-                Local.ctx?.contentResolver,
-                upKey,
-                token,
-                completionFn,
-                options)
+            is Uri -> uploadManager.put(
+                file, Local.ctx?.contentResolver, upKey, token, completionFn, options
+            )
+
             is ByteArray -> uploadManager.put(file, upKey, token, completionFn, options)
             is String -> uploadManager.put(file, upKey, token, completionFn, options)
             is File -> uploadManager.put(file, upKey, token, completionFn, options)
@@ -66,8 +64,8 @@ object QiNiuUtil {
         return cd
     }
 
-    fun genKey(type: FileType, x: Int = 0, y: Int = 0, d: Int = 0): String {
-        val body = "u_${UserStore.userInfo.id}&t_${TimeUtils.getNow()}"
+    fun genKey(type: FileType, number: Int = 0, x: Int = 0, y: Int = 0, d: Int = 0): String {
+        val body = "u_${UserStore.userInfo.id}&t_${TimeUtils.getNow()}_$number"
         return when (type) {
             FileType.Image -> "i_$body&x_${x}&y_${y}"
             FileType.Video -> "v_$body&d_${d}"
