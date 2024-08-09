@@ -64,8 +64,10 @@ object QiNiuUtil {
         return cd
     }
 
-    fun genKey(type: FileType, number: Int = 0, x: Int = 0, y: Int = 0, d: Int = 0): String {
-        val body = "u_${UserStore.userInfo.id}&t_${TimeUtils.getNow()}_$number"
+    fun genKey(
+        type: FileType, ownerId: Long, number: Int = 0, x: Int = 0, y: Int = 0, d: Int = 0
+    ): String {
+        val body = "u_${ownerId}&t_${TimeUtils.getNow()}_${number}"
         return when (type) {
             FileType.Image -> "i_$body&x_${x}&y_${y}"
             FileType.Video -> "v_$body&d_${d}"
