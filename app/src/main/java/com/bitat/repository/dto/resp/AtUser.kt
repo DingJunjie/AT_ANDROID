@@ -3,6 +3,7 @@ package  com.bitat.repository.dto.resp
 import com.bitat.dto.resp.*
 import kotlinx.serialization.Serializable
 import  com.bitat.repository.dto.common.*
+import com.bitat.utils.EmptyArray
 
 @Serializable
 class AtUserBaseDto {
@@ -18,9 +19,9 @@ class AtUserBaseDto {
 
 @Serializable
 class AtUserPart2Dto {
-    var firstAtIds: Array<UserBase3Dto> = arrayOf() //最先at我的人
-    var lastAtIds: Array<UserBaseDto> = arrayOf() //最后at我的人
-    var maxUsers: Array<AtUserBaseDto> = arrayOf()//at最多的人
+    var firstAtIds: Array<UserBase3Dto> = emptyArray() //最先at我的人
+    var lastAtIds: Array<UserBaseDto> = emptyArray() //最后at我的人
+    var maxUsers: Array<AtUserBaseDto> = emptyArray()//at最多的人
 }
 
 @Serializable
@@ -47,12 +48,12 @@ class BlogAtDto {
     var location: String = "" //本地位置
     var adCode: String = "" // 邮政编号
     var content: String = ""//文字内容
-    var labels: IntArray = intArrayOf() //标签
-    var tags: Array<TagsDto> = arrayOf() //用户标签
+    var labels: IntArray = EmptyArray.int //标签
+    var tags: Array<TagsDto> = emptyArray() //用户标签
     var resource: ResourceDto = ResourceDto() //资源
     var coCreates: String = "" //共创
     var createTime: Long = 0 //发布时间
-    var coCreateInfos: Array<UserBaseDto> = arrayOf()//共创用户信息
+    var coCreateInfos: Array<UserBaseDto> = emptyArray()//共创用户信息
     var blogVote: BlogVotesDto  = BlogVotesDto() //投票
     var nickname: String = "" //用户名
     var profile: String = "" //头像

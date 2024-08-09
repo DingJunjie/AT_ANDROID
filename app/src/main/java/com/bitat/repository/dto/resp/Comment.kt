@@ -13,7 +13,7 @@ class CommentPartDto {
     var agrees: UInt = 0u //点赞数
     var content: String = "" //内容
     var ipTerritory: String = "" //属地
-    var atUsers: Array<AtUserDto> = arrayOf() //at用户信息
+    var atUsers: Array<AtUserDto> = emptyArray() //at用户信息
     var resource: ResourceDto = ResourceDto() //资源
     var nickname: String = "" //用户名
     var profile: String = "" //头像
@@ -33,7 +33,7 @@ class SubCommentPartDto {
     var content: String = "" //内容
     var ipTerritory: String = "" //属地
     var resource: ResourceDto = ResourceDto() //资源
-    var atUsers: Array<AtUserDto> = arrayOf() //艾特用户信息
+    var atUsers: Array<AtUserDto> = emptyArray() //艾特用户信息
     var nickname: String = "" //用户名
     var profile: String = "" //头像
     var toNickname: String = "" //回复谁用户名
@@ -47,12 +47,12 @@ class SubCommentPartDto {
 @Serializable
 class CommentPart2Dto {
     var exposure: Int = 0 //博文曝光度
-    var commentVec: Array<CommentPartDto> = arrayOf() //一级评论数组
+    var commentVec: Array<CommentPartDto> = emptyArray() //一级评论数组
 }
 
 @Serializable
 class CommentPart1Dto {
     var comment: CommentPartDto = CommentPartDto() //一级评论
-    var subComment: Array<SubCommentPartDto> = arrayOf() //二级评论数组
+    var subComment: Array<SubCommentPartDto> = emptyArray() //二级评论数组
 }
 

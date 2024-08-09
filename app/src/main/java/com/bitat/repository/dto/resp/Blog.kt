@@ -3,6 +3,7 @@ package  com.bitat.dto.resp
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
 import com.bitat.repository.dto.resp.*
+import com.bitat.utils.EmptyArray
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -30,12 +31,12 @@ class BlogBaseDto {
     var location: String = "" //本地位置
     var adCode: String = "" // 邮政编号
     var content: String = ""//文字内容
-    var labels: IntArray = intArrayOf() //标签
-    var tags: Array<TagsDto> = arrayOf() //用户标签
+    var labels: IntArray = EmptyArray.int //标签
+    var tags: Array<TagsDto> = emptyArray() //用户标签
     var resource: ResourceDto = ResourceDto() //资源
     var coCreates: String = "" //共创
     var createTime: Long = 0 //发布时间
-    var coCreateInfos: Array<UserBaseDto> = arrayOf()//共创用户信息
+    var coCreateInfos: Array<UserBaseDto> = emptyArray()//共创用户信息
     var blogVote: BlogVotesDto = BlogVotesDto() //投票
     var nickname: String = "" //用户名
     var profile: String = "" //头像
@@ -70,7 +71,7 @@ class BlogPartDto(
     var content: String = "",
     var createTime: Long = 0L,
     var vote: Byte = 0,
-    var labels: IntArray = intArrayOf(),
+    var labels: IntArray = EmptyArray.int,
     var tags: TagsDto = TagsDto(),
     var resource: ResourceDto = ResourceDto(),
     var blogVote: BlogVotesDto = BlogVotesDto(),
@@ -80,7 +81,7 @@ class BlogPartDto(
 @Serializable
 class BlogVotesDto {
     var voteIndex: Byte = 0
-    var voteVec: Array<BlogVoteDto> = arrayOf()
+    var voteVec: Array<BlogVoteDto> = emptyArray()
 }
 
 @Serializable
@@ -112,12 +113,12 @@ class BlogPart2Dto {
     var location: String = "" //本地位置
     var adCode: String = "" // 邮政编号
     var content: String = ""//文字内容
-    var labels: IntArray = intArrayOf() //标签
-    var tags: Array<TagsDto> = arrayOf() //用户标签
+    var labels: IntArray = EmptyArray.int //标签
+    var tags: Array<TagsDto> = emptyArray() //用户标签
     var resource: ResourceDto = ResourceDto() //资源
     var coCreates: String = "" //共创
     var createTime: Long = 0 //发布时间
-    var coCreateInfos: Array<UserBaseDto> = arrayOf()//共创用户信息
+    var coCreateInfos: Array<UserBaseDto> = emptyArray()//共创用户信息
     var blogVote: BlogVotesDto = BlogVotesDto() //投票
     var nickname: String = "" //用户名
     var profile: String = "" //头像
@@ -157,12 +158,12 @@ class BlogPart3Dto {
     var location: String = "" //本地位置
     var adCode: String = "" // 邮政编号
     var content: String = ""//文字内容
-    var labels: IntArray = intArrayOf() //标签
-    var tags: Array<TagsDto> = arrayOf() //用户标签
+    var labels: IntArray = EmptyArray.int //标签
+    var tags: Array<TagsDto> = emptyArray() //用户标签
     var resource: ResourceDto = ResourceDto() //资源
     var coCreates: String = "" //共创
     var createTime: Long = 0 //发布时间
-    var coCreateInfos: Array<UserBaseDto> = arrayOf()//共创用户信息
+    var coCreateInfos: Array<UserBaseDto> = emptyArray()//共创用户信息
     var blogVote: BlogVotesDto = BlogVotesDto() //投票
     var nickname: String = "" //用户名
     var profile: String = "" //头像

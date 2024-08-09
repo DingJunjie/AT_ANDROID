@@ -6,6 +6,7 @@ import com.bitat.repository.consts.MUSIC_KIND_OTHER
 import kotlinx.serialization.Serializable
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
+import com.bitat.utils.EmptyArray
 
 @Serializable
 class PublishBlogDto(
@@ -22,11 +23,11 @@ class PublishBlogDto(
     var latitude: Double = 0.0,//纬度
     var location: String = "", //本地位置
     var content: String = "", //动态文字内容
-    var albumMembers: LongArray = longArrayOf(), //专辑团队
-    var tags: Array<TagsDto> = arrayOf(),//标签
+    var albumMembers: LongArray = EmptyArray.long, //专辑团队
+    var tags: Array<TagsDto> = emptyArray(),//标签
     var resource: ResourceDto = ResourceDto(),//资源（json:有类型和文件key）
-    var coCreates: LongArray = longArrayOf(),//用户共创
-    var atUsers: LongArray = longArrayOf()//艾特用户
+    var coCreates: LongArray = EmptyArray.long,//用户共创
+    var atUsers: LongArray = EmptyArray.long//艾特用户
 )
 
 @Serializable
@@ -75,7 +76,7 @@ class SameCityBlogsDto(
 
 @Serializable
 class QueryCoverDto(
-    var blogIds: LongArray //博文id数组
+    var blogIds: LongArray = EmptyArray.long //博文id数组
 )
 
 @Serializable
@@ -98,5 +99,5 @@ class BlogOtherDto(
 
 @Serializable
 class BlogFindDto(
-    var blogIds: IntArray //博文id数组
+    var blogIds: IntArray = EmptyArray.int //博文id数组
 )

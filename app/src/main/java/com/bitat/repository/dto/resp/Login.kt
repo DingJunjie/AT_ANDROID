@@ -17,18 +17,19 @@ class AuthDto {
 @Serializable
 class LoginResDto {
     var access: TokenDto = TokenDto() //token信息
-    var auths: Array<AuthDto> = arrayOf() //权限
+    var auths: Array<AuthDto> = emptyArray() //权限
     var user: UserDto = UserDto() //用户信息
 }
 
 @Serializable
-class CaptchaDto(
-    var checkKey: String,
-    var captcha: String,
-)
+class CaptchaDto {
+    var checkKey: String = ""
+    var captcha: String = ""
+}
 
 @Serializable
-class RefreshResDto(
-    var access: TokenDto, var auths: Array<AuthDto>
-)
+class RefreshResDto {
+    var access: TokenDto =  TokenDto()
+    var auths: Array<AuthDto> = emptyArray()
+}
 
