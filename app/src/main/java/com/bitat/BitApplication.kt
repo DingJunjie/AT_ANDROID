@@ -5,9 +5,6 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
-import com.bitat.repository.socket.KeySecret
 import kotlinx.coroutines.Dispatchers
 
 class BitApplication : Application(), ImageLoaderFactory {

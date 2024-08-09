@@ -1,9 +1,7 @@
 package com.bitat.repository.socket
 
-import androidx.collection.IntFloatMap
-import androidx.collection.LongFloatMap
-import androidx.collection.LongLongMap
-import androidx.collection.LongObjectMap
+import androidx.collection.MutableLongObjectMap
+import com.bitat.MainCo
 import kotlinx.coroutines.Job
 import java.net.InetSocketAddress
 import java.nio.channels.DatagramChannel
@@ -13,7 +11,7 @@ object UdpClient {
 
     private const val HB_INTERVAL = 15 * 1000L
 
-    private var connArr = ArrayList<UdpAddrOwner>()
+    private val addrDict = MutableLongObjectMap<UdpAddrOwner>()
 
     private var conn: DatagramChannel? = null
 
@@ -21,11 +19,12 @@ object UdpClient {
 
     private var open = false
 
-    fun test() {
+    fun start() {
+      MainCo
     }
 }
 
-class UdpAddrOwner(val id: Long, val addr: InetSocketAddress) {
+class UdpAddrOwner(val addr: InetSocketAddress) {
     var readTime: Long = 0
 }
 
