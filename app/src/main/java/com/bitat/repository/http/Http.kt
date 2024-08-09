@@ -2,7 +2,6 @@ package  com.bitat.repository.http
 
 import com.bitat.repository.common.CuRes
 import com.bitat.repository.store.TokenStore
-import com.bitat.utils.EmptyArray
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -15,7 +14,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
-import java.io.InputStream
 
 //响应通用类
 @Serializable
@@ -37,8 +35,10 @@ object Http {
 
     private val HttpClient = OkHttpClient()
 
-    suspend fun <T, R> common(toJsonFn: (T) -> ByteArray, fromJsonFn: (InputStream) -> ResDto<R>, //参数
-                              method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean): Deferred<CuRes<R>> {
+    suspend fun <T, R> common(
+        toJsonFn: (T) -> String, fromJsonFn: (String) -> ResDto<R>, //参数
+        method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean
+    ): Deferred<CuRes<R>> {
         val headerMap = HashMap<String, String>(4)
         headerMap["Content-Type"] = "application/json"
         val cd = CompletableDeferred<CuRes<R>>()
@@ -51,9 +51,9 @@ object Http {
             }
         }
         headerMap.putAll(headers)
-        val reqBody = data?.let(toJsonFn)?.toRequestBody()
+        val reqBody = data?.let(toJsonFn)
         val req = Request.Builder().url(url).headers(headerMap.toHeaders()) //
-            .method(method, reqBody).build()
+            .method(method, reqBody?.toRequestBody()).build()
         HttpClient.newCall(req).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 cd.complete(CuRes.err(INNER_ERROR, e.message ?: "Inner error"))
@@ -62,11 +62,12 @@ object Http {
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body
                 if (response.isSuccessful && body != null) {
-                    val stream = body.byteStream()
-                    val resDto = fromJsonFn(stream)
-                    cd.complete(if (resDto.code == OK_CODE) {
-                        CuRes.ok(resDto.data ?: Unit)
-                    } else CuRes.err(resDto.code, resDto.msg))
+                    val resDto = fromJsonFn(body.string())
+                    cd.complete(
+                        if (resDto.code == OK_CODE) {
+                            CuRes.ok(resDto.data ?: Unit)
+                        } else CuRes.err(resDto.code, resDto.msg)
+                    )
                 } else cd.complete(CuRes.err(INNER_ERROR, "Http status:${response.code}"))
             }
 
@@ -74,10 +75,12 @@ object Http {
         return cd
     }
 
-    suspend inline fun <reified R> get(url: String, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
-        common<Unit, R>({ EmptyArray.byte }, JsonUtils::fromJson, "GET", url, null, headers, login)
+    suspend inline fun <reified R> get(
+        url: String, headers: Map<String, String> = emptyMap(), login: Boolean = true
+    ) = common<Unit, R>({ "" }, JsonUtils::fromJson, "GET", url, null, headers, login)
 
-    suspend inline fun <reified T, reified R> post(url: String, data: T, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
-        common<T, R>(JsonUtils::toJson, JsonUtils::fromJson, "POST", url, data, headers, login)
+    suspend inline fun <reified T, reified R> post(
+        url: String, data: T, headers: Map<String, String> = emptyMap(), login: Boolean = true
+    ) = common<T, R>(JsonUtils::toJson, JsonUtils::fromJson, "POST", url, data, headers, login)
 
 }
