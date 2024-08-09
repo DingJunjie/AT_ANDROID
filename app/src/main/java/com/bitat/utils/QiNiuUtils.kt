@@ -55,7 +55,6 @@ object QiNiuUtil {
             is Uri -> uploadManager.put(
                 file, Local.ctx?.contentResolver, upKey, token, completionFn, options
             )
-
             is ByteArray -> uploadManager.put(file, upKey, token, completionFn, options)
             is String -> uploadManager.put(file, upKey, token, completionFn, options)
             is File -> uploadManager.put(file, upKey, token, completionFn, options)
