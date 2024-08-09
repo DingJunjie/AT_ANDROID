@@ -147,6 +147,12 @@ class PublishViewModel : ViewModel() {
         }
     }
 
+    fun onCommentableClick(commentable: Commentable) {
+        commonState.update {
+            it.copy(commentable = commentable)
+        }
+    }
+
     fun updateVisibility(v: Visibility): Unit {
         commonState.update {
             it.copy(visibility = v)
