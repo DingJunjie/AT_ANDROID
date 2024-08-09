@@ -9,14 +9,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class PublishBlogDto(
-    var albumOps: Long = -1,  //专辑id：-1，自己可跟随,-2:团队可跟随,-3:好友可跟随,-4粉丝可跟 -5所有人可跟随, 0：无操作 >0 跟随专辑id
-    var musicId: Long = -1, ////音乐id
-    var visible: Byte = BLOG_VISIBLE_ALL.toByte(), //博文可见性 1、仅自己可见  2、仅好友可见  3、所有人可见
-    var openComment: Byte = BLOG_COMMENTABLE_ALL.toByte(),  //详情见comment常量
-    var kind: Byte = -1,  //详情见blog常量
+    var albumOps: Long = 0,  //专辑id, -1:自己可跟随,-2:团队可跟随,-3:好友可跟随,-4粉丝可跟 -5所有人可跟随, 0：无操作 >0 跟随专辑id
+    var musicId: Long = 0, ////音乐id
+    var kind: Byte = 0,  //详情见blog常量
     var vote: Byte = 0, //0:不是,如果是请使用 BLOG_VOTE_YES 常量
     var cover: String = "",  //博文封面
     var adCode: String = "", //行政编码
+    var visible: Byte = BLOG_VISIBLE_ALL.toByte(), //博文可见性 1、仅自己可见  2、仅好友可见  3、所有人可见
+    var openComment: Byte = BLOG_COMMENTABLE_ALL.toByte(),  //详情见comment常量
     var longitude: Double = 0.0, //经度
     var latitude: Double = 0.0,//纬度
     var location: String = "", //本地位置

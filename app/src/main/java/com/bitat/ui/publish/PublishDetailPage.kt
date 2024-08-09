@@ -81,8 +81,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -234,7 +232,15 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         when (opt) {
             PublishTextOption.Topic -> {
                 focusRequester.requestFocus()
-                vm.onContentChange(commonState.content + "#")
+                if (commonState.content.isNotEmpty() && commonState.content.last()
+                        .toString() == "#"
+                ) {
+                    vm.onContentChange(
+                        commonState.content.substringBeforeLast("#")
+                    )
+                } else {
+                    vm.onContentChange(commonState.content + "#")
+                }
                 vm.initTags()
             }
 
@@ -384,10 +390,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     if (option == PublishTextOption.At) Box {}
                 }
             }
-
     }
-
-
 }
 
 @Composable
@@ -488,7 +491,7 @@ fun MediaBox(
         LazyRow(
             Modifier //                .fillMaxWidth()
                 .padding(top = 10.dp, bottom = 10.dp),
-            contentPadding = PaddingValues(start = if (coverPath == null) 15.dp else 0.dp)
+            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
         ) {
             items(pictureList.size) { index ->
                 PictureBox(uri = pictureList[index], tapFn = {
@@ -731,10 +734,15 @@ fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
 }
 
 @Composable
-fun AtOptions(users: List<UserDto>, tapUserFn: (UserDto) -> Unit) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
+fun AtOptions(
+    users: List<UserDto>,
+    tapUserFn: (UserDto) -> Unit
+) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(users) { item ->
-            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     tapUserFn(item)
                 }) {

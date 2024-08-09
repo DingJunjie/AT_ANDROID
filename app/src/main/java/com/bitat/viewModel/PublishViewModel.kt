@@ -42,7 +42,7 @@ class PublishViewModel : ViewModel() {
 
 
     private fun updateKind(): Unit {
-        var kind = -2
+        var kind = 0
         val hasPicture = mediaState.value.localImages.isNotEmpty()
         val hasVideo = mediaState.value.localVideo != Uri.EMPTY
         val text = commonState.value.content
@@ -121,7 +121,7 @@ class PublishViewModel : ViewModel() {
                 tags.add(tag)
             }
         }
-        onContentChange(newContent)
+
     }
 
     fun removeMedia(uri: Uri) {
@@ -211,11 +211,13 @@ class PublishViewModel : ViewModel() {
             mediaState.value.localImages.forEachIndexed { index, it ->
                 val cd = CompletableDeferred<Boolean>()
                 val imgParams = ImageUtils.getParams(it)
-                val key = QiNiuUtil.genKey(FileType.Image,
+                val key = QiNiuUtil.genKey(
+                    FileType.Image,
                     UserStore.userInfo.id,
                     index,
                     imgParams.width,
-                    imgParams.height)
+                    imgParams.height
+                )
                 QiNiuUtil.uploadFile(
                     it,
                     token,
@@ -230,19 +232,21 @@ class PublishViewModel : ViewModel() {
                 // key | progress | response
                 mediaState.update { img ->
                     img.images.add(key)
-                    img
+                    img.copy(cover = img.images.first())
                 }
             }
 
             val video = mediaState.value.localVideo.path;
             if (!video.isNullOrBlank()) {
                 val videoParams = VideoUtils.getParams(mediaState.value.localVideo)
-                val key = QiNiuUtil.genKey(FileType.Video,
+                val key = QiNiuUtil.genKey(
+                    FileType.Video,
                     UserStore.userInfo.id,
                     0,
                     videoParams.width,
                     videoParams.height,
-                    videoParams.duration)
+                    videoParams.duration
+                )
                 QiNiuUtil.uploadFile(
                     mediaState.value.localVideo,
                     token,
@@ -253,9 +257,28 @@ class PublishViewModel : ViewModel() {
                     },
                 ).await()
 
+                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
+                val coverKey = QiNiuUtil.genKey(
+                    FileType.Image,
+                    UserStore.userInfo.id,
+                    0,
+                    coverParams.width,
+                    coverParams.height
+                )
+
+                QiNiuUtil.uploadFile(
+                    mediaState.value.localCover,
+                    token,
+                    FileType.Image,
+                    coverKey,
+                    cancelTag,
+                    progressFn = { a, b ->
+                    }
+                ).await()
+
                 // key | progress | response
                 mediaState.update { state ->
-                    state.copy(video = key)
+                    state.copy(video = key, cover = coverKey)
                 }
             }
         }
@@ -293,12 +316,14 @@ class PublishViewModel : ViewModel() {
                 dto.cover = dto.resource.images[0]
             }
 
+            CuLog.info(CuTag.Publish, dto.toString())
+
             val result = BlogReq.publish(dto).await()
             result.map {
                 completeFn()
-                CuLog.info(CuTag.Publish, "update success $it")
+                CuLog.info(CuTag.Publish, "publish success $it")
             }.errMap {
-                CuLog.info(CuTag.Publish, "update failed, message is ${it.msg}")
+                CuLog.info(CuTag.Publish, "publish failed, message is ${it.msg}")
 
             }
         }

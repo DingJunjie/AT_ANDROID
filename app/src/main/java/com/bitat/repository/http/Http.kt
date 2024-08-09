@@ -54,6 +54,7 @@ object Http {
         val reqBody = data?.let(toJsonFn)
         val req = Request.Builder().url(url).headers(headerMap.toHeaders()) //
             .method(method, reqBody?.toRequestBody()).build()
+
         HttpClient.newCall(req).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 cd.complete(CuRes.err(INNER_ERROR, e.message ?: "Inner error"))
