@@ -173,6 +173,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     }
 
     fun onContentChange(content: String) {
+        if (content.isEmpty()) {
+            tagStart.value = false
+            return
+        }
         if (content.last().toString() == "#" && !tagStart.value) {
             // 开始tag
             tagStart.value = true
@@ -190,7 +194,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
 
     var showOptDialog by remember { mutableStateOf(false) }
-    OptionDialog(showOptDialog,
+    OptionDialog(
+        showOptDialog,
         onDismiss = { showOptDialog = false; option = PublishTextOption.None }) {
         if (option == PublishTextOption.Follow) {
             FollowOptions(currentFollowable = Followable.getFollowable(
@@ -322,6 +327,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                                     vm.locationUpdate(point, name)
                                 }
                             })
+
                     }
 
                     HorizontalDivider(
@@ -333,6 +339,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
                     Follow() {
                         tapOption(PublishTextOption.Follow)
+                    }
+
+                    CommentableRow(commentable = commonState.commentable) {
+                        tapOption(PublishTextOption.Comment)
                     }
 
                     VisibilityRow(commonState.visibility) {
@@ -381,8 +391,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     .height(bottomOptHeight.intValue.dp)
                     .background(Color.White)
             ) {
-                if (option == PublishTextOption.Topic) TopicOptions(
-                    tags = commonState.tagSearchResult,
+                if (option == PublishTextOption.Topic) TopicOptions(tags = commonState.tagSearchResult,
                     tapTopicFn = {
                         vm.onTopicClick(it)
                         tagStart.value = false
@@ -406,6 +415,24 @@ fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
     ) {
         Icon(Icons.Filled.Lock, contentDescription = null)
         Text(text = Visibility.getUiVisibility(visibility = visibility))
+        Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+fun CommentableRow(commentable: Commentable, tapFn: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
+            .fillMaxWidth()
+            .clickableWithoutRipple {
+                tapFn()
+            }, horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Icon(Icons.Filled.Lock, contentDescription = null)
+        Text(text = Commentable.getUiCommentable(commentable = commentable))
         Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
         }

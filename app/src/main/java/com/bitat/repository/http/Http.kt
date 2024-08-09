@@ -1,5 +1,7 @@
 package  com.bitat.repository.http
 
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.common.CuRes
 import com.bitat.repository.store.TokenStore
 import com.bitat.utils.JsonUtils
@@ -52,6 +54,7 @@ object Http {
         }
         headerMap.putAll(headers)
         val reqBody = data?.let(toJsonFn)
+        CuLog.info(CuTag.Publish, reqBody ?: "")
         val req = Request.Builder().url(url).headers(headerMap.toHeaders()) //
             .method(method, reqBody?.toRequestBody()).build()
 
