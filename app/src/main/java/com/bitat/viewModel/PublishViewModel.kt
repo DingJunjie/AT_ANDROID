@@ -101,6 +101,7 @@ class PublishViewModel : ViewModel() {
 
     //话题
     fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
+        val newContent=""
         val content = commonState.value.content
         if (content.last().toString() == "#") {
             commonState.update {
@@ -344,7 +345,8 @@ class PublishViewModel : ViewModel() {
                 location = commonState.value.location
                 content = commonState.value.content
 
-                visible = commonState.value.visibility.toCode()
+//                visible = commonState.value.visibility.toCode()
+                visible = 3
             }
 
             val cancelTag = AtomicBoolean()

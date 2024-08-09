@@ -116,7 +116,7 @@ object TcpClient {
             conn = AsynchronousSocketChannel.open().apply {
                 connect(InetSocketAddress(HOST, PORT), Unit, //
                     object : CompletionHandler<Void, Unit> {
-                        override fun completed(result: Void, attachment: Unit) {
+                        override fun completed(result: Void?, attachment: Unit) {
                             CuLog.info(CuTag.SingleChat, "Tcp conn ok")
                             MainCo.launch(IO) {
                                 if (auth()) {
