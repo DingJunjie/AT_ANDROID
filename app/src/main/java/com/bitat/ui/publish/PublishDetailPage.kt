@@ -81,8 +81,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -103,6 +101,7 @@ import com.bitat.ext.cdp
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.Commentable
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.resp.BlogTagDto
@@ -125,7 +124,7 @@ import com.melody.dialog.any_pop.DirectionState
 import kotlinx.coroutines.flow.update
 
 enum class PublishTextOption {
-    Topic, At, Follow, Font, Visibility, None, Media, Location
+    Topic, At, Follow, Font, Visibility, None, Media, Location, Settings, Comment
 }
 
 @OptIn(
@@ -152,13 +151,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         mutableIntStateOf(0)
     }
 
-    val permissionState =
-        rememberMultiplePermissionsState(
-            permissions = listOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
+    val permissionState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
         )
+    )
 
     val textFieldValue = TextFieldValue(
         commonState.content, TextRange(commonState.content.length)
@@ -176,6 +173,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     }
 
     fun onContentChange(content: String) {
+        if (content.isEmpty()) {
+            tagStart.value = false
+            return
+        }
         if (content.last().toString() == "#" && !tagStart.value) {
             // 开始tag
             tagStart.value = true
@@ -193,7 +194,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
 
     var showOptDialog by remember { mutableStateOf(false) }
-    OptionDialog(showOptDialog,
+    OptionDialog(
+        showOptDialog,
         onDismiss = { showOptDialog = false; option = PublishTextOption.None }) {
         if (option == PublishTextOption.Follow) {
             FollowOptions(currentFollowable = Followable.getFollowable(
@@ -205,17 +207,22 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             })
         } else if (option == PublishTextOption.Visibility) {
 
-            VisibilityOptions(currentVisibility = commonState.visibility,
-                setVisibilityFn = {
-                    vm.onVisibilityClick(it)
-                    option = PublishTextOption.None
-                    showOptDialog = false
-                })
+            VisibilityOptions(currentVisibility = commonState.visibility, setVisibilityFn = {
+                vm.onVisibilityClick(it)
+                option = PublishTextOption.None
+                showOptDialog = false
+            })
         } else if (option == PublishTextOption.Media) {
             MediaOptions(selectedUri.value, editFn = {
 
             }, removeFn = {
                 vm.removeMedia(it)
+                option = PublishTextOption.None
+                showOptDialog = false
+            })
+        } else if (option == PublishTextOption.Comment) {
+            CommentOptions(currentComment = commonState.commentable, setCommentFn = {
+                vm.onCommentableClick(it)
                 option = PublishTextOption.None
                 showOptDialog = false
             })
@@ -234,7 +241,15 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         when (opt) {
             PublishTextOption.Topic -> {
                 focusRequester.requestFocus()
-                vm.onContentChange(commonState.content + "#")
+                if (commonState.content.isNotEmpty() && commonState.content.last()
+                        .toString() == "#"
+                ) {
+                    vm.onContentChange(
+                        commonState.content.substringBeforeLast("#")
+                    )
+                } else {
+                    vm.onContentChange(commonState.content + "#")
+                }
                 vm.initTags()
             }
 
@@ -281,15 +296,13 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                             vm.onContentChange(it)
                         })
 
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
+                    Row(horizontalArrangement = Arrangement.Start,
                         modifier = Modifier
                             .padding(start = 20.dp)
                             .onGloballyPositioned {
                                 bottomOptHeight.intValue =
                                     ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
-                            }
-                    ) {
+                            }) {
                         Options(title = stringResource(id = R.string.publish_option_topic),
                             iconPath = "svg/topic.svg",
                             selected = option == PublishTextOption.Topic,
@@ -314,6 +327,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                                     vm.locationUpdate(point, name)
                                 }
                             })
+
                     }
 
                     HorizontalDivider(
@@ -325,6 +339,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
                     Follow() {
                         tapOption(PublishTextOption.Follow)
+                    }
+
+                    CommentableRow(commentable = commonState.commentable) {
+                        tapOption(PublishTextOption.Comment)
                     }
 
                     VisibilityRow(commonState.visibility) {
@@ -362,32 +380,27 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             }
         }
 
-        if (option == PublishTextOption.Topic || option == PublishTextOption.At)
-            Column(
-                verticalArrangement = Arrangement.Bottom,
+        if (option == PublishTextOption.Topic || option == PublishTextOption.At) Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .background(Color.Transparent)
+                    .height(bottomOptHeight.intValue.dp)
+                    .background(Color.White)
             ) {
-                Box(
-                    modifier = Modifier
-                        .height(bottomOptHeight.intValue.dp)
-                        .background(Color.White)
-                ) {
-                    if (option == PublishTextOption.Topic) TopicOptions(
-                        tags = commonState.tagSearchResult,
-                        tapTopicFn = {
-                            vm.onTopicClick(it)
-                            tagStart.value = false
-                            option = PublishTextOption.None
-                        })
-                    if (option == PublishTextOption.At) Box {}
-                }
+                if (option == PublishTextOption.Topic) TopicOptions(tags = commonState.tagSearchResult,
+                    tapTopicFn = {
+                        vm.onTopicClick(it)
+                        tagStart.value = false
+                        option = PublishTextOption.None
+                    })
+                if (option == PublishTextOption.At) Box {}
             }
-
+        }
     }
-
-
 }
 
 @Composable
@@ -409,6 +422,24 @@ fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
 }
 
 @Composable
+fun CommentableRow(commentable: Commentable, tapFn: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
+            .fillMaxWidth()
+            .clickableWithoutRipple {
+                tapFn()
+            }, horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Icon(Icons.Filled.Lock, contentDescription = null)
+        Text(text = Commentable.getUiCommentable(commentable = commentable))
+        Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        }
+    }
+}
+
+@Composable
 fun Follow(clickFn: () -> Unit) {
     Row(
         modifier = Modifier
@@ -416,8 +447,7 @@ fun Follow(clickFn: () -> Unit) {
             .fillMaxWidth()
             .clickable {
                 clickFn()
-            },
-        horizontalArrangement = Arrangement.SpaceBetween
+            }, horizontalArrangement = Arrangement.SpaceBetween
     ) { //        Icon(R.drawable, contentDescription = null, tint = Color.Gray)
         SvgIcon(
             path = "svg/follow_blog.svg",
@@ -434,16 +464,13 @@ fun Follow(clickFn: () -> Unit) {
 @Composable
 fun TagsRow(tags: List<BlogTagDto>) {
     LazyRow(
-        modifier = Modifier.padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(tags) { item ->
             Column(
                 modifier = Modifier
                     .border(
-                        1.dp,
-                        Color.Black,
-                        RoundedCornerShape(20.dp)
+                        1.dp, Color.Black, RoundedCornerShape(20.dp)
                     )
                     .padding(all = 10.dp)
             ) {
@@ -480,15 +507,13 @@ fun MediaBox(
     Row(Modifier.fillMaxWidth()) {
         if (coverPath != Uri.EMPTY) Box(
             Modifier.padding(
-                top = 10.dp,
-                bottom = 10.dp,
-                start = 10.dp
+                top = 10.dp, bottom = 10.dp, start = 10.dp
             )
         ) { VideoBox(coverPath) {} }
         LazyRow(
             Modifier //                .fillMaxWidth()
                 .padding(top = 10.dp, bottom = 10.dp),
-            contentPadding = PaddingValues(start = if (coverPath == null) 15.dp else 0.dp)
+            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
         ) {
             items(pictureList.size) { index ->
                 PictureBox(uri = pictureList[index], tapFn = {
@@ -649,8 +674,7 @@ fun OptionDialog(showDialog: Boolean, onDismiss: () -> Unit, content: @Composabl
             modifier = Modifier
                 .fillMaxWidth()
                 .requiredHeightIn(
-                    max = ScreenUtils.screenHeight.times(0.6).dp,
-                    min = 80.dp
+                    max = ScreenUtils.screenHeight.times(0.6).dp, min = 80.dp
                 ) //                .fillMaxHeight(0.6f)
                 .background(color = Color.White)
                 .clickable(indication = rememberRipple(),
@@ -711,6 +735,26 @@ fun VisibilityOptions(currentVisibility: Visibility, setVisibilityFn: (Visibilit
 }
 
 @Composable
+fun CommentOptions(currentComment: Commentable, setCommentFn: (Commentable) -> Unit) {
+    Text("评论权限", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
+    LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
+        items(Commentable.entries.size) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 20.dp)
+                .clickable {
+                    setCommentFn(Commentable.entries[it])
+                }) {
+                Text(
+                    Commentable.getUiCommentable(commentable = Commentable.entries[it]),
+                    fontWeight = if (currentComment == Commentable.entries[it]) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
     LazyColumn(
         modifier = Modifier
@@ -731,10 +775,14 @@ fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
 }
 
 @Composable
-fun AtOptions(users: List<UserDto>, tapUserFn: (UserDto) -> Unit) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
+fun AtOptions(
+    users: List<UserDto>, tapUserFn: (UserDto) -> Unit
+) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(users) { item ->
-            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     tapUserFn(item)
                 }) {

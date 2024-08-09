@@ -63,8 +63,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        KeySecret.start()
-        TcpClient.start()
+//        KeySecret.start()
+//        TcpClient.start()
     }
 
     fun getAvailableMemory(): ActivityManager.MemoryInfo {

@@ -38,7 +38,7 @@ object TokenStore {
         if (tempExpired()) locker.readLock().withLock {
             if (tempExpired()) {
                 val jsonData = BaseStore.getStr(TOKEN_KEY)
-                if (jsonData != null) token = JsonUtils.fromJsonStr(jsonData)
+                if (jsonData != null) token = JsonUtils.fromJson(jsonData)
             }
         }
         return token
@@ -48,7 +48,7 @@ object TokenStore {
     private fun setToken(token: TokenDto) {
         token.expire += TimeUtils.getNow()
         this.token = token
-        val jsonData = JsonUtils.toJsonStr(token)
+        val jsonData = JsonUtils.toJson(token)
         BaseStore.setStr(TOKEN_KEY, jsonData)
     }
 
@@ -58,7 +58,7 @@ object TokenStore {
         if (tempExpired()) locker.readLock().withLock {
             if (tempExpired()) {
                 val jsonData = BaseStore.getStr(TOKEN_KEY)
-                if (jsonData != null) auths = JsonUtils.fromJsonStr(jsonData)
+                if (jsonData != null) auths = JsonUtils.fromJson(jsonData)
             }
         }
         return auths
@@ -67,7 +67,7 @@ object TokenStore {
     // 设置授权信息并存储到 Keychain 中
     private fun setAuths(auths: Array<AuthDto>) {
         this.auths = auths
-        val jsonData = JsonUtils.toJsonStr(auths)
+        val jsonData = JsonUtils.toJson(auths)
         BaseStore.setStr(AUTHS_KEY, jsonData)
     }
 
