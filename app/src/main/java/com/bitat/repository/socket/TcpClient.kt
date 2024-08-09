@@ -47,44 +47,46 @@ object TcpClient {
             byteBuf.flip()
             var residue = readBuf.buffer.size - readBuf.bufOffset
             if (result > 0) {
-                val newBuf = ByteArray(residue + result) // 如果缓冲区没有读完，就合并到新缓冲区
-                if (residue > 0) System.arraycopy(readBuf.buffer,
-                    readBuf.bufOffset,
-                    newBuf,
-                    0,
-                    residue)
+                // 如果缓冲区没有读完，就合并到新缓冲区
+                val newBuf = ByteArray(residue + result)
+                if (residue > 0) System.arraycopy(
+                    readBuf.buffer, readBuf.bufOffset, newBuf, 0, residue
+                )
                 byteBuf.get(newBuf, residue, result)
                 readBuf.buffer = newBuf
                 readBuf.bufOffset = 0
-                residue = readBuf.buffer.size // body的size不为0，创建新body
+                residue = readBuf.buffer.size
             } else if (result < 0) conn?.close()
 
-            while (residue >= TcpMsgHead.SIZE) { // head如果不存在，创建一个新的head
+            while (residue >= TcpMsgHead.SIZE) {
+                // head如果不存在，创建一个新的head
                 if (readBuf.head == null) {
                     val head = TcpMsgHead.fromBytes(readBuf.buffer)
                     readBuf.bufOffset += TcpMsgHead.SIZE
-                    val size = head.size // body的size为0，直接返回头部即可
+                    val size = head.size
+                    // body的size为0，直接返回头部即可
                     if (size == 0) {
                         msgHandler(head, EmptyArray.byte)
                     } else {
+                        // body的size不为0，创建新body
                         readBuf.head = head
                         readBuf.body = ByteArray(size)
                     }
                 }
                 if (readBuf.head != null && readBuf.body != null) {
                     val head = readBuf.head!!
-                    val body =
-                        readBuf.body!! // 判断有多少字节可读，如果缓冲区可读字节充足，就将body写满， // 如果缓冲区不充足，那就读完缓冲区，body在下次刷新缓冲区继续写
+                    val body = readBuf.body!!
+                    // 判断有多少字节可读，如果缓冲区可读字节充足，就将body写满
+                    // 如果缓冲区不充足，那就读完缓冲区，body在下次刷新缓冲区继续写
                     val readSize =
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
-                        System.arraycopy(readBuf.buffer,
-                            readBuf.bufOffset,
-                            body,
-                            readBuf.bodyOffset,
-                            readSize)
+                        System.arraycopy(
+                            readBuf.buffer, readBuf.bufOffset, body, readBuf.bodyOffset, readSize
+                        )
                         readBuf.bufOffset += readSize
-                        readBuf.bodyOffset += readSize // 判断body是否写完，写完就返回head和body
+                        readBuf.bodyOffset += readSize
+                        // 判断body是否写完，写完就返回head和body
                         if (body.size == head.size) {
                             readBuf.head = null
                             readBuf.body = null
@@ -114,7 +116,7 @@ object TcpClient {
             conn = AsynchronousSocketChannel.open().apply {
                 connect(InetSocketAddress(HOST, PORT), Unit, //
                     object : CompletionHandler<Void, Unit> {
-                        override fun completed(result: Void?, attachment: Unit) {
+                        override fun completed(result: Void, attachment: Unit) {
                             CuLog.info(CuTag.SingleChat, "Tcp conn ok")
                             MainCo.launch(IO) {
                                 if (auth()) {
@@ -146,7 +148,7 @@ object TcpClient {
                             }
                         }
 
-                        override fun failed(exc: Throwable?, attachment: Unit) =
+                        override fun failed(exc: Throwable, attachment: Unit) =
                             CuLog.error(CuTag.SingleChat, "Tcp conn err", exc)
 
                     })
@@ -221,8 +223,10 @@ object TcpClient {
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
 
-    private fun chatRec(toId: Long, fromId: Long, toRouter: Int, //
-        fromRouter: Int, time: Long, receive: Int) {
+    private fun chatRec(
+        toId: Long, fromId: Long, toRouter: Int, //
+        fromRouter: Int, time: Long, receive: Int
+    ) {
         val body = ChatRecMsg.newBuilder().also {
             it.toId = toId
             it.fromId = fromId
@@ -236,9 +240,9 @@ object TcpClient {
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
 
-    fun write(bytes: ByteArray) {
-        val byteBuffer = ByteBuffer.wrap(bytes)
-        conn?.write(byteBuffer, byteBuffer, object : CompletionHandler<Int, ByteBuffer> {
+    private fun write(bytes: ByteArray) {
+        val byteBuf = ByteBuffer.wrap(bytes)
+        conn?.write(byteBuf, byteBuf, object : CompletionHandler<Int, ByteBuffer> {
             override fun completed(result: Int, byteBuf: ByteBuffer) {
                 byteBuf.clear()
             }
@@ -300,11 +304,7 @@ object TcpClient {
         conn?.close()
         conn = null
         readTime = 0
-        readBuf.buffer = EmptyArray.byte
-        readBuf.bufOffset = 0
-        readBuf.head = null
-        readBuf.body = null
-        readBuf.bodyOffset = 0
+        readBuf.clear()
     }
 
     fun close() {
@@ -342,7 +342,16 @@ class TcpReadBuf {
     var body: ByteArray? = null
     var bufOffset: Int = 0
     var bodyOffset: Int = 0
+
+    fun clear() {
+        buffer = EmptyArray.byte
+        bufOffset = 0
+        head = null
+        body = null
+        bodyOffset = 0
+    }
 }
+
 
 object TcpMsgEvent {
     const val ACK = 0.toShort()
