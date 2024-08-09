@@ -82,12 +82,14 @@ class PublishViewModel : ViewModel() {
     }
 
     //话题
-    fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
+    fun onTopicClick(tag: BlogTagDto) {
+        val newContent = commonState.value.content + "#${tag.name} ";
         commonState.update {
             it.apply {
                 tags.add(tag)
             }
-        } //        onContentChange(newContent)
+        }
+        onContentChange(newContent)
     }
 
     fun removeMedia(uri: Uri) {
@@ -247,6 +249,7 @@ class PublishViewModel : ViewModel() {
                 println("update success $it")
             }.errMap {
                 println("update failed, message is ${it.msg}")
+
             }
         }
     }

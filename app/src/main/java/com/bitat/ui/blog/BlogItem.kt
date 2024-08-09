@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.cdp
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.theme.grey5
 import com.bitat.utils.ImageUtils
@@ -70,7 +72,7 @@ fun BlogItem(
             }
         }
 
-        println("博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
+        CuLog.debug(CuTag.Blog,"博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
 
         Box(
             modifier = Modifier

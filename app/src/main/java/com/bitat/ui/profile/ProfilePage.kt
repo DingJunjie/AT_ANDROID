@@ -82,6 +82,8 @@ import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.ext.toAmountUnit
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.ui.component.rememberDialogState
 import com.bitat.state.PROFILE_TAB_OPTIONS
 import com.bitat.utils.ScreenUtils
@@ -138,7 +140,7 @@ fun ProfilePage(navController: NavHostController) {
 
     LaunchedEffect(Dispatchers.Default) {
         UserStore.userFlow.collect { value ->
-            println(value)
+            CuLog.debug(CuTag.Profile, value.nickname)
         }
     }
 
@@ -365,7 +367,6 @@ fun ReadDataFromDatabase(
         mutableStateOf(viewModel.uiState.value)
     }
 
-    println(data);
 
     LazyColumn {
         items(count = data.userList.size) { item ->

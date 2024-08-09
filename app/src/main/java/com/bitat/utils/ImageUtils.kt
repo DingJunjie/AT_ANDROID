@@ -5,6 +5,8 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.bitat.Local
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import kotlin.math.abs
 
 data class ImageParams(val width: Int, val height: Int)
@@ -21,7 +23,7 @@ object ImageUtils {
             val (x, y) = matchResult.destructured
             return ImageParams(width = x.toInt(), height = y.toInt())
         } else {
-            println("No match found")
+            CuLog.error(CuTag.Base, "ImageUtils:No match found")
             return ImageParams(0, 0)
         }
     }

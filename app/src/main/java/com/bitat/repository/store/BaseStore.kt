@@ -2,6 +2,8 @@ package com.bitat.repository.store
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 
 object BaseStore {
     private var share: SharedPreferences? = null
@@ -9,7 +11,7 @@ object BaseStore {
     fun init(context: Context) {
         if (share == null) {
             share = context.getSharedPreferences("AtStore", Context.MODE_PRIVATE)
-            println("SP has init")
+            CuLog.debug(CuTag.Base, "SP has init")
         }
     }
 

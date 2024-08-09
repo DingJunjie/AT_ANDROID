@@ -55,7 +55,7 @@ class ProfileViewModel : ViewModel() {
                 labels = IntArray(1)
             )
         ).await()
-        println(result)
+
     }
 
     init {

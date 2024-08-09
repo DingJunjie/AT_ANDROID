@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.amap.api.maps.MapsInitializer
 import com.bitat.MainCo
 import com.bitat.config.OneClickCfg
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.common.CuRes
 import com.bitat.repository.dto.req.OneClickLoginDto
 import com.bitat.repository.dto.req.PhoneLoginDto
@@ -90,7 +92,7 @@ class LoginViewModel() : ViewModel() {
             quickLogin.setUnifyUiConfig(builder.build(context))
 
         } catch (e: Exception) {
-            println("there goes some exception $e")
+            CuLog.error(CuTag.Login, "there goes some exception $e", e)
         }
     }
 
@@ -115,44 +117,33 @@ class LoginViewModel() : ViewModel() {
     }
 
     private val getNumberListener = object : QuickLoginPreMobileListener {
-        override fun onGetMobileNumberSuccess(
-            token: String?,
-            phone: String?
-        ) { //            TODO("Not yet implemented")
-            println("we got pre mobile success the token and phone is $token, $phone")
+        override fun onGetMobileNumberSuccess(token: String?, phone: String?) { //            TODO("Not yet implemented")
+            CuLog.debug(CuTag.Login,
+                "we got pre mobile success the token and phone is $token, $phone")
             oneClickState.update {
-                it.copy(
-                    supported = true,
+                it.copy(supported = true,
                     initialized = true,
                     enabled = true,
                     phoneNumber = phone ?: "",
-                    token = token ?: ""
-                )
+                    token = token ?: "")
             }
         }
 
-        override fun onGetMobileNumberError(
-            token: String?,
-            msg: String?
-        ) { //            TODO("Not yet implemented")
-            println("we got pre mobile error the p0 and p1 is $token, $msg")
+        override fun onGetMobileNumberError(token: String?, msg: String?) { //            TODO("Not yet implemented")
+            CuLog.debug(CuTag.Login, "we got pre mobile error the p0 and p1 is $token, $msg")
             oneClickState.update {
-                it.copy(
-                    supported = false,
+                it.copy(supported = false,
                     initialized = true,
                     enabled = false,
-                    errorMsg = msg ?: "一键登录号码获取失败"
-                )
+                    errorMsg = msg ?: "一键登录号码获取失败")
             }
         }
     }
 
     private val getTokenListener = object : QuickLoginTokenListener {
-        override fun onGetTokenSuccess(
-            token: String?,
-            accessCode: String?
-        ) { //            TODO("Not yet implemented")
-            println("we got token success the token and accessCode is $token, $accessCode")
+        override fun onGetTokenSuccess(token: String?, accessCode: String?) { //            TODO("Not yet implemented")
+            CuLog.debug(CuTag.Login,
+                "we got token success the token and accessCode is $token, $accessCode")
             oneClickState.update {
                 it.copy(accessToken = token ?: "", signing = true)
             }
@@ -161,7 +152,7 @@ class LoginViewModel() : ViewModel() {
                 val result = oneClickSuccessLogin().await()
                 result.map {
                     TokenStore.initLogin(it)
-                    println("we got the result of $it")
+                    CuLog.debug(CuTag.Login, "we got the result of $it")
 
                     oneClickState.update { that ->
                         that.copy(signed = true, signing = false)
@@ -171,19 +162,13 @@ class LoginViewModel() : ViewModel() {
             }
         }
 
-        override fun onGetTokenError(
-            p0: String?,
-            p1: Int,
-            p2: String?
-        ) { //            TODO("Not yet implemented")
-            println("we got token error the p0 and p1 and p2 is $p0, $p1, $p2")
+        override fun onGetTokenError(p0: String?, p1: Int, p2: String?) { //            TODO("Not yet implemented")
+            CuLog.debug(CuTag.Login, "we got token error the p0 and p1 and p2 is $p0, $p1, $p2")
             oneClickState.update {
-                it.copy(
-                    supported = true,
+                it.copy(supported = true,
                     initialized = true,
                     enabled = false,
-                    errorMsg = p0 ?: "一键登录凭证获取失败"
-                )
+                    errorMsg = p0 ?: "一键登录凭证获取失败")
             }
         }
     }
@@ -243,7 +228,7 @@ class LoginViewModel() : ViewModel() {
             timerDuration.update {
                 MAX_TIMER * 1
             }
-            println("初始化TIMER")
+            CuLog.debug(CuTag.Login, "初始化TIMER")
             MainCo.launch {
                 timer = fixedRateTimer("captcha", false, 0, 1000L) {
                     if (timerDuration.value == 0) {
@@ -252,12 +237,11 @@ class LoginViewModel() : ViewModel() {
                             0
                         }
                         timer = null
-                        println("清除TIMER")
+                        CuLog.debug(CuTag.Login, "清除TIMER")
                     } else {
                         timerDuration.update {
                             it.dec()
-                        }
-//                        timerContent.value = "还剩${_timerDuration.value}秒"
+                        } //                        timerContent.value = "还剩${_timerDuration.value}秒"
                     }
                 }
             }
@@ -287,13 +271,11 @@ class LoginViewModel() : ViewModel() {
 
 
     fun updatePhone(phone: String) {
-        println("the phone is ${loginState.value.phone}")
-
+        CuLog.debug(CuTag.Login, "the phone is ${loginState.value.phone}")
         loginState.update {
             it.copy(phone = phone)
         }
-
-        println("the phone is ${loginState.value.phone}")
+        CuLog.debug(CuTag.Login, "the phone is ${loginState.value.phone}")
     }
 
     fun updateCaptcha(captcha: String) {
@@ -324,9 +306,7 @@ class LoginViewModel() : ViewModel() {
         return Build.FINGERPRINT.startsWith("generic") || Build.FINGERPRINT.lowercase(Locale.getDefault())
             .contains("vbox") || Build.FINGERPRINT.lowercase(Locale.getDefault())
             .contains("test-keys") || Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
-            "Android SDK built for x86"
-        ) || Build.MANUFACTURER.contains("Genymotion") || (Build.BRAND.startsWith(
-            "generic"
-        ) && Build.DEVICE.startsWith("generic"))
+            "Android SDK built for x86") || Build.MANUFACTURER.contains("Genymotion") || (Build.BRAND.startsWith(
+            "generic") && Build.DEVICE.startsWith("generic"))
     }
 }

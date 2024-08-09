@@ -38,6 +38,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -59,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -185,7 +187,6 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 Column(modifier = Modifier.padding(padding) //                    .fillMaxHeight()
                 ) {
 
-
                     if (mediaState.localImages.isNotEmpty() || mediaState.localCover != Uri.EMPTY) MediaBox(
                         mediaState.localImages,
                         selectUri = {
@@ -204,10 +205,14 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     LazyRow(modifier = Modifier.padding(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         items(commonState.tags) { item ->
-                            Column(modifier = Modifier.border(1.dp,
+                            Box(modifier = Modifier.border(1.dp,
                                 Color.Black,
                                 RoundedCornerShape(20.dp)).padding(all = 10.dp)) {
                                 Text(text = "#${item.name}")
+                                IconButton(onClick = {}) { //                                    Icon(painterResource(R.drawable.))
+
+
+                                }
                             }
                         }
                     }
@@ -407,9 +412,7 @@ fun InputBox(hasMedia: Boolean = false, content: String, addPicture: (List<Uri>)
     //            updateTitle(it)
     //        })
 
-    Column(
-
-    ) {
+    Column {
         OutlinedTextField(modifier = Modifier.fillMaxWidth() //            .fillMaxHeight()
             .height(if (hasMedia) 200.dp else 300.dp).padding(5.dp),
 
