@@ -20,29 +20,64 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import java.io.InputStream
 
+enum class ImagePickerOption {
+    SINGLE_IMAGE,
+    MULTIPLE_IMAGE,
+    SINGLE_VIDEO,
+    SINGLE_VIDEO_MULTIPLE_IMAGE
+}
 
 @Composable
-fun ImagePicker(onSelected: (List<Uri>) -> Unit, content: @Composable () -> Unit) {
+fun ImagePicker(
+    onSelected: (List<Uri>) -> Unit,
+    option: ImagePickerOption = ImagePickerOption.MULTIPLE_IMAGE,
+    content: @Composable () -> Unit
+) {
     // Trigger the image picker
     val clickable = rememberSaveable { mutableStateOf(true) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         if (it.resultCode == RESULT_OK) {
-            val clipData = it.data?.clipData
-            if (clipData != null) {
-                onSelected((0..<clipData.itemCount).mapNotNull { i ->
-                    clipData.getItemAt(i).uri
-                })
-            } else CuLog.error(CuTag.Publish, "Empty clipData")
+            if (option == ImagePickerOption.MULTIPLE_IMAGE) {
+                val clipData = it.data?.clipData
+                if (clipData != null) {
+                    onSelected((0..<clipData.itemCount).mapNotNull { i ->
+                        clipData.getItemAt(i).uri
+                    })
+                } else CuLog.error(CuTag.Publish, "Empty clipData")
+            } else if (option == ImagePickerOption.SINGLE_VIDEO) {
+                val uri = it.data?.data ?: Uri.EMPTY
+                onSelected(listOf(uri))
+            }
         }
 
         clickable.value = true
     }
 
     val pickImageIntent = Intent(Intent.ACTION_PICK).apply {
-        type = "image/* video/*"
-        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        when (option) {
+            ImagePickerOption.SINGLE_IMAGE -> {
+                type = "image/*"
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            }
+
+            ImagePickerOption.MULTIPLE_IMAGE -> {
+                type = "image/*"
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            }
+
+            ImagePickerOption.SINGLE_VIDEO -> {
+                type = "video/*"
+                putExtra(Intent.ACTION_PICK, true)
+            }
+
+            ImagePickerOption.SINGLE_VIDEO_MULTIPLE_IMAGE -> {
+                type = "image/*"
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            }
+
+        }
     }
 
 
