@@ -13,7 +13,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.bitat.config.BitEventBus
+import com.bitat.ext.flowbus.observeEvent
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.socket.KeySecret
@@ -22,10 +25,15 @@ import com.bitat.repository.store.BaseStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.statusBarHeight
+import com.bitat.ui.theme.BitComposeTheme
 import com.bitat.ui.theme.WeComposeTheme
 import com.bitat.utils.ScreenUtils
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.ToastUI
+import com.wordsfairy.note.ui.widgets.toast.ToastUIState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 val MainCo = MainScope()
 
@@ -56,10 +64,21 @@ class MainActivity : ComponentActivity() {
             val navigationActions = remember(navController) {
                 AtNavigation(navController)
             }
-            WeComposeTheme {
+            val toastState = remember { ToastUIState() }
+
+            BitComposeTheme {
                 AppNavHost(navController,
                     AtNavigation(navController),
                     viewModelProvider = viewModelProvider)
+                ToastUI(toastState)
+            }
+
+            /** toast */
+            observeEvent(key = BitEventBus.ShowToast) {
+                lifecycleScope.launch {
+                    val data = it as ToastModel
+                    toastState.show(data)
+                }
             }
         }
 

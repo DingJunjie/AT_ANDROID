@@ -138,7 +138,6 @@ fun SvgIcon(
     val imageLoader: ImageLoader = ImageLoader.Builder(LocalContext.current).components {
         add(SvgDecoder.Factory())
     }.build()
-
     Icon(
         painter = rememberAssetsPainter(path = path, imageLoader = imageLoader),
         contentDescription,

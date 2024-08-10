@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 
 
 private val LightColorPalette = WeComposeColors(
-
+    themeUi = themeColor,
     bottomBar = white1,
     background = white2,
     divider = white3,
@@ -32,10 +32,14 @@ private val LightColorPalette = WeComposeColors(
     bubbleMe = green1,
     more = grey4,
     chatPageBgAlpha = 0f,
-
-
-    )
+    success = green3,
+    info = blue,
+    error = red2,
+    dialogBackground = dialogBackgroundLight,
+    placeholder = white3
+)
 private val DarkColorPalette = WeComposeColors(
+    themeUi = themeColor,
     bottomBar = black1,
     background = black2,
     divider = black4,
@@ -50,6 +54,11 @@ private val DarkColorPalette = WeComposeColors(
     bubbleMe = green2,
     more = grey5,
     chatPageBgAlpha = 0f,
+    success = green3,
+    info = blue,
+    error = red2,
+    dialogBackground = dialogBackgroundLight,
+    placeholder = white3
 )
 
 private val LocalWeComposeColors = compositionLocalOf {
@@ -61,12 +70,13 @@ object WeComposeTheme {
         @Composable get() = LocalWeComposeColors.current
 
     enum class Theme {
-        Light, Dark, NewYear
+        Light, Dark
     }
 }
 
 @Stable
 class WeComposeColors(
+    themeUi: Color,
     bottomBar: Color,
     background: Color,
     divider: Color,
@@ -81,7 +91,15 @@ class WeComposeColors(
     bubbleMe: Color,
     more: Color,
     chatPageBgAlpha: Float,
+    success: Color,
+    info: Color,
+    error: Color,
+    dialogBackground: Color,
+    placeholder: Color,
+
 ) {
+    var themeUi: Color by mutableStateOf(themeUi)
+        internal set
     var bottomBar: Color by mutableStateOf(bottomBar)
         private set
     var background: Color by mutableStateOf(background)
@@ -110,16 +128,29 @@ class WeComposeColors(
         private set
     var chatPageBgAlpha: Float by mutableStateOf(chatPageBgAlpha)
         private set
+    var success: Color by mutableStateOf(success)
+        private set
+    var info: Color by mutableStateOf(info)
+        private set
+    var error: Color by mutableStateOf(error)
+        private set
+    var dialogBackground: Color by mutableStateOf(dialogBackground)
+        private set
+
+    var placeholder: Color by mutableStateOf(placeholder)
+        private set
 
 
 }
 
 @Composable
-fun WeComposeTheme(theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light, content: @Composable() () -> Unit) {
+fun BitComposeTheme(
+    theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light,
+    content: @Composable() () -> Unit
+) {
     val targetColors = when (theme) {
         WeComposeTheme.Theme.Light -> LightColorPalette
         WeComposeTheme.Theme.Dark -> DarkColorPalette
-        WeComposeTheme.Theme.NewYear -> LightColorPalette
     }
 
     val bottomBar = animateColorAsState(targetColors.bottomBar, TweenSpec(600))
@@ -130,14 +161,19 @@ fun WeComposeTheme(theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light, con
     val textPrimaryMe = animateColorAsState(targetColors.textPrimaryMe, TweenSpec(600))
     val textSecondary = animateColorAsState(targetColors.textSecondary, TweenSpec(600))
     val onBackground = animateColorAsState(targetColors.onBackground, TweenSpec(600))
+    val dialogBackground = animateColorAsState(targetColors.dialogBackground, TweenSpec(600))
     val icon = animateColorAsState(targetColors.icon, TweenSpec(600))
     val iconCurrent = animateColorAsState(targetColors.iconCurrent, TweenSpec(600))
     val badge = animateColorAsState(targetColors.badge, TweenSpec(600))
     val bubbleMe = animateColorAsState(targetColors.bubbleMe, TweenSpec(600))
     val more = animateColorAsState(targetColors.more, TweenSpec(600))
     val chatPageBgAlpha = animateFloatAsState(targetColors.chatPageBgAlpha, TweenSpec(600))
-
+    val success = animateColorAsState(targetColors.success, TweenSpec(600))
+    val info = animateColorAsState(targetColors.info, TweenSpec(600))
+    val error = animateColorAsState(targetColors.error, TweenSpec(600))
+    val placeholder = animateColorAsState(targetColors.placeholder, TweenSpec(600))
     val colors = WeComposeColors(
+        themeUi = themeColor,
         bottomBar = bottomBar.value,
         background = background.value,
         divider = chatListDivider.value,
@@ -152,8 +188,20 @@ fun WeComposeTheme(theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light, con
         bubbleMe = bubbleMe.value,
         more = more.value,
         chatPageBgAlpha = chatPageBgAlpha.value,
+        success = success.value,
+        info = info.value,
+        error = error.value,
+        dialogBackground = dialogBackground.value,
+        placeholder = placeholder.value
     )
+    val colorsSch = lightColorScheme(primary = LightColorPalette.themeUi)
+
     CompositionLocalProvider(LocalWeComposeColors provides colors) {
-        MaterialTheme(colorScheme = lightColorScheme(), shapes = shapes, content = content, typography = Typography)
+        MaterialTheme(
+            colorScheme = colorsSch,
+            shapes = shapes,
+            content = content,
+            typography = Typography
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.bitat.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,8 @@ import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.viewModel.HomeViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 
 /****
  * 首页的切换
@@ -35,11 +38,13 @@ import com.bitat.viewModel.HomeViewModel
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val viewModel: HomeViewModel = viewModel()
-    val tabList = listOf(HomeTabCfg.Home,
+    val tabList = listOf(
+        HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine)
+        HomeTabCfg.Mine
+    )
 
     var selectIndex by remember {
         mutableIntStateOf(0)
@@ -59,14 +64,19 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                             }
 
                         }) {
-                            Icon(if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                                id = tab.iconUnselect),
+                            Icon(
+                                if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                                    id = tab.iconUnselect
+                                ),
                                 contentDescription = "",
-                                modifier = Modifier.size(when (index) {
-                                    2 -> 60.cdp
-                                    1 -> 50.cdp
-                                    else -> 40.cdp
-                                }))
+                                modifier = Modifier.size(
+                                    when (index) {
+                                        2 -> 60.cdp
+                                        1 -> 50.cdp
+                                        else -> 40.cdp
+                                    }
+                                )
+                            )
                         }
                     }
                 }
@@ -75,9 +85,13 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     }) { innerPadding ->
 
         when (selectIndex) {
-            0 -> BlogPage(Modifier.padding(innerPadding),
-                navController,
-                viewModelProvider = viewModelProvider)
+            0 -> {
+                BlogPage(
+                    Modifier.padding(innerPadding),
+                    navController,
+                    viewModelProvider = viewModelProvider
+                )
+            }
             1 -> DiscoveryPage(navController)
             2 -> { //                PublishTextPage(navController)
                 //                PublishPage(
@@ -87,7 +101,6 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                AtNavigation(navController).navigateToPublishText
 
             }
-
             3 -> ChatPage(navController)
             4 -> ProfilePage(navController)
         }

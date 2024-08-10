@@ -8,6 +8,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.repository.consts.*
 import com.bitat.repository.dto.common.TagsDto
 import com.bitat.repository.dto.resp.BlogTagDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserDto
 
 
@@ -27,9 +28,11 @@ data class PublishCommonState(
 //    val tags: ArrayList<BlogTagDto> = arrayListOf(),
 
     val tags:  SnapshotStateList<BlogTagDto> = mutableStateListOf(),
-    val atUserSearchResult: SnapshotStateList<UserDto> = mutableStateListOf(),
-    val atUsers: ArrayList<Int> = arrayListOf(),
+    val atUserSearchResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
+    val atUsers: ArrayList<Long> = arrayListOf(),
     val content: String = "",
+
+    val isPublishClick: Boolean =true
 )
 
 data class PublishMediaState(

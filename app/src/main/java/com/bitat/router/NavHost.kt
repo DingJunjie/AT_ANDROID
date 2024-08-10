@@ -127,7 +127,8 @@ class AtNavigation(navController: NavHostController) {
         }
     }
 
-    val navigateToHome: () -> Unit = { // launchSingleTop = true 只保留一个在顶层
+    val navigateToHome: () -> Unit = {
+        // launchSingleTop = true 只保留一个在顶层
         navController.navigate(NavigationItem.Home.route) { //                val homeBaseViewModel=  hiltViewModel<HomeBaseViewModel>()
             popUpTo(0) {
                 inclusive = true
@@ -169,6 +170,7 @@ class AtNavigation(navController: NavHostController) {
 
         }
     }
+
 
 
 }

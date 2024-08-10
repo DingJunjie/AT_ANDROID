@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.Surface
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
@@ -16,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.media3.common.util.Log
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import java.io.InputStream
@@ -33,6 +35,21 @@ fun ImagePicker(
     option: ImagePickerOption = ImagePickerOption.MULTIPLE_IMAGE,
     content: @Composable () -> Unit
 ) {
+    val contentResolver= LocalContext.current.contentResolver
+
+    // 11以上文件选择器
+//    val pickMedia =
+//        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(2)) { uriList ->
+//            // Callback is invoked after the user selects a media item or closes the
+//            // photo picker.
+//
+//            uriList.map {
+//                val type = contentResolver.getType(it)
+////                CuLog.debug(CuTag.Publish, "文件类型：${type}")//查询文件类型
+//            }
+//
+//        }
+
     // Trigger the image picker
     val clickable = rememberSaveable { mutableStateOf(true) }
     val launcher = rememberLauncherForActivityResult(
@@ -59,7 +76,7 @@ fun ImagePicker(
         when (option) {
             ImagePickerOption.SINGLE_IMAGE -> {
                 type = "image/*"
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
             }
 
             ImagePickerOption.MULTIPLE_IMAGE -> {
@@ -73,7 +90,7 @@ fun ImagePicker(
             }
 
             ImagePickerOption.SINGLE_VIDEO_MULTIPLE_IMAGE -> {
-                type = "image/*"
+                type = "image/* video/*"
                 putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             }
 
@@ -85,6 +102,7 @@ fun ImagePicker(
         modifier = Modifier.clickable {
             if (clickable.value) {
                 launcher.launch(pickImageIntent)
+//                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
                 clickable.value = false
             }
         }

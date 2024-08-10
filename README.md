@@ -16,3 +16,16 @@
 8. ui - 页面
 9. utils - 工具类
 10. viewModel - 视图方法
+
+## 通用工具
+
+### 页面通用
+
+1. Toast
+   可以在compose和ViewModel中调用，调用后弹出通用toast（切换线程后不可用）
+```
+ToastModel("发布成功！", ToastModel.Type.Error).showToast()
+ToastModel("发布失败", ToastModel.Type.Info).showToast()
+ToastModel("警告", ToastModel.Type.Warning).showToast()
+ToastModel("normal", ToastModel.Type.Normal).showToast()
+```

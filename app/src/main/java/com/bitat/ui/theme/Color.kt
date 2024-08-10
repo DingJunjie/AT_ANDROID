@@ -11,10 +11,11 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+val themeColor = Color(0xFF000000)
+
 val white = Color(0xFFFFFFFF).convert(ColorSpaces.CieXyz)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)
 val white2 = Color(0xFFEDEDED).convert(ColorSpaces.CieXyz)
-val white3 = Color(0xFFE5E5E5).convert(ColorSpaces.CieXyz)
 val white4 = Color(0xFFD5D5D5).convert(ColorSpaces.CieXyz)
 val white5 = Color(0xFFCCCCCC).convert(ColorSpaces.CieXyz)
 val black = Color(0xFF000000).convert(ColorSpaces.CieXyz)
@@ -42,3 +43,19 @@ val red6 = Color(0xFFF74D4B).convert(ColorSpaces.CieXyz)
 val red7 = Color(0xFFDC514E).convert(ColorSpaces.CieXyz)
 val red8 = Color(0xFFCBC7BF).convert(ColorSpaces.CieXyz)
 val yellow1 = Color(0xFFF6CA23).convert(ColorSpaces.CieXyz)
+
+val blue = Color(0xFF51BDFF)
+val dialogBackgroundLight = Color(0xFFFEFEFE)
+val white3 = Color(0xFFAE5E5E)
+
+object AppColor {
+    val blue = Color(0xFF51BDFF).convert(ColorSpaces.CieXyz)
+    val red = Color(0xFFFF5500).convert(ColorSpaces.CieXyz)
+    val themeAccent = Color(0xFFe9f9f4).convert(ColorSpaces.CieXyz)
+    val themeColor = Color(0xFF92E2c7).convert(ColorSpaces.CieXyz)
+    val warning = Color(0xFFDF7B00).convert(ColorSpaces.CieXyz)
+
+
+}
+
+

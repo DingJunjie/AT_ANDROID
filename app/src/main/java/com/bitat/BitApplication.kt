@@ -5,6 +5,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.bitat.ext.flowbus.FlowBusInitializer
 import kotlinx.coroutines.Dispatchers
 
 class BitApplication : Application(), ImageLoaderFactory {
@@ -31,7 +32,10 @@ class BitApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        //全局ctx初始化
         Local.ctx = this
+        //事件发布初始化
+        FlowBusInitializer.init(this)
     }
 
 }

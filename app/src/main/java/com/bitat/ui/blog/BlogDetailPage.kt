@@ -119,12 +119,12 @@ fun UserInfo() {
 }
 
 @Composable
-fun Avatar(url: String) {
+fun Avatar(url: String,modifier: Modifier=Modifier) {
     Surface(
         shape = CircleShape, modifier = Modifier.padding(start = 10.dp)
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .size(40.dp)
                 .border(width = 40.dp, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)

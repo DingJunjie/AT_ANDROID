@@ -25,7 +25,7 @@
     <string name="publish_content">请填写内容</string>
     <string name="publish_option_topic">话题</string>
     <string name="publish_option_at">AT</string>
-    <string name="publish_option_follow">跟动态</string>
+    <string name="publish_option_follow">允许跟随</string>
     <string name="publish_location_add">添加地点</string>
     <string name="publish_option_visibility">公开可见</string>
 

@@ -16,12 +16,16 @@ import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.req.BlogTagFindDto
+import com.bitat.repository.dto.req.FindFriendListDto
 import com.bitat.repository.dto.req.PublishBlogDto
 import com.bitat.repository.dto.req.UploadTokenDto
 import com.bitat.repository.dto.resp.BlogTagDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.BlogTagReq
+import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.pbDto.MsgDto.AckMsg
 import com.bitat.repository.store.UserStore
 import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
@@ -29,6 +33,8 @@ import com.bitat.utils.FileType
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.VideoUtils
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,8 +101,52 @@ class PublishViewModel : ViewModel() {
         }
     }
 
+    fun searchAt() {
+        MainCo.launch {
+
+            val atUser = arrayOf(
+                UserBase1Dto(
+                    id = 2435L,
+                    profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
+                    nickname = "汤姆",
+                    ats = 5
+                ),
+                UserBase1Dto(
+                    id = 228725L,
+                    profile = "https://img1.baidu.com/it/u=1400805158,551781376&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=664",
+                    nickname = "不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友",
+                    ats = 137
+                ),
+                UserBase1Dto(
+                    id = 15649L,
+                    profile = "https://img0.baidu.com/it/u=444590157,2329884399&fm=253&fmt=auto&app=138&f=JPEG?w=570&h=570",
+                    nickname = "嬉皮猴",
+                    ats = 587
+                )
+            )
+
+            UserReq.findFriendList(FindFriendListDto(pageSize = 20, pageNo = 0)).await()
+                .map { res ->
+                    commonState.update {
+                        it.atUserSearchResult.clear()
+                        it.atUserSearchResult.addAll(atUser)
+                        it
+                    }
+                }.errMap {
+                    CuLog.error(
+                        CuTag.Publish,
+                        "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"
+                    )
+                }
+        }
+    }
+
     fun initTags() {
         searchTopic("")
+    }
+
+    fun initAt() {
+        searchAt()
     }
 
     //话题
@@ -120,6 +170,30 @@ class PublishViewModel : ViewModel() {
         commonState.update {
             it.apply {
                 tags.add(tag)
+            }
+        }
+
+    }
+
+    fun onAtClick(user: UserBase1Dto) {
+        val content = commonState.value.content
+        if (content.last().toString() == "@") {
+            commonState.update {
+                it.copy(content = it.content + user.nickname + " ")
+            }
+        } else {
+            val contentSplit = content.split("@")
+            val newContent =
+                contentSplit.subList(0, contentSplit.size - 1)
+                    .joinToString { "@" } + "@" + user.nickname + " "
+            commonState.update {
+                it.copy(content = newContent)
+            }
+        }
+
+        commonState.update {
+            it.apply {
+                atUsers.add(user.id)
             }
         }
 
@@ -302,7 +376,8 @@ class PublishViewModel : ViewModel() {
             content = commonState.value.content
             vote = mediaState.value.vote
             musicId = commonState.value.musicId
-
+            atUsers = commonState.value.atUsers.toLongArray()
+//            tags=commonState.value.tags.
             openComment = commonState.value.commentable.toCode()
             visible = commonState.value.visibility.toCode()
             albumOps =
@@ -316,12 +391,7 @@ class PublishViewModel : ViewModel() {
             dto.resource = ResourceDto()
             dto.resource.images = mediaState.value.images.toTypedArray()
             dto.resource.video = mediaState.value.video
-
-//            if (dto.resource.video != "") { // 设置视频封面
-//                dto.cover = mediaState.value.cover
-//            } else if (dto.resource.images.isNotEmpty()) {
-//                dto.cover = dto.resource.images[0]
-//            }
+            dto.cover = mediaState.value.cover
 
             CuLog.info(CuTag.Publish, dto.toString())
 
@@ -329,12 +399,14 @@ class PublishViewModel : ViewModel() {
             result.map {
                 completeFn()
                 CuLog.info(CuTag.Publish, "publish success $it")
+
             }.errMap {
                 CuLog.info(CuTag.Publish, "publish failed, message is ${it.msg}")
 
             }
         }
     }
+
 
     private fun publishText(completeFn: () -> Unit) { //发布逻辑
         MainCo.launch {
@@ -357,21 +429,37 @@ class PublishViewModel : ViewModel() {
                 result.map {
                     completeFn()
                     println("update success $it")
+
                 }.errMap {
                     println("update failed, message is ${it.msg}")
+                    completeFn()
                 }
             }
         }
     }
 
     fun publish(completeFn: () -> Unit) {
+        commonState.update {
+            it.copy(isPublishClick = false)
+        }
         updateKind()
+
 
         val kind = commonState.value.kind
         if (kind.toInt() == 1) {
-            publishText { completeFn() }
+            publishText {
+                completeFn()
+                commonState.update {
+                    it.copy(isPublishClick = true)
+                }
+            }
         } else {
-            publishMedia { completeFn() }
+            publishMedia {
+                completeFn()
+                commonState.update {
+                    it.copy(isPublishClick = true)
+                }
+            }
         }
     }
 
@@ -380,6 +468,10 @@ class PublishViewModel : ViewModel() {
         commonState.update {
             it.copy(longitude = point.longitude, latitude = point.latitude, location = addName)
         }
+    }
+
+    fun saveDraft() {
+        ToastModel("存草稿", ToastModel.Type.Normal).showToast()
     }
 
 }

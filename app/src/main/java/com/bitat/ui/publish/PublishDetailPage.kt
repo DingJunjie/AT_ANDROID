@@ -1,16 +1,13 @@
 package com.bitat.ui.publish
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
@@ -29,37 +25,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.input.rememberTextFieldState
-import androidx.compose.material.ExperimentalMaterialApi
-//noinspection UsingMaterialAndMaterial3Libraries
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,47 +56,39 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
 import com.bitat.ext.Density
-import com.bitat.ext.cdp
 import com.bitat.ext.clickableWithoutRipple
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
 import com.bitat.repository.consts.Commentable
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.PublishSettings
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.resp.BlogTagDto
-import com.bitat.repository.dto.resp.UserDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.Avatar
-import com.bitat.ui.common.CarmeraOpen
-import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.common.ImagePicker
+import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.BackButton
 import com.bitat.utils.GaoDeUtils
@@ -122,7 +99,8 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.melody.dialog.any_pop.AnyPopDialog
 import com.melody.dialog.any_pop.AnyPopDialogProperties
 import com.melody.dialog.any_pop.DirectionState
-import kotlinx.coroutines.flow.update
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 
 enum class PublishTextOption {
     Topic, At, Follow, Font, Visibility, None, Media, Location, Settings, Comment
@@ -258,6 +236,20 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 vm.initTags()
             }
 
+            PublishTextOption.At -> {
+                focusRequester.requestFocus()
+                if (commonState.content.isNotEmpty() && commonState.content.last()
+                        .toString() == "@"
+                ) {
+                    vm.onContentChange(
+                        commonState.content.substringBeforeLast("@")
+                    )
+                } else {
+                    vm.onContentChange(commonState.content + "@")
+                }
+                vm.initAt()
+            }
+
             else -> {
                 showOptDialog = true
             }
@@ -278,39 +270,45 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 Column(
                     modifier = Modifier.padding(padding)
                 ) {
-                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY) MediaBox(
-                        mediaState.localImages,
-                        selectUri = {
-                            selectedUri.value = it
-                            option = PublishTextOption.Media
-                            showOptDialog = true
-                        },
-                        addPicture = {
-                            vm.addPicture(it)
-                        },
+                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY)
+                        MediaBox(
+                            mediaState.localImages,
+                            selectUri = {
+                                selectedUri.value = it
+                                option = PublishTextOption.Media
+                                showOptDialog = true
+                            },
+                            addPicture = {
+                                vm.addPicture(it)
+                            },
 //                        coverPath = mediaState.localCover
-                    )
+                        )
 
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
                         textFieldValue,
                         focusRequester,
                         focusManager,
-                        addPicture = { vm.addPicture(it) },
+                        addPicture = {
+                            vm.addPicture(it)
+                        },
                         updateContent = {
                             onContentChange(it)
                             vm.onContentChange(it)
                         })
 
                     Row(horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.Top,
                         modifier = Modifier
                             .padding(start = 20.dp)
                             .onGloballyPositioned {
                                 bottomOptHeight.intValue =
                                     ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
-                            }) {
+                            }
+                    ) {
                         Options(title = stringResource(id = R.string.publish_option_topic),
                             iconPath = "svg/topic.svg",
                             selected = option == PublishTextOption.Topic,
+                            modifier = Modifier.height(30.dp),
                             tapFn = {
                                 tapOption(PublishTextOption.Topic)
                             })
@@ -318,7 +316,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         Options(title = stringResource(id = R.string.publish_option_at),
                             iconPath = "svg/at.svg",
                             selected = option == PublishTextOption.At,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.height(30.dp),
                             tapFn = {
                                 tapOption(PublishTextOption.At)
                             })
@@ -326,7 +324,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         Options(title = if (commonState.location == "") stringResource(id = R.string.publish_location_add) else commonState.location,
                             iconPath = "svg/location_line.svg",
                             selected = option == PublishTextOption.Location,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.height(30.dp),
                             tapFn = {
                                 GaoDeUtils.getLocation() { point, name ->
                                     vm.locationUpdate(point, name)
@@ -339,7 +337,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         color = Color(0xffeeeeee),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 30.dp)
+                            .padding(vertical = 10.dp)
                     )
 
                     FollowRow() {
@@ -359,7 +357,6 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     })
                 }
 
-
             } else {
                 LaunchedEffect(Unit) {
                     permissionState.launchMultiplePermissionRequest()
@@ -373,7 +370,9 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
                 ) {
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { /*TODO*/
+                            vm.saveDraft()
+                        },
                         modifier = Modifier
                             .fillMaxWidth(0.3f)
                             .padding(end = 10.dp)
@@ -381,8 +380,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         Text(text = "保存")
                     }
                     Button(onClick = {
-                        vm.publish { CuLog.debug(CuTag.Publish, "发布成功") }
-                    }, modifier = Modifier.fillMaxWidth()) {
+                        vm.publish {
+                            ToastModel("发布成功！", ToastModel.Type.Success).showToast()
+                            AtNavigation(navHostController).navigateToHome()
+                        }
+                    }, modifier = Modifier.fillMaxWidth(), enabled = commonState.isPublishClick) {
                         Text(text = "发布")
                     }
                 }
@@ -400,14 +402,19 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     .height(bottomOptHeight.intValue.dp)
                     .background(Color.White)
             ) {
-                if (option == PublishTextOption.Topic) TopicOptions(
-                    tags = commonState.tagSearchResult,
-                    tapTopicFn = {
-                        vm.onTopicClick(it)
-                        tagStart.value = false
+                if (option == PublishTextOption.Topic)
+                    TopicOptions(
+                        tags = commonState.tagSearchResult,
+                        tapTopicFn = {
+                            vm.onTopicClick(it)
+                            tagStart.value = false
+                            option = PublishTextOption.None
+                        })
+                if (option == PublishTextOption.At)
+                    AtOptions(users = commonState.atUserSearchResult) {
+                        vm.onAtClick(it)
                         option = PublishTextOption.None
-                    })
-                if (option == PublishTextOption.At) Box {}
+                    }
             }
         }
     }
@@ -520,7 +527,7 @@ fun TopBar(backTapFn: () -> Unit) {
         BackButton {
             backTapFn()
         }
-        Text("文字", fontWeight = FontWeight.Bold)
+        Text("创作", fontWeight = FontWeight.Bold)
         Box(modifier = Modifier.width(60.dp)) {}
     }
 }
@@ -550,7 +557,7 @@ fun MediaBox(
             }
         }
 
-        ImagePicker(onSelected = {}) {
+        ImagePicker(option = ImagePickerOption.SINGLE_VIDEO,onSelected = { addPicture(it) }) {
             Box(Modifier.padding(top = 10.dp)) {
                 AddPictureBox {}
             }
@@ -563,8 +570,8 @@ fun AddPictureBox(tapFn: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
-            .width(60.dp)
-            .height(80.dp)
+            .width(80.dp)
+            .height(100.dp)
             .padding(5.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
     ) {
@@ -576,8 +583,8 @@ fun AddPictureBox(tapFn: () -> Unit) {
 fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
     Surface(shape = RoundedCornerShape(10.dp),
         modifier = Modifier
-            .width(60.dp)
-            .height(80.dp)
+            .width(80.dp)
+            .height(100.dp)
             .padding(5.dp)
             .clickable { tapFn(uri) }) {
         AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
@@ -676,19 +683,24 @@ fun Options(
                 0xffeeeeee
             ), contentColor = if (selected) Color.White else Color.Black
         ),
-        contentPadding = PaddingValues(top = 1.dp, bottom = 1.dp, start = 15.dp, end = 15.dp),
         shape = CircleShape,
-        modifier = Modifier.padding(end = 10.dp)
+        modifier = modifier
+            .padding(end = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             SvgIcon(
                 path = iconPath,
                 contentDescription = "",
-                modifier = modifier
-                    .size(20.dp)
+                modifier = Modifier
                     .padding(end = 5.dp)
             )
-            Text(text = title, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+            Text(
+                text = title,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(fontSize = 12.sp)
+            )
         }
     }
 }
@@ -822,22 +834,32 @@ fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
 
 @Composable
 fun AtOptions(
-    users: List<UserDto>, tapUserFn: (UserDto) -> Unit
-) { //    Text("标签", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
+    users: List<UserBase1Dto>, tapUserFn: (UserBase1Dto) -> Unit
+) {
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(users) { item ->
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
-                .clickable {
-                    tapUserFn(item)
-                }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 10.dp)
+                    .clickable {
+                        tapUserFn(item)
+                    },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                Row {
-                    Avatar(item.profile)
-                    Text(item.nickname)
-                    Text("最近@次数：${item.ats}")
-                }
+                Avatar(item.profile, modifier = Modifier.weight(0.5f))
+                Text(
+                    text = item.nickname,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 10.dp, end = 10.dp)
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(0.5f), text = "最近@次数:${item.ats}"
+                )
 
             }
         }
