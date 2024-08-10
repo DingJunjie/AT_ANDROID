@@ -79,6 +79,13 @@ class GetUserInfoDto(
 )
 
 @Serializable
+class FindFriendListDto(
+    var pageSize: Int = 10, //条数
+    var pageNo: Int = 0 //最后一条博文时间
+)
+
+
+@Serializable
 class FindPrivateDto(
     var pageSize: Int, //条数
     var lastTime: Long = 0 //最后一条博文时间

@@ -57,6 +57,10 @@ object UserReq {
     suspend inline fun findFansList(dto: FindPrivateDto) =
         Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/user/findFansList", dto)
 
+    //获取用户好友列表
+    suspend inline fun findFriendList(dto: FindFriendListDto) =
+        Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/user/findFriendList", dto)
+
     //拉黑列表
     suspend inline fun findBlackList(dto: FindPrivateDto) =
         Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/user/findBlackList", dto)
