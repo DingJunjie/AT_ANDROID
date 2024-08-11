@@ -145,8 +145,9 @@ class AtNavigation(navController: NavHostController) {
     }
 
     val navigateToPublish: () -> Unit = {
+//         launchSingleTop = true
         navController.navigate((NavigationItem.Publish.route)) {
-
+            launchSingleTop = true
         }
     }
 
@@ -170,7 +171,6 @@ class AtNavigation(navController: NavHostController) {
 
         }
     }
-
 
 
 }

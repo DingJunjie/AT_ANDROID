@@ -54,7 +54,7 @@ fun VideoDisplay(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             VideoDisplayTopBar(
-                backFn = {},
+                backFn = {  navHostController.popBackStack()},
                 nextFn = { navHostController.navigate(NavigationItem.PublishDetail.route) })
         }
     }
