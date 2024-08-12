@@ -261,11 +261,8 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                                 recordingStarted.value = false
                                 recording?.stop()
                             }
-
-
                         })
                     },
-
                 ) {
                 Icon(
                     painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
@@ -274,12 +271,12 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                 )
             }
 
-//            Surface(
-//                modifier = Modifier
-//                    .align(Alignment.BottomStart)
-//                    .padding(bottom = 32.dp, start = 100.dp)
-//            ) {
-//                ImagePicker(onSelected = {
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 32.dp, start = 100.dp)
+            ) {
+//                ImagePicker(1, onSelected = {
 //                    vm.addPicture(it)
 //                    navHostController.navigate(NavigationItem.PictureDisplay.route)
 //                }) {
@@ -290,7 +287,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
 //                        Modifier.size(30.dp)
 //                    )
 //                }
-//            }
+            }
 //
 //            Surface(
 //                modifier = Modifier

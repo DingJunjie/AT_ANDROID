@@ -29,7 +29,7 @@ data class PublishCommonState(
 
     val tags:  SnapshotStateList<BlogTagDto> = mutableStateListOf(),
     val atUserSearchResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
-    val atUsers: ArrayList<Long> = arrayListOf(),
+    val atUsers: ArrayList<UserBase1Dto> = arrayListOf(),
     val content: String = "",
 
     val isPublishClick: Boolean =true
