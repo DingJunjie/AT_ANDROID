@@ -23,50 +23,40 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import java.io.InputStream
 
-enum class ImagePickerOption {
-    SINGLE_IMAGE, MULTIPLE_IMAGE, SINGLE_VIDEO, SINGLE_VIDEO_MULTIPLE_IMAGE
+object ImagePickerOption {
+    val ImageOnly = ActivityResultContracts.PickVisualMedia.ImageOnly
+    val VideoOnly = ActivityResultContracts.PickVisualMedia.VideoOnly
+    val ImageAndVideo = ActivityResultContracts.PickVisualMedia.ImageAndVideo
 }
 
 @Composable
 fun ImagePicker(maxSize: Int, option: ActivityResultContracts.PickVisualMedia.VisualMediaType, onSelected: (List<Uri>) -> Unit, content: @Composable () -> Unit) {
-    val contentResolver = LocalContext.current.contentResolver
-
-
-    val singleSelect = remember { ActivityResultContracts.PickVisualMedia() }
+    val clickable = rememberSaveable { mutableStateOf(true) }
+    val singleSelect = ActivityResultContracts.PickVisualMedia()
     val multipleSelect =
-        remember { ActivityResultContracts.PickMultipleVisualMedia(if (maxSize > 1) maxSize else 2) }
+        ActivityResultContracts.PickMultipleVisualMedia(if (maxSize > 1) maxSize else 2)
+
 
     // 11以上文件选择器
 
     val multipPick =
         rememberLauncherForActivityResult(multipleSelect) { uriList -> // Callback is invoked after the user selects a media item or closes the
-            // photo picker.
-
-            uriList.map {
-                val type =
-                    contentResolver.getType(it) //                CuLog.debug(CuTag.Publish, "文件类型：${type}")//查询文件类型
-            }
             onSelected(uriList)
+            clickable.value = true
+
         }
 
     val singlePick =
         rememberLauncherForActivityResult(singleSelect) { uri -> // Callback is invoked after the user selects a media item or closes the
-            // photo picker.
-
-            //            uriList.map {
-            //                val type =
-            //                    contentResolver.getType(it)
-            //            //                CuLog.debug(CuTag.Publish, "文件类型：${type}")//查询文件类型
-            //            }
             uri?.let {
                 onSelected(arrayListOf(it))
             }
+            clickable.value = true
         }
 
 
     // Trigger the image picker
-    val clickable =
-        rememberSaveable { mutableStateOf(true) } //    val launcher = //        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { //            if (it.resultCode == RESULT_OK) { //                if (option == ImagePickerOption.MULTIPLE_IMAGE) { //                    val clipData = it.data?.clipData //                    if (clipData != null) {
+    //    val launcher = //        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { //            if (it.resultCode == RESULT_OK) { //                if (option == ImagePickerOption.MULTIPLE_IMAGE) { //                    val clipData = it.data?.clipData //                    if (clipData != null) {
     //                        onSelected((0..<clipData.itemCount).mapNotNull { i ->
     //                            clipData.getItemAt(i).uri
     //                        })

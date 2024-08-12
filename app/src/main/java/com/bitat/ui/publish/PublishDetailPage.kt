@@ -91,8 +91,11 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.Avatar
 import com.bitat.ui.common.ImagePicker
+import com.bitat.ui.common.ImagePickerOption.ImageOnly
+import com.bitat.ui.common.ImagePickerOption.VideoOnly
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.BackButton
+import com.bitat.ui.video.VideoPlayer
 import com.bitat.utils.GaoDeUtils
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.PublishViewModel
@@ -105,7 +108,7 @@ import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 
 enum class PublishTextOption {
-    Topic, At, Follow, Font, Visibility, None, Media, Location, Settings, Comment
+    Topic, At, Follow, Font, Visibility, None, Media, Location, Settings, Comment, Pick
 }
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
@@ -118,6 +121,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     val showDialog by remember { mutableStateOf(false) }
     val dialogResult by rememberSaveable { mutableStateOf("") }
     val myTextFieldValue by remember { mutableStateOf(TextFieldValue("")) }
+
     val focusRequester = remember {
         FocusRequester()
     }
@@ -203,6 +207,16 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 option = PublishTextOption.None
                 showOptDialog = false
             })
+        } else if (option == PublishTextOption.Pick) {
+            PickOptions(imgFn = {
+                vm.addPicture(it)
+                option = PublishTextOption.None
+                showOptDialog = false
+            }, videoFn = {
+                if (it.isNotEmpty()) vm.addVideo(it[0])
+                option = PublishTextOption.None
+                showOptDialog = false
+            })
         }
     }
 
@@ -251,18 +265,24 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     }, modifier = Modifier.fillMaxSize().background(Color.Transparent)) { padding ->
         Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
             if (permissionState.allPermissionsGranted) {
-                Column(modifier = Modifier.padding(padding)) {
-                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY) MediaBox(
-                        mediaState.localImages,
-                        selectUri = {
+                Column(modifier = Modifier.padding(padding)) { //                    mediaState.localImages.add(mediaState.localVideo)
+
+                    //
+                    //                    if ( mediaState.localVideo != Uri.EMPTY&& mediaState.localImages.isEmpty()){
+                    //                        vm.addPicture(arrayListOf(mediaState.localVideo))
+                    //                    }
+
+                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY)
+
+                        MediaBox(mediaState.localImages, selectUri = {
                             selectedUri.value = it
                             option = PublishTextOption.Media
                             showOptDialog = true
-                        },
-                        addPicture = {
-                            vm.addPicture(it)
-                        }, //                        coverPath = mediaState.localCover
-                    )
+                        }, addPicture = {
+                            option = PublishTextOption.Pick
+                            showOptDialog = true
+
+                        }, coverPath = mediaState.localVideo)
 
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
                         textFieldValue,
@@ -270,8 +290,9 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         onValueChange = {
                             textFieldValue = it
                         },
-                        addPicture = {
-                            vm.addPicture(it)
+                        showImg = {
+                            option = PublishTextOption.Pick
+                            showOptDialog = true
                         },
                         updateContent = {
                             onContentChange(it)
@@ -375,13 +396,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     val cursorPosition = textFieldValue.selection.start
                     val newText = textFieldValue.text.substring(0,
                         cursorPosition) + "@${it.nickname}" + textFieldValue.text.substring(
-                        cursorPosition)
-                    // 如果用户没有选中文本，只插入 "Hello"
+                        cursorPosition) // 如果用户没有选中文本，只插入 "Hello"
                     if (textFieldValue.selection.collapsed) {
                         textFieldValue = textFieldValue.copy(text = newText,
                             selection = TextRange(cursorPosition + it.nickname.length + 1))
-                    }
-                    else { // 如果用户选中了文本，则替换选中的文本
+                    } else { // 如果用户选中了文本，则替换选中的文本
                         textFieldValue = textFieldValue.copy(text = newText,
                             selection = TextRange(cursorPosition + it.nickname.length + 1))
                     }
@@ -475,27 +494,43 @@ fun TopBar(backTapFn: () -> Unit) {
 }
 
 @Composable
-fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: (List<Uri>) -> Unit, coverPath: Uri = Uri.EMPTY) {
-    Row(Modifier.fillMaxWidth()) {
-        if (coverPath != Uri.EMPTY) Box(Modifier.padding(top = 10.dp,
-            bottom = 10.dp,
-            start = 10.dp)) { VideoBox(coverPath) {} }
+fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: () -> Unit, coverPath: Uri = Uri.EMPTY) {
+    val contentResolver = LocalContext.current.contentResolver
+    Row(Modifier.fillMaxWidth()) { //        if (coverPath != Uri.EMPTY) Box(Modifier.padding(top = 10.dp,
+        //            bottom = 10.dp,
+        //            start = 10.dp)) { VideoBox(coverPath) {} }
         LazyRow(Modifier //                .fillMaxWidth()
             .padding(top = 10.dp, bottom = 10.dp),
             contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)) {
             items(pictureList.size) { index ->
-                PictureBox(uri = pictureList[index], tapFn = {
-                    selectUri(it)
-                })
+
+                val type = contentResolver.getType(pictureList[index])
+                type?.let {
+                    if (it.contains("image")) {
+                        PictureBox(uri = pictureList[index], tapFn = {
+                            selectUri(it)
+                        })
+                    } //                    else if (it.contains("video")) {
+                    //                        VideoBox(videoUri = pictureList[index], tapFn = {
+                    //                            selectUri(it)
+                    //                        })
+                    //                    }
+                }
             }
         }
 
-        ImagePicker(1,
-            option = ActivityResultContracts.PickVisualMedia.VideoOnly,
-            onSelected = { addPicture(it) }) {
-            Box(Modifier.padding(top = 10.dp)) {
-                AddPictureBox {}
-            }
+        VideoBox(modifier = Modifier.padding(top = 10.dp), videoUri = coverPath, tapFn = {
+            selectUri(it)
+        })
+
+        //        ImagePicker(1,
+        //            option = ActivityResultContracts.PickVisualMedia.VideoOnly,
+        //            onSelected = { addPicture(it) }) {
+        //
+        //        }
+
+        Box(Modifier.padding(top = 10.dp).clickable { addPicture() }) {
+            AddPictureBox {}
         }
     }
 }
@@ -518,16 +553,25 @@ fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
 }
 
 @Composable
-fun VideoBox(uri: Uri, tapFn: (Uri) -> Unit) {
+fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit) {
     Surface(shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.width(60.dp).height(80.dp).padding(5.dp).clickable { tapFn(uri) }) {
-        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
-        Icon(Icons.Filled.PlayArrow, contentDescription = "", modifier = Modifier.size(20.dp))
+        modifier = modifier.width(80.dp).height(100.dp).padding(5.dp)
+            .clickable { tapFn(videoUri) }) { //        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
+        VideoPlayer(uri = videoUri.toString())
     }
 }
 
+//@Composable
+//fun VideoBox(uri: Uri, tapFn: (Uri) -> Unit) {
+//    Surface(shape = RoundedCornerShape(10.dp),
+//        modifier = Modifier.width(60.dp).height(80.dp).padding(5.dp).clickable { tapFn(uri) }) {
+//        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
+//        Icon(Icons.Filled.PlayArrow, contentDescription = "", modifier = Modifier.size(20.dp))
+//    }
+//}
+
 @Composable
-fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusRequester: FocusRequester, onValueChange: (TextFieldValue) -> Unit, addPicture: (List<Uri>) -> Unit, updateContent: (String) -> Unit) { //    OutlinedTextField(modifier = Modifier
+fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusRequester: FocusRequester, onValueChange: (TextFieldValue) -> Unit, showImg: () -> Unit, updateContent: (String) -> Unit) { //    OutlinedTextField(modifier = Modifier
     //        .fillMaxWidth()
     //        .padding(5.dp),
     //        colors = OutlinedTextFieldDefaults.colors(
@@ -559,13 +603,11 @@ fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusReq
             maxLines = 10,
         )
 
-        Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp),
+        Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).clickable { showImg() },
             horizontalArrangement = Arrangement.End) {
-            ImagePicker(20, ActivityResultContracts.PickVisualMedia.ImageOnly, onSelected = {
-                addPicture(it)
-            }) {
-                Icon(Icons.Filled.Menu, contentDescription = "", modifier = Modifier.size(30.dp))
-            }
+
+            Icon(Icons.Filled.Menu, contentDescription = "", modifier = Modifier.size(30.dp))
+
         }
     }
 
@@ -722,6 +764,41 @@ fun MediaOptions(uri: Uri, editFn: (Uri) -> Unit, removeFn: (Uri) -> Unit) {
             removeFn(uri)
         }) {
             Text(text = "删除")
+        }
+    }
+}
+
+@Composable
+fun PickOptions(imgFn: (List<Uri>) -> Unit, videoFn: (List<Uri>) -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+
+        }) {
+            ImagePicker(20, ImageOnly, onSelected = {
+                imgFn(it)
+            }) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.Menu,
+                        contentDescription = "",
+                        modifier = Modifier.size(30.dp))
+                    Text(text = "图片")
+                }
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+
+        }) {
+
+            ImagePicker(1, VideoOnly, onSelected = {
+                videoFn(it)
+            }) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.PlayArrow,
+                        contentDescription = "",
+                        modifier = Modifier.size(30.dp))
+                    Text(text = "视频")
+                }
+            }
         }
     }
 }
