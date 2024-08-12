@@ -172,9 +172,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
         )
 
         context.createImageCaptureUseCase(
-            lifecycleOwner,
-            cameraSelector = cameraSelector.value,
-            imageCapture
+            lifecycleOwner, cameraSelector = cameraSelector.value, imageCapture
         )
     }
 
@@ -185,9 +183,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
             lifecycleOwner, cameraSelector = cameraSelector.value, previewView
         )
         context.createImageCaptureUseCase(
-            lifecycleOwner,
-            cameraSelector = cameraSelector.value,
-            imageCapture
+            lifecycleOwner, cameraSelector = cameraSelector.value, imageCapture
         )
     }
 
@@ -277,14 +273,13 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                     .padding(bottom = 32.dp, start = 100.dp)
             ) {
                 ImagePicker(20, ImagePickerOption.ImageOnly, onSelected = {
+                    if (it.isEmpty()) return@ImagePicker
                     vm.addPicture(it)
                     navHostController.navigate(NavigationItem.PictureDisplay.route)
                 }) {
 //                  audioEnabled.value = !audioEnabled.value
                     Icon(
-                        Icons.Filled.AccountBox,
-                        contentDescription = "",
-                        Modifier.size(30.dp)
+                        Icons.Filled.AccountBox, contentDescription = "", Modifier.size(30.dp)
                     )
                 }
             }
@@ -295,14 +290,13 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                     .padding(bottom = 32.dp, end = 100.dp)
             ) {
                 ImagePicker(1, ImagePickerOption.VideoOnly, onSelected = {
+                    if (it.isEmpty()) return@ImagePicker
                     vm.addVideo(it.first())
                     navHostController.navigate(NavigationItem.VideoDisplay.route)
                 }) {
 //                  audioEnabled.value = !audioEnabled.value
                     Icon(
-                        Icons.Filled.CheckCircle,
-                        contentDescription = "",
-                        Modifier.size(30.dp)
+                        Icons.Filled.CheckCircle, contentDescription = "", Modifier.size(30.dp)
                     )
                 }
             }
@@ -414,15 +408,11 @@ suspend fun Context.createVideoCaptureUseCase(
 }
 
 suspend fun Context.createImageCaptureUseCase(
-    lifecycleOwner: LifecycleOwner,
-    cameraSelector: CameraSelector,
-    imageCapture: ImageCapture
+    lifecycleOwner: LifecycleOwner, cameraSelector: CameraSelector, imageCapture: ImageCapture
 ) {
     val cameraProvider = getCameraProvider()
     cameraProvider.bindToLifecycle(
-        lifecycleOwner,
-        cameraSelector,
-        imageCapture
+        lifecycleOwner, cameraSelector, imageCapture
     )
 }
 
@@ -452,8 +442,7 @@ fun takePhoto(
 
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-    return imageCapture.takePicture(
-        outputOptions,
+    return imageCapture.takePicture(outputOptions,
         executor,
         object : ImageCapture.OnImageSavedCallback {
             override fun onError(exception: ImageCaptureException) {

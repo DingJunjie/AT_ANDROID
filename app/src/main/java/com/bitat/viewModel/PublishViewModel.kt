@@ -547,13 +547,8 @@ class PublishViewModel : ViewModel() {
     }
 
     fun clearData() {
-        _commonState.apply {
-            PublishCommonState()
-        }
-
-        mediaState.apply {
-            PublishMediaState()
-        }
+        _commonState.value = PublishCommonState()
+        mediaState.value = PublishMediaState()
     }
 
 }

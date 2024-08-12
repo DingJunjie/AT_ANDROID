@@ -424,7 +424,6 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     //                    }
 
                     if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY)
-
                         MediaBox(mediaState.localImages, selectUri = {
                             selectedUri.value = it
                             option = PublishTextOption.Media
@@ -432,7 +431,6 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         }, addPicture = {
                             option = PublishTextOption.Pick
                             showOptDialog = true
-
                         }, coverPath = mediaState.localVideo)
 
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
