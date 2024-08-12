@@ -25,6 +25,7 @@ import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
 import com.bitat.utils.FileType
 import com.bitat.utils.ImageUtils
+import com.bitat.utils.PublishUtils
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.VideoUtils
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
@@ -97,15 +98,19 @@ class PublishViewModel : ViewModel() {
     fun searchAt() {
         MainCo.launch {
 
-            val atUser = arrayOf(UserBase1Dto(id = 2435L,
-                profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
-                nickname = "汤姆",
-                ats = 5),
-                UserBase1Dto(id = 228725L,
+            val atUser = arrayOf(
+                UserBase1Dto(
+                    id = 2435L,
+                    profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
+                    nickname = "汤姆",
+                    ats = 5
+                ), UserBase1Dto(
+                    id = 228725L,
                     profile = "https://img1.baidu.com/it/u=1400805158,551781376&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=664",
                     nickname = "不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友",
-                    ats = 137),
-                UserBase1Dto(id = 15649L,
+                    ats = 137
+                ), UserBase1Dto(
+                    id = 15649L,
                     profile = "https://img0.baidu.com/it/u=444590157,2329884399&fm=253&fmt=auto&app=138&f=JPEG?w=570&h=570",
                     nickname = "嬉皮猴",
                     ats = 587))
@@ -118,8 +123,9 @@ class PublishViewModel : ViewModel() {
                         it
                     }
                 }.errMap {
-                    CuLog.error(CuTag.Publish,
-                        "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}")
+                    CuLog.error(
+                        CuTag.Publish, "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"
+                    )
                 }
         }
     }
@@ -133,26 +139,42 @@ class PublishViewModel : ViewModel() {
     }
 
     //话题
-    fun onTopicClick(tag: BlogTagDto) { //        val newContent = commonState.value.content + "#${tag.name} ";
-        val newContent = ""
+    fun onTopicClick(
+        tag: BlogTagDto, cursorPos: Int = 0
+    ): Int { //        val newContent = commonState.value.content + "#${tag.name} ";
         val content = commonState.value.content
-        if (content.last().toString() == "#") {
-            commonState.update {
-                it.copy(content = it.content + tag.name + " ")
-            }
-        } else {
-            val contentSplit = content.split("#")
-            val newContent = contentSplit.subList(0, contentSplit.size - 1)
-                .joinToString { "#" } + "#" + tag.name + " "
-            commonState.update {
-                it.copy(content = newContent)
-            }
-        }
+        val startPos = if (cursorPos == 0) content.length else cursorPos
 
         commonState.update {
             it.apply {
                 tags.add(tag)
             }
+        }
+
+        if (content.isEmpty() || startPos == content.length) {
+            commonState.update {
+                it.copy(content = it.content + "#" + tag.name + " ")
+            }
+            return content.length + tag.name.length + 2
+        }
+
+        if (content.last().toString() == "#") {
+            commonState.update {
+                it.copy(content = it.content + tag.name + " ")
+            }
+            return startPos + tag.name.length + 1;
+        } else {
+            // 中间的情况
+            val contentSplitBefore = content.split("").subList(0, cursorPos + 1)
+            val contentSplitAfter = content.split("").subList(cursorPos + 1, content.length + 1)
+            val newContent =
+                contentSplitBefore.joinToString("") + "#" + tag.name + contentSplitAfter.joinToString(
+                    ""
+                ) + " "
+            commonState.update {
+                it.copy(content = newContent)
+            }
+            return contentSplitBefore.size + tag.name.length + 1;
         }
 
     }
@@ -272,11 +294,9 @@ class PublishViewModel : ViewModel() {
             mediaState.value.localImages.forEachIndexed { index, it ->
                 val cd = CompletableDeferred<Boolean>()
                 val imgParams = ImageUtils.getParams(it)
-                val key = QiNiuUtil.genKey(FileType.Image,
-                    UserStore.userInfo.id,
-                    index,
-                    imgParams.width,
-                    imgParams.height)
+                val key = QiNiuUtil.genKey(
+                    FileType.Image, UserStore.userInfo.id, index, imgParams.width, imgParams.height
+                )
                 QiNiuUtil.uploadFile(
                     it,
                     token,
@@ -342,6 +362,10 @@ class PublishViewModel : ViewModel() {
     }
 
     fun publishMedia(completeFn: () -> Unit) {
+
+        val newContent =
+            PublishUtils.convertContentWithTag(commonState.value.content, commonState.value.tags)
+
 
         val dto = PublishBlogDto().apply {
             adCode = commonState.value.adCode

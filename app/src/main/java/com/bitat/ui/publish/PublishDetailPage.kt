@@ -65,6 +65,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -82,6 +84,8 @@ import coil.compose.AsyncImage
 import com.bitat.R
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.consts.Commentable
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.PublishSettings
@@ -139,7 +143,13 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         rememberMultiplePermissionsState(permissions = listOf(Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION))
 
-    var textFieldValue by remember { mutableStateOf(TextFieldValue(commonState.content)) }
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                commonState.content
+            )
+        )
+    }
 
     val selectedUri = remember {
         mutableStateOf(Uri.EMPTY)
@@ -232,12 +242,15 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         when (opt) {
             PublishTextOption.Topic -> {
                 focusRequester.requestFocus()
-                if (commonState.content.isNotEmpty() && commonState.content.last()
-                        .toString() == "#") {
-                    vm.onContentChange(commonState.content.substringBeforeLast("#"))
-                } else {
-                    vm.onContentChange(commonState.content + "#")
-                }
+//                if (commonState.content.isNotEmpty() && commonState.content.last()
+//                        .toString() == "#"
+//                ) {
+//                    vm.onContentChange(
+//                        commonState.content.substringBeforeLast("#")
+//                    )
+//                } else {
+//                    vm.onContentChange(commonState.content + "#")
+//                }
                 vm.initTags()
             }
 
@@ -286,6 +299,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
                         textFieldValue,
+//                        commonState.content,
                         focusRequester,
                         onValueChange = {
                             textFieldValue = it
@@ -295,8 +309,9 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                             showOptDialog = true
                         },
                         updateContent = {
-                            onContentChange(it)
-                            vm.onContentChange(it)
+                            onContentChange(it.text)
+                            textFieldValue = it
+                            vm.onContentChange(it.text)
                         })
 
 
@@ -382,12 +397,35 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
         if (option == PublishTextOption.Topic || option == PublishTextOption.At) Column(
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.fillMaxHeight().background(Color.Transparent)) {
-            Box(modifier = Modifier.height(bottomOptHeight.intValue.dp).background(Color.White)) {
-                if (option == PublishTextOption.Topic) TopicOptions(tags = commonState.tagSearchResult,
-                    tapTopicFn = {
-                        vm.onTopicClick(it)
-                        tagStart.value = false
+            modifier = Modifier
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
+            Box(
+                modifier = Modifier
+                    .height(bottomOptHeight.intValue.dp)
+                    .background(Color.White)
+            ) {
+                if (option == PublishTextOption.Topic)
+                    TopicOptions(
+                        tags = commonState.tagSearchResult,
+                        tapTopicFn = {
+                            CuLog.info(
+                                CuTag.Publish,
+                                "start is" + textFieldValue.selection.start.toString()
+                            )
+                            val newOffset = vm.onTopicClick(it, textFieldValue.selection.start)
+                            textFieldValue =
+                                textFieldValue.copy(
+                                    text = vm.commonState.value.content,
+                                    selection = TextRange(newOffset)
+                                )
+                            tagStart.value = false
+                            option = PublishTextOption.None
+                        })
+                if (option == PublishTextOption.At)
+                    AtOptions(users = commonState.atUserSearchResult) {
+                        vm.onAtClick(it)
                         option = PublishTextOption.None
                     })
                 if (option == PublishTextOption.At) AtOptions(users = commonState.atUserSearchResult) {
@@ -571,7 +609,16 @@ fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit)
 //}
 
 @Composable
-fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusRequester: FocusRequester, onValueChange: (TextFieldValue) -> Unit, showImg: () -> Unit, updateContent: (String) -> Unit) { //    OutlinedTextField(modifier = Modifier
+fun InputBox(
+    hasMedia: Boolean = false,
+    textFieldValue: TextFieldValue,
+//    textFieldValue: String,
+    focusRequester: FocusRequester,
+    focusManager: FocusManager,
+    addPicture: (List<Uri>) -> Unit,
+    updateContent: (TextFieldValue) -> Unit
+) {
+    //    OutlinedTextField(modifier = Modifier
     //        .fillMaxWidth()
     //        .padding(5.dp),
     //        colors = OutlinedTextFieldDefaults.colors(
@@ -590,10 +637,12 @@ fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusReq
 
     Column {
         OutlinedTextField(
-            value = textFieldValue,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth() //            .fillMaxHeight()
-                .height(if (hasMedia) 100.dp else 200.dp).padding(5.dp)
+            textFieldValue,
+            onValueChange = updateContent,
+            modifier = Modifier
+                .fillMaxWidth() //            .fillMaxHeight()
+                .height(if (hasMedia) 100.dp else 200.dp)
+                .padding(5.dp)
                 .focusRequester(focusRequester),
             colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,

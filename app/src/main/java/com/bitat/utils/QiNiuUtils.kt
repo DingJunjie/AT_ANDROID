@@ -26,6 +26,7 @@ enum class FileType(val str: String) {
 object QiNiuUtil {
 
     const val QINIU_PREFIX = "http://file.bitebei.com/";
+    const val VIDEO_COVER = "?vframe/jpg/offset/0.1/w/480/h/360";
 
     private val uploadManager = Configuration.Builder().connectTimeout(90) // 链接超时。默认90秒
         .useHttps(true) // 是否使用https上传域名
@@ -69,7 +70,7 @@ object QiNiuUtil {
         val body = "u_${ownerId}&t_${TimeUtils.getNow()}_${number}"
         return when (type) {
             FileType.Image -> "i_$body&x_${x}&y_${y}"
-            FileType.Video -> "v_$body&d_${d}"
+            FileType.Video -> "v_$body&x_${x}&y_${y}d_${d}"
             FileType.Audio -> "a_$body&d_${d}"
             FileType.Text -> "t_$body"
         }
