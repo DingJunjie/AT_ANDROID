@@ -97,7 +97,6 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
     )
 
 
-
     val vm = viewModelProvider[PublishViewModel::class]
     val mediaState by vm.mediaState.collectAsState()
     val publishCommonState by vm.commonState.collectAsState()
@@ -120,54 +119,34 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
         mutableStateOf(CameraSelector.DEFAULT_BACK_CAMERA)
     }
 
+    val selector =
+        CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+
     DisposableEffect(lifecycleOwner) {
         val lifeCycleObserver = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
                     CuLog.info(CuTag.Blog, "PublishPage------------->>>> ON_CREATE")
-
-                    if (isFirstCreate){
-                        lifecycleOwner.lifecycleScope.launch {
-                            // 绑定imageCapture和lifecycle和相机
-                            val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
-                                ProcessCameraProvider.getInstance(context)
-                            val processCameraProvider = cameraProviderFuture.get()
-                            processCameraProvider.bindToLifecycle(
-                                lifecycleOwner,
-                                cameraSelector.value,
-
-                                imageCapture
-                            )
-                            isFirstCreate=false
-                        }
-                    }
                 }
 
                 Lifecycle.Event.ON_START -> {
                     CuLog.info(CuTag.Blog, "PublishPage------------->>>> ON_START")
-
                 }
 
                 Lifecycle.Event.ON_STOP -> {
                     CuLog.info(CuTag.Publish, "PublishPage------------->>>> ON_STOP")
-
                 }
 
-
                 Lifecycle.Event.ON_RESUME -> {
-
                     CuLog.info(CuTag.Publish, "PublishPage------------->>>> ON_RESUME")
                 }
 
-
                 Lifecycle.Event.ON_PAUSE -> {
-
                     CuLog.info(CuTag.Publish, "PublishPage------------->>>> ON_PAUSE")
                 }
 
                 Lifecycle.Event.ON_DESTROY -> {
                     CuLog.info(CuTag.Publish, "PublishPage------------->>>> ON_DESTROY")
-
                 }
 
                 else -> {}
@@ -189,13 +168,28 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
 
     LaunchedEffect(previewView) {
         videoCapture.value = context.createVideoCaptureUseCase(
+            lifecycleOwner, cameraSelector = cameraSelector.value, previewView
+        )
+
+        context.createImageCaptureUseCase(
             lifecycleOwner,
             cameraSelector = cameraSelector.value,
-            previewView
+            imageCapture
         )
     }
 
-
+    LaunchedEffect(CameraSelector.LENS_FACING_BACK) {
+        val cameraProvider = context.getCameraProvider()
+        cameraProvider.unbindAll()
+        videoCapture.value = context.createVideoCaptureUseCase(
+            lifecycleOwner, cameraSelector = cameraSelector.value, previewView
+        )
+        context.createImageCaptureUseCase(
+            lifecycleOwner,
+            cameraSelector = cameraSelector.value,
+            imageCapture
+        )
+    }
 
 
     if (permissionState.allPermissionsGranted) {
@@ -204,8 +198,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
             modifier = Modifier.fillMaxSize()
         ) {
             AndroidView(
-                factory = { previewView },
-                modifier = Modifier.fillMaxSize()
+                factory = { previewView }, modifier = Modifier.fillMaxSize()
             )
 
             Box(
@@ -246,38 +239,30 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                                     }
                                 }
                             }
-                        },
-                            onTap = {
-                                if (!recordingStarted.value) {
-                                    val mediaDir =
-                                        context.externalCacheDirs
-                                            .firstOrNull()
-                                            ?.let {
-                                                File(it, "at").apply { mkdirs() }
-                                            }
-                                    // 拍照
-                                    takePhoto(
-                                        context,
-                                        filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
-                                        imageCapture,
-                                        outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
-                                        executor = context.mainExecutor,
-                                        onError = {
-                                        },
-                                        onImageCaptured = { uri ->
-                                            vm.addPicture(listOf(uri))
-                                            navHostController.navigate(NavigationItem.PictureDisplay.route)
-                                        }
-                                    )
-                                } else {
-                                    recordingStarted.value = false
-                                    recording?.stop()
-                                }
-
-
-                            })
+                        }, onTap = {
+                            if (!recordingStarted.value) {
+                                val mediaDir = context.externalCacheDirs
+                                    .firstOrNull()
+                                    ?.let {
+                                        File(it, "at").apply { mkdirs() }
+                                    }
+                                // 拍照
+                                takePhoto(context,
+                                    filenameFormat = "yyyy-MM-dd-HH-mm-ss-SSS",
+                                    imageCapture,
+                                    outputDirectory = if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir,
+                                    executor = context.mainExecutor,
+                                    onError = {},
+                                    onImageCaptured = { uri ->
+                                        vm.addPicture(listOf(uri))
+                                        navHostController.navigate(NavigationItem.PictureDisplay.route)
+                                    })
+                            } else {
+                                recordingStarted.value = false
+                                recording?.stop()
+                            }
+                        })
                     },
-
                 ) {
                 Icon(
                     painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
@@ -286,12 +271,12 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                 )
             }
 
-//            Surface(
-//                modifier = Modifier
-//                    .align(Alignment.BottomStart)
-//                    .padding(bottom = 32.dp, start = 100.dp)
-//            ) {
-//                ImagePicker(onSelected = {
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 32.dp, start = 100.dp)
+            ) {
+//                ImagePicker(1, onSelected = {
 //                    vm.addPicture(it)
 //                    navHostController.navigate(NavigationItem.PictureDisplay.route)
 //                }) {
@@ -302,7 +287,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
 //                        Modifier.size(30.dp)
 //                    )
 //                }
-//            }
+            }
 //
 //            Surface(
 //                modifier = Modifier
@@ -330,12 +315,11 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                             if (cameraSelector.value == CameraSelector.DEFAULT_BACK_CAMERA) CameraSelector.DEFAULT_FRONT_CAMERA
                             else CameraSelector.DEFAULT_BACK_CAMERA
                         lifecycleOwner.lifecycleScope.launch {
-                            videoCapture.value =
-                                context.createVideoCaptureUseCase(
-                                    lifecycleOwner = lifecycleOwner,
-                                    cameraSelector = cameraSelector.value,
-                                    previewView = previewView
-                                )
+                            videoCapture.value = context.createVideoCaptureUseCase(
+                                lifecycleOwner = lifecycleOwner,
+                                cameraSelector = cameraSelector.value,
+                                previewView = previewView
+                            )
                         }
                     }, modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -411,9 +395,7 @@ fun CameraPreview(
 
 @RequiresApi(Build.VERSION_CODES.P)
 suspend fun Context.createVideoCaptureUseCase(
-    lifecycleOwner: LifecycleOwner,
-    cameraSelector: CameraSelector,
-    previewView: PreviewView
+    lifecycleOwner: LifecycleOwner, cameraSelector: CameraSelector, previewView: PreviewView
 ): VideoCapture<Recorder> {
     val preview =
         Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
@@ -429,6 +411,19 @@ suspend fun Context.createVideoCaptureUseCase(
     cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
 
     return videoCapture
+}
+
+suspend fun Context.createImageCaptureUseCase(
+    lifecycleOwner: LifecycleOwner,
+    cameraSelector: CameraSelector,
+    imageCapture: ImageCapture
+) {
+    val cameraProvider = getCameraProvider()
+    cameraProvider.bindToLifecycle(
+        lifecycleOwner,
+        cameraSelector,
+        imageCapture
+    )
 }
 
 
@@ -457,7 +452,8 @@ fun takePhoto(
 
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-    return imageCapture.takePicture(outputOptions,
+    return imageCapture.takePicture(
+        outputOptions,
         executor,
         object : ImageCapture.OnImageSavedCallback {
             override fun onError(exception: ImageCaptureException) {

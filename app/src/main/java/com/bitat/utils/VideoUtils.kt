@@ -32,4 +32,8 @@ object VideoUtils {
         //    return firstFrame
     }
 
+    fun genCoverKey() {
+
+    }
+
 }
