@@ -317,10 +317,9 @@ class PublishViewModel : ViewModel() {
     fun addPicture(path: List<Uri>) {
         mediaState.update {
             it.localImages.addAll(path)
-            it.currentImage.apply {
-                path.last()
-            }
-            it
+            it.copy(
+                currentImage = path.last()
+            )
         }
     }
 
@@ -545,6 +544,16 @@ class PublishViewModel : ViewModel() {
 
     fun saveDraft() {
         ToastModel("存草稿", ToastModel.Type.Normal).showToast()
+    }
+
+    fun clearData() {
+        _commonState.apply {
+            PublishCommonState()
+        }
+
+        mediaState.apply {
+            PublishMediaState()
+        }
     }
 
 }

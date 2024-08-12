@@ -186,7 +186,13 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             return
         }
 
-        val latestChar = content.split("")[cursorOffset - 1]
+        val latestChar = content.split("")[cursorOffset]
+
+        if (cursorOffset < tagStart.value) {
+            tagStart.value = -1
+            option = PublishTextOption.None
+            return
+        }
 
         if (latestChar == "#" && tagStart.value < 0) { // 开始tag
             tagStart.value = cursorOffset - 1
@@ -200,6 +206,12 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         } else if (tagStart.value >= 0) {
             inputTag.value = content.substring(tagStart.value, cursorOffset - 1)
             vm.searchTag(inputTag.value)
+        }
+
+        if (cursorOffset < atStart.value) {
+            atStart.value = -1
+            option = PublishTextOption.None
+            return
         }
 
         if (latestChar == "@" && atStart.value < 0) {
@@ -427,9 +439,6 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         textFieldValue,
 //                        commonState.content,
                         focusRequester,
-                        onValueChange = {
-                            textFieldValue = it
-                        },
                         showImg = {
                             option = PublishTextOption.Pick
                             showOptDialog = true
@@ -525,6 +534,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     Button(onClick = {
                         vm.publish {
                             ToastModel("发布成功！", ToastModel.Type.Success).showToast()
+                            vm.clearData()
                             AtNavigation(navHostController).navigateToHome()
                         }
                     }, modifier = Modifier.fillMaxWidth(), enabled = commonState.isPublishClick) {
@@ -705,14 +715,30 @@ fun TopBar(backTapFn: () -> Unit) {
 }
 
 @Composable
-fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: () -> Unit, coverPath: Uri = Uri.EMPTY) {
+fun MediaBox(
+    pictureList: List<Uri>,
+    selectUri: (Uri) -> Unit,
+    addPicture: () -> Unit,
+    coverPath: Uri = Uri.EMPTY
+) {
     val contentResolver = LocalContext.current.contentResolver
-    Row(Modifier.fillMaxWidth()) { //        if (coverPath != Uri.EMPTY) Box(Modifier.padding(top = 10.dp,
-        //            bottom = 10.dp,
-        //            start = 10.dp)) { VideoBox(coverPath) {} }
-        LazyRow(Modifier //                .fillMaxWidth()
-            .padding(top = 10.dp, bottom = 10.dp),
-            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)) {
+    Row(Modifier.fillMaxWidth()) {
+        if (coverPath != Uri.EMPTY) Box(
+            Modifier.padding(
+                top = 10.dp,
+                bottom = 10.dp,
+                start = 10.dp
+            )
+        ) {
+            VideoBox(videoUri = coverPath, tapFn = {
+                selectUri(it)
+            })
+        }
+        LazyRow(
+            Modifier //                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 10.dp),
+            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
+        ) {
             items(pictureList.size) { index ->
 
                 val type = contentResolver.getType(pictureList[index])
@@ -730,9 +756,6 @@ fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: () ->
             }
         }
 
-        VideoBox(modifier = Modifier.padding(top = 10.dp), videoUri = coverPath, tapFn = {
-            selectUri(it)
-        })
 
         //        ImagePicker(1,
         //            option = ActivityResultContracts.PickVisualMedia.VideoOnly,
@@ -740,7 +763,10 @@ fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: () ->
         //
         //        }
 
-        Box(Modifier.padding(top = 10.dp).clickable { addPicture() }) {
+        Box(
+            Modifier
+                .padding(top = 10.dp)
+                .clickable { addPicture() }) {
             AddPictureBox {}
         }
     }
@@ -775,7 +801,10 @@ fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
 @Composable
 fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit) {
     Surface(shape = RoundedCornerShape(10.dp),
-        modifier = modifier.width(80.dp).height(100.dp).padding(5.dp)
+        modifier = modifier
+            .width(80.dp)
+            .height(100.dp)
+            .padding(5.dp)
             .clickable { tapFn(videoUri) }) { //        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
         VideoPlayer(uri = videoUri.toString())
     }
@@ -793,10 +822,8 @@ fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit)
 @Composable
 fun InputBox(
     hasMedia: Boolean = false, textFieldValue: TextFieldValue,
-//    textFieldValue: String,
-    focusRequester: FocusRequester,
-//    focusManager: FocusManager,
-    addPicture: (List<Uri>) -> Unit, onValueChange: (TextFieldValue) -> Unit
+    focusRequester: FocusRequester, showImg: () -> Unit,
+    onValueChange: (TextFieldValue) -> Unit
 ) {
     //    OutlinedTextField(modifier = Modifier
     //        .fillMaxWidth()
@@ -834,11 +861,14 @@ fun InputBox(
             maxLines = 10,
         )
 
-        Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).clickable { showImg() },
-            horizontalArrangement = Arrangement.End) {
-
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 10.dp)
+                .clickable { showImg() },
+            horizontalArrangement = Arrangement.End
+        ) {
             Icon(Icons.Filled.Menu, contentDescription = "", modifier = Modifier.size(30.dp))
-
         }
     }
 
@@ -1053,31 +1083,41 @@ fun MediaOptions(uri: Uri, editFn: (Uri) -> Unit, removeFn: (Uri) -> Unit) {
 @Composable
 fun PickOptions(imgFn: (List<Uri>) -> Unit, videoFn: (List<Uri>) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+            .clickable {
 
-        }) {
+            }) {
             ImagePicker(20, ImageOnly, onSelected = {
                 imgFn(it)
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Filled.Menu,
+                    Icon(
+                        Icons.Filled.Menu,
                         contentDescription = "",
-                        modifier = Modifier.size(30.dp))
+                        modifier = Modifier.size(30.dp)
+                    )
                     Text(text = "图片")
                 }
             }
         }
-        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+            .clickable {
 
-        }) {
+            }) {
 
             ImagePicker(1, VideoOnly, onSelected = {
                 videoFn(it)
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Filled.PlayArrow,
+                    Icon(
+                        Icons.Filled.PlayArrow,
                         contentDescription = "",
-                        modifier = Modifier.size(30.dp))
+                        modifier = Modifier.size(30.dp)
+                    )
                     Text(text = "视频")
                 }
             }

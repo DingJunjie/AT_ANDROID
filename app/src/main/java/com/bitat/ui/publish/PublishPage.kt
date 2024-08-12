@@ -263,7 +263,7 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                             }
                         })
                     },
-                ) {
+            ) {
                 Icon(
                     painter = painterResource(if (recordingStarted.value) R.drawable.logo else R.drawable.nav_add),
                     contentDescription = "",
@@ -276,36 +276,36 @@ fun PublishPage(navHostController: NavHostController, viewModelProvider: ViewMod
                     .align(Alignment.BottomStart)
                     .padding(bottom = 32.dp, start = 100.dp)
             ) {
-//                ImagePicker(1, onSelected = {
-//                    vm.addPicture(it)
-//                    navHostController.navigate(NavigationItem.PictureDisplay.route)
-//                }) {
-////                  audioEnabled.value = !audioEnabled.value
-//                    Icon(
-//                        Icons.Filled.AccountBox,
-//                        contentDescription = "",
-//                        Modifier.size(30.dp)
-//                    )
-//                }
+                ImagePicker(20, ImagePickerOption.ImageOnly, onSelected = {
+                    vm.addPicture(it)
+                    navHostController.navigate(NavigationItem.PictureDisplay.route)
+                }) {
+//                  audioEnabled.value = !audioEnabled.value
+                    Icon(
+                        Icons.Filled.AccountBox,
+                        contentDescription = "",
+                        Modifier.size(30.dp)
+                    )
+                }
             }
 //
-//            Surface(
-//                modifier = Modifier
-//                    .align(Alignment.BottomEnd)
-//                    .padding(bottom = 32.dp, end = 100.dp)
-//            ) {
-//                ImagePicker(onSelected = {
-//                    vm.addVideo(it.first())
-//                    navHostController.navigate(NavigationItem.VideoDisplay.route)
-//                }, option = ImagePickerOption.SINGLE_VIDEO) {
-////                  audioEnabled.value = !audioEnabled.value
-//                    Icon(
-//                        Icons.Filled.CheckCircle,
-//                        contentDescription = "",
-//                        Modifier.size(30.dp)
-//                    )
-//                }
-//            }
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 32.dp, end = 100.dp)
+            ) {
+                ImagePicker(1, ImagePickerOption.VideoOnly, onSelected = {
+                    vm.addVideo(it.first())
+                    navHostController.navigate(NavigationItem.VideoDisplay.route)
+                }) {
+//                  audioEnabled.value = !audioEnabled.value
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = "",
+                        Modifier.size(30.dp)
+                    )
+                }
+            }
 
 
             if (!recordingStarted.value) {

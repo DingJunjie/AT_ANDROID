@@ -40,8 +40,21 @@ fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewMo
 
     Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
         Box {
-            Column(modifier = Modifier.fillMaxSize().padding(padding).padding(top = 20.dp),
-                verticalArrangement = Arrangement.SpaceBetween) {
+            VideoPlayer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .align(Alignment.BottomStart),
+                uri = state.localVideo.toString()
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(top = 20.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 VideoDisplayTopBar(backFn = { navHostController.popBackStack() },
                     nextFn = { navHostController.navigate(NavigationItem.PublishDetail.route) })
             }
@@ -49,10 +62,9 @@ fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewMo
 //            if (state.localVideo != Uri.EMPTY) {
 //
 //            }
-            VideoPlayer(modifier = Modifier.size(100.dp, 180.dp).padding(padding).align(Alignment.BottomStart), uri = state.localVideo.toString())
+
 
         }
-
 
 
     }
@@ -60,8 +72,12 @@ fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewMo
 
 @Composable
 fun VideoDisplayTopBar(backFn: () -> Unit, nextFn: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().height(80.dp),
-        horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         BackButton {
             backFn()
         }

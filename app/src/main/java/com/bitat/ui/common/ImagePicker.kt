@@ -27,21 +27,9 @@ object ImagePickerOption {
 }
 
 @Composable
-<<<<<<< HEAD
 fun ImagePicker(maxSize: Int, option: ActivityResultContracts.PickVisualMedia.VisualMediaType, onSelected: (List<Uri>) -> Unit, content: @Composable () -> Unit) {
     val clickable = rememberSaveable { mutableStateOf(true) }
     val singleSelect = ActivityResultContracts.PickVisualMedia()
-=======
-fun ImagePicker(
-    maxSize: Int,
-    option: ActivityResultContracts.PickVisualMedia.VisualMediaType,
-    onSelected: (List<Uri>) -> Unit,
-    content: @Composable () -> Unit
-) {
-    val contentResolver = LocalContext.current.contentResolver
-
-    val singleSelect = remember { ActivityResultContracts.PickVisualMedia() }
->>>>>>> 8becf62 (update topic and at)
     val multipleSelect =
         ActivityResultContracts.PickMultipleVisualMedia(if (maxSize > 1) maxSize else 2)
 
