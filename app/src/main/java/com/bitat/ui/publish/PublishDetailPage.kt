@@ -4,6 +4,7 @@ package com.bitat.ui.publish
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,15 +57,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -74,6 +74,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
@@ -88,7 +91,6 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.Avatar
 import com.bitat.ui.common.ImagePicker
-import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.BackButton
 import com.bitat.utils.GaoDeUtils
@@ -106,9 +108,7 @@ enum class PublishTextOption {
     Topic, At, Follow, Font, Visibility, None, Media, Location, Settings, Comment
 }
 
-@OptIn(
-    ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
@@ -117,6 +117,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     val mediaState by vm.mediaState.collectAsState()
     val showDialog by remember { mutableStateOf(false) }
     val dialogResult by rememberSaveable { mutableStateOf("") }
+    val myTextFieldValue by remember { mutableStateOf(TextFieldValue("")) }
     val focusRequester = remember {
         FocusRequester()
     }
@@ -130,15 +131,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         mutableIntStateOf(0)
     }
 
-    val permissionState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
+    val permissionState =
+        rememberMultiplePermissionsState(permissions = listOf(Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION))
 
-    val textFieldValue = TextFieldValue(
-        commonState.content, TextRange(commonState.content.length)
-    )
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(commonState.content)) }
 
     val selectedUri = remember {
         mutableStateOf(Uri.EMPTY)
@@ -156,13 +153,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             tagStart.value = false
             return
         }
-        if (content.last().toString() == "#" && !tagStart.value) {
-            // 开始tag
+        if (content.last().toString() == "#" && !tagStart.value) { // 开始tag
             tagStart.value = true
             vm.initTags()
             option = PublishTextOption.Topic
-        } else if (content.last().toString() == " " && tagStart.value) {
-            // 结束tag
+        } else if (content.last().toString() == " " && tagStart.value) { // 结束tag
             tagStart.value = false
             option = PublishTextOption.None
         } else if (tagStart.value) {
@@ -176,13 +171,12 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     OptionDialog(showOptDialog,
         onDismiss = { showOptDialog = false; option = PublishTextOption.None }) {
         if (option == PublishTextOption.Follow) {
-            FollowOptions(currentFollowable = Followable.getFollowable(
-                commonState.followId
-            ), setFollowFn = {
-                vm.onFollowClick(it)
-                option = PublishTextOption.None
-                showOptDialog = false
-            })
+            FollowOptions(currentFollowable = Followable.getFollowable(commonState.followId),
+                setFollowFn = {
+                    vm.onFollowClick(it)
+                    option = PublishTextOption.None
+                    showOptDialog = false
+                })
         } else if (option == PublishTextOption.Visibility) {
 
             VisibilityOptions(currentVisibility = commonState.visibility, setVisibilityFn = {
@@ -225,11 +219,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             PublishTextOption.Topic -> {
                 focusRequester.requestFocus()
                 if (commonState.content.isNotEmpty() && commonState.content.last()
-                        .toString() == "#"
-                ) {
-                    vm.onContentChange(
-                        commonState.content.substringBeforeLast("#")
-                    )
+                        .toString() == "#") {
+                    vm.onContentChange(commonState.content.substringBeforeLast("#"))
                 } else {
                     vm.onContentChange(commonState.content + "#")
                 }
@@ -239,11 +230,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             PublishTextOption.At -> {
                 focusRequester.requestFocus()
                 if (commonState.content.isNotEmpty() && commonState.content.last()
-                        .toString() == "@"
-                ) {
-                    vm.onContentChange(
-                        commonState.content.substringBeforeLast("@")
-                    )
+                        .toString() == "@") {
+                    vm.onContentChange(commonState.content.substringBeforeLast("@"))
                 } else {
                     vm.onContentChange(commonState.content + "@")
                 }
@@ -256,38 +244,32 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopBar(backTapFn = {
-                navHostController.popBackStack()
-            })
-        }, modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-    ) { padding ->
+    Scaffold(topBar = {
+        TopBar(backTapFn = {
+            navHostController.popBackStack()
+        })
+    }, modifier = Modifier.fillMaxSize().background(Color.Transparent)) { padding ->
         Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
             if (permissionState.allPermissionsGranted) {
-                Column(
-                    modifier = Modifier.padding(padding)
-                ) {
-                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY)
-                        MediaBox(
-                            mediaState.localImages,
-                            selectUri = {
-                                selectedUri.value = it
-                                option = PublishTextOption.Media
-                                showOptDialog = true
-                            },
-                            addPicture = {
-                                vm.addPicture(it)
-                            },
-//                        coverPath = mediaState.localCover
-                        )
+                Column(modifier = Modifier.padding(padding)) {
+                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY) MediaBox(
+                        mediaState.localImages,
+                        selectUri = {
+                            selectedUri.value = it
+                            option = PublishTextOption.Media
+                            showOptDialog = true
+                        },
+                        addPicture = {
+                            vm.addPicture(it)
+                        }, //                        coverPath = mediaState.localCover
+                    )
 
                     InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
                         textFieldValue,
                         focusRequester,
-                        focusManager,
+                        onValueChange = {
+                            textFieldValue = it
+                        },
                         addPicture = {
                             vm.addPicture(it)
                         },
@@ -296,15 +278,13 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                             vm.onContentChange(it)
                         })
 
+
                     Row(horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.Top,
-                        modifier = Modifier
-                            .padding(start = 20.dp)
-                            .onGloballyPositioned {
-                                bottomOptHeight.intValue =
-                                    ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
-                            }
-                    ) {
+                        modifier = Modifier.padding(start = 20.dp).onGloballyPositioned {
+                            bottomOptHeight.intValue =
+                                ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
+                        }) {
                         Options(title = stringResource(id = R.string.publish_option_topic),
                             iconPath = "svg/topic.svg",
                             selected = option == PublishTextOption.Topic,
@@ -333,12 +313,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
                     }
 
-                    HorizontalDivider(
-                        color = Color(0xffeeeeee),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
+                    HorizontalDivider(color = Color(0xffeeeeee),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
 
                     FollowRow() {
                         tapOption(PublishTextOption.Follow)
@@ -364,19 +340,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             }
 
             Box {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
-                ) {
-                    Button(
-                        onClick = { /*TODO*/
-                            vm.saveDraft()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(0.3f)
-                            .padding(end = 10.dp)
-                    ) {
+                Row(modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)) {
+                    Button(onClick = { /*TODO*/
+                        vm.saveDraft()
+                    }, modifier = Modifier.fillMaxWidth(0.3f).padding(end = 10.dp)) {
                         Text(text = "保存")
                     }
                     Button(onClick = {
@@ -393,28 +361,31 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
         if (option == PublishTextOption.Topic || option == PublishTextOption.At) Column(
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier
-                .fillMaxHeight()
-                .background(Color.Transparent)
-        ) {
-            Box(
-                modifier = Modifier
-                    .height(bottomOptHeight.intValue.dp)
-                    .background(Color.White)
-            ) {
-                if (option == PublishTextOption.Topic)
-                    TopicOptions(
-                        tags = commonState.tagSearchResult,
-                        tapTopicFn = {
-                            vm.onTopicClick(it)
-                            tagStart.value = false
-                            option = PublishTextOption.None
-                        })
-                if (option == PublishTextOption.At)
-                    AtOptions(users = commonState.atUserSearchResult) {
-                        vm.onAtClick(it)
+            modifier = Modifier.fillMaxHeight().background(Color.Transparent)) {
+            Box(modifier = Modifier.height(bottomOptHeight.intValue.dp).background(Color.White)) {
+                if (option == PublishTextOption.Topic) TopicOptions(tags = commonState.tagSearchResult,
+                    tapTopicFn = {
+                        vm.onTopicClick(it)
+                        tagStart.value = false
                         option = PublishTextOption.None
+                    })
+                if (option == PublishTextOption.At) AtOptions(users = commonState.atUserSearchResult) {
+                    vm.onAtClick(it)
+                    option = PublishTextOption.None
+                    val cursorPosition = textFieldValue.selection.start
+                    val newText = textFieldValue.text.substring(0,
+                        cursorPosition) + "@${it.nickname}" + textFieldValue.text.substring(
+                        cursorPosition)
+                    // 如果用户没有选中文本，只插入 "Hello"
+                    if (textFieldValue.selection.collapsed) {
+                        textFieldValue = textFieldValue.copy(text = newText,
+                            selection = TextRange(cursorPosition + it.nickname.length + 1))
                     }
+                    else { // 如果用户选中了文本，则替换选中的文本
+                        textFieldValue = textFieldValue.copy(text = newText,
+                            selection = TextRange(cursorPosition + it.nickname.length + 1))
+                    }
+                }
             }
         }
     }
@@ -422,14 +393,10 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
 @Composable
 fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
-            .fillMaxWidth()
-            .clickableWithoutRipple {
-                tapFn()
-            }, horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 30.dp).fillMaxWidth()
+        .clickableWithoutRipple {
+            tapFn()
+        }, horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(Icons.Filled.Lock, contentDescription = null)
         Text(text = Visibility.getUiVisibility(visibility = visibility))
         Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
@@ -440,14 +407,10 @@ fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
 
 @Composable
 fun SettingsRow(tapFn: () -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
-            .fillMaxWidth()
-            .clickableWithoutRipple {
-                tapFn()
-            }, horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 30.dp).fillMaxWidth()
+        .clickableWithoutRipple {
+            tapFn()
+        }, horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(Icons.Filled.Lock, contentDescription = null)
         Text(text = "设置")
         Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
@@ -458,14 +421,10 @@ fun SettingsRow(tapFn: () -> Unit = {}) {
 
 @Composable
 fun CommentableRow(commentable: Commentable, tapFn: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
-            .fillMaxWidth()
-            .clickableWithoutRipple {
-                tapFn()
-            }, horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 30.dp).fillMaxWidth()
+        .clickableWithoutRipple {
+            tapFn()
+        }, horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(Icons.Filled.Lock, contentDescription = null)
         Text(text = Commentable.getUiCommentable(commentable = commentable))
         Box(modifier = Modifier.width(60.dp), contentAlignment = Alignment.CenterEnd) {
@@ -476,21 +435,14 @@ fun CommentableRow(commentable: Commentable, tapFn: () -> Unit) {
 
 @Composable
 fun FollowRow(clickFn: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .padding(start = 20.dp, end = 20.dp, bottom = 30.dp)
-            .fillMaxWidth()
-            .clickable {
-                clickFn()
-            }, horizontalArrangement = Arrangement.SpaceBetween
-    ) { //        Icon(R.drawable, contentDescription = null, tint = Color.Gray)
-        SvgIcon(
-            path = "svg/follow_blog.svg",
+    Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 30.dp).fillMaxWidth()
+        .clickable {
+            clickFn()
+        },
+        horizontalArrangement = Arrangement.SpaceBetween) { //        Icon(R.drawable, contentDescription = null, tint = Color.Gray)
+        SvgIcon(path = "svg/follow_blog.svg",
             contentDescription = "",
-            modifier = Modifier
-                .size(20.dp)
-                .padding(end = 5.dp)
-        )
+            modifier = Modifier.size(20.dp).padding(end = 5.dp))
         Text(text = stringResource(id = R.string.publish_option_follow), color = Color.Gray)
         Box(modifier = Modifier.width(60.dp))
     }
@@ -498,17 +450,11 @@ fun FollowRow(clickFn: () -> Unit) {
 
 @Composable
 fun TagsRow(tags: List<BlogTagDto>) {
-    LazyRow(
-        modifier = Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
+    LazyRow(modifier = Modifier.padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         items(tags) { item ->
-            Column(
-                modifier = Modifier
-                    .border(
-                        1.dp, Color.Black, RoundedCornerShape(20.dp)
-                    )
-                    .padding(all = 10.dp)
-            ) {
+            Column(modifier = Modifier.border(1.dp, Color.Black, RoundedCornerShape(20.dp))
+                .padding(all = 10.dp)) {
                 Text(text = "#${item.name}")
             }
         }
@@ -517,13 +463,9 @@ fun TagsRow(tags: List<BlogTagDto>) {
 
 @Composable
 fun TopBar(backTapFn: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(top = 60.dp)
-            .fillMaxWidth()
-    ) {
+        modifier = Modifier.padding(top = 60.dp).fillMaxWidth()) {
         BackButton {
             backTapFn()
         }
@@ -533,23 +475,14 @@ fun TopBar(backTapFn: () -> Unit) {
 }
 
 @Composable
-fun MediaBox(
-    pictureList: List<Uri>,
-    selectUri: (Uri) -> Unit,
-    addPicture: (List<Uri>) -> Unit,
-    coverPath: Uri = Uri.EMPTY
-) {
+fun MediaBox(pictureList: List<Uri>, selectUri: (Uri) -> Unit, addPicture: (List<Uri>) -> Unit, coverPath: Uri = Uri.EMPTY) {
     Row(Modifier.fillMaxWidth()) {
-        if (coverPath != Uri.EMPTY) Box(
-            Modifier.padding(
-                top = 10.dp, bottom = 10.dp, start = 10.dp
-            )
-        ) { VideoBox(coverPath) {} }
-        LazyRow(
-            Modifier //                .fillMaxWidth()
-                .padding(top = 10.dp, bottom = 10.dp),
-            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
-        ) {
+        if (coverPath != Uri.EMPTY) Box(Modifier.padding(top = 10.dp,
+            bottom = 10.dp,
+            start = 10.dp)) { VideoBox(coverPath) {} }
+        LazyRow(Modifier //                .fillMaxWidth()
+            .padding(top = 10.dp, bottom = 10.dp),
+            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)) {
             items(pictureList.size) { index ->
                 PictureBox(uri = pictureList[index], tapFn = {
                     selectUri(it)
@@ -557,7 +490,9 @@ fun MediaBox(
             }
         }
 
-        ImagePicker(option = ImagePickerOption.SINGLE_VIDEO,onSelected = { addPicture(it) }) {
+        ImagePicker(1,
+            option = ActivityResultContracts.PickVisualMedia.VideoOnly,
+            onSelected = { addPicture(it) }) {
             Box(Modifier.padding(top = 10.dp)) {
                 AddPictureBox {}
             }
@@ -567,14 +502,9 @@ fun MediaBox(
 
 @Composable
 fun AddPictureBox(tapFn: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(10.dp),
-        modifier = Modifier
-            .width(80.dp)
-            .height(100.dp)
-            .padding(5.dp)
-            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
-    ) {
+    Surface(shape = RoundedCornerShape(10.dp),
+        modifier = Modifier.width(80.dp).height(100.dp).padding(5.dp)
+            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))) {
         Icon(Icons.Filled.Add, contentDescription = "", modifier = Modifier.size(15.dp))
     }
 }
@@ -582,11 +512,7 @@ fun AddPictureBox(tapFn: () -> Unit) {
 @Composable
 fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
     Surface(shape = RoundedCornerShape(10.dp),
-        modifier = Modifier
-            .width(80.dp)
-            .height(100.dp)
-            .padding(5.dp)
-            .clickable { tapFn(uri) }) {
+        modifier = Modifier.width(80.dp).height(100.dp).padding(5.dp).clickable { tapFn(uri) }) {
         AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
     }
 }
@@ -594,26 +520,14 @@ fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
 @Composable
 fun VideoBox(uri: Uri, tapFn: (Uri) -> Unit) {
     Surface(shape = RoundedCornerShape(10.dp),
-        modifier = Modifier
-            .width(60.dp)
-            .height(80.dp)
-            .padding(5.dp)
-            .clickable { tapFn(uri) }) {
+        modifier = Modifier.width(60.dp).height(80.dp).padding(5.dp).clickable { tapFn(uri) }) {
         AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
         Icon(Icons.Filled.PlayArrow, contentDescription = "", modifier = Modifier.size(20.dp))
     }
 }
 
 @Composable
-fun InputBox(
-    hasMedia: Boolean = false,
-    textFieldValue: TextFieldValue,
-    focusRequester: FocusRequester,
-    focusManager: FocusManager,
-    addPicture: (List<Uri>) -> Unit,
-    updateContent: (String) -> Unit
-) {
-    //    OutlinedTextField(modifier = Modifier
+fun InputBox(hasMedia: Boolean = false, textFieldValue: TextFieldValue, focusRequester: FocusRequester, onValueChange: (TextFieldValue) -> Unit, addPicture: (List<Uri>) -> Unit, updateContent: (String) -> Unit) { //    OutlinedTextField(modifier = Modifier
     //        .fillMaxWidth()
     //        .padding(5.dp),
     //        colors = OutlinedTextFieldDefaults.colors(
@@ -628,37 +542,26 @@ fun InputBox(
     //            updateTitle(it)
     //        })
 
+    //    var myTextFieldValue by remember { mutableStateOf(textFieldValue) }
 
-    Column(
-
-    ) {
+    Column {
         OutlinedTextField(
-            textFieldValue,
-            {
-                updateContent(it.text)
-            },
-            modifier = Modifier
-                .fillMaxWidth() //            .fillMaxHeight()
-                .height(if (hasMedia) 100.dp else 200.dp)
-                .padding(5.dp)
+            value = textFieldValue,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth() //            .fillMaxHeight()
+                .height(if (hasMedia) 100.dp else 200.dp).padding(5.dp)
                 .focusRequester(focusRequester),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
+            colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
                 focusedBorderColor = Color.Transparent,
-                unfocusedLabelColor = Color.LightGray
-            ),
+                unfocusedLabelColor = Color.LightGray),
             label = { Text(text = "想写你就多写点") },
             maxLines = 10,
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 10.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            ImagePicker(onSelected = {
+        Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp),
+            horizontalArrangement = Arrangement.End) {
+            ImagePicker(20, ActivityResultContracts.PickVisualMedia.ImageOnly, onSelected = {
                 addPicture(it)
             }) {
                 Icon(Icons.Filled.Menu, contentDescription = "", modifier = Modifier.size(30.dp))
@@ -669,38 +572,21 @@ fun InputBox(
 }
 
 @Composable
-fun Options(
-    title: String,
-    iconPath: String,
-    modifier: Modifier = Modifier,
-    selected: Boolean = false,
-    tapFn: () -> Unit
-) {
-    TextButton(
-        onClick = tapFn,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) Color(0xff333333) else Color(
-                0xffeeeeee
-            ), contentColor = if (selected) Color.White else Color.Black
-        ),
+fun Options(title: String, iconPath: String, modifier: Modifier = Modifier, selected: Boolean = false, tapFn: () -> Unit) {
+    TextButton(onClick = tapFn,
+        colors = ButtonDefaults.buttonColors(containerColor = if (selected) Color(0xff333333) else Color(
+            0xffeeeeee), contentColor = if (selected) Color.White else Color.Black),
         shape = CircleShape,
-        modifier = modifier
-            .padding(end = 10.dp)
-    ) {
+        modifier = modifier.padding(end = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SvgIcon(
-                path = iconPath,
+            SvgIcon(path = iconPath,
                 contentDescription = "",
-                modifier = Modifier
-                    .padding(end = 5.dp)
-            )
-            Text(
-                text = title,
+                modifier = Modifier.padding(end = 5.dp))
+            Text(text = title,
                 maxLines = 1,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
-                style = TextStyle(fontSize = 12.sp)
-            )
+                style = TextStyle(fontSize = 12.sp))
         }
     }
 }
@@ -710,27 +596,20 @@ fun Options(
 fun OptionDialog(showDialog: Boolean, onDismiss: () -> Unit, content: @Composable () -> Unit) {
     if (showDialog) {
         var isActiveClose by remember { mutableStateOf(false) }
-        AnyPopDialog(
-            modifier = Modifier
-                .fillMaxWidth()
-                .requiredHeightIn(
-                    max = ScreenUtils.screenHeight.times(0.6).dp, min = 80.dp
-                ) //                .fillMaxHeight(0.6f)
-                .background(color = Color.White)
-                .clickable(indication = rememberRipple(),
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = {
-                        isActiveClose = true
-                    }), isActiveClose = isActiveClose, // 请根据自己需要自己配置，自己定制谢谢配合
-            properties = AnyPopDialogProperties(
-                direction = DirectionState.BOTTOM,
+        AnyPopDialog(modifier = Modifier.fillMaxWidth()
+            .requiredHeightIn(max = ScreenUtils.screenHeight.times(0.6).dp,
+                min = 80.dp) //                .fillMaxHeight(0.6f)
+            .background(color = Color.White).clickable(indication = rememberRipple(),
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = {
+                    isActiveClose = true
+                }), isActiveClose = isActiveClose, // 请根据自己需要自己配置，自己定制谢谢配合
+            properties = AnyPopDialogProperties(direction = DirectionState.BOTTOM,
                 dismissOnClickOutside = true,
                 backgroundDimEnabled = false, // 你自己设置哦
-                navBarColor = MaterialTheme.colorScheme.background
-            ), content = {
+                navBarColor = MaterialTheme.colorScheme.background), content = {
                 content()
-            }, onDismiss = onDismiss
-        )
+            }, onDismiss = onDismiss)
     }
 }
 
@@ -739,16 +618,12 @@ fun FollowOptions(currentFollowable: Followable, setFollowFn: (Followable) -> Un
     Text("动态跟随权限", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(Followable.entries.size) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     setFollowFn(Followable.entries[it])
                 }) {
-                Text(
-                    Followable.getUiFollowable(followable = Followable.entries[it]),
-                    fontWeight = if (currentFollowable == Followable.entries[it]) FontWeight.Bold else FontWeight.Normal
-                )
+                Text(Followable.getUiFollowable(followable = Followable.entries[it]),
+                    fontWeight = if (currentFollowable == Followable.entries[it]) FontWeight.Bold else FontWeight.Normal)
             }
         }
     }
@@ -759,16 +634,12 @@ fun VisibilityOptions(currentVisibility: Visibility, setVisibilityFn: (Visibilit
     Text("博文可见性", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(Visibility.entries.size) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     setVisibilityFn(Visibility.entries[it])
                 }) {
-                Text(
-                    Visibility.getUiVisibility(visibility = Visibility.entries[it]),
-                    fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal
-                )
+                Text(Visibility.getUiVisibility(visibility = Visibility.entries[it]),
+                    fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal)
             }
         }
     }
@@ -779,16 +650,12 @@ fun CommentOptions(currentComment: Commentable, setCommentFn: (Commentable) -> U
     Text("评论权限", modifier = Modifier.padding(start = 20.dp), fontWeight = FontWeight.Bold)
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(Commentable.entries.size) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     setCommentFn(Commentable.entries[it])
                 }) {
-                Text(
-                    Commentable.getUiCommentable(commentable = Commentable.entries[it]),
-                    fontWeight = if (currentComment == Commentable.entries[it]) FontWeight.Bold else FontWeight.Normal
-                )
+                Text(Commentable.getUiCommentable(commentable = Commentable.entries[it]),
+                    fontWeight = if (currentComment == Commentable.entries[it]) FontWeight.Bold else FontWeight.Normal)
             }
         }
     }
@@ -798,15 +665,11 @@ fun CommentOptions(currentComment: Commentable, setCommentFn: (Commentable) -> U
 fun SettingsOptions(tapFn: () -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(PublishSettings.entries) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     tapFn()
                 }) {
-                Text(
-                    PublishSettings.getUiTitle(settings = it)
-                )
+                Text(PublishSettings.getUiTitle(settings = it))
             }
         }
     }
@@ -814,15 +677,9 @@ fun SettingsOptions(tapFn: () -> Unit) {
 
 @Composable
 fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(top = 10.dp)
-            .fillMaxHeight()
-    ) {
+    LazyColumn(modifier = Modifier.padding(top = 10.dp).fillMaxHeight()) {
         items(tags.size) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                 .clickable {
                     tapTopicFn(tags[it])
                 }) {
@@ -833,33 +690,20 @@ fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
 }
 
 @Composable
-fun AtOptions(
-    users: List<UserBase1Dto>, tapUserFn: (UserBase1Dto) -> Unit
-) {
+fun AtOptions(users: List<UserBase1Dto>, tapUserFn: (UserBase1Dto) -> Unit) {
     LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
         items(users) { item ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp, horizontal = 10.dp)
-                    .clickable {
-                        tapUserFn(item)
-                    },
+            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp)
+                .clickable {
+                    tapUserFn(item)
+                },
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
 
                 Avatar(item.profile, modifier = Modifier.weight(0.5f))
-                Text(
-                    text = item.nickname,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 10.dp, end = 10.dp)
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(0.5f), text = "最近@次数:${item.ats}"
-                )
+                Text(text = item.nickname,
+                    modifier = Modifier.weight(1f).padding(start = 10.dp, end = 10.dp))
+                Text(modifier = Modifier.weight(0.5f), text = "最近@次数:${item.ats}")
 
             }
         }
@@ -869,21 +713,16 @@ fun AtOptions(
 @Composable
 fun MediaOptions(uri: Uri, editFn: (Uri) -> Unit, removeFn: (Uri) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp)
-            .clickable {
-                editFn(uri)
-            }) {
+        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+            editFn(uri)
+        }) {
             Text("编辑")
         }
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp)
-            .clickable {
-                removeFn(uri)
-            }) {
+        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp).clickable {
+            removeFn(uri)
+        }) {
             Text(text = "删除")
         }
     }
 }
+

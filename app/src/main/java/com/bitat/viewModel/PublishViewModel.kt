@@ -1,11 +1,6 @@
 package com.bitat.viewModel
 
-import android.content.Context
 import android.net.Uri
-import android.os.FileUtils
-import androidx.camera.core.internal.utils.VideoUtil
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import com.amap.api.services.core.LatLonPoint
 import com.bitat.MainCo
@@ -25,7 +20,6 @@ import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.BlogTagReq
 import com.bitat.repository.http.service.UserReq
-import com.bitat.repository.pbDto.MsgDto.AckMsg
 import com.bitat.repository.store.UserStore
 import com.bitat.state.PublishCommonState
 import com.bitat.state.PublishMediaState
@@ -37,7 +31,6 @@ import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -104,26 +97,18 @@ class PublishViewModel : ViewModel() {
     fun searchAt() {
         MainCo.launch {
 
-            val atUser = arrayOf(
-                UserBase1Dto(
-                    id = 2435L,
-                    profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
-                    nickname = "汤姆",
-                    ats = 5
-                ),
-                UserBase1Dto(
-                    id = 228725L,
+            val atUser = arrayOf(UserBase1Dto(id = 2435L,
+                profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
+                nickname = "汤姆",
+                ats = 5),
+                UserBase1Dto(id = 228725L,
                     profile = "https://img1.baidu.com/it/u=1400805158,551781376&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=664",
                     nickname = "不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友",
-                    ats = 137
-                ),
-                UserBase1Dto(
-                    id = 15649L,
+                    ats = 137),
+                UserBase1Dto(id = 15649L,
                     profile = "https://img0.baidu.com/it/u=444590157,2329884399&fm=253&fmt=auto&app=138&f=JPEG?w=570&h=570",
                     nickname = "嬉皮猴",
-                    ats = 587
-                )
-            )
+                    ats = 587))
 
             UserReq.findFriendList(FindFriendListDto(pageSize = 20, pageNo = 0)).await()
                 .map { res ->
@@ -133,10 +118,8 @@ class PublishViewModel : ViewModel() {
                         it
                     }
                 }.errMap {
-                    CuLog.error(
-                        CuTag.Publish,
-                        "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"
-                    )
+                    CuLog.error(CuTag.Publish,
+                        "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}")
                 }
         }
     }
@@ -159,9 +142,8 @@ class PublishViewModel : ViewModel() {
             }
         } else {
             val contentSplit = content.split("#")
-            val newContent =
-                contentSplit.subList(0, contentSplit.size - 1)
-                    .joinToString { "#" } + "#" + tag.name + " "
+            val newContent = contentSplit.subList(0, contentSplit.size - 1)
+                .joinToString { "#" } + "#" + tag.name + " "
             commonState.update {
                 it.copy(content = newContent)
             }
@@ -183,12 +165,11 @@ class PublishViewModel : ViewModel() {
             }
         } else {
             val contentSplit = content.split("@")
-            val newContent =
-                contentSplit.subList(0, contentSplit.size - 1)
-                    .joinToString { "@" } + "@" + user.nickname + " "
-            commonState.update {
-                it.copy(content = newContent)
-            }
+            val newContent = contentSplit.subList(0, contentSplit.size - 1)
+                .joinToString { "@" } + "@" + user.nickname + " "
+//            commonState.update {
+//                it.copy(content = newContent)
+//            }
         }
 
         commonState.update {
@@ -263,8 +244,7 @@ class PublishViewModel : ViewModel() {
     }
 
     fun addVideo(path: Uri) {
-        MainCo.launch {
-//            val cover = VideoUtils.getCover(path.toString())
+        MainCo.launch { //            val cover = VideoUtils.getCover(path.toString())
             mediaState.update {
                 it.copy(localVideo = path)
             }
@@ -292,13 +272,11 @@ class PublishViewModel : ViewModel() {
             mediaState.value.localImages.forEachIndexed { index, it ->
                 val cd = CompletableDeferred<Boolean>()
                 val imgParams = ImageUtils.getParams(it)
-                val key = QiNiuUtil.genKey(
-                    FileType.Image,
+                val key = QiNiuUtil.genKey(FileType.Image,
                     UserStore.userInfo.id,
                     index,
                     imgParams.width,
-                    imgParams.height
-                )
+                    imgParams.height)
                 QiNiuUtil.uploadFile(
                     it,
                     token,
@@ -320,14 +298,12 @@ class PublishViewModel : ViewModel() {
             val video = mediaState.value.localVideo.path;
             if (!video.isNullOrBlank()) {
                 val videoParams = VideoUtils.getParams(mediaState.value.localVideo)
-                val key = QiNiuUtil.genKey(
-                    FileType.Video,
+                val key = QiNiuUtil.genKey(FileType.Video,
                     UserStore.userInfo.id,
                     0,
                     videoParams.width,
                     videoParams.height,
-                    videoParams.duration
-                )
+                    videoParams.duration)
                 QiNiuUtil.uploadFile(
                     mediaState.value.localVideo,
                     token,
@@ -338,24 +314,24 @@ class PublishViewModel : ViewModel() {
                     },
                 ).await()
 
-//                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
-//                val coverKey = QiNiuUtil.genKey(
-//                    FileType.Image,
-//                    UserStore.userInfo.id,
-//                    0,
-//                    coverParams.width,
-//                    coverParams.height
-//                )
-//
-//                QiNiuUtil.uploadFile(
-//                    mediaState.value.localCover,
-//                    token,
-//                    FileType.Image,
-//                    coverKey,
-//                    cancelTag,
-//                    progressFn = { a, b ->
-//                    }
-//                ).await()
+                //                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
+                //                val coverKey = QiNiuUtil.genKey(
+                //                    FileType.Image,
+                //                    UserStore.userInfo.id,
+                //                    0,
+                //                    coverParams.width,
+                //                    coverParams.height
+                //                )
+                //
+                //                QiNiuUtil.uploadFile(
+                //                    mediaState.value.localCover,
+                //                    token,
+                //                    FileType.Image,
+                //                    coverKey,
+                //                    cancelTag,
+                //                    progressFn = { a, b ->
+                //                    }
+                //                ).await()
 
                 // key | progress | response
                 mediaState.update { state ->
@@ -376,8 +352,8 @@ class PublishViewModel : ViewModel() {
             content = commonState.value.content
             vote = mediaState.value.vote
             musicId = commonState.value.musicId
-            atUsers = commonState.value.atUsers.toLongArray()
-//            tags=commonState.value.tags.
+            atUsers =
+                commonState.value.atUsers.toLongArray() //            tags=commonState.value.tags.
             openComment = commonState.value.commentable.toCode()
             visible = commonState.value.visibility.toCode()
             albumOps =
@@ -416,9 +392,8 @@ class PublishViewModel : ViewModel() {
                 latitude = commonState.value.latitude
                 location = commonState.value.location
                 content = commonState.value.content
-
-//                visible = commonState.value.visibility.toCode()
-                visible = 3
+                visible = commonState.value.visibility.toCode()
+                atUsers = commonState.value.atUsers.toLongArray()
             }
 
             val cancelTag = AtomicBoolean()

@@ -22,39 +22,28 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.router.NavigationItem
 import com.bitat.ui.component.BackButton
+import com.bitat.ui.reel.CuExoPlayer
 import com.bitat.viewModel.PublishViewModel
 
 @Composable
-fun VideoDisplay(
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[PublishViewModel::class]
     val state by vm.mediaState.collectAsState()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            AsyncImage(
-                model = state.localCover,
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            AsyncImage(model = state.localCover,
                 contentDescription = "",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.fillMaxSize()
-            )
+                modifier = Modifier.fillMaxSize())
+
+            //            CuExoPlayer()
+
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(top = 20.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            VideoDisplayTopBar(
-                backFn = {  navHostController.popBackStack()},
+        Column(modifier = Modifier.fillMaxSize().padding(padding).padding(top = 20.dp),
+            verticalArrangement = Arrangement.SpaceBetween) {
+            VideoDisplayTopBar(backFn = { navHostController.popBackStack() },
                 nextFn = { navHostController.navigate(NavigationItem.PublishDetail.route) })
         }
     }
@@ -62,12 +51,8 @@ fun VideoDisplay(
 
 @Composable
 fun VideoDisplayTopBar(backFn: () -> Unit, nextFn: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier.fillMaxWidth().height(80.dp),
+        horizontalArrangement = Arrangement.SpaceBetween) {
         BackButton {
             backFn()
         }
