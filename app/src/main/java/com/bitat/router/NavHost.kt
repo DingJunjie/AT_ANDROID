@@ -12,6 +12,8 @@ import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.discovery.DiscoveryPage
+import com.bitat.ui.discovery.SearchPage
+import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.publish.PictureDisplay
@@ -22,7 +24,7 @@ import com.bitat.ui.reel.ReelPageDemo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 enum class Screen {
-    LOGIN, HOME, DISCOVERY, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GDMAP, PICTURE_DISPLAY, VIDEO_DISPLAY
+    LOGIN, HOME, DISCOVERY, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GDMAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT
 }
 
 sealed class NavigationItem(val route: String) {
@@ -41,6 +43,8 @@ sealed class NavigationItem(val route: String) {
     data object GDMap : NavigationItem(Screen.GDMAP.name)
     data object PictureDisplay : NavigationItem(Screen.PICTURE_DISPLAY.name)
     data object VideoDisplay : NavigationItem(Screen.VIDEO_DISPLAY.name)
+    data object Search : NavigationItem(Screen.SEARCH.name)
+    data object SearchResult : NavigationItem(Screen.SEARCH_RESULT.name)
 }
 
 
@@ -114,6 +118,14 @@ fun AppNavHost(
 
         composable(NavigationItem.VideoDisplay.route) {
             VideoDisplay(navController, viewModelProvider)
+        }
+
+        composable(NavigationItem.Search.route) {
+            SearchPage(navController, viewModelProvider)
+        }
+
+        composable(NavigationItem.SearchResult.route) {
+            SearchResultPage(navController, viewModelProvider)
         }
     }
 }
