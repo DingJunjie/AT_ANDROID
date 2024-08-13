@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.androidx.navigation.dynamic.features.fragment)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit.junit)
 
     // Testing Navigation

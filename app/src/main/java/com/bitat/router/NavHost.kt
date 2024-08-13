@@ -68,7 +68,7 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.BlogDetail.route) {
-            BlogDetailPage(viewModelProvider)
+            BlogDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.Profile.route) {
@@ -139,8 +139,7 @@ class AtNavigation(navController: NavHostController) {
         }
     }
 
-    val navigateToHome: () -> Unit = {
-        // launchSingleTop = true 只保留一个在顶层
+    val navigateToHome: () -> Unit = { // launchSingleTop = true 只保留一个在顶层
         navController.navigate(NavigationItem.Home.route) { //                val homeBaseViewModel=  hiltViewModel<HomeBaseViewModel>()
             popUpTo(0) {
                 inclusive = true
@@ -156,8 +155,7 @@ class AtNavigation(navController: NavHostController) {
         navController.navigate((NavigationItem.BlogDetail.route))
     }
 
-    val navigateToPublish: () -> Unit = {
-//         launchSingleTop = true
+    val navigateToPublish: () -> Unit = { //         launchSingleTop = true
         navController.navigate((NavigationItem.Publish.route)) {
             launchSingleTop = true
         }
@@ -165,10 +163,9 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToPublishDetail: () -> Unit = {
 
-        navController.navigate((NavigationItem.PublishDetail.route)) {
-//            popUpTo(0) {
-//                inclusive = true
-//            }
+        navController.navigate((NavigationItem.PublishDetail.route)) { //            popUpTo(0) {
+            //                inclusive = true
+            //            }
         }
     }
 

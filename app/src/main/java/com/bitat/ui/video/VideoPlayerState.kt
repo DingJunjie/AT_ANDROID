@@ -99,13 +99,8 @@ fun rememberVideoPlayerState(videoSource: Uri, isLooping: Boolean = true): Video
     return state
 }
 
-private class VideoPlayerStateImpl(
-    override val videoView: VideoView,
-    val audioManager: AudioManager,
-    val videoSource: Uri,
-    val isLooping: Boolean,
-    private val coroutineScope: CoroutineScope
-) : VideoPlayerState {
+private class VideoPlayerStateImpl(override val videoView: VideoView, val audioManager: AudioManager, val videoSource: Uri, val isLooping: Boolean, private val coroutineScope: CoroutineScope) :
+    VideoPlayerState {
     override var isPrepared by mutableStateOf(false)
     override val isPlaying: Boolean
         get() = _isPlaying
@@ -142,11 +137,7 @@ private class VideoPlayerStateImpl(
 
     override fun setMuteState(isMute: Boolean) {
         val direction = if (isMute) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE
-        audioManager.adjustStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            direction,
-            0
-        )
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0)
         this.isMute = isMute
     }
 

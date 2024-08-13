@@ -1,6 +1,7 @@
 package com.bitat.ui.video
 
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,7 +17,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 
 /**
@@ -47,6 +50,7 @@ fun BitExoPlay(uri: Uri) {
 }
 
 
+@OptIn(UnstableApi::class)
 @Composable
 fun VideoPlayer(modifier: Modifier=Modifier.fillMaxSize(),uri: String) {
     val context = LocalContext.current
@@ -84,6 +88,8 @@ fun VideoPlayer(modifier: Modifier=Modifier.fillMaxSize(),uri: String) {
             AndroidView(factory = {
                 PlayerView(context).apply {
                     this.player = player
+                   resizeMode=  AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    useController=false
                 }
             }, modifier = Modifier.fillMaxSize())
         }

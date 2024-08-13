@@ -1,11 +1,13 @@
 package com.bitat.ui.reel
 
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,16 +35,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import kotlinx.coroutines.delay
@@ -61,6 +67,7 @@ import kotlinx.coroutines.isActive
  * @param onVideoDispose ExoPlayer release 后的回调
  * @param onVideoGoBackground 后台事件回调
  */
+@OptIn(UnstableApi::class)
 @Composable
 fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boolean = false, useExoController: Boolean = false, cache: Cache? = null, onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {}, onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> }, onVideoDispose: () -> Unit = {}, onVideoGoBackground: () -> Unit = {}) {
     val context = LocalContext.current //初始的比例，设置成这么大用来模拟 0 高度
@@ -73,7 +80,6 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
 
     //标志是否为初次进入，防止 lifecycle 的 onStart 事件导致自动播放
     var isFirstIn by remember { mutableStateOf(true) }
-
 
     //实例化 ExoPlayer
     val exoPlayer = remember(context) {
@@ -91,7 +97,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
             } else { //不启用缓存则直接 setMediaItem
                 setMediaItem(item)
             } //设置重复播放的模式（这里也不是很搞得懂）
-            repeatMode = Player.REPEAT_MODE_ONE //关闭自动播放
+            repeatMode = Player.REPEAT_MODE_ONE //自动重播
             playWhenReady = false //开始准备资源
             prepare()
         }
@@ -102,20 +108,22 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
         val lifeCycleObserver = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_STOP -> { //暂停视频播放并调用 onVideoGoBackground
-                    CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_STOP")
+                    CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_STOP$data")
                     exoPlayer.pause()
                     onVideoGoBackground()
                 }
 
                 Lifecycle.Event.ON_START -> {
-                    CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_START")
-                    if (!isFirstIn) exoPlayer.play()
+                    CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_START$data")
+                    if (!isFirstIn)
+                        exoPlayer.play()
                 } //恢复播放
                 else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(lifeCycleObserver)
         onDispose {
+            CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> onDispose$data")
             exoPlayer.stop()
             exoPlayer.release()
             lifecycleOwner.lifecycle.removeObserver(lifeCycleObserver)
@@ -127,9 +135,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
             delay(5000)
             isControllerVisible = false
         }
-
         exoPlayer.play()
-
         CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> LaunchedEffect")
     }
 
@@ -144,10 +150,11 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
     //    }
 
 
-    DisposableEffect(Unit) { //        playerView.setAspectRatioListener { targetAspectRatio, _, _ ->
-        //            //获取到视频比例时给控件比例赋值
-        //            ratio = targetAspectRatio
-        //        }
+    DisposableEffect(Unit) {
+        //                playerView.setAspectRatioListener { targetAspectRatio, _, _ ->
+        //                    //获取到视频比例时给控件比例赋值
+        //                    ratio = targetAspectRatio
+        //                }
         val listener = object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) { //是否正在播放的监听
                 isVideoPlaying = isPlaying
@@ -197,7 +204,18 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
         //                )
         //            }
         //        )
-        PlayerSurface(exoPlayer, surfaceType = SURFACE_TYPE_SURFACE_VIEW)
+        //        PlayerSurface(exoPlayer, surfaceType = SURFACE_TYPE_SURFACE_VIEW)
+
+        Box(modifier = modifier) {
+            AndroidView(factory = {
+                PlayerView(context).apply {
+                    this.player = exoPlayer
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
+                    useController = false // 不显示默认控制器
+                }
+            }, modifier = Modifier.fillMaxSize())
+        }
+
 
         //以下是自定义控制器的 UI，使用 Exoplayer 内置控制器时不显示
         if (!useExoController) {

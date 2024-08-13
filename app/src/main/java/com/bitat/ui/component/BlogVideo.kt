@@ -23,15 +23,14 @@ fun BlogVideo(dto: BlogBaseDto, height: Int) {
     Surface(shape = RoundedCornerShape(20.cdp),
         modifier = Modifier.fillMaxWidth().padding(start = ScreenUtils.screenWidth.times(0.11).dp)
             .height(height.dp)) { //视频
-        //        VideoPlayer(
-        //            state = videoState, modifier = Modifier
-        //                .fillMaxWidth()
-        ////                .height((maxHeight + 200).dp)
-        //                .background(Color.Black)
-        //        )
+        //                VideoPlayer(
+        //                    state = videoState, modifier = Modifier
+        //                        .fillMaxWidth()
+        //        //                .height((maxHeight + 200).dp)
+        //                        .background(androidx.compose.ui.graphics.Color.Black)
+        //                )
 
-        CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true)
-
+       val play= CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true)
         CuLog.info(CuTag.Blog, "BlogVideo---------") //        ReelPage()
     }
 }
