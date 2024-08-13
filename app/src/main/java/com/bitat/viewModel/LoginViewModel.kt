@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.amap.api.maps.MapsInitializer
 import com.bitat.MainCo
 import com.bitat.config.OneClickCfg
 import com.bitat.log.CuLog

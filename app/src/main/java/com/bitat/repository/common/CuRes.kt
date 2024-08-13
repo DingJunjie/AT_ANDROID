@@ -5,19 +5,20 @@ class CodeErr(val code: Int, val msg: String)
 //http响应处理
 @JvmInline
 @Suppress("UNCHECKED_CAST")
-value class CuRes<T>(val value: Any) {
-    fun isOk() = value !is CodeErr
-    fun isErr() = value is CodeErr
-    fun getErr(): CodeErr? = value as? CodeErr
-    fun get(): T? = if (value is CodeErr) null else value as T
-    fun getOr(t: T): T = if (value is CodeErr) t else value as T
-    inline fun getElse(fn: () -> T): T = if (value is CodeErr) fn() else value as T
+value class CuRes<T>(val v: Any) {
+    fun isOk() = v !is CodeErr
+    fun isErr() = v is CodeErr
+    fun getErr(): CodeErr? = v as? CodeErr
+    fun get(): T =
+        if (v is CodeErr) throw Exception("CodeErr:${v.code}:${v.msg}") else v as T
+    fun getOr(t: T): T = if (v is CodeErr) t else v as T
+    inline fun getElse(fn: () -> T): T = if (v is CodeErr) fn() else v as T
     inline fun map(fn: (T) -> Unit) = this.apply {
-        if (value !is CodeErr) fn(value as T)
+        if (v !is CodeErr) fn(v as T)
     }
 
     inline fun errMap(fn: (CodeErr) -> Unit) = this.apply {
-        if (value is CodeErr) fn(value)
+        if (v is CodeErr) fn(v)
     }
 
     companion object {

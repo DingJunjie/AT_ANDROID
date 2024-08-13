@@ -18,7 +18,7 @@ object UdpClient {
 
     private const val HB_INTERVAL = 15 * 1000L
 
-    private val addrDict = MutableLongObjectMap<UdpAddrOwner>()
+    private val ownerDict = MutableLongObjectMap<UdpOwner>()
 
     private var conn: DatagramChannel? = null
 
@@ -37,7 +37,7 @@ object UdpClient {
         }
     }
 
-    private suspend fun auth(owner: UdpAddrOwner): Boolean {
+    private suspend fun auth(owner: UdpOwner): Boolean {
         val token = TokenStore.fetchToken()
         if (token != null) {
             println("ok")
@@ -63,25 +63,25 @@ object UdpClient {
         }
     }
 
-    private fun ping(owner: UdpAddrOwner) {
+    private fun ping(owner: UdpOwner) {
         CuLog.info(CuTag.GroupChat, "Ping")
     }
 
-    private fun write(owner: UdpAddrOwner, bytes: ByteArray) {
+    private fun write(owner: UdpOwner, bytes: ByteArray) {
         val byteBuf = ByteBuffer.wrap(bytes)
         conn?.send(byteBuf, owner.addr)
     }
 
     private fun isReady() = conn?.isOpen ?: false
 
-    private fun isActive(owner: UdpAddrOwner) = TimeUtils.getNow() - owner.readTime < HB_INTERVAL
+    private fun isActive(owner: UdpOwner) = TimeUtils.getNow() - owner.readTime < HB_INTERVAL
 
     private fun clear() {
         timing?.cancel()
         timing = null
         conn?.close()
         conn = null
-        addrDict.clear()
+        ownerDict.clear()
     }
 
     fun close() {
@@ -90,7 +90,7 @@ object UdpClient {
     }
 }
 
-class UdpAddrOwner(val addr: InetSocketAddress, val validate: ByteArray) {
+class UdpOwner(var addr: InetSocketAddress, var validate: ByteArray) {
     var readTime: Long = 0
     var banChatTime: Long = 0
 }
