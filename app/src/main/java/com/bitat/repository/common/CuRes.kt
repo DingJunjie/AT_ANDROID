@@ -10,7 +10,8 @@ value class CuRes<T>(val v: Any) {
     fun isErr() = v is CodeErr
     fun getErr(): CodeErr? = v as? CodeErr
     fun get(): T =
-        if (v is CodeErr) throw Exception("CodeErr:${v.code}:${v.msg}") else v as T
+        if (v is CodeErr) throw RuntimeException("CodeErr:${v.code}:${v.msg}") else v as T
+
     fun getOr(t: T): T = if (v is CodeErr) t else v as T
     inline fun getElse(fn: () -> T): T = if (v is CodeErr) fn() else v as T
     inline fun map(fn: (T) -> Unit) = this.apply {
