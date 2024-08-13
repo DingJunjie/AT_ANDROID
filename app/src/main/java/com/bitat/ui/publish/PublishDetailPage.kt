@@ -186,25 +186,32 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             return
         }
 
+        // 获取最后一个字符
         val latestChar = content.split("")[cursorOffset]
 
         if (cursorOffset < tagStart.value) {
+            // 如果光标位置小于tag开始的位置，那说明被删除了，就结束tag
             tagStart.value = -1
             option = PublishTextOption.None
             return
         }
 
+
         if (latestChar == "#" && tagStart.value < 0) { // 开始tag
+            // 如果最后一个字符是#且没开始标记，则开始搜索
             tagStart.value = cursorOffset - 1
             vm.initTags()
             option = PublishTextOption.Topic
         } else if (latestChar == " " && tagStart.value >= 0) { // 结束tag
+            // 如果最后一个字符是空格且有开始标记，则结束
+            // TODO: 如果按了空格之后发现该标签等同于第一个标签，则加入标签组，否则是id = -1的标签
             tagEnd.value = cursorOffset - 1
 
             tagStart.value = -1
             option = PublishTextOption.None
         } else if (tagStart.value >= 0) {
-            inputTag.value = content.substring(tagStart.value, cursorOffset - 1)
+            // 开始标记了，开始搜索
+            inputTag.value = content.substring(tagStart.value + 1, cursorOffset)
             vm.searchTag(inputTag.value)
         }
 
@@ -224,7 +231,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             atStart.value = -1
             option = PublishTextOption.None
         } else if (atStart.value >= 0) {
-            inputAt.value = content.substring(atStart.value, cursorOffset - 1)
+            inputAt.value = content.substring(atStart.value + 1, cursorOffset)
             vm.searchAt(inputAt.value)
         }
     }
@@ -291,16 +298,18 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         when (opt) {
             PublishTextOption.Topic -> {
                 focusRequester.requestFocus()
+
                 var contentSplit = commonState.content.split("")
                 contentSplit = contentSplit.subList(1, contentSplit.size - 1)
                 if (commonState.content.isEmpty()) {
-                    // 空或者最后一个
+                    // 没有内容，直接添加 #
                     vm.onContentChange(commonState.content + "#")
                     textFieldValue = textFieldValue.copy(
                         text = vm.commonState.value.content,
                         selection = TextRange(vm.commonState.value.content.length)
                     )
                 } else if (textFieldValue.selection.start == contentSplit.size) {
+                    // 在最后添加 #， 如果最后已经是 #了则关闭，如果不是则添加
                     if (contentSplit.last() == "#") {
                         vm.onContentChange(
                             commonState.content.substring(
@@ -320,6 +329,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         )
                     }
                 } else {
+                    // 在中间添加 #，根据光标分割，前组的最后添加 #，如果最后是 # 则删除，如果不是则添加
                     var before = contentSplit.subList(0, textFieldValue.selection.start)
                     val after =
                         contentSplit.subList(textFieldValue.selection.start, contentSplit.size)
@@ -345,11 +355,11 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
             PublishTextOption.At -> {
                 focusRequester.requestFocus()
+
                 var contentSplit = commonState.content.split("")
                 contentSplit = contentSplit.subList(1, contentSplit.size - 1)
-                if (commonState.content.isEmpty()
-                ) {
-
+                if (commonState.content.isEmpty()) {
+                    //
                     vm.onContentChange(commonState.content + "@")
                     textFieldValue = textFieldValue.copy(
                         text = vm.commonState.value.content,
@@ -558,7 +568,12 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                         CuLog.info(
                             CuTag.Publish, "start is" + textFieldValue.selection.start.toString()
                         )
-                        val newOffset = vm.onTopicClick(it, textFieldValue.selection.start)
+
+                        val newOffset = vm.onTopicClick(
+                            it,
+                            textFieldValue.selection.start,
+                            alreadyInputStart = tagStart.value
+                        )
                         textFieldValue = textFieldValue.copy(
                             text = vm.commonState.value.content, selection = TextRange(newOffset)
                         )
@@ -568,7 +583,8 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                 }
                 if (option == PublishTextOption.At) {
                     AtOptions(users = commonState.atUserSearchResult) {
-                        val newOffset = vm.onAtClick(it, textFieldValue.selection.start)
+                        val newOffset =
+                            vm.onAtClick(it, textFieldValue.selection.start, atStart.value)
                         textFieldValue = textFieldValue.copy(
                             text = vm.commonState.value.content, selection = TextRange(newOffset)
                         )
@@ -737,29 +753,12 @@ fun MediaBox(
                 .padding(top = 10.dp, bottom = 10.dp),
             contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
         ) {
-            items(pictureList.size) { index ->
-
-                val type = contentResolver.getType(pictureList[index])
-                type?.let {
-                    if (it.contains("image")) {
-                        PictureBox(uri = pictureList[index], tapFn = {
-                            selectUri(it)
-                        })
-                    } //                    else if (it.contains("video")) {
-                    //                        VideoBox(videoUri = pictureList[index], tapFn = {
-                    //                            selectUri(it)
-                    //                        })
-                    //                    }
-                }
+            items(pictureList) { pic ->
+                PictureBox(uri = pic, tapFn = {
+                    selectUri(pic)
+                })
             }
         }
-
-
-        //        ImagePicker(1,
-        //            option = ActivityResultContracts.PickVisualMedia.VideoOnly,
-        //            onSelected = { addPicture(it) }) {
-        //
-        //        }
 
         Box(
             Modifier

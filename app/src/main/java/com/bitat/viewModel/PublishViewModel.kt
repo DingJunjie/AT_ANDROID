@@ -165,11 +165,12 @@ class PublishViewModel : ViewModel() {
 
     //话题
     fun onTopicClick(
-        tag: BlogTagDto, cursorPos: Int = 0
+        tag: BlogTagDto, cursorPos: Int = 0, alreadyInputStart: Int = 0
     ): Int { //        val newContent = _commonState.value.content + "#${tag.name} ";
         val content = _commonState.value.content
         val startPos = if (cursorPos == 0) content.length else cursorPos
 
+        // 先加入
         _commonState.update {
             it.apply {
                 tags.add(tag)
@@ -177,6 +178,7 @@ class PublishViewModel : ViewModel() {
         }
 
         if (content.isEmpty()) {
+            // 如果内容为空，更新内容为 # + tag + " "，同时返回光标新位置
             _commonState.update {
                 it.copy(content = it.content + "#" + tag.name + " ")
             }
@@ -184,13 +186,14 @@ class PublishViewModel : ViewModel() {
         }
 
         if (content.last().toString() == "#" && startPos == content.length) {
+            // 如果最后一个是 # 且光标在最后，直接 + tag + " "
             _commonState.update {
                 it.copy(content = it.content + tag.name + " ")
             }
             return startPos + tag.name.length + 1;
         } else {
-            // 中间的情况
-            val contentSplitBefore = content.split("").subList(0, cursorPos + 1)
+            // 中间的情况，根据有没有#再作分类
+            var contentSplitBefore = content.split("").subList(0, cursorPos + 1)
             val contentSplitAfter = content.split("").subList(cursorPos + 1, content.length + 1)
             if (contentSplitBefore.last() == "#") {
                 val newContent =
@@ -202,6 +205,11 @@ class PublishViewModel : ViewModel() {
                 }
                 return contentSplitBefore.size + tag.name.length;
             } else {
+                // 如果前面符合#xxx那删掉
+                if (alreadyInputStart > 0) {
+                    contentSplitBefore = contentSplitBefore.subList(0, alreadyInputStart + 1)
+                }
+
                 val newContent =
                     contentSplitBefore.joinToString("") + "#" + tag.name + contentSplitAfter.joinToString(
                         ""
@@ -211,12 +219,11 @@ class PublishViewModel : ViewModel() {
                 }
                 return contentSplitBefore.size + tag.name.length + 1;
             }
-
         }
 
     }
 
-    fun onAtClick(user: UserBase1Dto, cursorPos: Int): Int {
+    fun onAtClick(user: UserBase1Dto, cursorPos: Int, alreadyInputStart: Int = 0): Int {
         val content = _commonState.value.content
         val startPos = if (cursorPos == 0) content.length else cursorPos
 
@@ -241,7 +248,7 @@ class PublishViewModel : ViewModel() {
             return startPos + user.nickname.length + 1;
         } else {
             // 中间的情况
-            val contentSplitBefore = content.split("").subList(0, cursorPos + 1)
+            var contentSplitBefore = content.split("").subList(0, cursorPos + 1)
             val contentSplitAfter = content.split("").subList(cursorPos + 1, content.length + 1)
             if (contentSplitBefore.last() == "@") {
                 val newContent =
@@ -253,6 +260,11 @@ class PublishViewModel : ViewModel() {
                 }
                 return contentSplitBefore.size + user.nickname.length;
             } else {
+                // 如果前面符合#xxx那删掉
+                if (alreadyInputStart > 0) {
+                    contentSplitBefore = contentSplitBefore.subList(0, alreadyInputStart + 1)
+                }
+
                 val newContent =
                     contentSplitBefore.joinToString("") + "@" + user.nickname + contentSplitAfter.joinToString(
                         ""
