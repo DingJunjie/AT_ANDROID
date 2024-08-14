@@ -57,8 +57,8 @@ object UdpClient {
                     val newBuf = ByteArray(remaining)
                     if (remaining > 0) byteBuf.get(newBuf, 0, remaining)
                 }
-                //50ms的延迟，监听线程得到短暂释放
-                else delay(50)
+                //37ms的延迟，监听线程得到短暂释放
+                else delay(37)
             }
         }
     }
