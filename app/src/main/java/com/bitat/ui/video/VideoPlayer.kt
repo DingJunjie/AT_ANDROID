@@ -12,24 +12,17 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.util.Util
-import androidx.media3.exoplayer.SimpleExoPlayer
-import com.bitat.R
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.ext.format
-import com.bitat.ui.component.AtSlider
+import com.bitat.ui.common.AtSlider
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 

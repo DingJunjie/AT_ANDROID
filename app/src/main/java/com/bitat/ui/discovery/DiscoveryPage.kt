@@ -1,9 +1,7 @@
 package com.bitat.ui.discovery
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -26,13 +25,13 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,54 +48,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bitat.core.ui.components.refreshview.WeRefreshView
-import com.bitat.core.ui.components.refreshview.rememberLoadMoreState
+import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.ui.common.WeRefreshView
+import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.feature.samples.videochannel.data.ImageData.Listdata
 import com.bitat.feature.samples.videochannel.data.ImageData.Listdata_
 import com.bitat.router.AtNavigation
-import com.bitat.ui.component.WeLoadMore
+import com.bitat.router.NavigationItem
+import com.bitat.state.DiscoveryMenuOptions
+import com.bitat.ui.common.WeLoadMore
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.statusBarHeight
+import com.bitat.viewModel.DiscoveryViewModel
 import kotlin.random.Random
 import kotlin.time.Duration
 
-enum class MenuOptions {
-    DISCOVERY, PODCAST, ACTIVITY;
-
-    fun getUiContent(): String {
-        return when (this) {
-            DISCOVERY ->
-                "探索"
-
-            PODCAST ->
-                "播客"
-
-            ACTIVITY ->
-                "活动"
-        }
-    }
-}
 
 /****
  * 探索
  */
 @Composable
-fun DiscoveryPage(navController: NavHostController) {
+fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
+    val vm = viewModelProvider[DiscoveryViewModel::class]
+    val state by vm.discoveryState.collectAsState()
 
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
     val height = screenWidthDp / 3
 
-    val currentMenu = remember {
-        mutableStateOf(MenuOptions.DISCOVERY)
+    LaunchedEffect(Unit) {
+        vm.getDiscoveryList()
     }
 
     val isMenuOpen = remember {
         mutableStateOf(false)
     }
+
+    val listState = rememberLazyListState()
+
+    val loadMoreState = rememberLoadMoreState {
+        vm.getDiscoveryList(isRefresh = false)
+    }
+
 
     Scaffold(
         modifier = Modifier
@@ -106,38 +103,24 @@ fun DiscoveryPage(navController: NavHostController) {
         topBar = {
             DiscoveryTopBar(
                 navController,
-                currentMenu.value,
+                state.currentMenu,
                 isOpen = isMenuOpen.value,
                 toggleMenu = { isMenuOpen.value = it },
                 switchMenu = {
-                    currentMenu.value = it
+                    vm.switchMenu(it)
                 })
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {
 
-            val listState = rememberLazyListState()
-            val listItems = remember {
-                mutableStateListOf<ListItemData>().apply {
-                    addAll(Listdata)
-                }
-            }
-
-            val loadMoreState = rememberLoadMoreState {
-                listItems.addAll(Listdata_)
-            }
-
             WeRefreshView(
                 modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
                 onRefresh = {
-//                listItems.clear()
-//                listItems.addAll(Listdata)
                     AtNavigation(navController).navigateToVideo()
-
                 }
             ) {
                 //竖向瀑布流
-                LazyVerticalStaggeredGrid(listItems, height)
+                LazyVerticalStaggeredGrid(state.discoveryList, height, navController)
 
                 if (loadMoreState.isLoadingMore) {
                     WeLoadMore(listState = listState)
@@ -161,18 +144,27 @@ fun DiscoveryPage(navController: NavHostController) {
 }
 
 @Composable
-fun LazyVerticalStaggeredGrid(items: List<ListItemData>, height: Dp) {
+fun LazyVerticalStaggeredGrid(
+    items: List<BlogBaseDto>,
+    height: Dp,
+    navController: NavHostController
+) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(3),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f),
         state = rememberLazyStaggeredGridState(),
-        contentPadding = PaddingValues(5.dp),//左右;两边的距离
-        horizontalArrangement = Arrangement.spacedBy(1.dp),//横向图片两边的距离
+        contentPadding = PaddingValues(0.dp),//左右;两边的距离
+        horizontalArrangement = Arrangement.spacedBy(0.dp),//横向图片两边的距离
         flingBehavior = ScrollableDefaults.flingBehavior(),
+        verticalItemSpacing = 0.dp,
         userScrollEnabled = true,//瀑布流是否可滑动
     ) {
         items(items) { item ->
-            VerticalRandomColorBox(item = item, height = height)
+            VerticalRandomColorBox(item = item, height = height, tapFn = {
+                navController.navigate(NavigationItem.DiscoveryDetail.route)
+            })
         }
     }
 }
@@ -186,25 +178,19 @@ data class ListItemData(
 
 
 @Composable
-fun VerticalRandomColorBox(item: ListItemData, height: Dp) {
-
-    val random = Random.nextInt(1, 3)
-    val rHeight = height * random
+fun VerticalRandomColorBox(item: BlogBaseDto, height: Dp, tapFn: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .height(if (random == 1) rHeight - 2.dp else rHeight)
+            .height(if (item.height == 1) height - 2.dp else height.times(2))
             .clickable {
-
+                tapFn()
             }
     ) {
-        Box(
-            Modifier
-                .padding(2.dp)
-        ) {
+        Box {
             AsyncImage(
-                model = item.thumbnailUrl,
+                model = item.cover,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth(),
@@ -217,30 +203,31 @@ fun VerticalRandomColorBox(item: ListItemData, height: Dp) {
                     .padding(5.dp),
                 contentAlignment = Alignment.TopEnd
             ) {
-                if (item.type == 1) SvgIcon(
+                if (item.kind in 2..3) SvgIcon(
                     path = "svg/create_image.svg",
                     tint = Color.White,
-                    contentDescription = ""
-                ) else if (item.type == 2) SvgIcon(
+                    contentDescription = "",
+                    modifier = Modifier.size(20.dp)
+                ) else if (item.kind in 4..7) SvgIcon(
                     path = "svg/video-icon-fill.svg",
                     tint = Color.White,
-                    contentDescription = ""
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(top = 2.dp, end = 2.dp)
                 )
-
             }
         }
-
     }
-
 }
 
 @Composable
 fun DiscoveryTopBar(
     navController: NavHostController,
-    currentMenu: MenuOptions,
+    currentMenu: DiscoveryMenuOptions,
     isOpen: Boolean,
     toggleMenu: (Boolean) -> Unit,
-    switchMenu: (MenuOptions) -> Unit
+    switchMenu: (DiscoveryMenuOptions) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -269,10 +256,10 @@ fun DiscoveryTopBar(
 
 @Composable
 fun DiscoveryMenu(
-    currentMenu: MenuOptions,
+    currentMenu: DiscoveryMenuOptions,
     isOpen: Boolean = false,
     toggleMenu: (Boolean) -> Unit,
-    switchMenu: (MenuOptions) -> Unit
+    switchMenu: (DiscoveryMenuOptions) -> Unit
 ) {
     val rotateVal by animateFloatAsState(targetValue = if (isOpen) 90f else 270f, label = "")
     Surface(
@@ -280,28 +267,28 @@ fun DiscoveryMenu(
             .height(60.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AnimatedVisibility(isOpen || currentMenu == MenuOptions.DISCOVERY) {
+            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.DISCOVERY) {
                 MenuItem(
-                    MenuOptions.DISCOVERY,
+                    DiscoveryMenuOptions.DISCOVERY,
                     currentMenu
                 ) {
-                    switchMenu(MenuOptions.DISCOVERY)
+                    switchMenu(DiscoveryMenuOptions.DISCOVERY)
                 }
             }
-            AnimatedVisibility(isOpen || currentMenu == MenuOptions.PODCAST) {
+            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.PODCAST) {
                 MenuItem(
-                    MenuOptions.PODCAST,
+                    DiscoveryMenuOptions.PODCAST,
                     currentMenu
                 ) {
-                    switchMenu(MenuOptions.PODCAST)
+                    switchMenu(DiscoveryMenuOptions.PODCAST)
                 }
             }
-            AnimatedVisibility(isOpen || currentMenu == MenuOptions.ACTIVITY) {
+            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.ACTIVITY) {
                 MenuItem(
-                    MenuOptions.ACTIVITY,
+                    DiscoveryMenuOptions.ACTIVITY,
                     currentMenu
                 ) {
-                    switchMenu(MenuOptions.ACTIVITY)
+                    switchMenu(DiscoveryMenuOptions.ACTIVITY)
                 }
             }
             Icon(
@@ -319,8 +306,8 @@ fun DiscoveryMenu(
 
 @Composable
 fun MenuItem(
-    menuOptions: MenuOptions,
-    currentMenu: MenuOptions,
+    menuOptions: DiscoveryMenuOptions,
+    currentMenu: DiscoveryMenuOptions,
     choseMenu: () -> Unit
 ) {
     Box(modifier = Modifier
