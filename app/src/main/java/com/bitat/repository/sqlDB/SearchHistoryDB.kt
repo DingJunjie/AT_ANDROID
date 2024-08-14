@@ -10,6 +10,19 @@ CREATE TABLE  IF NOT  EXISTS "search_history" (
   PRIMARY KEY ("user_id", "content")
 );
 """
-object SearchHistoryDB{
+
+private const val INSERT_INTO_SEARCH_HISTORIES = """
+    INSERT INTO "search_history" VALUES (?, ?, ?)
+"""
+
+private const val QUERY_SEARCH_HISTORIES = """
+    SELECT * FROM "search_history" ORDER BY time DESC
+"""
+
+object SearchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SEARCH_HISTORIES)
+
+    fun insert(db: SQLiteDatabase, userId: Long, content: String, time: Long) = db.execSQL(
+        INSERT_INTO_SEARCH_HISTORIES, arrayOf(userId, content, time)
+    )
 }

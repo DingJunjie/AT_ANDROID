@@ -97,8 +97,7 @@ class PublishViewModel : ViewModel() {
                     }
                 }.errMap {
                     CuLog.error(
-                        CuTag.Publish,
-                        "获取#tag列表失败，接口返回：code(${it.code}),msg:${it.msg}"
+                        CuTag.Publish, "获取#tag列表失败，接口返回：code(${it.code}),msg:${it.msg}"
                     )
                 }
         }
@@ -135,8 +134,7 @@ class PublishViewModel : ViewModel() {
                     }
                 }.errMap {
                     CuLog.error(
-                        CuTag.Publish,
-                        "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"
+                        CuTag.Publish, "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"
                     )
                 }
 
@@ -412,28 +410,35 @@ class PublishViewModel : ViewModel() {
                     },
                 ).await()
 
-                //                val coverParams = ImageUtils.getParams(mediaState.value.localCover)
-                //                val coverKey = QiNiuUtil.genKey(
-                //                    FileType.Image,
-                //                    UserStore.userInfo.id,
-                //                    0,
-                //                    coverParams.width,
-                //                    coverParams.height
-                //                )
-                //
-                //                QiNiuUtil.uploadFile(
-                //                    mediaState.value.localCover,
-                //                    token,
-                //                    FileType.Image,
-                //                    coverKey,
-                //                    cancelTag,
-                //                    progressFn = { a, b ->
-                //                    }
-                //                ).await()
+                val cover = VideoUtils.getCover(mediaState.value.localVideo.path!!)
+                var coverKey = ""
+                if (cover == Uri.EMPTY) {
+                    coverKey = key + QiNiuUtil.VIDEO_COVER.replace(
+                        "ww".toRegex(), videoParams.width.toString()
+                    ).replace("hh", videoParams.height.toString())
+                } else {
+                    val coverParams = ImageUtils.getParams(mediaState.value.localCover)
+                    coverKey = QiNiuUtil.genKey(
+                        FileType.Image,
+                        UserStore.userInfo.id,
+                        0,
+                        coverParams.width,
+                        coverParams.height
+                    )
+
+                    QiNiuUtil.uploadFile(mediaState.value.localCover,
+                        token,
+                        FileType.Image,
+                        coverKey,
+                        cancelTag,
+                        progressFn = { a, b ->
+                        }).await()
+                }
+
 
                 // key | progress | response
                 mediaState.update { state ->
-                    state.copy(video = key)
+                    state.copy(video = key, cover = coverKey)
                 }
             }
         }
@@ -457,10 +462,9 @@ class PublishViewModel : ViewModel() {
             content = newContent
             vote = mediaState.value.vote
             musicId = _commonState.value.musicId
-            atUsers =
-                _commonState.value.atUsers.map {
-                    it.id
-                }.toLongArray() //            tags=_commonState.value.tags.
+            atUsers = _commonState.value.atUsers.map {
+                it.id
+            }.toLongArray() //            tags=_commonState.value.tags.
             openComment = _commonState.value.commentable.toCode()
             visible = _commonState.value.visibility.toCode()
             albumOps =

@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -62,11 +61,10 @@ import com.bitat.log.CuTag
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
-import com.bitat.ui.component.rememberDialogState
+import com.bitat.ui.common.rememberDialogState
 import com.bitat.viewModel.PublishViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
 import java.io.File
 import java.net.URLEncoder

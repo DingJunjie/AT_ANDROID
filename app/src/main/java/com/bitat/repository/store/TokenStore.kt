@@ -1,5 +1,7 @@
 package com.bitat.repository.store
 
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.common.TokenDto
 import com.bitat.repository.dto.resp.AuthDto
 import com.bitat.repository.dto.resp.LoginResDto
@@ -87,21 +89,25 @@ object TokenStore {
 
     // 刷新 token
     private suspend fun refresh() {
-        val token = getToken()
-        if (token != null) {
-            var res = LoginReq.refresh(token).await()
-            for (i in 0..2) {
-                if (res.getErr()?.code == Http.EXPIRED_CREDENTIAL) {
-                    delay(1000)
-                    res = LoginReq.refresh(token).await()
-                } else break
+        try {
+            val token = getToken()
+            if (token != null) {
+                var res = LoginReq.refresh(token).await()
+                for (i in 0..2) {
+                    if (res.getErr().code == Http.EXPIRED_CREDENTIAL) {
+                        delay(1000)
+                        res = LoginReq.refresh(token).await()
+                    } else break
+                }
+                res.map {
+                    setToken(it.access)
+                    setAuths(it.auths)
+                }.errMap {
+                    if (it.code == Http.INVALID_CREDENTIAL) isInvalid = true
+                }
             }
-            res.map {
-                setToken(it.access)
-                setAuths(it.auths)
-            }.errMap {
-                if (it.code == Http.INVALID_CREDENTIAL) isInvalid = true
-            }
+        } catch (e: Exception) {
+            CuLog.error(CuTag.Login, "出现了错误，内容是${e.message}")
         }
     }
 

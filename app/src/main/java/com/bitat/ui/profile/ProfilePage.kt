@@ -72,7 +72,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -85,12 +84,12 @@ import com.bitat.ext.clickableWithoutRipple
 import com.bitat.ext.toAmountUnit
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.ui.component.rememberDialogState
+import com.bitat.ui.common.rememberDialogState
 import com.bitat.state.PROFILE_TAB_OPTIONS
 import com.bitat.utils.ScreenUtils
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
-import com.bitat.ui.component.LottieBox
+import com.bitat.ui.common.LottieBox
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -514,7 +513,7 @@ fun AlbumItem() {
 }
 
 @Composable
-fun Avatar(url: String) {
+fun Avatar(url: String, modifier: Modifier = Modifier) {
 
     Surface(
         shape = CircleShape, modifier = Modifier
@@ -522,7 +521,7 @@ fun Avatar(url: String) {
             .offset(y = (-40).dp)
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .size(80.dp)
                 .border(width = 40.dp, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)

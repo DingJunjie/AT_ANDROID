@@ -3,6 +3,8 @@ package com.bitat.utils
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.bitat.Local
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 
 data class VideoParams(val width: Int, val height: Int, val duration: Int)
 
@@ -20,15 +22,19 @@ object VideoUtils {
     }
 
     fun getCover(path: String, time: Long = 0): Uri {
-        val retriever = MediaMetadataRetriever();
-        retriever.setDataSource(path)
+        try {
+            val retriever = MediaMetadataRetriever();
+            retriever.setDataSource(path)
 
-        val firstFrame = retriever.getFrameAtTime(time)
-        retriever.release()
+            val firstFrame = retriever.getFrameAtTime(time)
+            retriever.release()
 
-        val bmPath = saveBitmap(firstFrame!!, path)
-        return Uri.parse(bmPath)
-
+            val bmPath = saveBitmap(firstFrame!!, path)
+            return Uri.parse(bmPath)
+        } catch (e: Exception) {
+            CuLog.error(CuTag.Publish, e.message.toString())
+            return Uri.EMPTY
+        }
         //    return firstFrame
     }
 

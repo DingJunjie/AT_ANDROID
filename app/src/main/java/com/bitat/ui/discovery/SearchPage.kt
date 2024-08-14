@@ -1,5 +1,6 @@
 package com.bitat.ui.discovery
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -35,11 +36,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.MainCo
+import com.bitat.repository.sqlDB.SearchHistoryDB
+import com.bitat.repository.sqlDB.SqlDB
+import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BackButton
+import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.PublishViewModel
 import com.bitat.viewModel.SearchViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {

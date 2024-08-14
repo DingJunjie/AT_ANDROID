@@ -53,6 +53,8 @@ class BlogBaseDto {
     //--------------------------------------------
     @Transient //表示不参加序列化
     var out: Int = 0
+    @Transient
+    var height: Int = 0
 }
 
 class BlogPartDto(

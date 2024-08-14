@@ -1,13 +1,17 @@
 package com.bitat.ui.discovery
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -21,7 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.ext.toAmountUnit
@@ -29,6 +35,7 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.state.SearchType
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.profile.Avatar
+import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.SearchViewModel
 
 
@@ -59,8 +66,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         })
     }) { padding ->
         Surface(
-            modifier = Modifier
-                .padding(padding)
+            modifier = Modifier.padding(padding)
         ) {
             when (selectedTabIndex) {
                 0 -> Text("0")
@@ -77,7 +83,9 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
 fun UserResult(userList: List<UserBase1Dto>) {
     LazyColumn {
         items(userList) { user ->
-            UserItem(user)
+            Surface(modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)) {
+                UserItem(user)
+            }
         }
     }
 }
@@ -91,12 +99,22 @@ fun UserItem(user: UserBase1Dto) {
     ) {
         Avatar(url = user.profile)
         Column(modifier = Modifier.weight(1f)) {
-            Text(user.nickname)
-            Text("粉丝：" + user.fans.toAmountUnit())
-            Text("艾特号：" + user.account)
+            Text(user.nickname, fontSize = 12.sp)
+            Text("粉丝：" + user.fans.toAmountUnit(), fontSize = 12.sp, color = Color.Gray)
+            Text("艾特号：" + user.account, fontSize = 12.sp, color = Color.Gray)
         }
-        TextButton(onClick = { /*TODO*/ }) {
-            Text("关注")
+        Surface(shape = CircleShape) {
+            TextButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .height(40.dp)
+                    .width(70.dp),
+                shape = CircleShape,
+                contentPadding = PaddingValues(vertical = 0.dp, horizontal = 4.dp)
+            ) {
+                Text(RelationUtils.toRelationContent(user.rel, user.revRel))
+            }
         }
     }
 }
