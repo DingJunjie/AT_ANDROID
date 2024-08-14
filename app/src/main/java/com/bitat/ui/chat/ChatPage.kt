@@ -51,14 +51,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.bitat.core.ui.components.toast.ToastState
-import com.bitat.core.ui.components.toast.rememberToastState
+import com.bitat.ui.common.ToastState
+import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
-import com.bitat.ui.common.ImagePicker
-import com.bitat.ui.component.SwipeActionItem
-import com.bitat.ui.component.SwipeActionStyle
-import com.bitat.ui.component.SwipeActionType
-import com.bitat.ui.component.WeSwipeAction
+import com.bitat.ui.common.SwipeActionItem
+import com.bitat.ui.common.SwipeActionStyle
+import com.bitat.ui.common.SwipeActionType
+import com.bitat.ui.common.WeSwipeAction
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
@@ -72,22 +71,36 @@ fun ChatPage(navHostController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
 
     val options = remember {
-        listOf(SwipeActionItem(type = SwipeActionType.PLAIN,
-            label = "喜欢",
-            icon = Icons.Outlined.FavoriteBorder),
-            SwipeActionItem(type = SwipeActionType.WARNING,
+        listOf(
+            SwipeActionItem(
+                type = SwipeActionType.PLAIN,
+                label = "喜欢",
+                icon = Icons.Outlined.FavoriteBorder
+            ),
+            SwipeActionItem(
+                type = SwipeActionType.WARNING,
                 label = "收藏",
-                icon = Icons.Outlined.Star),
-            SwipeActionItem(type = SwipeActionType.DANGER,
+                icon = Icons.Outlined.Star
+            ),
+            SwipeActionItem(
+                type = SwipeActionType.DANGER,
                 label = "删除",
-                icon = Icons.Outlined.Delete))
+                icon = Icons.Outlined.Delete
+            )
+        )
     }
     val toast = rememberToastState()
 
-    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
         TopAppBar(title = {
-            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(imageVector = Icons.Outlined.Notifications, contentDescription = null)
                 }
@@ -102,7 +115,11 @@ fun ChatPage(navHostController: NavHostController) {
                 }
             }
         }, modifier = Modifier.padding(end = 10.dp))
-        Box(modifier = Modifier.padding(bottom = 10.dp).fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .fillMaxWidth()
+        ) {
             ChatTab(tabPager, switchFun = {
                 coroutineScope.launch {
                     tabPager.animateScrollToPage(it)
@@ -112,14 +129,24 @@ fun ChatPage(navHostController: NavHostController) {
 
         HorizontalPager(state = tabPager) { index ->
             when (index) {
-                0 -> Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                    .background(Color(0xfff5f5f5)).padding(horizontal = 8.dp).clickable { }) {
+                0 -> Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(Color(0xfff5f5f5))
+                    .padding(horizontal = 8.dp)
+                    .clickable { }) {
                     ChatList(options, toast) {
                         AtNavigation(navHostController).navigateToChatDetailsPage()
                     }
                 }
 
-                1 -> Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.White))
+                1 -> Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(Color.White)
+                ) {
+                }
             }
         }
     }
@@ -128,47 +155,90 @@ fun ChatPage(navHostController: NavHostController) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatTab(tabState: PagerState, switchFun: (Int) -> Unit) {
-    val blockOffset by animateFloatAsState(targetValue = if (tabState.currentPage == 0) 0f else ScreenUtils.screenWidth * 0.4f,
-        label = "") //
-    Surface(shape = RoundedCornerShape(50.dp),
-        modifier = Modifier.height(50.dp).fillMaxWidth()
-            .padding(horizontal = (ScreenUtils.screenWidth * 0.08).dp)) {
+    val blockOffset by animateFloatAsState(
+        targetValue = if (tabState.currentPage == 0) 0f else ScreenUtils.screenWidth * 0.4f,
+        label = ""
+    ) //
+    Surface(
+        shape = RoundedCornerShape(50.dp),
+        modifier = Modifier
+            .height(50.dp)
+            .fillMaxWidth()
+            .padding(horizontal = (ScreenUtils.screenWidth * 0.08).dp)
+    ) {
         Row(
-            modifier = Modifier.height(50.dp).fillMaxWidth().background(Color(0xfff2f2f2)),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .background(Color(0xfff2f2f2)),
         ) {}
     }
 
-    Surface(shape = RoundedCornerShape(50.dp),
-        modifier = Modifier.height(50.dp).fillMaxWidth(0.6f)
+    Surface(
+        shape = RoundedCornerShape(50.dp),
+        modifier = Modifier
+            .height(50.dp)
+            .fillMaxWidth(0.6f)
             .padding(horizontal = (ScreenUtils.screenWidth * 0.06 + 15).dp, vertical = 5.dp)
-            .offset(x = blockOffset.dp).background(Color.Transparent)) {
-        Box(modifier = Modifier.height(40.dp).background(Color.White))
+            .offset(x = blockOffset.dp)
+            .background(Color.Transparent)
+    ) {
+        Box(
+            modifier = Modifier
+                .height(40.dp)
+                .background(Color.White)
+        )
     }
 
-    Row(modifier = Modifier.height(50.dp).fillMaxWidth().background(Color.Transparent)) {
+    Row(
+        modifier = Modifier
+            .height(50.dp)
+            .fillMaxWidth()
+            .background(Color.Transparent)
+    ) {
         ChatTabItem(content = "聊天", tapFunc = { switchFun.invoke(0) })
         ChatTabItem(content = "群聊", tapFunc = { switchFun.invoke(1) })
     }
 }
 
 @Composable
-fun ChatTabItem(content: String, interactionSource: MutableInteractionSource = MutableInteractionSource(), tapFunc: () -> Unit) {
-    Box(modifier = Modifier.fillMaxWidth(0.6f).height(50.dp).background(Color.Transparent)
-        .clickable(indication = null,
-            interactionSource = interactionSource,
-            enabled = true,
-            role = null,
-            onClick = tapFunc), contentAlignment = Alignment.Center) {
+fun ChatTabItem(
+    content: String,
+    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    tapFunc: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.6f)
+            .height(50.dp)
+            .background(Color.Transparent)
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource,
+                enabled = true,
+                role = null,
+                onClick = tapFunc
+            ), contentAlignment = Alignment.Center
+    ) {
         Text(content)
     }
 }
 
 @Composable
 fun ChatList(options: List<SwipeActionItem>, toast: ToastState, itemClick: (() -> Unit)) {
-    LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(top = 4.dp)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(top = 4.dp)
+    ) {
         items(11) { item ->
-            Surface(shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .fillMaxWidth()
+            ) {
                 WeSwipeAction(
                     //                    startOptions = options.slice(0..1),
                     endOptions = options,
@@ -191,16 +261,35 @@ fun ChatList(options: List<SwipeActionItem>, toast: ToastState, itemClick: (() -
 @Composable
 fun ChatListItem(itemClick: (() -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(horizontal = 10.dp)) {
-        Column(modifier = Modifier.fillMaxWidth().height(80.dp).background(Color.White)
+        modifier = Modifier.padding(horizontal = 10.dp)
+    ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .background(Color.White)
             .clickable { itemClick() }) {
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.height(80.dp).padding(start = 1.dp).fillMaxWidth()) {
-                Avatar(url = "https://n.sinaimg.cn/sinacn20111/600/w1920h1080/20190902/dde0-ieaiqii0290448.jpg",
-                    size = 50.dp)
-                Column(modifier = Modifier.padding(start = 15.dp, end = 10.dp).fillMaxWidth()) {
-                    Row(horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.padding(bottom = 5.dp).fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .height(80.dp)
+                    .padding(start = 1.dp)
+                    .fillMaxWidth()
+            ) {
+                Avatar(
+                    url = "https://n.sinaimg.cn/sinacn20111/600/w1920h1080/20190902/dde0-ieaiqii0290448.jpg",
+                    size = 50.dp
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(start = 15.dp, end = 10.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .padding(bottom = 5.dp)
+                            .fillMaxWidth()
+                    ) {
                         Nickname("This is my name")
                         TimeWidget(sendTime = TimeUtils.getNow() - 10000)
                     }
@@ -218,10 +307,12 @@ fun Nickname(name: String = "这是我的名字") {
 
 @Composable
 fun TimeWidget(sendTime: Long) {
-    Text(TimeUtils.timeToText(sendTime),
+    Text(
+        TimeUtils.timeToText(sendTime),
         textAlign = TextAlign.Center,
         style = LocalTextStyle.current.copy(fontSize = 12.sp, color = Color.Gray),
-        modifier = Modifier.padding(top = 2.dp))
+        modifier = Modifier.padding(top = 2.dp)
+    )
 }
 
 @Composable
@@ -232,9 +323,12 @@ fun ChatContent(content: String) {
 @Composable
 fun Avatar(url: String, size: Dp = 40.dp) {
     Surface(shape = CircleShape) {
-        Column(modifier = Modifier.size(size)
-            .border(width = size / 2, color = Color.Transparent, shape = CircleShape)
-            .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)) {
+        Column(
+            modifier = Modifier
+                .size(size)
+                .border(width = size / 2, color = Color.Transparent, shape = CircleShape)
+                .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
+        ) {
 
         }
     }

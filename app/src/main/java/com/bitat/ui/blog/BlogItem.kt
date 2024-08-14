@@ -27,6 +27,7 @@ import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.theme.grey5
 import com.bitat.utils.ImageUtils
@@ -65,7 +66,7 @@ fun BlogItem(
             }
 
             Surface(modifier = Modifier.padding(start = 10.dp)) {
-                UserInfo(
+                com.bitat.ui.component.UserInfo(
                     username = blog.nickname,
                     createTime = blog.createTime
                 )
@@ -128,7 +129,7 @@ fun BlogItem(
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
-                    Common(blog)
+                    BlogOperation(blog)
                 }
 
             }

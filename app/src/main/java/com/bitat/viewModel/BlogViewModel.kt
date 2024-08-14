@@ -35,7 +35,6 @@ class BlogViewModel : ViewModel() {
                 blogState.update {
                     it.copy(updating = false)
                 }
-
             }
         }
     }

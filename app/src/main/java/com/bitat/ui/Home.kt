@@ -62,7 +62,6 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                             if (selectIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
                                 AtNavigation(navController).navigateToPublish()
                             }
-
                         }) {
                             Icon(
                                 if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
@@ -92,7 +91,8 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                     viewModelProvider = viewModelProvider
                 )
             }
-            1 -> DiscoveryPage(navController)
+
+            1 -> DiscoveryPage(navController, viewModelProvider)
             2 -> { //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
@@ -101,6 +101,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                AtNavigation(navController).navigateToPublishText
 
             }
+
             3 -> ChatPage(navController)
             4 -> ProfilePage(navController)
         }

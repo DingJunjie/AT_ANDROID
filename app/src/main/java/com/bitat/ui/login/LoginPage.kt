@@ -56,8 +56,8 @@ import androidx.navigation.NavHostController
 import com.amap.api.maps.MapsInitializer
 import com.bitat.MainCo
 import com.bitat.R
-import com.bitat.ui.component.DialogState
-import com.bitat.ui.component.rememberDialogState
+import com.bitat.ui.common.DialogState
+import com.bitat.ui.common.rememberDialogState
 import com.bitat.state.LoginState
 import com.bitat.state.LoginType
 import com.bitat.state.OneClickState
@@ -65,8 +65,6 @@ import com.bitat.style.FontStyle
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.socket.KeySecret
-import com.bitat.repository.socket.TcpClient
 import com.bitat.ui.common.rememberAsyncAssetPainter
 import com.bitat.viewModel.LoginViewModel
 import kotlinx.coroutines.Dispatchers.IO
