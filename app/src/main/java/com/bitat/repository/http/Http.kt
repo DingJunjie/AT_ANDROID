@@ -54,7 +54,7 @@ object Http {
         }
         headerMap.putAll(headers)
         val reqBody = data?.let(toJsonFn)
-        CuLog.info(CuTag.Publish, reqBody ?: "")
+        //CuLog.info(CuTag.Publish, reqBody ?: "")
         val req = Request.Builder().url(url).headers(headerMap.toHeaders()) //
             .method(method, reqBody?.toRequestBody()).build()
 
