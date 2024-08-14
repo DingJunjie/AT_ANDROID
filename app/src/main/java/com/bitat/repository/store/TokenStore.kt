@@ -37,8 +37,7 @@ object TokenStore {
     private fun getToken(): TokenDto? { // 如果没过期，则从store中读取token
         if (tempExpired()) locker.readLock().withLock {
             if (tempExpired()) {
-                val jsonData = BaseStore.getStr(TOKEN_KEY)
-                if (jsonData != null) token = JsonUtils.fromJson(jsonData)
+                token = BaseStore.getStr(TOKEN_KEY)?.let(JsonUtils::fromJson)
             }
         }
         return token
@@ -57,8 +56,7 @@ object TokenStore {
     private fun getAuths(): Array<AuthDto>? {
         if (tempExpired()) locker.readLock().withLock {
             if (tempExpired()) {
-                val jsonData = BaseStore.getStr(AUTHS_KEY)
-                if (jsonData != null) auths = JsonUtils.fromJson(jsonData)
+                auths = BaseStore.getStr(AUTHS_KEY)?.let(JsonUtils::fromJson)
             }
         }
         return auths
@@ -91,7 +89,7 @@ object TokenStore {
         if (token != null) {
             var res = LoginReq.refresh(token).await()
             for (i in 0..2) {
-                if (res.getErr()?.code == Http.EXPIRED_CREDENTIAL) {
+                if (res.isErr() && res.getErr().code == Http.EXPIRED_CREDENTIAL) {
                     delay(1000)
                     res = LoginReq.refresh(token).await()
                 } else break
