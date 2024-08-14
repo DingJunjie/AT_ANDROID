@@ -8,7 +8,7 @@ class CodeErr(val code: Int, val msg: String)
 value class CuRes<T>(val v: Any) {
     fun isOk() = v !is CodeErr
     fun isErr() = v is CodeErr
-    fun getErr(): CodeErr = if (v is CodeErr) v else throwMsg("CodeErr is ok")
+    fun getErr(): CodeErr = if (v is CodeErr) v else throwMsg("CuRes is ok")
     fun get(): T = if (v is CodeErr) throwMsg("CodeErr:${v.code} ~ ${v.msg}") else v as T
     fun getOr(t: T): T = if (v is CodeErr) t else v as T
     inline fun getElse(fn: () -> T): T = if (v is CodeErr) fn() else v as T
