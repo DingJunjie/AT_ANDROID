@@ -1,5 +1,7 @@
 package com.bitat.viewModel
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.dto.resp.BlogBaseDto
@@ -31,6 +33,9 @@ class HomeViewModel() : ViewModel() {
                 it.copy(updating = true)
             }
             BlogReq.recommendBlogs().await().map { data ->
+//              val mutableData=  data.map {
+//                    mutableStateOf(it)
+//                }
                 blogState.update {
                     it.blogList.addAll(data)
                     it

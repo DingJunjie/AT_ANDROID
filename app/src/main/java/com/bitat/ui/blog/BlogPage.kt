@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.repository.consts.BLOG_VIDEO_ONLY
+import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
 import com.bitat.style.FontStyle
 import com.bitat.ui.common.CarmeraOpen
@@ -47,49 +50,36 @@ import kotlinx.coroutines.Dispatchers.IO
  */
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun BlogPage(modifier: Modifier,
-    navController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
-    val blogState by vm.blogState.collectAsState()
-    //获取 状态栏高度 用于设置上边距
-    var paddingStatusBar by remember { mutableStateOf(statusBarHeight) }
+    val blogState by vm.blogState.collectAsState() //获取 状态栏高度 用于设置上边距
 
+    var currentId by remember {
+        mutableLongStateOf(0L)
+    }
     LaunchedEffect(IO) {
         vm.initBlogList()
     }
 
-    Log.i("BlogPage", "========>>>>$statusBarHeight")
-    Scaffold(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(white)
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             BlogTopBar()
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
 
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    if (blogState.blogList.size>0) {
+                        if (blogState.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || blogState.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
+                            currentId = blogState.blogList.first().id
+                        }
+                    }
                     items(blogState.blogList) { item -> //Text(item.content)
-                        Surface(
-                            modifier = Modifier
-                                .clickable(onClick = {
-                                    vm.setCurrentBlog(item)
-                                    AtNavigation(navController).navigateToBlogDetail()
-                                })
-                                .fillMaxWidth()
-                        ) {
-                            BlogItem(item)
+                        Surface(modifier = Modifier.clickable(onClick = {
+                            vm.setCurrentBlog(item)
+                            AtNavigation(navController).navigateToBlogDetail()
+                        }).fillMaxWidth()) {
+                            BlogItem(blog = item, currentId = currentId, isCurrent = { //更新video显示状态
+                                currentId = it
+                            })
                         }
                     }
                 }
@@ -99,35 +89,20 @@ fun BlogPage(modifier: Modifier,
 }
 
 
-
 @Composable
 fun BlogTopBar() {
-    Row(
-        modifier = Modifier
-            .height(30.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Text(
-            text = "推荐",
+    Row(modifier = Modifier.height(30.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start) {
+        Text(text = "推荐",
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
             color = Color.Black,
             textAlign = TextAlign.Left,
-            modifier = Modifier.padding(
-                start = 10.dp,
-                top = 5.dp,
-                end = 5.dp,
-                bottom = 5.dp
-            ),
-            fontSize = FontStyle.contentLargeSize
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
+            modifier = Modifier.padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
+            fontSize = FontStyle.contentLargeSize)
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.End) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }

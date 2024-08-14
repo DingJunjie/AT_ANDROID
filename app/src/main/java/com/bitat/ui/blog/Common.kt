@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,73 +26,40 @@ import com.bitat.ui.errer.ErrHandler
  */
 @Composable
 fun Common(blogBaseDto: BlogBaseDto) {
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         LoginReq.phone(PhoneLoginDto().apply {
-            phone= "155123"
-            captcha="1234"
+            phone = "155123"
+            captcha = "1234"
         }).await().map {
 
         }.errMap(ErrHandler::popFn)
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .background(white5),
+    Row(modifier = Modifier.fillMaxWidth().height(50.dp).background(white5),
         horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
 
-        Row(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp)
-           ,
+        Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            SvgIcon(
-                path = "navigationbar/bottom_msg-fill.svg",
+            verticalAlignment = Alignment.CenterVertically) {
+            SvgIcon(path = "navigationbar/bottom_msg-fill.svg",
                 tint = Color.White,
-                contentDescription = ""
-            )
+                contentDescription = "")
         }
-        Row(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp),
+        Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            SvgIcon(
-                path = "svg/at_bold.svg",
-                tint = Color.White,
-                contentDescription = ""
-            )
+            verticalAlignment = Alignment.CenterVertically) {
+            SvgIcon(path = "svg/at_bold.svg", tint = Color.White, contentDescription = "")
         }
-        Row(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp),
+        Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            SvgIcon(
-                path = "svg/like_line.svg",
-                tint = Color.White,
-                contentDescription = ""
-            )
+            verticalAlignment = Alignment.CenterVertically) {
+            SvgIcon(path = "svg/like_line.svg", tint = Color.White, contentDescription = "")
         }
 
-        Row(
-            modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp)
-                .fillMaxWidth(),
+        Row(modifier = Modifier.padding(start = 20.dp, end = 20.dp).fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            SvgIcon(
-                path = "svg/collection.svg",
-                tint = Color.White,
-                contentDescription = ""
-            )
+            verticalAlignment = Alignment.CenterVertically) {
+            SvgIcon(path = "svg/collection.svg", tint = Color.White, contentDescription = "")
         }
 
     }

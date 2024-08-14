@@ -50,6 +50,8 @@ class BlogBaseDto {
     var atCount: Int = 0 //被at数
     var exposure: Int = 0//爆光度
     var musicInfo: MusicPart1? = null //音乐信息
+
+
     //--------------------------------------------
     @Transient //表示不参加序列化
     var out: Int = 0

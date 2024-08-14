@@ -115,8 +115,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
 
                 Lifecycle.Event.ON_START -> {
                     CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_START$data")
-                    if (!isFirstIn)
-                        exoPlayer.play()
+                    if (!isFirstIn) exoPlayer.play()
                 } //恢复播放
                 else -> {}
             }
@@ -150,8 +149,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
     //    }
 
 
-    DisposableEffect(Unit) {
-        //                playerView.setAspectRatioListener { targetAspectRatio, _, _ ->
+    DisposableEffect(Unit) { //                playerView.setAspectRatioListener { targetAspectRatio, _, _ ->
         //                    //获取到视频比例时给控件比例赋值
         //                    ratio = targetAspectRatio
         //                }

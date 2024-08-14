@@ -93,7 +93,6 @@ fun PlayerSurface(player: Player, surfaceType: @SurfaceType Int, modifier: Modif
 }
 
 
-
 /**
  * The type of surface view used for media playbacks. One of [SURFACE_TYPE_SURFACE_VIEW] or
  * [SURFACE_TYPE_TEXTURE_VIEW].
@@ -199,9 +198,8 @@ fun ReelPageDemo() {
 
     // 监听当前页面的变化
     LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            // 页面切换时触发的操作
-            CuLog.debug(CuTag.Blog,"Current page: $page")
+        snapshotFlow { pagerState.currentPage }.collect { page -> // 页面切换时触发的操作
+            CuLog.debug(CuTag.Blog, "Current page: $page")
         }
     }
 

@@ -35,10 +35,7 @@ import com.bitat.utils.ScreenUtils
 @Composable
 fun BlogImages(dto: BlogBaseDto, maxHeight: Int) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent),
         horizontalAlignment = Alignment.Start,
     ) {
         ImageBox(dto, maxHeight);
@@ -53,23 +50,13 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
     val context = LocalContext.current
     val dataList = blog.resource.images
 
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Transparent),
-        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)
-    ) {
+    LazyRow(modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)) {
         itemsIndexed(dataList) { index, data ->
             Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .clickable {
-                        Toast
-                            .makeText(context, data, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                    .padding(3.dp)
-                    .background(Color.Transparent),
+                modifier = Modifier.fillMaxHeight().clickable {
+                        Toast.makeText(context, data, Toast.LENGTH_SHORT).show()
+                    }.padding(3.dp).background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
 
@@ -77,22 +64,15 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
                     val wrapperWidth = ScreenUtils.screenWidth * 0.88 - 10
 
                     Box {
-                        AsyncImage(
-                            model = data,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .width(wrapperWidth.dp)
-                                .height(maxHeight.dp)
+                        AsyncImage(model = data,
+                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                                .width(wrapperWidth.dp).height(maxHeight.dp)
                                 .background(Color.Transparent),
                             contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
-                            contentAlignment = Alignment.TopEnd
-                        ) {
+                            contentScale = ContentScale.Crop)
+                        Box(modifier = Modifier.fillMaxWidth()
+                            .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
+                            contentAlignment = Alignment.TopEnd) {
                             if (dataList.size > 1) {
                                 TotalIndexShow((index + 1).toString(), dataList.size.toString())
                             }
@@ -100,15 +80,11 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
                         }
                     }
                 } else {
-                    Image(
-                        painterResource(R.drawable.logo),
+                    Image(painterResource(R.drawable.logo),
                         contentDescription = "默认图片",
-                        modifier = Modifier
-//            .clip(RoundedCornerShape(8.dp))
-                            .clip(CircleShape)
-                            .size(50.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                        modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
+                            .clip(CircleShape).size(50.dp),
+                        contentScale = ContentScale.Crop)
                 }
             }
         }

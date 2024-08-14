@@ -52,12 +52,6 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
     val blogState = vm.blogState.collectAsState()
     val blogDetail = blogState.value.currentBlog;
-    val videoList = arrayOf("https://www.w3schools.com/html/movie.mp4",
-        "https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/e25d81c4922fca5ebe51877717ef9b76.mp4",
-        "https://www.w3schools.com/html/movie.mp4",
-        "https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/e25d81c4922fca5ebe51877717ef9b76.mp4",
-        "https://www.w3schools.com/html/movie.mp4",
-        "https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/e25d81c4922fca5ebe51877717ef9b76.mp4")
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
@@ -116,7 +110,6 @@ fun UserInfo() {
                 .background(Color.Yellow)) {
             Text("关注", color = Color.Black)
         }
-
     }
 }
 
