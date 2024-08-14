@@ -57,7 +57,7 @@ object TokenStore {
     private fun getAuths(): Array<AuthDto>? {
         if (tempExpired()) locker.readLock().withLock {
             if (tempExpired()) {
-                val jsonData = BaseStore.getStr(TOKEN_KEY)
+                val jsonData = BaseStore.getStr(AUTHS_KEY)
                 if (jsonData != null) auths = JsonUtils.fromJson(jsonData)
             }
         }

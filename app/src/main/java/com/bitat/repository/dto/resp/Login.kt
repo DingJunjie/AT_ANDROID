@@ -8,7 +8,6 @@ import com.bitat.utils.TimeUtils
 class AuthDto {
     //auth
     var v0: Int = 0
-
     //expire
     var v1: Long = 0
     fun isExpired() = v1 != -1L && v1 < TimeUtils.getNow()
