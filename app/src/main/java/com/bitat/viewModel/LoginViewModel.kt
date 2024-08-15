@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.config.OneClickCfg
+import com.bitat.config.TestConfig
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.common.CuRes
@@ -70,9 +71,10 @@ class LoginViewModel() : ViewModel() {
         }
     }
 
+
     init {
         loginState.update {
-            it.copy(phone = "13333333333", captcha = "9527")
+            it.copy(phone = TestConfig.PHONE, captcha = TestConfig.CAPTCHA)
         }
     }
 
