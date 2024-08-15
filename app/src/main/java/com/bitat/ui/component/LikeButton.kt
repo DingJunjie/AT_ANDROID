@@ -9,22 +9,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bitat.helpers.LikeHelper
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
 
 @Composable
 fun LikeButton(count: String, modifier: Modifier = Modifier, tapFn: () -> Unit) {
     Row(modifier = modifier
-        .clickable { tapFn() }) {
+        .clickable {
+            tapFn()
+        }) {
         SvgIcon(
             modifier = Modifier.size(20.dp),
             path = "svg/like_line.svg",
             tint = Color.Black,
             contentDescription = ""
         )
-        Text(count, style = Typography.bodyMedium.copy(
-            fontSize = 10.sp,
-            color = Color.Black
-        ))
+        Text(
+            count, style = Typography.bodyMedium.copy(
+                fontSize = 10.sp,
+                color = Color.Black
+            )
+        )
     }
 }

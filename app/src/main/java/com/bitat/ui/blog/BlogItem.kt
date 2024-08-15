@@ -56,7 +56,8 @@ fun BlogItem(
     }
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
-    Column(modifier = Modifier
+    Column(
+        modifier = Modifier
 //        .onGloballyPositioned { coordinates ->
 //            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
 //                && currentId != blog.id
@@ -66,7 +67,8 @@ fun BlogItem(
 //                )
 //            }
 //        }
-        .fillMaxWidth()) { //头像 和用户 和发布时间
+            .fillMaxWidth()
+    ) { //头像 和用户 和发布时间
         Row(
             modifier = Modifier
                 .fillMaxWidth()
