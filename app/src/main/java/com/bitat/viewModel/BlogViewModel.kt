@@ -1,15 +1,10 @@
 package com.bitat.viewModel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.consts.BLOG_VIDEO_ONLY
-import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
 import com.bitat.repository.http.service.BlogReq
@@ -41,6 +36,7 @@ class BlogViewModel : ViewModel() {
             }
             when (blogState.value.currentMenu) {
                 BlogMenuOptions.Recommend -> {
+                    CuLog.debug(CuTag.Blog, "调用Recommend")
                     BlogReq.recommendBlogs().await().map { data ->
                         blogState.update {
                             it.blogList.addAll(data)
@@ -55,6 +51,7 @@ class BlogViewModel : ViewModel() {
                     }
                 }
                 BlogMenuOptions.Latest -> {
+                    CuLog.debug(CuTag.Blog, "调用Latest")
                     BlogReq.newBlogs(NewBlogsDto(20)).await().map { data ->
                         blogState.update {
                             it.blogList.addAll(data)
@@ -64,11 +61,11 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "Blogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
                 BlogMenuOptions.Followed -> {
+                    CuLog.debug(CuTag.Blog, "调用Followed")
                     BlogReq.followBlogs(FollowBlogsDto(20)).await().map { data ->
                         blogState.update {
                             it.blogList.addAll(data)
@@ -78,8 +75,7 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "Blogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
 
                     }
                 }
@@ -101,9 +97,9 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun pageTypeChange(type: BlogMenuOptions) {
+    fun topBarState(isShow: Boolean) {
         blogState.update {
-            it.copy(currentMenu = type)
+            it.copy(topBarShow = isShow)
         }
     }
 }

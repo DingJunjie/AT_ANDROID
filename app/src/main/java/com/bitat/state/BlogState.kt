@@ -29,7 +29,8 @@ data class BlogState(
     val currentMenu: BlogMenuOptions = BlogMenuOptions.Recommend,
     val hasMore: Boolean = true,
     val updating: Boolean = false,
-    val currentBlog: BlogBaseDto? = null
+    val currentBlog: BlogBaseDto? = null,
+    val topBarShow:Boolean=true
 )
 
 
