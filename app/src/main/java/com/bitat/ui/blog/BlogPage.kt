@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -44,12 +45,14 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
+import com.bitat.router.Screen
 import com.bitat.state.BlogMenuOptions
 import com.bitat.ui.common.SvgIcon
-import com.bitat.ui.common.WeRefreshView
+import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.theme.white
+import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -89,53 +92,88 @@ fun BlogPage(
     val listState = rememberLazyListState()
     var lastOffset by remember { mutableStateOf(0) }
 
-    LaunchedEffect(listState) {    // 滚动事件监听
-        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged().collect { scrollOffset ->
-            if (scrollOffset == 0 && lastOffset> 0) { //切换布局 偏移量被重置
-
-            }
-                        CuLog.debug(CuTag.Blog, "Scroll Offset: 当前位置=$scrollOffset，上一次距离=$lastOffset")
-            if (scrollOffset - lastOffset < 0 && !state.topBarShow) { //                vm.topBarState(true)
-                CuLog.debug(CuTag.Blog, "Scroll Offset: 上滑列表${scrollOffset - lastOffset}")
-                vm.topBarState(true)
-                lastOffset = scrollOffset
-            } else if (scrollOffset - lastOffset > 200 && state.topBarShow) {
-                vm.topBarState(false)
-                lastOffset = scrollOffset
-
-            }
-
-        }
+    val playingIndex = remember {
+        mutableStateOf(0)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+    LaunchedEffect(listState) {    // 滚动事件监听
+        snapshotFlow { listState }.distinctUntilChanged()
+            .collect { _ ->
+                if (listState.layoutInfo.visibleItemsInfo.size > 1) {
+                    if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
+                            3
+                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
+                    ) {
+                        playingIndex.value = listState.firstVisibleItemIndex + 1
+                    }
+                }
+//                if (scrollOffset == 0 && lastOffset > 0) { //切换布局 偏移量被重置
+//
+//                }
+//                CuLog.debug(
+//                    CuTag.Blog,
+//                    "Scroll Offset: 当前位置=$scrollOffset，上一次距离=$lastOffset"
+//                )
+//                if (scrollOffset - lastOffset < 0 && !state.topBarShow) { //                vm.topBarState(true)
+//                    CuLog.debug(CuTag.Blog, "Scroll Offset: 上滑列表${scrollOffset - lastOffset}")
+//                    vm.topBarState(true)
+//                    lastOffset = scrollOffset
+//                } else if (scrollOffset - lastOffset > 200 && state.topBarShow) {
+//                    vm.topBarState(false)
+//                    lastOffset = scrollOffset
+//                }
+
+            }
+    }
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .background(white)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) })
-            WeRefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
+            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(blogState.currentMenu)
                 }) {
-                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                    contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
                             currentId = state.blogList.first().id
                         }
                         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                            items(state.blogList) { item -> //Text(item.content)
-                                Surface(modifier = Modifier.clickable(onClick = {
-                                    vm.setCurrentBlog(item)
-                                    AtNavigation(navController).navigateToBlogDetail()
-                                }).fillMaxWidth()) {
-                                    BlogItem(blog = item,
+                            itemsIndexed(state.blogList) { index, item -> //Text(item.content)
+                                Surface(
+                                    modifier = Modifier
+                                        .clickable(onClick = {
+                                            vm.setCurrentBlog(item)
+                                            AtNavigation(navController).navigateToBlogDetail()
+                                        })
+                                        .fillMaxWidth()
+                                ) {
+                                    BlogItem(
+                                        blog = item,
                                         currentId = currentId,
                                         isCurrent = { //更新video显示状态
                                             currentId = it
-                                        })
+                                        },
+                                        isPlaying = playingIndex.value == index
+                                    )
                                 }
                             }
                         }

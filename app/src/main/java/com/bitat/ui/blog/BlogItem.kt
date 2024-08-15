@@ -44,7 +44,12 @@ import com.bitat.utils.ScreenUtils
  * blog item 组件
  */
 @Composable
-fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
+fun BlogItem(
+    blog: BlogBaseDto,
+    currentId: Long,
+    isCurrent: (Long) -> Unit,
+    isPlaying: Boolean = false
+) {
     val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(height)
@@ -52,15 +57,15 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
     Column(modifier = Modifier
-        .onGloballyPositioned { coordinates ->
-            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
-                && currentId != blog.id
-            ) {
-                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
-                    blog.id
-                )
-            }
-        }
+//        .onGloballyPositioned { coordinates ->
+//            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
+//                && currentId != blog.id
+//            ) {
+//                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
+//                    blog.id
+//                )
+//            }
+//        }
         .fillMaxWidth()) { //头像 和用户 和发布时间
         Row(
             modifier = Modifier
@@ -130,7 +135,7 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
                         .padding(end = 10.dp)
                         .background(Color.Transparent)
                 ) {
-                    BlogContent(blog.kind.toInt(), blog, height, currentId)
+                    BlogContent(blog.kind.toInt(), blog, height, currentId, isPlaying)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {

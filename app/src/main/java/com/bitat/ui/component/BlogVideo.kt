@@ -25,12 +25,16 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 
 @Composable
-fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long) {
+fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long, isPlaying: Boolean = false) {
     val vm: BlogViewModel = viewModel()
     val blogState by vm.blogState.collectAsState() //    val videoState = rememberVideoPlayerState(videoSource = Uri.parse(dto.resource.video))
-    Surface(shape = RoundedCornerShape(20.cdp),
-        modifier = Modifier.fillMaxWidth().padding(start = ScreenUtils.screenWidth.times(0.11).dp)
-            .height(height.dp)) { //视频
+    Surface(
+        shape = RoundedCornerShape(20.cdp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = ScreenUtils.screenWidth.times(0.11).dp)
+            .height(height.dp)
+    ) { //视频
         //                VideoPlayer(
         //                    state = videoState, modifier = Modifier
         //                        .fillMaxWidth()
@@ -39,16 +43,22 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long) {
         //                )
 
 
-        if (dto.id == currentId) { //item在页面中间才加载视频
+//        if (dto.id == currentId) { //item在页面中间才加载视频
+        if (isPlaying) {
             val play =
                 CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true)
             CuLog.debug(CuTag.Blog, "加载视频组件：${currentId}")
         } else { //未选中只加载封面
-            AsyncImage(model = dto.cover,
-                modifier = Modifier.clip(RoundedCornerShape(8.dp)).fillMaxWidth().height(height.dp)
+            AsyncImage(
+                model = dto.cover,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .height(height.dp)
                     .background(Color.Transparent),
                 contentDescription = null,
-                contentScale = ContentScale.Crop)
+                contentScale = ContentScale.Crop
+            )
             CuLog.debug(CuTag.Blog, "加载视频封面：${currentId},${dto.id}")
         }
 
