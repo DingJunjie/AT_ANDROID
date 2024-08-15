@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -51,7 +52,11 @@ import com.bitat.viewModel.BlogViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun BlogPage(
+    modifier: Modifier,
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
     val state by vm.blogState.collectAsState() //获取 状态栏高度 用于设置上边距
     val blogState by vm.blogState.collectAsState()
@@ -71,8 +76,13 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+    Scaffold(modifier = Modifier
+        .fillMaxHeight()
+        .fillMaxWidth()
+        .background(white)) { padding ->
+        Column(modifier = Modifier
+            .padding(padding)
+            .fillMaxSize()) {
             BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
@@ -82,7 +92,9 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(blogState.currentMenu)
                 }) {
-                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()) {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         if (state.blogList.size > 0) {
                             if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
@@ -90,10 +102,12 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                             }
                         }
                         items(state.blogList) { item -> //Text(item.content)
-                            Surface(modifier = Modifier.clickable(onClick = {
-                                vm.setCurrentBlog(item)
-                                AtNavigation(navController).navigateToBlogDetail()
-                            }).fillMaxWidth()) {
+                            Surface(modifier = Modifier
+                                .clickable(onClick = {
+                                    vm.setCurrentBlog(item)
+                                    AtNavigation(navController).navigateToBlogDetail()
+                                })
+                                .fillMaxWidth()) {
                                 BlogItem(blog = item,
                                     currentId = currentId,
                                     isCurrent = { //更新video显示状态
@@ -110,18 +124,29 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
 
 
 @Composable
-fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit) {
-    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start) {
+fun BlogTopBar(
+    currentMenu: BlogMenuOptions,
+    isOpen: Boolean,
+    toggleMenu: (Boolean) -> Unit,
+    switchMenu: (BlogMenuOptions) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .height(30.dp)
+            .padding(start = 5.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
-        Row(modifier = Modifier.fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.End) {
-            SvgIcon(path = "svg/search.svg",
-                tint = androidx.compose.ui.graphics.Color.Black,
-                contentDescription = "")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }
 }

@@ -53,7 +53,9 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
 
     Column(modifier = Modifier
         .onGloballyPositioned { coordinates ->
-            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT) && currentId != blog.id) {
+            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
+                && currentId != blog.id
+            ) {
                 if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
                     blog.id
                 )
@@ -83,10 +85,12 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
 
         CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
             Column(
                 modifier = Modifier
                     .width(ScreenUtils.screenWidth.times(0.12).dp)
