@@ -23,10 +23,10 @@ import com.bitat.ui.common.SvgIcon
  * 首页的头部item图片显示
  */
 @Composable
-fun CircleImage(imageUrl: String) {
+fun CircleImage(imageUrl: String,modifier: Modifier=Modifier) {
 
     Box(
-        Modifier
+        modifier
             .size(40.dp)
             .padding(top = 7.dp, start = 5.dp)
     ) {

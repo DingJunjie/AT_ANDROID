@@ -46,10 +46,13 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(
+                            CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
+
                 BlogMenuOptions.Latest -> {
                     CuLog.debug(CuTag.Blog, "调用Latest")
                     BlogReq.newBlogs(NewBlogsDto(20)).await().map { data ->
@@ -64,6 +67,7 @@ class BlogViewModel : ViewModel() {
                         CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
+
                 BlogMenuOptions.Followed -> {
                     CuLog.debug(CuTag.Blog, "调用Followed")
                     BlogReq.followBlogs(FollowBlogsDto(20)).await().map { data ->
@@ -100,6 +104,21 @@ class BlogViewModel : ViewModel() {
     fun topBarState(isShow: Boolean) {
         blogState.update {
             it.copy(topBarShow = isShow)
+        }
+    }
+
+    fun getCommentList() {
+        MainCo.launch {
+            blogState.update {
+                it.copy(updating = true)
+            }
+
+            blogState.update {
+                it.blogList.clear()
+                it
+            }
+
+            BlogReq.recommendBlogs()
         }
     }
 }
