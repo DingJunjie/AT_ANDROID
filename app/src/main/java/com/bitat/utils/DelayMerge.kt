@@ -1,13 +1,13 @@
-package com.bitat.ui.common
+package com.bitat.utils
 
 const val MERGE_INTERVAL = 300
 
 data class Ops<T>(var time: Long, var t: T)
 
 class DelayMerge<T>(private val merge: (T) -> Unit) {
-    private val dict = mutableMapOf<Int, Ops<T>>()
+    private val dict = mutableMapOf<Long, Ops<T>>()
 
-    fun invoke(id: Int, t: T) {
+    fun invoke(id: Long, t: T) {
         val now = System.currentTimeMillis()
         val v = dict[id]
 

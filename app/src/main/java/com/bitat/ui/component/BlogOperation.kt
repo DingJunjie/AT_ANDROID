@@ -33,7 +33,12 @@ fun BlogOperation(blog: BlogBaseDto) {
 
             AtButton(10000000.toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {}
 
-            LikeButton(100.toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {}
+            LikeButton(
+                blog.id,
+                100.toAmountUnit(),
+                isLiked = blog.hasPraise,
+                modifier = Modifier.padding(end = 10.dp)
+            ) {}
         }
 
         CollectButton(modifier = Modifier.size(20.dp)) {}

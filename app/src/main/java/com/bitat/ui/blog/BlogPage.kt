@@ -97,7 +97,7 @@ fun BlogPage(
     }
 
     LaunchedEffect(listState) {    // 滚动事件监听
-        snapshotFlow { listState }.distinctUntilChanged()
+        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged()
             .collect { _ ->
                 if (listState.layoutInfo.visibleItemsInfo.size > 1) {
                     if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
