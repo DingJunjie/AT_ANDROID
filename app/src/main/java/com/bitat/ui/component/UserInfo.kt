@@ -59,7 +59,8 @@ fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false
         Text(
             text = username,
             style = Typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+//                fontWeight = FontWeight.Bold,
                 color = Color.Blue,
                 letterSpacing = 1.sp,
                 textAlign = TextAlign.Left

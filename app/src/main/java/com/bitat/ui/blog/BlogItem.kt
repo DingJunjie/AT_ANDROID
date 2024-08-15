@@ -75,7 +75,7 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
                 CircleImage(blog.profile)
             }
 
-            Surface(modifier = Modifier.padding(start = 10.dp)) {
+            Surface(modifier = Modifier.padding(start = 14.dp)) {
                 UserInfo(blog.nickname)
             }
 //            LottieBox(lottieRes = R.raw.follow_ani,
