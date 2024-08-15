@@ -70,10 +70,9 @@ class LoginViewModel() : ViewModel() {
         }
     }
 
-
     init {
         loginState.update {
-            it.copy(phone = "18888888888", captcha = "9527")
+            it.copy(phone = "13333333333", captcha = "9527")
         }
     }
 

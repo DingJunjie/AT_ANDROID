@@ -38,13 +38,11 @@ import com.wordsfairy.note.ui.widgets.toast.showToast
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val viewModel: HomeViewModel = viewModel()
-    val tabList = listOf(
-        HomeTabCfg.Home,
+    val tabList = listOf(HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine
-    )
+        HomeTabCfg.Mine)
 
     var selectIndex by remember {
         mutableIntStateOf(0)
@@ -63,33 +61,25 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                                 AtNavigation(navController).navigateToPublish()
                             }
                         }) {
-                            Icon(
-                                if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                                    id = tab.iconUnselect
-                                ),
+                            Icon(if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                                id = tab.iconUnselect),
                                 contentDescription = "",
-                                modifier = Modifier.size(
-                                    when (index) {
-                                        2 -> 60.cdp
-                                        1 -> 50.cdp
-                                        else -> 40.cdp
-                                    }
-                                )
-                            )
+                                modifier = Modifier.size(when (index) {
+                                    2 -> 60.cdp
+                                    1 -> 50.cdp
+                                    else -> 40.cdp
+                                }))
                         }
                     }
                 }
             })
 
     }) { innerPadding ->
-
         when (selectIndex) {
             0 -> {
-                BlogPage(
-                    Modifier.padding(innerPadding),
+                BlogPage(Modifier.padding(innerPadding),
                     navController,
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)

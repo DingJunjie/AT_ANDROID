@@ -10,3 +10,7 @@ class FloatBox(var v: Float)
 
 class DoubleBox(var v: Double)
 
+class Box<T>(var v: T)
+
+
+

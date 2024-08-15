@@ -9,7 +9,7 @@ package com.wordsfairy.note.ui.widgets.toast
 open class ToastModel(
     open val message: String,
     val type: Type = Type.Normal,
-    open val durationTime: Long? = null,
+    open val durationTime: Long = 500,
 ) {
     enum class Type {
         Normal, Success, Info, Warning, Error,
@@ -18,18 +18,18 @@ open class ToastModel(
 
 data class ToastModelSuccess(
     override val message: String,
-) : ToastModel(message, Type.Success, null)
+) : ToastModel(message, Type.Success)
 
 data class ToastModelInfo(
     override val message: String,
-) : ToastModel(message, Type.Success, null)
+) : ToastModel(message, Type.Success)
 
 data class ToastModelError(
     override val message: String,
-) : ToastModel(message, Type.Success, null)
+) : ToastModel(message, Type.Success)
 
 data class ToastModelWarning(
     override val message: String,
-) : ToastModel(message, Type.Success, null)
+) : ToastModel(message, Type.Success)
 
 

@@ -51,10 +51,10 @@ fun ToastModel.showToast() {
 class ToastUIState {
     private val mutex = Mutex()
 
-    public var currentData: ToastData? by mutableStateOf(null)
+    var currentData: ToastData? by mutableStateOf(null)
         private set
 
-    public suspend fun show(
+    suspend fun show(
         message: String,
         icon: ImageVector? = null,
     ): Unit = mutex.withLock {
@@ -71,7 +71,7 @@ class ToastUIState {
         }
     }
 
-    public suspend fun show(
+    suspend fun show(
         toastModel: ToastModel
     ): Unit = mutex.withLock {
         try {
@@ -96,7 +96,7 @@ class ToastUIState {
         override val icon: ImageVector?,
         private val continuation: CancellableContinuation<Unit>,
         override val type: ToastModel.Type? = ToastModel.Type.Normal,
-        val durationTime: Long? = null
+        durationTime: Long? = null
     ) : ToastData {
         private var elapsed = 0L
         private var started = 0L

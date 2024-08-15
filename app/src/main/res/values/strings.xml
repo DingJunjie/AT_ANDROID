@@ -49,4 +49,9 @@
     <string name="save">保存</string>
     <string name="publish">发布</string>
 
+    ##### Blog
+    <string name="blog_recommend">发布</string>
+    <string name="blog_latest">最新</string>
+    <string name="blog_follow">关注</string>
+
 </resources>

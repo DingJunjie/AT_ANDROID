@@ -6,8 +6,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
+import com.bitat.repository.dto.req.FollowBlogsDto
+import com.bitat.repository.dto.req.NewBlogsDto
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
@@ -30,26 +34,57 @@ class BlogViewModel : ViewModel() {
             blogState.update {
                 it.copy(updating = true)
             }
-            try {
-                BlogReq.recommendBlogs().await().map { data ->
-//                    if (data.isEmpty()) { // 如果第一条为视频类型，设置默认播放
-//                        val firstBolg = data[0]
-//                        if (firstBolg.kind.toInt() == BLOG_VIDEO_ONLY || firstBolg.kind.toInt() == BLOG_VIDEO_TEXT) {
-//                            firstBolg.isCurrent = true
-//                        }
-//                    }
 
-                    blogState.update {
-                        it.blogList.addAll(data)
-                        it
-                    }
-                    blogState.update {
-                        it.copy(updating = false)
+            blogState.update {
+                it.blogList.clear()
+                it
+            }
+            when (blogState.value.currentMenu) {
+                BlogMenuOptions.Recommend -> {
+                    BlogReq.recommendBlogs().await().map { data ->
+                        blogState.update {
+                            it.blogList.addAll(data)
+                            it
+                        }
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
+                    }.errMap {
+                        CuLog.debug(CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
-            } catch (e: Exception) {
+                BlogMenuOptions.Latest -> {
+                    BlogReq.newBlogs(NewBlogsDto(20)).await().map { data ->
+                        blogState.update {
+                            it.blogList.addAll(data)
+                            it
+                        }
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
+                    }.errMap {
+                        CuLog.debug(CuTag.Blog,
+                            "Blogs----errMap: code=${it.code},msg=${it.msg}")
+                    }
+                }
+                BlogMenuOptions.Followed -> {
+                    BlogReq.followBlogs(FollowBlogsDto(20)).await().map { data ->
+                        blogState.update {
+                            it.blogList.addAll(data)
+                            it
+                        }
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
+                    }.errMap {
+                        CuLog.debug(CuTag.Blog,
+                            "Blogs----errMap: code=${it.code},msg=${it.msg}")
 
+                    }
+                }
             }
+
 
         }
     }
@@ -66,5 +101,9 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-
+    fun pageTypeChange(type: BlogMenuOptions) {
+        blogState.update {
+            it.copy(currentMenu = type)
+        }
+    }
 }
