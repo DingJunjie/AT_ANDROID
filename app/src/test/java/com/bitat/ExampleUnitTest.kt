@@ -12,30 +12,18 @@ import org.junit.Test
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        val res = cuRes()
-        when (res) {
-is Ok-> res.get()
-        }
+
     }
 
-    fun cuRes(): Res {
-        return Ok("ok")
+    private val tagDict = HashMap<String, Long>()
+
+    fun call(str: String) {
+        val tags = tags(str)
+        val tagIds = tags.map { Pair(it, tagDict[it] ?: -1) }
     }
-}
 
-interface Res {
-    fun get(): String
-}
-
-class Ok(val str: String) : Res {
-    override fun get() = str
-
-
-}
-
-class Err : Res {
-    override fun get(): String {
-        TODO("Not yet implemented")
+    fun tags(str: String): Array<String> {
+        return arrayOf("tag")
     }
 
 }
