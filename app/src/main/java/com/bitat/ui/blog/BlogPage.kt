@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,12 +29,16 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
@@ -45,6 +51,7 @@ import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.theme.white
 import com.bitat.viewModel.BlogViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /***
  * 首页的数据显示
@@ -75,15 +82,35 @@ fun BlogPage(
     val isOpen = remember {
         mutableStateOf(false)
     }
+    val isScrollReset = remember {
+        mutableStateOf(false)
+    }
 
-    Scaffold(modifier = Modifier
-        .fillMaxHeight()
-        .fillMaxWidth()
-        .background(white)) { padding ->
-        Column(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()) {
-            BlogTopBar(state.currentMenu,
+    val listState = rememberLazyListState()
+    var lastOffset by remember { mutableStateOf(0) }
+
+    LaunchedEffect(listState) {    // 滚动事件监听
+        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged().collect { scrollOffset ->
+            if (scrollOffset == 0 && lastOffset> 0) { //切换布局 偏移量被重置
+
+            }
+                        CuLog.debug(CuTag.Blog, "Scroll Offset: 当前位置=$scrollOffset，上一次距离=$lastOffset")
+            if (scrollOffset - lastOffset < 0 && !state.topBarShow) { //                vm.topBarState(true)
+                CuLog.debug(CuTag.Blog, "Scroll Offset: 上滑列表${scrollOffset - lastOffset}")
+                vm.topBarState(true)
+                lastOffset = scrollOffset
+            } else if (scrollOffset - lastOffset > 200 && state.topBarShow) {
+                vm.topBarState(false)
+                lastOffset = scrollOffset
+
+            }
+
+        }
+    }
+
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+            if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) })
@@ -92,29 +119,33 @@ fun BlogPage(
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(blogState.currentMenu)
                 }) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()) {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        if (state.blogList.size > 0) {
-                            if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
-                                currentId = state.blogList.first().id
-                            }
+                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                    contentAlignment = Alignment.Center) {
+                    if (state.blogList.size > 0) {
+                        if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
+                            currentId = state.blogList.first().id
                         }
-                        items(state.blogList) { item -> //Text(item.content)
-                            Surface(modifier = Modifier
-                                .clickable(onClick = {
+                        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                            items(state.blogList) { item -> //Text(item.content)
+                                Surface(modifier = Modifier.clickable(onClick = {
                                     vm.setCurrentBlog(item)
                                     AtNavigation(navController).navigateToBlogDetail()
-                                })
-                                .fillMaxWidth()) {
-                                BlogItem(blog = item,
-                                    currentId = currentId,
-                                    isCurrent = { //更新video显示状态
-                                        currentId = it
-                                    })
+                                }).fillMaxWidth()) {
+                                    BlogItem(blog = item,
+                                        currentId = currentId,
+                                        isCurrent = { //更新video显示状态
+                                            currentId = it
+                                        })
+                                }
                             }
                         }
+                    } else {
+                        when (state.currentMenu) {
+                            BlogMenuOptions.Recommend -> Text(text = "推荐" + stringResource(R.string.no_data))
+                            BlogMenuOptions.Latest -> Text(text = "最新" + stringResource(R.string.no_data))
+                            BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
+                        }
+
                     }
                 }
             }
