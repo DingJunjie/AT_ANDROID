@@ -73,6 +73,7 @@ fun DiscoveryDetailPage(
                         onVerticalDrag = { change, dragAmount ->
                             change.consume()
                             latestY.floatValue = change.position.y
+//                            println("scrolling $change, $dragAmount")
                         }, onDragEnd = {
                             val offset = latestY.floatValue - dragStartY.floatValue
                             if (offset > 50f) {
@@ -95,6 +96,7 @@ fun DiscoveryDetailPage(
                                     }
                                 }
                             }
+                            print("start at ${dragStartY.floatValue}, end at ${latestY.floatValue}")
                             dragStartY.floatValue = 0f
                             latestY.floatValue = 0f
                         }, onDragStart = {

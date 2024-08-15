@@ -4,12 +4,12 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeRefreshView(
+fun RefreshView(
     modifier: Modifier = Modifier,
     onRefresh: (suspend () -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit
@@ -59,13 +59,15 @@ fun WeRefreshView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            WeLoading(isRotating = refreshState.isRefreshing)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                refreshingTips,
-                color = MaterialTheme.colorScheme.onSecondary,
-                fontSize = 14.sp
-            )
+            Column {
+                WeLoading(isRotating = refreshState.isRefreshing, size = 30.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    refreshingTips,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    fontSize = 14.sp
+                )
+            }
         }
 
         val animatedRefreshOffsetY by animateIntAsState(

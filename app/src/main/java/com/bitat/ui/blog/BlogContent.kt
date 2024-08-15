@@ -69,10 +69,16 @@ import com.bitat.ui.theme.grey5
  */
 
 @Composable
-fun BlogContent(kind: Int, mBlogBaseDto:BlogBaseDto, maxHeight: Int,currentId:Long) {
+fun BlogContent(
+    kind: Int,
+    mBlogBaseDto: BlogBaseDto,
+    maxHeight: Int,
+    currentId: Long,
+    isPlaying: Boolean = false
+) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)
-        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(mBlogBaseDto, maxHeight,currentId)
+        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(mBlogBaseDto, maxHeight, currentId, isPlaying)
         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(mBlogBaseDto)
         BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(mBlogBaseDto, maxHeight)
         BLOG_AUDIO_TEXT -> BlogAudioTextShow(mBlogBaseDto)
@@ -321,7 +327,6 @@ private fun VideoItem(videoUrl: String) {
 //    }
 //
 //}
-
 
 
 @Composable
