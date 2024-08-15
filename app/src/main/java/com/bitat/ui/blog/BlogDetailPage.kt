@@ -42,6 +42,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
+import com.bitat.ui.component.Avatar
+import com.bitat.ui.component.UserInfo
 import com.bitat.ui.reel.CuExoPlayer
 import com.bitat.ui.theme.Typography
 import com.bitat.viewModel.BlogViewModel
@@ -55,16 +57,23 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
-    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(top = 20.dp), topBar = {
+    Scaffold(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight()
+        .padding(top = 20.dp), topBar = {
         TopBar() {
             navHostController.popBackStack()
         }
     }) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            UserInfo()
-                    Box(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
-                            Text("content")
-                        }
+            UserInfo(username = blogDetail?.nickname ?: "")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            ) {
+                Text("content")
+            }
 
             //            LazyColumn(modifier = Modifier.fillMaxSize()) {
             //                item(content = videoList.size) { item ->
@@ -72,7 +81,6 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
             //                }
             //
             //            }
-
 
 
         }
@@ -84,42 +92,14 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 fun TopBar(backFn: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 20.dp)) {
         IconButton(onClick = { /*TODO*/ }) {
-            SvgIcon(path = "svg/arrow-left.svg",
+            SvgIcon(
+                path = "svg/arrow-left.svg",
                 contentDescription = "",
-                modifier = Modifier.size(20.dp))
+                modifier = Modifier.size(20.dp)
+            )
         }
         Text("帖子")
     }
 }
 
-@Composable
-fun UserInfo() {
-    Row(modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-        Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
-            Text("去有风的地方")
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("2024-7-17 0:16", style = Typography.bodyMedium)
-                Text("IP:贵州", style = Typography.bodyMedium)
-            }
-        }
-        TextButton(onClick = { /*TODO*/ },
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp)
-                .background(Color.Yellow)) {
-            Text("关注", color = Color.Black)
-        }
-    }
-}
 
-@Composable
-fun Avatar(url: String, modifier: Modifier = Modifier) {
-    Surface(shape = CircleShape, modifier = Modifier.padding(start = 10.dp)) {
-        Box(modifier = modifier.size(40.dp)
-            .border(width = 40.dp, color = Color.Transparent, shape = CircleShape)
-            .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)) {
-
-        }
-    }
-}

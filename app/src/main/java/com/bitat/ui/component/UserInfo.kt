@@ -1,12 +1,15 @@
 package com.bitat.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +22,27 @@ import com.bitat.style.FontStyle
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.TimeUtils
+
+//@Composable
+//fun UserInfo() {
+//    Row(modifier = Modifier.fillMaxWidth(),
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceBetween) {
+//        Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+//        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+//            Text("去有风的地方")
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Text("2024-7-17 0:16", style = Typography.bodyMedium)
+//                Text("IP:贵州", style = Typography.bodyMedium)
+//            }
+//        }
+//        TextButton(onClick = { /*TODO*/ },
+//            modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp)
+//                .background(Color.Yellow)) {
+//            Text("关注", color = Color.Black)
+//        }
+//    }
+//}
 
 /*****
  * 用户名的显示 和发布时间的显示
