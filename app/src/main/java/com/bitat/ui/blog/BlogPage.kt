@@ -85,12 +85,9 @@ fun BlogPage(
     val isOpen = remember {
         mutableStateOf(false)
     }
-    val isScrollReset = remember {
-        mutableStateOf(false)
-    }
 
     val listState = rememberLazyListState()
-    var lastOffset by remember { mutableStateOf(0) }
+    var previousIndex by remember { mutableStateOf(0) }
 
     val playingIndex = remember {
         mutableStateOf(0)
@@ -101,42 +98,29 @@ fun BlogPage(
             .collect { _ ->
                 if (listState.layoutInfo.visibleItemsInfo.size > 1) {
                     if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-                            3
-                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
-                    ) {
+                            3) && playingIndex.value != listState.firstVisibleItemIndex + 1) {
                         playingIndex.value = listState.firstVisibleItemIndex + 1
                     }
                 }
-//                if (scrollOffset == 0 && lastOffset > 0) { //切换布局 偏移量被重置
-//
-//                }
-//                CuLog.debug(
-//                    CuTag.Blog,
-//                    "Scroll Offset: 当前位置=$scrollOffset，上一次距离=$lastOffset"
-//                )
-//                if (scrollOffset - lastOffset < 0 && !state.topBarShow) { //                vm.topBarState(true)
-//                    CuLog.debug(CuTag.Blog, "Scroll Offset: 上滑列表${scrollOffset - lastOffset}")
-//                    vm.topBarState(true)
-//                    lastOffset = scrollOffset
-//                } else if (scrollOffset - lastOffset > 200 && state.topBarShow) {
-//                    vm.topBarState(false)
-//                    lastOffset = scrollOffset
-//                }
-
             }
+
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(white)
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
+            CuLog.debug(CuTag.Blog,
+                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}")
+            if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
+                vm.topBarState(false)
+            } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
+                vm.topBarState(true)
+            }
+            previousIndex = listState.firstVisibleItemIndex
+        }
+    }
+
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
@@ -146,34 +130,21 @@ fun BlogPage(
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(blogState.currentMenu)
                 }) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                    contentAlignment = Alignment.Center) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
                             currentId = state.blogList.first().id
                         }
                         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
-                                Surface(
-                                    modifier = Modifier
-                                        .clickable(onClick = {
+                                Surface(modifier = Modifier.fillMaxWidth()) {
+                                    BlogItem(blog = item,
+                                        isPlaying = playingIndex.value == index,
+                                        contentClick = { item ->
                                             vm.setCurrentBlog(item)
                                             AtNavigation(navController).navigateToBlogDetail()
                                         })
-                                        .fillMaxWidth()
-                                ) {
-                                    BlogItem(
-                                        blog = item,
-                                        currentId = currentId,
-                                        isCurrent = { //更新video显示状态
-                                            currentId = it
-                                        },
-                                        isPlaying = playingIndex.value == index
-                                    )
                                 }
                             }
                         }
@@ -193,28 +164,15 @@ fun BlogPage(
 
 
 @Composable
-fun BlogTopBar(
-    currentMenu: BlogMenuOptions,
-    isOpen: Boolean,
-    toggleMenu: (Boolean) -> Unit,
-    switchMenu: (BlogMenuOptions) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .height(30.dp)
-            .padding(start = 5.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
+fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit) {
+    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.End) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }

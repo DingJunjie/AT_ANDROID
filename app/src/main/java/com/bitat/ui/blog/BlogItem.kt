@@ -2,6 +2,7 @@ package com.bitat.ui.blog
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,9 +47,8 @@ import com.bitat.utils.ScreenUtils
 @Composable
 fun BlogItem(
     blog: BlogBaseDto,
-    currentId: Long,
-    isCurrent: (Long) -> Unit,
-    isPlaying: Boolean = false
+    isPlaying: Boolean = false,
+    contentClick:(BlogBaseDto) -> Unit
 ) {
     val height = getHeight(blog)
     val lineHeight = remember {
@@ -118,7 +118,7 @@ fun BlogItem(
                     .background(Color.Transparent)
             ) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier
+                    Surface(modifier = Modifier.clickable { contentClick(blog) }
                         .onSizeChanged { size -> //                        if (lineHeight.intValue == height) {
                             //                            lineHeight.intValue = with(density) {
                             //                                height + size.height.toDp().toInt()
@@ -137,7 +137,7 @@ fun BlogItem(
                         .padding(end = 10.dp)
                         .background(Color.Transparent)
                 ) {
-                    BlogContent(blog.kind.toInt(), blog, height, currentId, isPlaying)
+                    BlogContent(blog.kind.toInt(), blog, height,  isPlaying)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {

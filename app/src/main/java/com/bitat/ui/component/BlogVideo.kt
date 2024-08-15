@@ -25,7 +25,7 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 
 @Composable
-fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long, isPlaying: Boolean = false) {
+fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false) {
     val vm: BlogViewModel = viewModel()
     val blogState by vm.blogState.collectAsState() //    val videoState = rememberVideoPlayerState(videoSource = Uri.parse(dto.resource.video))
     Surface(
@@ -47,7 +47,7 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long, isPlaying: Boolean
         if (isPlaying) {
             val play =
                 CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true)
-            CuLog.debug(CuTag.Blog, "加载视频组件：${currentId}")
+
         } else { //未选中只加载封面
             AsyncImage(
                 model = dto.cover,
@@ -59,7 +59,6 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, currentId: Long, isPlaying: Boolean
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
-            CuLog.debug(CuTag.Blog, "加载视频封面：${currentId},${dto.id}")
         }
 
         CuLog.info(CuTag.Blog, "BlogVideo---------") //        ReelPage()

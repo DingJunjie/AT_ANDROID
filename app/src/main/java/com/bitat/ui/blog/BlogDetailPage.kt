@@ -57,32 +57,21 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
-    Scaffold(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .padding(top = 20.dp), topBar = {
+    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(top = 20.dp), topBar = {
         TopBar() {
             navHostController.popBackStack()
         }
     }) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            UserInfo(username = blogDetail?.nickname ?: "")
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
-            ) {
-                Text("content")
+            blogState.value.currentBlog?.let {
+                Row {
+                    CircleImage(it.profile)
+                    UserInfo(username = it.nickname, it.createTime, true)
+                }
+                Box(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+                    Text(text = it.content)
+                }
             }
-
-            //            LazyColumn(modifier = Modifier.fillMaxSize()) {
-            //                item(content = videoList.size) { item ->
-            //
-            //                }
-            //
-            //            }
-
-
         }
     }
 
@@ -91,12 +80,10 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 @Composable
 fun TopBar(backFn: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 20.dp)) {
-        IconButton(onClick = { /*TODO*/ }) {
-            SvgIcon(
-                path = "svg/arrow-left.svg",
+        IconButton(onClick = { backFn() }) {
+            SvgIcon(path = "svg/arrow-left.svg",
                 contentDescription = "",
-                modifier = Modifier.size(20.dp)
-            )
+                modifier = Modifier.size(20.dp))
         }
         Text("帖子")
     }
