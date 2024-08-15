@@ -63,6 +63,7 @@ import com.bitat.state.DiscoveryMenuOptions
 import com.bitat.ui.common.WeLoadMore
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.statusBarHeight
+import com.bitat.ui.component.AnimatedMenu
 import com.bitat.viewModel.DiscoveryViewModel
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -243,7 +244,11 @@ fun DiscoveryTopBar(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DiscoveryMenu(currentMenu, isOpen, toggleMenu, switchMenu = { switchMenu(it) })
+            AnimatedMenu<DiscoveryMenuOptions>(
+                currentMenu,
+                isOpen,
+                toggleMenu,
+                switchMenu = { switchMenu(it) })
             Box(modifier = Modifier.weight(1f)) {
                 SearchInputButton(navController)
             }
@@ -251,72 +256,5 @@ fun DiscoveryTopBar(
         IconButton(onClick = { /*TODO*/ }) {
             Icon(Icons.Filled.Menu, contentDescription = "")
         }
-    }
-}
-
-@Composable
-fun DiscoveryMenu(
-    currentMenu: DiscoveryMenuOptions,
-    isOpen: Boolean = false,
-    toggleMenu: (Boolean) -> Unit,
-    switchMenu: (DiscoveryMenuOptions) -> Unit
-) {
-    val rotateVal by animateFloatAsState(targetValue = if (isOpen) 90f else 270f, label = "")
-    Surface(
-        modifier = Modifier
-            .height(60.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.DISCOVERY) {
-                MenuItem(
-                    DiscoveryMenuOptions.DISCOVERY,
-                    currentMenu
-                ) {
-                    switchMenu(DiscoveryMenuOptions.DISCOVERY)
-                }
-            }
-            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.PODCAST) {
-                MenuItem(
-                    DiscoveryMenuOptions.PODCAST,
-                    currentMenu
-                ) {
-                    switchMenu(DiscoveryMenuOptions.PODCAST)
-                }
-            }
-            AnimatedVisibility(isOpen || currentMenu == DiscoveryMenuOptions.ACTIVITY) {
-                MenuItem(
-                    DiscoveryMenuOptions.ACTIVITY,
-                    currentMenu
-                ) {
-                    switchMenu(DiscoveryMenuOptions.ACTIVITY)
-                }
-            }
-            Icon(
-                Icons.Filled.ArrowDropDown,
-                contentDescription = "",
-                modifier = Modifier
-                    .rotate(rotateVal)
-                    .clickableWithoutRipple {
-                        toggleMenu(!isOpen)
-                    }
-            )
-        }
-    }
-}
-
-@Composable
-fun MenuItem(
-    menuOptions: DiscoveryMenuOptions,
-    currentMenu: DiscoveryMenuOptions,
-    choseMenu: () -> Unit
-) {
-    Box(modifier = Modifier
-        .padding(3.dp)
-        .clickable { choseMenu() }) {
-        Text(
-            menuOptions.getUiContent(),
-            fontWeight = if (menuOptions == currentMenu) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 12.sp
-        )
     }
 }

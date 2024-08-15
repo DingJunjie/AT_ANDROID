@@ -35,6 +35,7 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
+import com.bitat.ui.component.UserInfo
 import com.bitat.ui.theme.grey5
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
@@ -50,14 +51,22 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
     }
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
-    Column(modifier = Modifier.onGloballyPositioned { coordinates ->
-        if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT) && currentId != blog.id) {
-            if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
-                blog.id)
+    Column(modifier = Modifier
+        .onGloballyPositioned { coordinates ->
+            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT) && currentId != blog.id) {
+                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
+                    blog.id
+                )
+            }
         }
-    }.fillMaxWidth()) { //头像 和用户 和发布时间
-        Row(modifier = Modifier.fillMaxWidth().height(88.cdp).padding(start = 5.dp),
-            horizontalArrangement = Arrangement.Start) {
+        .fillMaxWidth()) { //头像 和用户 和发布时间
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(88.cdp)
+                .padding(start = 5.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
             if (blog.profile.isNotEmpty()) {
                 CircleImage(blog.profile)
             } else {
@@ -65,7 +74,7 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
             }
 
             Surface(modifier = Modifier.padding(start = 10.dp)) {
-                UserInfo()
+                UserInfo(blog.nickname)
             }
 //            LottieBox(lottieRes = R.raw.follow_ani,
 //                isRepeat = true,
@@ -74,9 +83,14 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
 
         CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
 
-        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
-            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
-                .fillMaxHeight() //                    .background(red1)
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color.Transparent)) {
+            Column(
+                modifier = Modifier
+                    .width(ScreenUtils.screenWidth.times(0.12).dp)
+                    .fillMaxHeight() //                    .background(red1)
             ) { //                Box(
                 //                    modifier = Modifier
                 //                        .height(lineHeight.intValue.dp)
@@ -84,24 +98,34 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
                 //                        .background(Color.Red)
                 //                )
                 Line(lineHeight.intValue)
-
             }
-            Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier.onSizeChanged { size -> //                        if (lineHeight.intValue == height) {
-                        //                            lineHeight.intValue = with(density) {
-                        //                                height + size.height.toDp().toInt()
-                        //                            }
-                        //                        }
-                    }.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
+                    Surface(modifier = Modifier
+                        .onSizeChanged { size -> //                        if (lineHeight.intValue == height) {
+                            //                            lineHeight.intValue = with(density) {
+                            //                                height + size.height.toDp().toInt()
+                            //                            }
+                            //                        }
+                        }
+                        .padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
                         BlogText(blog.content)
                     }
                 }
 
                 //博文类型
-                Box(modifier = Modifier.fillMaxSize().padding(end = 10.dp)
-                    .background(Color.Transparent)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 10.dp)
+                        .background(Color.Transparent)
+                ) {
                     BlogContent(blog.kind.toInt(), blog, height, currentId)
                 }
 
@@ -129,16 +153,24 @@ fun BlogItem(blog: BlogBaseDto, currentId: Long, isCurrent: (Long) -> Unit) {
 @Composable
 fun Line(lineHeight: Int) {
     Row(
-        modifier = Modifier.width(50.dp).height(lineHeight.dp).padding(5.dp),
+        modifier = Modifier
+            .width(50.dp)
+            .height(lineHeight.dp)
+            .padding(5.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Canvas(modifier = Modifier //                .height(lineHeight.dp)
-            .width(2.dp).height(lineHeight.dp)) {
-            drawLine(color = grey5,
+        Canvas(
+            modifier = Modifier //                .height(lineHeight.dp)
+                .width(2.dp)
+                .height(lineHeight.dp)
+        ) {
+            drawLine(
+                color = grey5,
                 start = Offset(size.width / 2f, 1f),
                 end = Offset(size.width / 2f, size.height),
-                strokeWidth = 2.dp.toPx())
+                strokeWidth = 2.dp.toPx()
+            )
         }
     }
 }

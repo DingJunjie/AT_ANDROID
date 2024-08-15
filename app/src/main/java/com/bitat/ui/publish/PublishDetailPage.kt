@@ -87,7 +87,6 @@ import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.resp.BlogTagDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
-import com.bitat.ui.blog.Avatar
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption.ImageOnly
 import com.bitat.ui.common.ImagePickerOption.VideoOnly
@@ -102,6 +101,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.bitat.ui.common.AnyPopDialog
 import com.bitat.ui.common.AnyPopDialogProperties
 import com.bitat.ui.common.DirectionState
+import com.bitat.ui.component.Avatar
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 

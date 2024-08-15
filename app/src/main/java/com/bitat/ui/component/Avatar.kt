@@ -15,17 +15,18 @@ import androidx.compose.ui.unit.dp
 import com.bitat.ui.common.rememberAsyncPainter
 
 @Composable
-fun Avatar(url: String, size: Int = 40) {
+fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40) {
     Surface(
         shape = CircleShape, modifier = Modifier.padding(start = 10.dp)
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .size(size.dp)
                 .border(width = size.dp, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
         ) {
-
         }
     }
 }
+
+

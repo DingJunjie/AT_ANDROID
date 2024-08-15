@@ -4,10 +4,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.dto.resp.BlogBaseDto
 
-enum class DiscoveryMenuOptions {
+enum class DiscoveryMenuOptions : MenuOptions {
     DISCOVERY, PODCAST, ACTIVITY;
 
-    fun getUiContent(): String {
+    override fun getUiContent(): String {
         return when (this) {
             DISCOVERY ->
                 "探索"

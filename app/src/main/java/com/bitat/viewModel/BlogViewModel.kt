@@ -9,8 +9,8 @@ import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
-import com.bitat.state.BlogType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class BlogViewModel : ViewModel() {
     //    private val _eventFlow = MutableSharedFlow<String>()
     //    val eventFlow: SharedFlow<String> get() = _eventFlow
 
-    fun initBlogList(type: BlogType = BlogType.Recommend) { // TODO
+    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -38,7 +38,6 @@ class BlogViewModel : ViewModel() {
 //                            firstBolg.isCurrent = true
 //                        }
 //                    }
-
 
                     blogState.update {
                         it.blogList.addAll(data)
@@ -58,6 +57,12 @@ class BlogViewModel : ViewModel() {
     fun setCurrentBlog(currentBlog: BlogBaseDto) {
         blogState.update {
             it.copy(currentBlog = currentBlog)
+        }
+    }
+
+    fun switchBlogMenu(menu: BlogMenuOptions) {
+        blogState.update {
+            it.copy(currentMenu = menu)
         }
     }
 

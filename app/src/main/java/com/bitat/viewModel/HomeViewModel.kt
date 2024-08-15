@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
-import com.bitat.state.BlogType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,7 +23,7 @@ class HomeViewModel() : ViewModel() {
 //    private val _eventFlow = MutableSharedFlow<String>()
 //    val eventFlow: SharedFlow<String> get() = _eventFlow
 
-    fun initBlogList(type: BlogType = BlogType.Recommend) {
+    fun initBlogList(type: BlogMenuOptions = BlogMenuOptions.Recommend) {
         // TODO
         if (blogState.value.updating) {
             return
@@ -43,8 +43,17 @@ class HomeViewModel() : ViewModel() {
                 blogState.update {
                     it.copy(updating = false)
                 }
-
             }
+        }
+    }
+
+    fun updateInfo(index: Int) {
+        val blog = blogState.value.blogList[index]
+        blog.content = "askdfjasdf"
+
+        blogState.update {
+            it.blogList[index] = blog
+            it
         }
     }
 
