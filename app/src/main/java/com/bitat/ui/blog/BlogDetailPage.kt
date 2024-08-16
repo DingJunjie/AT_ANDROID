@@ -114,7 +114,13 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
                     when (it.kind.toInt()) {
                         BLOG_TEXT_ONLY -> {}
-                        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(it, heigh, true)
+                        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(
+                            it,
+                            heigh,
+                            true,
+                            navHostController
+                        )
+
                         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(it)
                         BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(it,
                             heigh)

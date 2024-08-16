@@ -1,5 +1,6 @@
 package com.bitat.ui.chat
 
+import GroupList
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -146,6 +147,7 @@ fun ChatPage(navHostController: NavHostController) {
                         .fillMaxHeight()
                         .background(Color.White)
                 ) {
+                    GroupList()
                 }
             }
         }

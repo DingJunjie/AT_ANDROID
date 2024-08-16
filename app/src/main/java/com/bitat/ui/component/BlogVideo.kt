@@ -1,6 +1,7 @@
 package com.bitat.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,17 +16,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.router.AtNavigation
 import com.bitat.ui.reel.CuExoPlayer
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 
 @Composable
-fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false) {
+fun BlogVideo(
+    dto: BlogBaseDto,
+    height: Int,
+    isPlaying: Boolean = false,
+    navController: NavHostController
+) {
     val vm: BlogViewModel = viewModel()
     val blogState by vm.blogState.collectAsState() //    val videoState = rememberVideoPlayerState(videoSource = Uri.parse(dto.resource.video))
     Surface(
@@ -33,6 +41,9 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false) {
         modifier = Modifier
             .fillMaxWidth()
             .height(height.dp)
+            .clickable {
+                AtNavigation(navController).navigateToVideo()
+            }
     ) { //视频
         //                VideoPlayer(
         //                    state = videoState, modifier = Modifier

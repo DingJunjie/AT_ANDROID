@@ -60,13 +60,16 @@ fun RefreshView(
             horizontalArrangement = Arrangement.Center
         ) {
             Column {
-                WeLoading(isRotating = refreshState.isRefreshing, size = 30.dp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    refreshingTips,
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    fontSize = 14.sp
+                WeLoading(
+                    isRotating = refreshState.isRefreshing,
+                    size = if (refreshState.isRefreshing) 30.dp else 1.dp
                 )
+//                Spacer(modifier = Modifier.width(8.dp))
+//                Text(
+//                    refreshingTips,
+//                    color = MaterialTheme.colorScheme.onSecondary,
+//                    fontSize = 14.sp
+//                )
             }
         }
 

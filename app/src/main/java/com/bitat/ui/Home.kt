@@ -48,6 +48,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
         mutableIntStateOf(0)
     }
 
+
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         BottomAppBar(modifier = Modifier,
             contentColor = Color.White,
