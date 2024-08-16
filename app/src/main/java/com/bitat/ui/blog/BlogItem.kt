@@ -88,13 +88,14 @@ fun BlogItem(
             }
         }
 
-        CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
+        CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt()+"用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory}")
 
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
             Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
                 .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally //                    .background(red1)
-            ) { //                Box(
+            ) {
+                //                Box(
                 //                    modifier = Modifier
                 //                        .height(lineHeight.intValue.dp)
                 //                        .width(2.dp)

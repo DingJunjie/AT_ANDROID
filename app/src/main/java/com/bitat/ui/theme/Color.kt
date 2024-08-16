@@ -50,6 +50,8 @@ val dialogBackgroundLight = Color(0xFFFEFEFE)
 val white3 = Color(0xFFAE5E5E)
 val line =Color(0xFF707070)
 
+val subTextColor=Color(0xFF707070)
+
 object AppColor {
     val blue = Color(0xFF51BDFF).convert(ColorSpaces.CieXyz)
     val red = Color(0xFFFF5500).convert(ColorSpaces.CieXyz)

@@ -1,6 +1,8 @@
 package com.bitat
 
 import android.app.Application
+import androidx.emoji2.bundled.BundledEmojiCompatConfig
+import androidx.emoji2.text.EmojiCompat
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
@@ -36,6 +38,10 @@ class BitApplication : Application(), ImageLoaderFactory {
         Local.ctx = this
         //事件发布初始化
         FlowBusInitializer.init(this)
+
+        // emoji 初始化
+        val config: EmojiCompat.Config = BundledEmojiCompatConfig(this)
+        EmojiCompat.init(config)
     }
 
 }

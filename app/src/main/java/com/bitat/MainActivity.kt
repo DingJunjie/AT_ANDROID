@@ -19,6 +19,8 @@ import com.bitat.config.BitEventBus
 import com.bitat.ext.flowbus.observeEvent
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.common.KeySecret
+import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.store.BaseStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
@@ -79,8 +81,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-//        KeySecret.start()
-//        TcpClient.start()
+        KeySecret.start()
+        TcpClient.start()
     }
 
     fun getAvailableMemory(): ActivityManager.MemoryInfo {

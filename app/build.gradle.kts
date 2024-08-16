@@ -162,6 +162,9 @@ dependencies {
 
     implementation("com.arthenica:ffmpeg-kit-full-gpl:4.5.LTS")
 
+    implementation (libs.androidx.emoji2)
+    implementation (libs.androidx.emoji2.bundled)
+
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 

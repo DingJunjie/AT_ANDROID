@@ -2,6 +2,7 @@ package com.bitat.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
@@ -17,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -50,11 +52,11 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        BottomAppBar(modifier = Modifier,
+        BottomAppBar(modifier = Modifier.height(55.dp).padding(0.dp),
             contentColor = Color.White,
             containerColor = Color.White,
             actions = {
-                TabRow(selectedTabIndex = 0, indicator = {}) {
+                TabRow(modifier = Modifier.padding(0.dp), selectedTabIndex = 0, indicator = {}) {
                     tabList.forEachIndexed { index, tab -> //
                         IconButton(onClick = {
                             selectIndex = index

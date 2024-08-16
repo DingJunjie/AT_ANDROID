@@ -7,7 +7,9 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
+import com.bitat.repository.dto.req.SocialDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.http.service.SocialReq
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,9 +71,12 @@ class BlogViewModel : ViewModel() {
                 BlogMenuOptions.Followed -> {
                     CuLog.debug(CuTag.Blog, "调用Followed")
                     BlogReq.followBlogs(FollowBlogsDto(20)).await().map { data ->
-                        blogState.update {
-                            it.blogList.addAll(data)
-                            it
+                        CuLog.debug(CuTag.Blog, "调用Followed,返回数据：${data.size}")
+                        if (data.isNotEmpty()) {
+                            blogState.update {
+                                it.blogList.addAll(data)
+                                it
+                            }
                         }
                         blogState.update {
                             it.copy(updating = false)
@@ -136,9 +141,10 @@ class BlogViewModel : ViewModel() {
                     it.copy(updating = false)
                 }
             }.errMap {
-                CuLog.debug(CuTag.Blog,
-                    "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                CuLog.debug(CuTag.Blog, "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
             }
         }
     }
+
+
 }

@@ -44,7 +44,7 @@ class BlogBaseDto {
     var hasPraise: Boolean = false//是否点赞
     var hasCollect: Boolean = false //是否收藏
     var hasAt: Boolean = false //是否at
-    var rel: Int = 0 //正向关系
+    var rel: Int = 0 //正向关系  -1 1
     var revRel: Int = 0//反向关系
     var alias: String = "" //别名
     var atCount: Int = 0 //被at数

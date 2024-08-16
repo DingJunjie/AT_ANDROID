@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.bitat.style.FontStyle
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
+import com.bitat.ui.theme.subTextColor
 import com.bitat.utils.TimeUtils
 
 //@Composable
@@ -49,106 +51,110 @@ import com.bitat.utils.TimeUtils
  */
 @Composable
 fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
-        Text(
-            text = username,
-            style = Typography.bodyLarge.copy(
-                fontSize = 14.sp,
-//                fontWeight = FontWeight.Bold,
-                color = Color.Blue,
-                letterSpacing = 1.sp,
-                textAlign = TextAlign.Left
-            )
-        )
+        Text(text = username,
+            style = Typography.bodyLarge.copy(fontSize = 14.sp, //                fontWeight = FontWeight.Bold,
+                color = Color.Blue, letterSpacing = 1.sp, textAlign = TextAlign.Left))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically  // 垂直居中
         ) {
-            if (isShowTime) Text(
-                text = TimeUtils.timeToText(createTime),
-//                                    +TimeUtils.timestampToString(createTime),
-//                            fontWeight = FontWeight.Bold,
+            if (isShowTime) Text(text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+                //                            fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Left,
-                modifier = Modifier
-                    .padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
-                fontSize = FontStyle.contentLargeSize
-            )
-            SvgIcon(
-                path = "svg/verticalline.svg",
+                modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
+                fontSize = FontStyle.contentLargeSize)
+            SvgIcon(path = "svg/verticalline.svg",
                 tint = Color.Black,
                 contentDescription = "",
-                modifier = Modifier.size(20.dp)
-            )
+                modifier = Modifier.size(20.dp))
         }
     }
 }
 
 @Composable
-fun UserInfoWithAvatar(
-    nickname: String,
-    avatar: String,
-    createTime: Long = 0,
-    isShowTime: Boolean = false
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(vertical = 10.dp),
+fun UserInfoWithAvatar(nickname: String, avatar: String, createTime: Long = 0, isShowTime: Boolean = false) {
+    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
         Avatar(url = avatar, size = 30)
-        Text(
-            modifier = Modifier.padding(start = 10.dp),
+        Text(modifier = Modifier.padding(start = 10.dp),
             text = nickname,
-            style = Typography.bodyLarge.copy(
-                fontSize = 14.sp,
-                color = Color.Black,
-//                letterSpacing = 1.sp,
-                textAlign = TextAlign.Left
-            )
-        )
+            style = Typography.bodyLarge.copy(fontSize = 14.sp,
+                color = Color.Black, //                letterSpacing = 1.sp,
+                textAlign = TextAlign.Left))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically  // 垂直居中
         ) {
-            if (isShowTime) Text(
-                text = TimeUtils.timeToText(createTime),
-//                                    +TimeUtils.timestampToString(createTime),
-//                            fontWeight = FontWeight.Bold,
+            if (isShowTime) Text(text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+                //                            fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Left,
-                modifier = Modifier
-                    .padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
-                fontSize = FontStyle.contentLargeSize
-            )
-            SvgIcon(
-                path = "svg/verticalline.svg",
+                modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
+                fontSize = FontStyle.contentLargeSize)
+            SvgIcon(path = "svg/verticalline.svg",
                 tint = Color.Black,
                 contentDescription = "",
-                modifier = Modifier.size(16.dp)
-            )
+                modifier = Modifier.size(16.dp))
 
         }
     }
+}
 
+@Composable
+fun UserInfoWithAddr(nickname: String, avatar: String, createTime: Long = 0, address: String, isShowTime: Boolean = false, modifier: Modifier = Modifier) {
+    Row(modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically  // 垂直居中
+    ) {
+        Avatar(url = avatar, size = 50)
+        Column(modifier = Modifier, horizontalAlignment = Alignment.Start) {
+            Text(modifier = modifier.padding(start = 10.dp),
+                text = nickname,
+                style = Typography.bodyLarge.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    color = Color.Black))
 
+            Row(modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically  // 垂直居中
+            ) {
+                if (isShowTime) {
+                    Text(
+                        text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+                        //                            fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        color = subTextColor,
+                        textAlign = TextAlign.Left,
+                        modifier = Modifier.padding(start = 5.dp,
+                            top = 5.dp,
+                            end = 5.dp,
+                            bottom = 5.dp), //                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    )
+                }
+
+                Text(
+                    text = address,
+                    letterSpacing = 1.sp,
+                    color = subTextColor,
+                    textAlign = TextAlign.Left,
+                    modifier = Modifier.padding(start = 5.dp,
+                        top = 5.dp,
+                        end = 5.dp,
+                        bottom = 5.dp), //                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                )
+            }
+        }
+    }
 }
