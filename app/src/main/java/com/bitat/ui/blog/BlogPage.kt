@@ -68,8 +68,7 @@ fun BlogPage(
     viewModelProvider: ViewModelProvider
 ) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
-    val state by vm.blogState.collectAsState() //获取 状态栏高度 用于设置上边距
-    val blogState by vm.blogState.collectAsState()
+    val state by vm.blogState.collectAsState()
     val pagerState: PagerState = rememberPagerState { 3 }
     val loadMoreState = rememberLoadMoreState {
         CuLog.debug(CuTag.Blog, "loadMoreState") //        vm.initBlogList(blogState.currentMenu)
@@ -118,6 +117,15 @@ fun BlogPage(
             previousIndex = listState.firstVisibleItemIndex
         }
     }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .collect { layoutInfo ->
+                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                if (lastVisibleItemIndex == state.blogList.size-1) {
+                    vm.loadMore()
+                }
+            }
+    }
 
     Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -128,7 +136,7 @@ fun BlogPage(
             RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
-                    vm.initBlogList(blogState.currentMenu)
+                    vm.initBlogList(state.currentMenu)
                 }) {
                 Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
                     contentAlignment = Alignment.Center) {

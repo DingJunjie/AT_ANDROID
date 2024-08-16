@@ -38,7 +38,6 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .background(Color.Transparent) // Background color
-                    .padding(16.dp)
                     .clickable { expanded = !expanded }
             ) {
 
@@ -50,7 +49,6 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier) {
                         )
                     )
                 )
-
             }
 
         }

@@ -326,7 +326,7 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
                     var before = contentSplit.subList(0, textFieldValue.selection.start)
                     val after =
                         contentSplit.subList(textFieldValue.selection.start, contentSplit.size)
-                    if (before.last() == "#") {
+                    if (before.isEmpty()&&before.last() == "#") {
                         before = before.subList(0, before.size - 1)
                         vm.onContentChange(
                             before.joinToString("") + after.joinToString("")

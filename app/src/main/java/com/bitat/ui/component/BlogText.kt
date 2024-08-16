@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bitat.ui.common.CollapseText
 import com.bitat.ui.theme.Typography
 
 @Composable
@@ -17,10 +18,11 @@ fun BlogText(content: String) {
             .fillMaxWidth()
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
     ) {
-        Text(
-            text = content, style = Typography.bodyLarge.copy(
-                fontSize = 14.sp
-            )
-        )
+//        Text(
+//            text = content, style = Typography.bodyLarge.copy(
+//                fontSize = 14.sp
+//            )
+//        )
+        CollapseText(value = content,4, modifier = Modifier.fillMaxWidth())
     }
 }

@@ -1,5 +1,6 @@
 package com.bitat.ui.reel
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateFloatAsState
@@ -49,6 +50,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import kotlinx.coroutines.delay
@@ -208,8 +210,11 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
             AndroidView(factory = {
                 PlayerView(context).apply {
                     this.player = exoPlayer
-                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
+//                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满
                     useController = false // 不显示默认控制器
+                    setBackgroundColor(context.resources.getColor(R.color.black))
+
                 }
             }, modifier = Modifier.fillMaxSize())
         }

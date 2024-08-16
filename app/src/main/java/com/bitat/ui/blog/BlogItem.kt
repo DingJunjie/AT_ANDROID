@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -34,48 +36,40 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
+import com.bitat.ui.common.CollapseText
+import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.component.UserInfo
+import com.bitat.ui.theme.blue
 import com.bitat.ui.theme.grey5
+import com.bitat.ui.theme.line
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
 
 /*****
- * blog item 组件
+ * blog item 组件L
  */
 @Composable
-fun BlogItem(
-    blog: BlogBaseDto,
-    isPlaying: Boolean = false,
-    contentClick:(BlogBaseDto) -> Unit
-) {
+fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogBaseDto) -> Unit) {
     val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(height)
     }
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
-    Column(
-        modifier = Modifier
-//        .onGloballyPositioned { coordinates ->
-//            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
-//                && currentId != blog.id
-//            ) {
-//                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
-//                    blog.id
-//                )
-//            }
-//        }
-            .fillMaxWidth()
-    ) { //头像 和用户 和发布时间
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(88.cdp)
-                .padding(start = 5.dp),
-            horizontalArrangement = Arrangement.Start
-        ) {
+    Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
+        //            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
+        //                && currentId != blog.id
+        //            ) {
+        //                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
+        //                    blog.id
+        //                )
+        //            }
+        //        }
+        .fillMaxWidth()) { //头像 和用户 和发布时间
+        Row(modifier = Modifier.fillMaxWidth().height(88.cdp).padding(start = 5.dp),
+            horizontalArrangement = Arrangement.Start) {
             if (blog.profile.isNotEmpty()) {
                 CircleImage(blog.profile)
             } else {
@@ -85,23 +79,13 @@ fun BlogItem(
             Surface(modifier = Modifier.padding(start = 14.dp)) {
                 UserInfo(blog.nickname)
             }
-//            LottieBox(lottieRes = R.raw.follow_ani,
-//                isRepeat = true,
-//                modifier = Modifier.size(100.dp))
         }
 
         CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt())
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .background(Color.Transparent)
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(ScreenUtils.screenWidth.times(0.12).dp)
-                    .fillMaxHeight() //                    .background(red1)
+        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
+            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
+                .fillMaxHeight() //                    .background(red1)
             ) { //                Box(
                 //                    modifier = Modifier
                 //                        .height(lineHeight.intValue.dp)
@@ -109,14 +93,14 @@ fun BlogItem(
                 //                        .background(Color.Red)
                 //                )
                 Line(lineHeight.intValue)
+                LottieBox(lottieRes = R.raw.follow_ani,
+                    isRepeat = true,
+                    modifier = Modifier.size(40.cdp))
+
             }
 
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-            ) {
+            Column(horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
                 if (blog.content.isNotEmpty()) {
                     Surface(modifier = Modifier.clickable { contentClick(blog) }
                         .onSizeChanged { size -> //                        if (lineHeight.intValue == height) {
@@ -125,19 +109,15 @@ fun BlogItem(
                             //                            }
                             //                        }
                         }
-                        .padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
-                        BlogText(blog.content)
+                        .padding(start = ScreenUtils.screenWidth.times(0.12).dp)) { //                        BlogText(blog.content)
+                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
                 }
 
                 //博文类型
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(end = 10.dp)
-                        .background(Color.Transparent)
-                ) {
-                    BlogContent(blog.kind.toInt(), blog, height,  isPlaying)
+                Box(modifier = Modifier.fillMaxSize().padding(end = 10.dp)
+                    .background(Color.Transparent)) {
+                    BlogContent(blog.kind.toInt(), blog, height, isPlaying)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
@@ -164,24 +144,16 @@ fun BlogItem(
 @Composable
 fun Line(lineHeight: Int) {
     Row(
-        modifier = Modifier
-            .width(50.dp)
-            .height(lineHeight.dp)
-            .padding(5.dp),
+        modifier = Modifier.width(50.dp).height(lineHeight.dp).padding(5.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Canvas(
-            modifier = Modifier //                .height(lineHeight.dp)
-                .width(2.dp)
-                .height(lineHeight.dp)
-        ) {
-            drawLine(
-                color = grey5,
+        Canvas(modifier = Modifier //                .height(lineHeight.dp)
+            .width(2.dp).height(lineHeight.dp)) {
+            drawLine(color = line,
                 start = Offset(size.width / 2f, 1f),
                 end = Offset(size.width / 2f, size.height),
-                strokeWidth = 2.dp.toPx()
-            )
+                strokeWidth = 1.dp.toPx())
         }
     }
 }

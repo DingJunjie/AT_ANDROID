@@ -46,10 +46,8 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(
-                            CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
-                        )
+                        CuLog.debug(CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -117,8 +115,30 @@ class BlogViewModel : ViewModel() {
                 it.blogList.clear()
                 it
             }
-
             BlogReq.recommendBlogs()
+        }
+    }
+
+    fun loadMore() {
+        if (blogState.value.updating) {
+            return
+        }
+        MainCo.launch {
+            blogState.update {
+                it.copy(updating = true)
+            }
+            BlogReq.recommendBlogs().await().map { data ->
+                blogState.update {
+                    it.blogList.addAll(data)
+                    it
+                }
+                blogState.update {
+                    it.copy(updating = false)
+                }
+            }.errMap {
+                CuLog.debug(CuTag.Blog,
+                    "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+            }
         }
     }
 }

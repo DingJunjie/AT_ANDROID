@@ -44,9 +44,11 @@ val red7 = Color(0xFFDC514E).convert(ColorSpaces.CieXyz)
 val red8 = Color(0xFFCBC7BF).convert(ColorSpaces.CieXyz)
 val yellow1 = Color(0xFFF6CA23).convert(ColorSpaces.CieXyz)
 
+
 val blue = Color(0xFF51BDFF)
 val dialogBackgroundLight = Color(0xFFFEFEFE)
 val white3 = Color(0xFFAE5E5E)
+val line =Color(0xFF707070)
 
 object AppColor {
     val blue = Color(0xFF51BDFF).convert(ColorSpaces.CieXyz)
