@@ -200,32 +200,69 @@ fun BlogPage(
 //            }
 //        }
     }) {
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            if (state.topBarShow) BlogTopBar(state.currentMenu,
-                isOpen.value,
-                { isOpen.value = it },
-                switchMenu = { vm.switchBlogMenu(it) })
-            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
-                onRefresh = {
-                    CuLog.debug(CuTag.Blog, "onRefresh 回调")
-                    vm.initBlogList(state.currentMenu)
-                }) {
-                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                    contentAlignment = Alignment.Center) {
-                    if (state.blogList.size > 0) {
-                        if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
-                            currentId = state.blogList.first().id
-                        }
-                        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                            itemsIndexed(state.blogList) { index, item -> //Text(item.content)
-                                Surface(modifier = Modifier.fillMaxWidth()) {
-                                    BlogItem(blog = item,
-                                        isPlaying = playingIndex.value == index,
-                                        contentClick = { item ->
-                                            vm.setCurrentBlog(item)
-                                            AtNavigation(navController).navigateToBlogDetail()
-                                        })
+        Scaffold(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .background(white)
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
+                if (state.topBarShow) BlogTopBar(state.currentMenu,
+                    isOpen.value,
+                    { isOpen.value = it },
+                    switchMenu = { vm.switchBlogMenu(it) })
+                RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
+                    onRefresh = {
+                        CuLog.debug(CuTag.Blog, "onRefresh 回调")
+                        vm.initBlogList(state.currentMenu)
+                    }) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (state.blogList.size > 0) {
+                            if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
+                                currentId = state.blogList.first().id
+                            }
+                            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                                itemsIndexed(state.blogList) { index, item -> //Text(item.content)
+                                    Surface(modifier = Modifier.fillMaxWidth()) {
+                                        BlogItem(blog = item,
+                                            isPlaying = playingIndex.value == index,
+                                            navController,
+                                            tapComment = {
+                                                CommentStore.currentBlogId = item.id
+                                                coroutineScope.launch {
+                                                    delay(1000)
+                                                    modalBottomSheetState.show()
+                                                    currentOperation = BlogOperation.Comment
+                                                }
+                                            },
+                                            tapAt = {
+                                                coroutineScope.launch {
+                                                    delay(1000)
+                                                    modalBottomSheetState.show()
+                                                    currentOperation = BlogOperation.At
+                                                }
+                                            },
+                                            tapLike = {},
+                                            tapCollect = {
+                                                coroutineScope.launch {
+                                                    modalBottomSheetState.show()
+                                                    currentOperation = BlogOperation.Collect
+                                                }
+                                            },
+                                            contentClick = { item ->
+                                                vm.setCurrentBlog(item)
+                                                AtNavigation(navController).navigateToBlogDetail()
+                                            })
+                                    }
                                 }
                             }
                         } else {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 object UserStore {
     lateinit var userInfo: UserDto
-    private val userFlow = MutableSharedFlow<UserDto>()
+    val userFlow = MutableSharedFlow<UserDto>()
 
     fun initUserInfo(userDto: UserDto) {
         userInfo = userDto
