@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.ext.Density
 import com.bitat.ext.cdp
 import com.bitat.ext.toPx
 import com.bitat.log.CuLog
@@ -54,20 +55,16 @@ import com.bitat.utils.ScreenUtils
 fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogBaseDto) -> Unit) {
     val height = getHeight(blog)
     val lineHeight = remember {
-        mutableIntStateOf(height)
+        mutableIntStateOf(0)
     }
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
     Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
-        //            if ((blog.kind.toInt() == BLOG_VIDEO_ONLY || blog.kind.toInt() == BLOG_VIDEO_TEXT)
-        //                && currentId != blog.id
-        //            ) {
-        //                if (coordinates.positionInRoot().y.dp.toPx > oneThirdScreenHeight && coordinates.positionInRoot().y.dp.toPx < oneThirdScreenHeight * 2) isCurrent(
-        //                    blog.id
-        //                )
-        //            }
-        //        }
-        .fillMaxWidth()) { //头像 和用户 和发布时间
+        .onSizeChanged { size ->
+            if (lineHeight.intValue == 0) {
+                lineHeight.intValue = (size.height / Density).toInt() - 75
+            }
+        }.fillMaxWidth()) { //头像 和用户 和发布时间
         Row(modifier = Modifier.fillMaxWidth().height(88.cdp).padding(start = 5.dp),
             horizontalArrangement = Arrangement.Start) {
             if (blog.profile.isNotEmpty()) {
@@ -85,7 +82,8 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogB
 
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
             Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
-                .fillMaxHeight() //                    .background(red1)
+                .fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally //                    .background(red1)
             ) { //                Box(
                 //                    modifier = Modifier
                 //                        .height(lineHeight.intValue.dp)
@@ -100,16 +98,11 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogB
             }
 
             Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+                modifier = Modifier.fillMaxWidth().background(Color.Transparent)
+                    .padding(start = ScreenUtils.screenWidth.times(0.11).dp)) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier.clickable { contentClick(blog) }
-                        .onSizeChanged { size -> //                        if (lineHeight.intValue == height) {
-                            //                            lineHeight.intValue = with(density) {
-                            //                                height + size.height.toDp().toInt()
-                            //                            }
-                            //                        }
-                        }
-                        .padding(start = ScreenUtils.screenWidth.times(0.12).dp)) { //                        BlogText(blog.content)
+                    Surface(modifier = Modifier.padding(bottom = 10.dp)
+                        .clickable { contentClick(blog) }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
                 }

@@ -31,7 +31,7 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             maxLines = if (expanded) Int.MAX_VALUE else maxLines, // Maximum number of lines to display
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium
+            style = TextStyle( lineHeight = 26.sp),
         )
         if (value.length > maxLines * 50) {
 

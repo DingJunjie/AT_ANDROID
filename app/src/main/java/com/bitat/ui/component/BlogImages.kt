@@ -51,7 +51,8 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
     val dataList = blog.resource.images
 
     LazyRow(modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)) {
+//        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)
+    ) {
         itemsIndexed(dataList) { index, data ->
             Box(
                 modifier = Modifier.fillMaxHeight().clickable {

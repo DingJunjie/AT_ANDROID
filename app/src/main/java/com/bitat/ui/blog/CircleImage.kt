@@ -17,46 +17,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.bitat.R
+import com.bitat.ext.cdp
 import com.bitat.ui.common.SvgIcon
 
 /****
  * 首页的头部item图片显示
  */
 @Composable
-fun CircleImage(imageUrl: String,modifier: Modifier=Modifier) {
+fun CircleImage(imageUrl: String, modifier: Modifier = Modifier) {
 
-    Box(
-        modifier
-            .size(40.dp)
-            .padding(top = 7.dp, start = 5.dp)
+    Box(modifier.size(70.cdp) //            .padding(top = 7.dp, start = 5.dp)
     ) {
         if (imageUrl.isNotEmpty()) {
-            AsyncImage(
-                model = imageUrl,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(35.dp),
+            AsyncImage(model = imageUrl,
+                modifier = Modifier.clip(CircleShape).size(35.dp),
                 placeholder = painterResource(R.drawable.logo),
                 contentDescription = null,
-                contentScale = ContentScale.Crop
-            )
+                contentScale = ContentScale.Crop)
         } else {
-            Image(
-                painterResource(R.drawable.logo), contentDescription = "头像", modifier = Modifier
-//            .clip(RoundedCornerShape(8.dp))
-                    .clip(CircleShape)
-                    .size(35.dp), contentScale = ContentScale.Crop
-            )
+            Image(painterResource(R.drawable.logo),
+                contentDescription = "头像",
+                modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
+                    .clip(CircleShape).size(35.dp),
+                contentScale = ContentScale.Crop)
         }
 
-        SvgIcon(
-            path = "navigationbar/bottom_add.svg",
+        SvgIcon(path = "navigationbar/bottom_add.svg",
             tint = Color.Black,
             contentDescription = "",
-            modifier = Modifier
-                .size(15.dp)
-                .offset(x = 24.dp, y = 20.dp)
-        )
+            modifier = Modifier.size(15.dp).offset(x = 24.dp, y = 20.dp))
 
     }
 

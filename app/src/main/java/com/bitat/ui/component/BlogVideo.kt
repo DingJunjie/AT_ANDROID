@@ -32,7 +32,6 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false) {
         shape = RoundedCornerShape(20.cdp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = ScreenUtils.screenWidth.times(0.11).dp)
             .height(height.dp)
     ) { //视频
         //                VideoPlayer(
@@ -46,7 +45,7 @@ fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false) {
 //        if (dto.id == currentId) { //item在页面中间才加载视频
         if (isPlaying) {
             val play =
-                CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true)
+                CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true,false)
 
         } else { //未选中只加载封面
             AsyncImage(

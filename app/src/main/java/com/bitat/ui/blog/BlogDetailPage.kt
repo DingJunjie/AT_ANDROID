@@ -48,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
+import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_AUDIO_IMAGE
@@ -91,69 +92,44 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
-    Scaffold(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .padding(top = 20.dp), topBar = {
+    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(top = 20.dp), topBar = {
         TopBar {
             navHostController.popBackStack()
         }
     }) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-//                .verticalScroll(scrollState)
+        Column(modifier = Modifier.padding(padding)//                .verticalScroll(scrollState)
         ) {
             blogState.value.currentBlog?.let {
-                Row(
-                    modifier = Modifier.height(80.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AsyncImage(
-                        model = it.profile,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(70.dp)
-                            .padding(10.dp),
-                        placeholder = painterResource(R.drawable.logo),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
+                Row(modifier = Modifier.height(80.dp).padding(start = 10.dp, end = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    CircleImage(it.profile, modifier = Modifier.size(140.cdp))
                     UserInfo(username = it.nickname, it.createTime, true)
-                    Button(
-                        modifier = Modifier
-                            .size(80.dp, 50.dp)
-                            .clip(CircleShape),
+                    Button(modifier = Modifier.size(80.dp, 50.dp).clip(CircleShape),
                         onClick = { /*TODO*/ }) {
                         Text(text = stringResource(id = R.string.blog_dtl_followed))
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp)
-                ) {
-                    Text(
-                        text = it.content,
-                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-                    )
+                Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+                    Text(text = it.content,
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
                     when (it.kind.toInt()) {
                         BLOG_TEXT_ONLY -> {}
                         BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(it, heigh, true)
                         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(it)
-                        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(it, heigh)
-//                        BLOG_AUDIO_TEXT -> BlogAudioTextShow(mBlogBaseDto)
-//                        BLOG_VIDEO_IMAGE -> BlogVideoImageShow(mBlogBaseDto)
-//                        BLOG_AUDIO_IMAGE -> BlogAudioImageShow(mBlogBaseDto)
-//                        BLOG_AUDIO_IMAGE_TEXT -> BlogAudioImageTextShow(mBlogBaseDto)
-//                        BLOG_VIDEO_IMAGE_TEXT -> BlogVideoImageTextShow(mBlogBaseDto)
-//                        BLOG_RICH_TEXT -> BlogRichTextShow(mBlogBaseDto)
-//                        PODCASTS -> PodcastsShow(mBlogBaseDto)
-//                        RUSTIC -> RusticShow(mBlogBaseDto)
-//                        VIRTUAL -> VirtualShow(mBlogBaseDto)
-//                        POETRY -> PoetryShow(mBlogBaseDto)
-//                        ESSAY -> EssayShow(mBlogBaseDto)
-//                        NOVEL -> NovelShow(mBlogBaseDto)
+                        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(it,
+                            heigh)
+                    //                        BLOG_AUDIO_TEXT -> BlogAudioTextShow(mBlogBaseDto)
+                        //                        BLOG_VIDEO_IMAGE -> BlogVideoImageShow(mBlogBaseDto)
+                        //                        BLOG_AUDIO_IMAGE -> BlogAudioImageShow(mBlogBaseDto)
+                        //                        BLOG_AUDIO_IMAGE_TEXT -> BlogAudioImageTextShow(mBlogBaseDto)
+                        //                        BLOG_VIDEO_IMAGE_TEXT -> BlogVideoImageTextShow(mBlogBaseDto)
+                        //                        BLOG_RICH_TEXT -> BlogRichTextShow(mBlogBaseDto)
+                        //                        PODCASTS -> PodcastsShow(mBlogBaseDto)
+                        //                        RUSTIC -> RusticShow(mBlogBaseDto)
+                        //                        VIRTUAL -> VirtualShow(mBlogBaseDto)
+                        //                        POETRY -> PoetryShow(mBlogBaseDto)
+                        //                        ESSAY -> EssayShow(mBlogBaseDto)
+                        //                        NOVEL -> NovelShow(mBlogBaseDto)
                     }
                     Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
                         BlogOperation(it)
@@ -175,11 +151,9 @@ fun TopBar(backFn: () -> Unit) {
             CuLog.debug(CuTag.Blog, "")
             backFn()
         }) {
-            SvgIcon(
-                path = "svg/arrow-left.svg",
+            SvgIcon(path = "svg/arrow-left.svg",
                 contentDescription = "",
-                modifier = Modifier.size(20.dp)
-            )
+                modifier = Modifier.size(20.dp))
         }
         Text(text = stringResource(id = R.string.blog_post))
     }
