@@ -12,7 +12,7 @@ import org.junit.Test
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        println(255.toUByte())
+        println(255.toByte())
     }
 
     private val tagDict = HashMap<String, Long>()

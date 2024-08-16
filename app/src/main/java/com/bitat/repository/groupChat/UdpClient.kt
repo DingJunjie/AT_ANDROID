@@ -8,7 +8,6 @@ import com.bitat.repository.common.KeySecret
 import com.bitat.repository.groupChat.UdpClient.HB_INTERVAL
 import com.bitat.repository.groupChat.UdpClient.MAX_INACTIVE_MS
 import com.bitat.repository.singleChat.MsgDto.ChatMsg
-import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.singleChat.TcpMsgEvent
 import com.bitat.repository.singleChat.TcpMsgHead
 import com.bitat.repository.store.TokenStore
@@ -166,7 +165,7 @@ object UdpClient {
     }
 }
 
-class UdpOwner(var addr: InetSocketAddress, var validate: String, var name: String) {
+class UdpOwner(var addr: InetSocketAddress, var verify: String, var name: String) {
     var readTime: Long = 0
     var banChatTime: Long = 0
     fun inactiveMs(nowTime: Long) = nowTime - readTime - HB_INTERVAL

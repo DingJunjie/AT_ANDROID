@@ -1,0 +1,43 @@
+syntax = "proto3";
+package com.bitat.repository.pbDto;
+
+//聊天消息载体
+message ChatMsg{
+  //发送者id
+  int64 send_id = 1;
+  //群组id
+  int64 group_id = 2;
+  //序号
+  uint64 seq = 4;
+  //发送时间
+  int64 time = 3;
+  //data类型
+  int32 kind = 5;
+  //数据 text,url,json 等任意类型
+  bytes data = 6;
+}
+
+message AuthRecMsg{
+  //发送者id
+  int64 send_id = 1;
+  //群组id
+  int64 group_id = 2;
+  //序号
+  uint64 seq = 3;
+  //时间
+  int64 time = 4;
+}
+
+message BanMsg{
+  //发送者id
+  int64 send_id = 1;
+  //群组id
+  int64 group_id = 2;
+  //直到
+  int64 until = 3;
+  //时间
+  int64 time = 4;
+}
+
+
+
