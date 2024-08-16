@@ -4,6 +4,7 @@ package com.bitat.ui.publish
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +13,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -27,15 +30,18 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,10 +56,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -76,6 +84,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
+import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
@@ -101,7 +110,9 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.bitat.ui.common.AnyPopDialog
 import com.bitat.ui.common.AnyPopDialogProperties
 import com.bitat.ui.common.DirectionState
+import com.bitat.ui.common.rememberDialogState
 import com.bitat.ui.component.Avatar
+import com.bitat.ui.theme.Typography
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 
@@ -147,10 +158,37 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         )
     }
 
+    var topicKeyword by remember {
+        mutableStateOf("")
+    }
+
+    var userKeyword by remember {
+        mutableStateOf("")
+    }
+
+    val currentTopicList: SnapshotStateList<BlogTagDto> = remember {
+        mutableStateListOf()
+    }
+
+    val currentUserList: SnapshotStateList<UserBase1Dto> = remember {
+        mutableStateListOf()
+    }
+
+    fun updateTopicKeyword(kw: String) {
+        topicKeyword = kw
+        vm.searchTag(kw)
+    }
+
+    fun updateUserKeyword(kw: String) {
+        userKeyword = kw
+        vm.searchAt(kw)
+    }
+
+    val dialog = rememberDialogState()
+
     val selectedUri = remember {
         mutableStateOf(Uri.EMPTY)
     }
-
     val tagStart = remember {
         mutableStateOf(-1)
     }
@@ -173,68 +211,17 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
     }
 
     fun onContentChange(content: String, cursorOffset: Int = -1) {
-        if (cursorOffset == -1) return;
-        if (content.isEmpty()) {
-            tagStart.value = 0
-            return
-        }
 
-        // 获取最后一个字符
-        val latestChar = content.split("")[cursorOffset]
-
-        if (cursorOffset < tagStart.value) {
-            // 如果光标位置小于tag开始的位置，那说明被删除了，就结束tag
-            tagStart.value = -1
-            option = PublishTextOption.None
-            return
-        }
-
-
-        if (latestChar == "#" && tagStart.value < 0) { // 开始tag
-            // 如果最后一个字符是#且没开始标记，则开始搜索
-            tagStart.value = cursorOffset - 1
-            vm.initTags()
-            option = PublishTextOption.Topic
-        } else if (latestChar == " " && tagStart.value >= 0) { // 结束tag
-            // 如果最后一个字符是空格且有开始标记，则结束
-            // TODO: 如果按了空格之后发现该标签等同于第一个标签，则加入标签组，否则是id = -1的标签
-            tagEnd.value = cursorOffset - 1
-
-            tagStart.value = -1
-            option = PublishTextOption.None
-        } else if (tagStart.value >= 0) {
-            // 开始标记了，开始搜索
-            inputTag.value = content.substring(tagStart.value + 1, cursorOffset)
-            vm.searchTag(inputTag.value)
-        }
-
-        if (cursorOffset < atStart.value) {
-            atStart.value = -1
-            option = PublishTextOption.None
-            return
-        }
-
-        if (latestChar == "@" && atStart.value < 0) {
-            atStart.value = cursorOffset - 1
-            vm.initAt()
-            option = PublishTextOption.At
-        } else if (latestChar == " " && atStart.value >= 0) {
-            atEnd.value = cursorOffset - 1
-
-            atStart.value = -1
-            option = PublishTextOption.None
-        } else if (atStart.value >= 0) {
-            inputAt.value = content.substring(atStart.value + 1, cursorOffset)
-            vm.searchAt(inputAt.value)
-        }
     }
 
 
     var showOptDialog by remember { mutableStateOf(false) }
-    OptionDialog(showOptDialog,
+    OptionDialog(
+        showOptDialog,
         onDismiss = { showOptDialog = false; option = PublishTextOption.None }) {
         if (option == PublishTextOption.Follow) {
-            FollowOptions(currentFollowable = Followable.getFollowable(commonState.followId),
+            FollowOptions(
+                currentFollowable = Followable.getFollowable(commonState.followId),
                 setFollowFn = {
                     vm.onFollowClick(it)
                     option = PublishTextOption.None
@@ -290,115 +277,63 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
 
         when (opt) {
             PublishTextOption.Topic -> {
-                focusRequester.requestFocus()
+                // focusRequester.requestFocus()
 
-                var contentSplit = commonState.content.split("")
-                contentSplit = contentSplit.subList(1, contentSplit.size - 1)
-                if (commonState.content.isEmpty()) {
-                    // 没有内容，直接添加 #
-                    vm.onContentChange(commonState.content + "#")
-                    textFieldValue = textFieldValue.copy(
-                        text = vm.commonState.value.content,
-                        selection = TextRange(vm.commonState.value.content.length)
-                    )
-                } else if (textFieldValue.selection.start == contentSplit.size) {
-                    // 在最后添加 #， 如果最后已经是 #了则关闭，如果不是则添加
-                    if (contentSplit.last() == "#") {
-                        vm.onContentChange(
-                            commonState.content.substring(
-                                0,
-                                commonState.content.length - 1
-                            )
-                        )
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(vm.commonState.value.content.length)
-                        )
-                    } else {
-                        vm.onContentChange(commonState.content + "#")
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(vm.commonState.value.content.length)
-                        )
-                    }
-                } else {
-                    // 在中间添加 #，根据光标分割，前组的最后添加 #，如果最后是 # 则删除，如果不是则添加
-                    var before = contentSplit.subList(0, textFieldValue.selection.start)
-                    val after =
-                        contentSplit.subList(textFieldValue.selection.start, contentSplit.size)
-                    if (before.isEmpty()&&before.last() == "#") {
-                        before = before.subList(0, before.size - 1)
-                        vm.onContentChange(
-                            before.joinToString("") + after.joinToString("")
-                        )
-                        textFieldValue = textFieldValue.copy(
-                            text = commonState.content,
-                            selection = TextRange(before.size)
-                        )
-                    } else {
-                        vm.onContentChange(before.joinToString("") + "#" + after.joinToString(""))
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(before.size + 1)
-                        )
-                    }
-                }
+                // var contentSplit = commonState.content.split("")
+                // contentSplit = contentSplit.subList(1, contentSplit.size - 1)
+                // if (commonState.content.isEmpty()) {
+                //     // 没有内容，直接添加 #
+                //     vm.onContentChange(commonState.content + "#")
+                //     textFieldValue = textFieldValue.copy(
+                //         text = vm.commonState.value.content,
+                //         selection = TextRange(vm.commonState.value.content.length)
+                //     )
+                // } else if (textFieldValue.selection.start == contentSplit.size) {
+                //     // 在最后添加 #， 如果最后已经是 #了则关闭，如果不是则添加
+                //     if (contentSplit.last() == "#") {
+                //         vm.onContentChange(
+                //             commonState.content.substring(
+                //                 0,
+                //                 commonState.content.length - 1
+                //             )
+                //         )
+                //         textFieldValue = textFieldValue.copy(
+                //             text = vm.commonState.value.content,
+                //             selection = TextRange(vm.commonState.value.content.length)
+                //         )
+                //     } else {
+                //         vm.onContentChange(commonState.content + "#")
+                //         textFieldValue = textFieldValue.copy(
+                //             text = vm.commonState.value.content,
+                //             selection = TextRange(vm.commonState.value.content.length)
+                //         )
+                //     }
+                // } else {
+                //     // 在中间添加 #，根据光标分割，前组的最后添加 #，如果最后是 # 则删除，如果不是则添加
+                //     var before = contentSplit.subList(0, textFieldValue.selection.start)
+                //     val after =
+                //         contentSplit.subList(textFieldValue.selection.start, contentSplit.size)
+                //     if (before.isEmpty()&&before.last() == "#") {
+                //         before = before.subList(0, before.size - 1)
+                //         vm.onContentChange(
+                //             before.joinToString("") + after.joinToString("")
+                //         )
+                //         textFieldValue = textFieldValue.copy(
+                //             text = commonState.content,
+                //             selection = TextRange(before.size)
+                //         )
+                //     } else {
+                //         vm.onContentChange(before.joinToString("") + "#" + after.joinToString(""))
+                //         textFieldValue = textFieldValue.copy(
+                //             text = vm.commonState.value.content,
+                //             selection = TextRange(before.size + 1)
+                //         )
+                //     }
+                // }
                 vm.initTags()
             }
 
             PublishTextOption.At -> {
-                focusRequester.requestFocus()
-
-                var contentSplit = commonState.content.split("")
-                contentSplit = contentSplit.subList(1, contentSplit.size - 1)
-                if (commonState.content.isEmpty()) {
-                    //
-                    vm.onContentChange(commonState.content + "@")
-                    textFieldValue = textFieldValue.copy(
-                        text = vm.commonState.value.content,
-                        selection = TextRange(vm.commonState.value.content.length)
-                    )
-                } else if (textFieldValue.selection.start == contentSplit.size) {
-                    if (contentSplit.last() == "@") {
-                        vm.onContentChange(
-                            commonState.content.substring(
-                                0,
-                                commonState.content.length - 1
-                            )
-                        )
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(vm.commonState.value.content.length)
-                        )
-                    } else {
-                        vm.onContentChange(commonState.content + "@")
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(vm.commonState.value.content.length)
-                        )
-                    }
-                } else {
-                    var before = contentSplit.subList(0, textFieldValue.selection.start)
-                    val after =
-                        contentSplit.subList(textFieldValue.selection.start, contentSplit.size)
-
-                    if (before.last() == "@") {
-                        before = before.subList(0, before.size - 1)
-                        vm.onContentChange(
-                            before.joinToString("") + after.joinToString("")
-                        )
-                        textFieldValue = textFieldValue.copy(
-                            text = commonState.content,
-                            selection = TextRange(before.size)
-                        )
-                    } else {
-                        vm.onContentChange(before.joinToString("") + "@" + after.joinToString(""))
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content,
-                            selection = TextRange(before.size)
-                        )
-                    }
-                }
                 vm.initAt()
             }
 
@@ -408,208 +343,350 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopBar(backTapFn = {
-                navHostController.popBackStack()
-            })
-        }, modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-    ) { padding ->
-        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
-            if (permissionState.allPermissionsGranted) {
-                Column(modifier = Modifier.padding(padding)) { //                    mediaState.localImages.add(mediaState.localVideo)
 
-                    //
-                    //                    if ( mediaState.localVideo != Uri.EMPTY&& mediaState.localImages.isEmpty()){
-                    //                        vm.addPicture(arrayListOf(mediaState.localVideo))
-                    //                    }
+//    Scaffold(
+//        topBar = {
+//            TopBar(backTapFn = {
+//                navHostController.popBackStack()
+//            })
+//        }, modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.White)
+//    ) { padding ->
 
-                    if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY)
-                        MediaBox(mediaState.localImages, selectUri = {
-                            selectedUri.value = it
-                            option = PublishTextOption.Media
-                            showOptDialog = true
-                        }, addPicture = {
-                            option = PublishTextOption.Pick
-                            showOptDialog = true
-                        }, coverPath = mediaState.localVideo)
 
-                    InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
-                        textFieldValue,
+    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+        TopBar(backTapFn = {
+            navHostController.popBackStack()
+        })
+        if (permissionState.allPermissionsGranted) {
+            Column(verticalArrangement = Arrangement.Top) {
+                //                    mediaState.localImages.add(mediaState.localVideo)
+                //                    if ( mediaState.localVideo != Uri.EMPTY&& mediaState.localImages.isEmpty()){
+                //                        vm.addPicture(arrayListOf(mediaState.localVideo))
+                //                    }
+
+                if (mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY) MediaBox(
+                    mediaState.localImages,
+                    selectUri = {
+                        selectedUri.value = it
+                        option = PublishTextOption.Media
+                        showOptDialog = true
+                    },
+                    addPicture = {
+                        option = PublishTextOption.Pick
+                        showOptDialog = true
+                    },
+                    coverPath = mediaState.localVideo
+                )
+
+                InputBox(hasMedia = mediaState.localImages.isNotEmpty() || mediaState.localVideo != Uri.EMPTY,
+                    textFieldValue,
 //                        commonState.content,
-                        focusRequester,
-                        showImg = {
-                            option = PublishTextOption.Pick
-                            showOptDialog = true
-                        },
-                        onValueChange = {
-                            onContentChange(it.text, it.selection.start)
-                            textFieldValue = it
-                            vm.onContentChange(it.text)
+                    focusRequester,
+                    showImg = {
+                        option = PublishTextOption.Pick
+                        showOptDialog = true
+                    },
+                    onValueChange = {
+                        onContentChange(it.text, it.selection.start)
+                        textFieldValue = it
+                        vm.onContentChange(it.text)
+                    })
+
+
+                Row(horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .padding(start = 20.dp)
+                        .onGloballyPositioned {
+//                                bottomOptHeight.intValue =
+//                                    ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
+                        }) {
+                    Options(title = stringResource(id = R.string.publish_option_topic),
+                        iconPath = "svg/topic.svg",
+                        selected = option == PublishTextOption.Topic,
+                        modifier = Modifier.height(30.dp),
+                        tapFn = {
+                            tapOption(PublishTextOption.Topic)
                         })
 
+                    Options(title = stringResource(id = R.string.publish_option_at),
+                        iconPath = "svg/at.svg",
+                        selected = option == PublishTextOption.At,
+                        modifier = Modifier.height(30.dp),
+                        tapFn = {
+                            tapOption(PublishTextOption.At)
+                        })
 
-                    Row(horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier
-                            .padding(start = 20.dp)
-                            .onGloballyPositioned {
-                                bottomOptHeight.intValue =
-                                    ScreenUtils.screenHeight - (it.positionInWindow().y / Density).toInt()
-                            }) {
-                        Options(title = stringResource(id = R.string.publish_option_topic),
-                            iconPath = "svg/topic.svg",
-                            selected = option == PublishTextOption.Topic,
-                            modifier = Modifier.height(30.dp),
-                            tapFn = {
-                                tapOption(PublishTextOption.Topic)
-                            })
+                    Options(title = if (commonState.location == "") stringResource(id = R.string.publish_location_add) else commonState.location,
+                        iconPath = "svg/location_line.svg",
+                        selected = option == PublishTextOption.Location,
+                        modifier = Modifier.height(30.dp),
+                        tapFn = {
+                            GaoDeUtils.getLocation() { point, name ->
+                                vm.locationUpdate(point, name)
+                            }
+                        })
 
-                        Options(title = stringResource(id = R.string.publish_option_at),
-                            iconPath = "svg/at.svg",
-                            selected = option == PublishTextOption.At,
-                            modifier = Modifier.height(30.dp),
-                            tapFn = {
-                                tapOption(PublishTextOption.At)
-                            })
-
-                        Options(title = if (commonState.location == "") stringResource(id = R.string.publish_location_add) else commonState.location,
-                            iconPath = "svg/location_line.svg",
-                            selected = option == PublishTextOption.Location,
-                            modifier = Modifier.height(30.dp),
-                            tapFn = {
-                                GaoDeUtils.getLocation() { point, name ->
-                                    vm.locationUpdate(point, name)
-                                }
-                            })
-
-                    }
-
-                    HorizontalDivider(
-                        color = Color(0xffeeeeee),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
-
-                    FollowRow() {
-                        tapOption(PublishTextOption.Follow)
-                    }
-
-                    CommentableRow(commentable = commonState.commentable) {
-                        tapOption(PublishTextOption.Comment)
-                    }
-
-                    VisibilityRow(commonState.visibility) {
-                        tapOption(PublishTextOption.Visibility)
-                    }
-
-                    SettingsRow(tapFn = {
-                        tapOption(PublishTextOption.Settings)
-                    })
                 }
 
-            } else {
-                LaunchedEffect(Unit) {
-                    permissionState.launchMultiplePermissionRequest()
-                }
-            }
-
-            Box {
-                Row(
+                HorizontalDivider(
+                    color = Color(0xffeeeeee),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
-                ) {
-                    Button(
-                        onClick = { /*TODO*/
-                            vm.saveDraft()
-                        }, modifier = Modifier
-                            .fillMaxWidth(0.3f)
-                            .padding(end = 10.dp)
-                    ) {
-                        Text(text = "保存")
-                    }
-                    Button(onClick = {
-                        vm.publish {
-                            ToastModel("发布成功！", ToastModel.Type.Success).showToast()
-                            vm.clearData()
-                            AtNavigation(navHostController).navigateToHome()
-                        }
-                    }, modifier = Modifier.fillMaxWidth(), enabled = commonState.isPublishClick) {
-                        Text(text = "发布")
-                    }
+                        .padding(vertical = 10.dp)
+                )
+
+                FollowRow() {
+                    tapOption(PublishTextOption.Follow)
                 }
+
+                CommentableRow(commentable = commonState.commentable) {
+                    tapOption(PublishTextOption.Comment)
+                }
+
+                VisibilityRow(commonState.visibility) {
+                    tapOption(PublishTextOption.Visibility)
+                }
+
+                SettingsRow(tapFn = {
+                    tapOption(PublishTextOption.Settings)
+                })
+            }
+
+        } else {
+            LaunchedEffect(Unit) {
+                permissionState.launchMultiplePermissionRequest()
             }
         }
 
-        if (option == PublishTextOption.Topic || option == PublishTextOption.At) Column(
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp, start = 20.dp, end = 20.dp)
+            ) {
+                Button(
+                    onClick = { /*TODO*/
+                        vm.saveDraft()
+                    }, modifier = Modifier
+                        .fillMaxWidth(0.3f)
+                        .padding(end = 10.dp)
+                ) {
+                    Text(text = "保存")
+                }
+                Button(onClick = {
+                    vm.publish {
+                        ToastModel("发布成功！", ToastModel.Type.Success).showToast()
+                        vm.clearData()
+                        AtNavigation(navHostController).navigateToHome()
+                    }
+                }, modifier = Modifier.fillMaxWidth(), enabled = commonState.isPublishClick) {
+                    Text(text = "发布")
+                }
+            }
+        }
+    }
+
+    if (option == PublishTextOption.Topic) {
+        CommonSheet<BlogTagDto>(currentTopicList, dismissTap = {
+            option = PublishTextOption.None
+        }, topicKeyword, updateKeyword = {
+            updateTopicKeyword(it)
+        }, remove = {
+            currentTopicList.remove(it)
+        }, addToList = {
+            val newOffset = vm.addTopicsToTopic(currentTopicList, textFieldValue.selection.start)
+            textFieldValue = textFieldValue.copy(
+                text = vm.commonState.value.content, selection = TextRange(newOffset)
+            )
+            option = PublishTextOption.None
+            currentTopicList.clear()
+        }, optionList = {
+            CommonOptions<BlogTagDto>(
+                input = topicKeyword,
+                items = commonState.tagSearchResult,
+                tapFn = {
+//                    vm.refreshTags()
+                    CuLog.info(
+                        CuTag.Publish, "start is" + textFieldValue.selection.start.toString()
+                    )
+
+                    if (vm.commonState.value.tags.size + currentTopicList.size >= 5) {
+                        dialog.show("添加话题失败", "一次性最多添加5个话题")
+                        return@CommonOptions
+                    }
+
+                    if (currentTopicList.contains(it)) {
+                        return@CommonOptions
+                    }
+
+                    currentTopicList.add(it)
+                })
+        })
+    } else if (option == PublishTextOption.At) {
+        CommonSheet<UserBase1Dto>(currentUserList, dismissTap = {
+            option = PublishTextOption.None
+        }, topicKeyword, updateKeyword = {
+            updateTopicKeyword(it)
+        }, remove = {
+            currentUserList.remove(it)
+        }, addToList = {
+            val newOffset = vm.addUsersToAt(currentUserList, textFieldValue.selection.start)
+            textFieldValue = textFieldValue.copy(
+                text = vm.commonState.value.content, selection = TextRange(newOffset)
+            )
+            option = PublishTextOption.None
+            currentUserList.clear()
+        }, optionList = {
+            CommonOptions<UserBase1Dto>(
+                input = userKeyword,
+                items = commonState.atUserSearchResult,
+                tapFn = {
+                    CuLog.info(
+                        CuTag.Publish, "start is" + textFieldValue.selection.start.toString()
+                    )
+
+                    if (currentUserList.size >= 5) {
+                        dialog.show("添加用户失败", "一次性最多添加5个用户")
+                        return@CommonOptions
+                    }
+
+                    if (currentUserList.contains(it)) {
+                        return@CommonOptions
+                    }
+
+                    currentUserList.add(it)
+                })
+        })
+    }
+}
+
+@Composable
+inline fun <reified T> CommonSheet(
+    currentList: List<T>,
+    crossinline dismissTap: () -> Unit,
+    keyword: String,
+    noinline updateKeyword: (String) -> Unit,
+    noinline remove: (T) -> Unit,
+    crossinline addToList: () -> Unit,
+    optionList: @Composable () -> Unit = {}
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color(0x33333333))
+            .clickable {
+                dismissTap()
+            }, contentAlignment = Alignment.BottomCenter
+    ) {
+        Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .fillMaxHeight()
-                .background(Color.Transparent)
+                .background(Color.White)
+                .border(
+                    width = 0.dp, shape = RoundedCornerShape(20.dp), color = Color.Transparent
+                )
+                .padding(top = 15.dp)
+                .fillMaxHeight(0.8f)
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .height(bottomOptHeight.intValue.dp)
-                    .background(Color.White)
+                    .fillMaxWidth()
+                    .padding(end = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (option == PublishTextOption.Topic) {
-                    TopicOptions(tags = commonState.tagSearchResult, tapTopicFn = {
-                        CuLog.info(
-                            CuTag.Publish, "start is" + textFieldValue.selection.start.toString()
-                        )
+                Text(
+                    "话题选择",
+                    style = Typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(start = 20.dp)
+                )
 
-                        val newOffset = vm.onTopicClick(
-                            it,
-                            textFieldValue.selection.start,
-                            alreadyInputStart = tagStart.value
-                        )
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content, selection = TextRange(newOffset)
-                        )
-                        tagStart.value = -1
-                        option = PublishTextOption.None
-                    })
-                }
-                if (option == PublishTextOption.At) {
-                    AtOptions(users = commonState.atUserSearchResult) {
-                        val newOffset =
-                            vm.onAtClick(it, textFieldValue.selection.start, atStart.value)
-                        textFieldValue = textFieldValue.copy(
-                            text = vm.commonState.value.content, selection = TextRange(newOffset)
-                        )
-                        option = PublishTextOption.None;
+                Text(text = "添加", modifier = Modifier.clickable {
+                    addToList()
+                })
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                SearchField(keyword, updateKeyword)
+            }
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
+                items(currentList.toMutableList()) { item ->
+                    Surface(modifier = Modifier.padding(end = 6.dp)) {
+                        CommonChip(item, remove)
                     }
                 }
-//                if (option == PublishTextOption.At) AtOptions(users = commonState.atUserSearchResult) {
-//                    vm.onAtClick(it)
-//                    option = PublishTextOption.None
-//                    val cursorPosition = textFieldValue.selection.start
-//                    val newText = textFieldValue.text.substring(
-//                        0, cursorPosition
-//                    ) + "@${it.nickname}" + textFieldValue.text.substring(
-//                        cursorPosition
-//                    )
-//                    // 如果用户没有选中文本，只插入 "Hello"
-//                    if (textFieldValue.selection.collapsed) {
-//                        textFieldValue = textFieldValue.copy(
-//                            text = newText,
-//                            selection = TextRange(cursorPosition + it.nickname.length + 1)
-//                        )
-//                    } else { // 如果用户选中了文本，则替换选中的文本
-//                        textFieldValue = textFieldValue.copy(
-//                            text = newText,
-//                            selection = TextRange(cursorPosition + it.nickname.length + 1)
-//                        )
-//                    }
-//                }
+            }
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                optionList()
             }
         }
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+inline fun <reified T> CommonChip(item: T, crossinline removeItem: (T) -> Unit) {
+    Card(shape = RoundedCornerShape(10.dp)) {
+        FlowRow(
+            modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)
+//                .background(Color.LightGray)
+        ) {
+            Text(
+                if (item is UserBase1Dto) item.nickname else if (item is BlogTagDto) item.name else "",
+                modifier = Modifier.padding(start = 4.dp, end = 2.dp)
+            )
+            Icon(Icons.Filled.Close,
+                contentDescription = "",
+                modifier = Modifier.clickable { removeItem(item) })
+        }
+    }
+}
+
+@Composable
+fun SearchField(keyword: String, updateKeyword: (String) -> Unit) {
+    BasicTextField(value = keyword,
+        onValueChange = { updateKeyword(it) },
+        singleLine = true,
+        modifier = Modifier
+            .padding(vertical = 10.dp)
+            .height(36.dp)
+            .fillMaxWidth(),
+        textStyle = TextStyle(
+            fontSize = 16.sp, lineHeight = 36.sp
+        ),
+        decorationBox = { innerTextField ->
+            Box(
+                Modifier
+                    .border(2.dp, Color.Gray, RoundedCornerShape(10.dp))
+                    .padding(vertical = 6.dp, horizontal = 8.dp)
+            ) {
+                if (keyword.isEmpty()) {
+                    Text(
+                        "请输入想要搜索的话题",
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp
+                    )
+                }
+                innerTextField()  // 显示实际的文本输入框
+            }
+        })
+}
+
 
 @Composable
 fun VisibilityRow(visibility: Visibility, tapFn: () -> Unit) {
@@ -732,9 +809,7 @@ fun MediaBox(
     Row(Modifier.fillMaxWidth()) {
         if (coverPath != Uri.EMPTY) Box(
             Modifier.padding(
-                top = 10.dp,
-                bottom = 10.dp,
-                start = 10.dp
+                top = 10.dp, bottom = 10.dp, start = 10.dp
             )
         ) {
             VideoBox(videoUri = coverPath, tapFn = {
@@ -811,8 +886,10 @@ fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit)
 
 @Composable
 fun InputBox(
-    hasMedia: Boolean = false, textFieldValue: TextFieldValue,
-    focusRequester: FocusRequester, showImg: () -> Unit,
+    hasMedia: Boolean = false,
+    textFieldValue: TextFieldValue,
+    focusRequester: FocusRequester,
+    showImg: () -> Unit,
     onValueChange: (TextFieldValue) -> Unit
 ) {
     //    OutlinedTextField(modifier = Modifier
@@ -1000,49 +1077,41 @@ fun SettingsOptions(tapFn: () -> Unit) {
 }
 
 @Composable
-fun TopicOptions(tags: List<BlogTagDto>, tapTopicFn: (BlogTagDto) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(top = 10.dp)
-            .fillMaxHeight()
-    ) {
-        items(tags.size) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 20.dp)
-                .clickable {
-                    tapTopicFn(tags[it])
-                }) {
-                Text(tags[it].name)
-            }
-        }
-    }
-}
-
-@Composable
-fun AtOptions(users: List<UserBase1Dto>, tapUserFn: (UserBase1Dto) -> Unit) {
-    LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
-        items(users) { item ->
-            Row(
-                modifier = Modifier
+inline fun <reified T> CommonOptions(
+    input: String, items: List<T>, crossinline tapFn: (T) -> Unit
+) {
+    Surface(shape = RoundedCornerShape(10.dp)) {
+        Column {
+            if (input.isNotEmpty() && items.isNotEmpty() && items[0] != input && items[0] is BlogTagDto) {
+                Box(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp, horizontal = 10.dp)
+                    .padding(vertical = 8.dp, horizontal = 20.dp)
                     .clickable {
-                        tapUserFn(item)
-                    },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                        val newItem = BlogTagDto().apply {
+                            id = -1
+                            name = input
+                        }
+                        tapFn(newItem as T)
+                    }) {
+                    Text(input)
+                }
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxHeight()
             ) {
 
-                Avatar(item.profile, modifier = Modifier.weight(0.5f))
-                Text(
-                    text = item.nickname,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 10.dp, end = 10.dp)
-                )
-                Text(modifier = Modifier.weight(0.5f), text = "最近@次数:${item.ats}")
-
+                items(items) { item ->
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 20.dp)
+                        .clickable {
+                            tapFn(item)
+                        }) {
+                        Text(if (item is UserBase1Dto) item.nickname else if (item is BlogTagDto) item.name else "")
+                    }
+                }
             }
         }
     }
@@ -1084,9 +1153,7 @@ fun PickOptions(imgFn: (List<Uri>) -> Unit, videoFn: (List<Uri>) -> Unit) {
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Icon(
-                        Icons.Filled.Menu,
-                        contentDescription = "",
-                        modifier = Modifier.size(30.dp)
+                        Icons.Filled.Menu, contentDescription = "", modifier = Modifier.size(30.dp)
                     )
                     Text(text = "图片")
                 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.Density
@@ -52,7 +53,16 @@ import com.bitat.utils.ScreenUtils
  * blog item 组件L
  */
 @Composable
-fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogBaseDto) -> Unit) {
+fun BlogItem(
+    blog: BlogBaseDto,
+    isPlaying: Boolean = false,
+    navHostController: NavHostController,
+    contentClick: (BlogBaseDto) -> Unit,
+    tapComment: () -> Unit,
+    tapAt: () -> Unit,
+    tapLike: () -> Unit,
+    tapCollect: () -> Unit
+) {
     val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(0)
@@ -108,13 +118,17 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, contentClick: (BlogB
                 }
 
                 //博文类型
-                Box(modifier = Modifier.fillMaxSize().padding(end = 10.dp)
-                    .background(Color.Transparent)) {
-                    BlogContent(blog.kind.toInt(), blog, height, isPlaying)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 10.dp)
+                        .background(Color.Transparent)
+                ) {
+                    BlogContent(blog.kind.toInt(), blog, height, isPlaying, navHostController)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
-                    BlogOperation(blog)
+                    BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
 
             }

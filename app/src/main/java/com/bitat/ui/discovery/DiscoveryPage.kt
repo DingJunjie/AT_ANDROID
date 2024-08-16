@@ -22,6 +22,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -114,26 +116,30 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
 //                .padding(padding)
 //                .pullRefresh(pullRefreshState)
 //        ) {
-//            PullRefreshIndicator(
-//                refreshing = isRefreshing.value,
-//                state = pullRefreshState,
-//                scale = true
-//            )
-            Column(Modifier.padding(padding)) {
-                RefreshView(
-                    modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
-                    onRefresh = {
-                        AtNavigation(navController).navigateToVideo()
-                    }
-                ) {
-                    // 竖向瀑布流
-                    LazyVerticalStaggeredGrid(state.discoveryList, height, navController)
+        PullRefreshIndicator(
+            refreshing = isRefreshing.value,
+            state = pullRefreshState,
+            scale = true
+        )
+        Column(
+            Modifier
+                .padding(padding)
+                .pullRefresh(pullRefreshState)
+        ) {
+            RefreshView(
+                modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
+                onRefresh = {
+                    vm.getDiscoveryList(isRefresh = true)
+                }
+            ) {
+                // 竖向瀑布流
+                LazyVerticalStaggeredGrid(state.discoveryList, height, navController)
 
-                    if (loadMoreState.isLoadingMore) {
-                        WeLoadMore(listState = listState)
-                    }
+                if (loadMoreState.isLoadingMore) {
+                    WeLoadMore(listState = listState)
                 }
             }
+        }
 //        }
     }
 }

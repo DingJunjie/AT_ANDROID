@@ -20,6 +20,7 @@ class CommentPartDto {
     var gender: Byte = 0 //性别
     var praise: Boolean = false //是否点赞
     var createTime: Long = 0 //发布时间
+    var status: Int = 0
 }
 
 @Serializable

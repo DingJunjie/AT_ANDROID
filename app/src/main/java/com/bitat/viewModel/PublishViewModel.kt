@@ -161,6 +161,61 @@ class PublishViewModel : ViewModel() {
         searchAt()
     }
 
+    fun addTopicsToTopic(topics: List<BlogTagDto>, cursorPos: Int): Int {
+        val content = _commonState.value.content
+        val startPos = if (cursorPos == 0) content.length else cursorPos
+
+        var contentSplitBefore = content.split("").subList(0, cursorPos + 1)
+        val contentSplitAfter = content.split("").subList(cursorPos + 1, content.length + 1)
+
+        _commonState.update {
+            it.tags.addAll(topics)
+            it
+        }
+
+        var currentCursorPos = startPos
+
+        topics.forEach { topic ->
+            val contentFullBefore = contentSplitBefore.joinToString("") + "#" + topic.name + " "
+            currentCursorPos = contentFullBefore.length
+            contentSplitBefore = contentFullBefore.split("")
+
+            _commonState.update {
+                it.copy(content = contentFullBefore + contentSplitAfter.joinToString(""))
+            }
+        }
+
+        return currentCursorPos
+    }
+
+    fun addUsersToAt(users: List<UserBase1Dto>, cursorPos: Int): Int {
+        val content = _commonState.value.content
+        val startPos = if (cursorPos == 0) content.length else cursorPos
+
+        var contentSplitBefore = content.split("").subList(0, cursorPos + 1)
+        val contentSplitAfter = content.split("").subList(cursorPos + 1, content.length + 1)
+
+        _commonState.update {
+            it.apply {
+                atUsers.addAll(users)
+            }
+        }
+
+        var currentCursorPos = startPos
+
+        users.forEach { user ->
+            val contentFullBefore = contentSplitBefore.joinToString("") + "@" + user.nickname + " "
+            currentCursorPos = contentFullBefore.length
+            contentSplitBefore = contentFullBefore.split("")
+
+            _commonState.update {
+                it.copy(content = contentFullBefore + contentSplitAfter.joinToString(""))
+            }
+        }
+
+        return currentCursorPos
+    }
+
     //话题
     fun onTopicClick(
         tag: BlogTagDto, cursorPos: Int = 0, alreadyInputStart: Int = 0
@@ -218,7 +273,6 @@ class PublishViewModel : ViewModel() {
                 return contentSplitBefore.size + tag.name.length + 1;
             }
         }
-
     }
 
     fun onAtClick(user: UserBase1Dto, cursorPos: Int, alreadyInputStart: Int = 0): Int {
@@ -357,6 +411,22 @@ class PublishViewModel : ViewModel() {
     fun selectImage(uri: Uri) {
         mediaState.update {
             it.copy(currentImage = uri)
+        }
+    }
+
+    fun refreshTags() {
+        val content = commonState.value.content;
+        val tagContain: ArrayList<BlogTagDto> = arrayListOf()
+        commonState.value.tags.forEach {
+            if (content.matches("#${it.name}".toRegex())) {
+                tagContain.add(it)
+            }
+        }
+        _commonState.update {
+            it.apply {
+                it.tags.clear()
+                it.tags.addAll(tagContain)
+            }
         }
     }
 

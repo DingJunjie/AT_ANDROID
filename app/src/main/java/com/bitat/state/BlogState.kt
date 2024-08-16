@@ -23,6 +23,10 @@ enum class BlogMenuOptions : MenuOptions {
     }
 }
 
+enum class BlogOperation {
+    Comment, At, Like, Collect, None
+}
+
 // TODO 认识 SnapShotStateList
 data class BlogState(
     val blogList: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),

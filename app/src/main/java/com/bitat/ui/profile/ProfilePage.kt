@@ -225,7 +225,8 @@ fun ProfilePage(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight() //            .height(500.dp)
+                        .fillMaxHeight()
+                    //            .height(500.dp)
                     //            .verticalScroll(state = scrollState)
                 ) {
                     Column(
@@ -234,7 +235,7 @@ fun ProfilePage(navController: NavHostController) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .height(180.dp)
+                                .height(160.dp)
                                 .fillMaxWidth()
                         )
                         ProfileDetail(
@@ -388,7 +389,8 @@ fun ProfileBg(menu: @Composable (() -> Unit)) {
                     contentScale = ContentScale.Crop
                 )
                 .fillMaxWidth()
-                .height(100.dp),
+                .height(100.dp)
+                .padding(top = 30.dp),
             contentAlignment = Alignment.TopEnd
         ) {
             Box(
@@ -518,7 +520,7 @@ fun Avatar(url: String, modifier: Modifier = Modifier) {
     Surface(
         shape = CircleShape, modifier = Modifier
             .padding(start = 10.dp)
-            .offset(y = (-40).dp)
+            .offset(y = (-60).dp)
     ) {
         Box(
             modifier = modifier

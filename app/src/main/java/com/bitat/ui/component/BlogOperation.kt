@@ -14,7 +14,13 @@ import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.toAmountUnit
 
 @Composable
-fun BlogOperation(blog: BlogBaseDto) {
+fun BlogOperation(
+    blog: BlogBaseDto,
+    tapComment: () -> Unit = {},
+    tapAt: () -> Unit = {},
+    tapLike: () -> Unit = {},
+    tapCollect: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -24,24 +30,33 @@ fun BlogOperation(blog: BlogBaseDto) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp),
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CommentButton(10.toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {}
+            CommentButton(
+                blog.comments.toInt().toAmountUnit(), modifier = Modifier.padding(end = 10.dp)
+            ) {
+                tapComment()
+            }
 
-            AtButton(10000000.toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {}
+            AtButton(blog.ats.toInt().toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {
+                tapAt()
+            }
 
             LikeButton(
                 blog.id,
-                100.toAmountUnit(),
+                blog.agrees.toInt().toAmountUnit(),
                 isLiked = blog.hasPraise,
                 modifier = Modifier.padding(end = 10.dp)
-            ) {}
+            ) {
+                tapLike()
+            }
         }
 
-        CollectButton(modifier = Modifier.size(20.dp)) {}
+        CollectButton(modifier = Modifier.size(20.dp)) {
+            tapCollect()
+        }
     }
 
 
