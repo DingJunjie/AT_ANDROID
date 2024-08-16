@@ -7,9 +7,14 @@ import com.bitat.log.CuTag
 import com.bitat.repository.common.KeySecret
 import com.bitat.repository.groupChat.UdpClient.HB_INTERVAL
 import com.bitat.repository.groupChat.UdpClient.MAX_INACTIVE_MS
+import com.bitat.repository.singleChat.MsgDto.ChatMsg
+import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.singleChat.TcpMsgEvent
+import com.bitat.repository.singleChat.TcpMsgHead
 import com.bitat.repository.store.TokenStore
+import com.bitat.repository.store.UserStore
 import com.bitat.utils.TimeUtils
+import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -110,8 +115,32 @@ object UdpClient {
         }
     }
 
-    private fun ping(owner: UdpOwner) {
-        CuLog.info(CuTag.GroupChat, "Ping")
+    private fun genMsg(event: Short, body: ByteArray): ByteArray? {
+        if (KeySecret.isValid()) {
+            val key = KeySecret.currentKey()
+            val head = TcpMsgHead(key, event, body.size)
+            return KeySecret.encryptByKey(key, body, head.toBytes())
+        }
+        return null
+    }
+
+    private fun chat(toId: Long, kind: Int, data: ByteArray) {
+        MainCo.launch(IO) {
+            val selfId = UserStore.userInfo.id
+            val body = ChatMsg.newBuilder().also {
+                it.toId = toId
+                it.fromId = selfId
+                it.toRouter = 0
+                it.fromRouter = 0
+                it.time = TimeUtils.getNow()
+                it.kind = kind
+                it.data = ByteString.copyFrom(data)
+            }.build()
+            val msg = genMsg(TcpMsgEvent.CHAT, body.toByteArray())
+            val owner = ownerDict[toId]
+            if (msg != null && owner != null) write(owner, msg)
+            else CuLog.error(CuTag.SingleChat, "Bad gen msg")
+        }
     }
 
     private fun write(owner: UdpOwner, bytes: ByteArray) {
@@ -153,7 +182,7 @@ class UdpMsgHead(val secret: Short, val event: Short) {
     companion object {
         const val SIZE = 2
         fun fromBytes(bytes: ByteArray): UdpMsgHead {
-            return UdpMsgHead(bytes[0].toShort(), bytes[1].toShort())
+            return UdpMsgHead(bytes[0].toUByte().toShort(), bytes[1].toShort())
         }
     }
 
