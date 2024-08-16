@@ -19,14 +19,11 @@ import com.bitat.config.BitEventBus
 import com.bitat.ext.flowbus.observeEvent
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.socket.KeySecret
-import com.bitat.repository.socket.TcpClient
 import com.bitat.repository.store.BaseStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.theme.BitComposeTheme
-import com.bitat.ui.theme.WeComposeTheme
 import com.bitat.utils.ScreenUtils
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.ToastUI

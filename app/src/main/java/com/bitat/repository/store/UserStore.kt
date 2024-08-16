@@ -8,20 +8,19 @@ import kotlinx.coroutines.launch
 
 object UserStore {
     lateinit var userInfo: UserDto
-    private val _userFlow = MutableSharedFlow<UserDto>()
-    val userFlow: SharedFlow<UserDto> = _userFlow
+    private val userFlow = MutableSharedFlow<UserDto>()
 
     fun initUserInfo(userDto: UserDto) {
         userInfo = userDto
         MainCo.launch {
-            _userFlow.emit(userInfo)
+            userFlow.emit(userInfo)
         }
     }
 
     fun updateFans(newCount: Int) {
         userInfo.fans = newCount
         MainCo.launch {
-            _userFlow.emit(userInfo)
+            userFlow.emit(userInfo)
         }
     }
 }
