@@ -7,14 +7,29 @@ message ChatMsg{
   int64 send_id = 1;
   //群组id
   int64 group_id = 2;
-  //序号
-  uint64 seq = 4;
   //发送时间
   int64 time = 3;
+  //序号
+  uint64 seq = 4;
   //data类型
   int32 kind = 5;
   //数据 text,url,json 等任意类型
   bytes data = 6;
+  //校验
+  string verify = 7;
+}
+//补偿msg
+message RemedyMsg{
+  //发送者id
+  int64 send_id = 1;
+  //群组id
+  int64 group_id = 2;
+  //序号
+  uint64 startSeq = 3;
+  //序号
+  uint64 endSeq = 4;
+  //校验
+  string verify = 5;
 }
 
 message AuthRecMsg{
@@ -24,8 +39,8 @@ message AuthRecMsg{
   int64 group_id = 2;
   //序号
   uint64 seq = 3;
-  //时间
-  int64 time = 4;
+  //校验 prev:curr:next
+  string verify = 4;
 }
 
 message BanMsg{
@@ -35,8 +50,8 @@ message BanMsg{
   int64 group_id = 2;
   //直到
   int64 until = 3;
-  //时间
-  int64 time = 4;
+  //校验
+  string verify = 4;
 }
 
 
