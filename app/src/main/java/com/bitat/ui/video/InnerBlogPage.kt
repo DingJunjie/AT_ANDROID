@@ -10,7 +10,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bitat.log.CuLog
@@ -20,7 +19,6 @@ import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.ui.reel.CuExoPlayer
 import com.bitat.ui.reel.videos
 import com.bitat.viewModel.InnerBlogViewModel
-import com.bitat.viewModel.LoginViewModel
 
 /**
  *    author : shilu

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 //import com.bitat.core.ui.components.videoplayer.WeVideoPlayer
 //import com.bitat.core.ui.components.videoplayer.rememberVideoPlayerState
@@ -75,7 +76,8 @@ fun BlogContent(
     mBlogBaseDto: BlogBaseDto,
     maxHeight: Int,
     isPlaying: Boolean = false,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider
 ) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)
@@ -83,11 +85,11 @@ fun BlogContent(
             mBlogBaseDto,
             maxHeight,
             isPlaying,
-            navHostController
+            navHostController,viewModelProvider
         )
 
         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(mBlogBaseDto)
-        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(mBlogBaseDto, maxHeight)
+        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(mBlogBaseDto, maxHeight,navHostController,viewModelProvider)
         BLOG_AUDIO_TEXT -> BlogAudioTextShow(mBlogBaseDto)
         BLOG_VIDEO_IMAGE -> BlogVideoImageShow(mBlogBaseDto)
         BLOG_AUDIO_IMAGE -> BlogAudioImageShow(mBlogBaseDto)

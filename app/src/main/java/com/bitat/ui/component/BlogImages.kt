@@ -26,19 +26,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.TotalIndexShow
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.ImagePreviewViewModel
 
 @Composable
-fun BlogImages(dto: BlogBaseDto, maxHeight: Int) {
+fun BlogImages(dto: BlogBaseDto, maxHeight: Int, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
+    val vm = viewModelProvider[ImagePreviewViewModel::class]
+    val context = LocalContext.current
     Column(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color.Transparent),
         horizontalAlignment = Alignment.Start,
     ) {
-        ImageBox(dto, maxHeight);
+        ImageBox(dto, maxHeight, navHostController) {
+//            Toast
+//                .makeText(context, data, Toast.LENGTH_SHORT)
+//                .show()
+            vm.setImagePreView(dto.resource.images)
+            AtNavigation(navHostController).navigateToImagePreviewPage()
+        };
     }
 }
 
@@ -46,18 +61,29 @@ fun BlogImages(dto: BlogBaseDto, maxHeight: Int) {
  * 横向列表LazyRow
  */
 @Composable
-fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
-    val context = LocalContext.current
+fun ImageBox(
+    blog: BlogBaseDto,
+    maxHeight: Int,
+    navHostController: NavHostController,
+    onClic: (Int) -> Unit
+) {
+
     val dataList = blog.resource.images
 
-    LazyRow(modifier = Modifier.fillMaxWidth(),
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
 //        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)
     ) {
         itemsIndexed(dataList) { index, data ->
             Box(
-                modifier = Modifier.fillMaxHeight().clickable {
-                        Toast.makeText(context, data, Toast.LENGTH_SHORT).show()
-                    }.padding(3.dp).background(Color.Transparent),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clickable {
+                        onClic(index)
+                    }
+                    .padding(3.dp)
+                    .background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
 
@@ -65,15 +91,22 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
                     val wrapperWidth = ScreenUtils.screenWidth * 0.88 - 10
 
                     Box {
-                        AsyncImage(model = data,
-                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
-                                .width(wrapperWidth.dp).height(maxHeight.dp)
+                        AsyncImage(
+                            model = data,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .width(wrapperWidth.dp)
+                                .height(maxHeight.dp)
                                 .background(Color.Transparent),
                             contentDescription = null,
-                            contentScale = ContentScale.Crop)
-                        Box(modifier = Modifier.fillMaxWidth()
-                            .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
-                            contentAlignment = Alignment.TopEnd) {
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
+                            contentAlignment = Alignment.TopEnd
+                        ) {
                             if (dataList.size > 1) {
                                 TotalIndexShow((index + 1).toString(), dataList.size.toString())
                             }
@@ -81,11 +114,14 @@ fun ImageBox(blog: BlogBaseDto, maxHeight: Int) {
                         }
                     }
                 } else {
-                    Image(painterResource(R.drawable.logo),
+                    Image(
+                        painterResource(R.drawable.logo),
                         contentDescription = "默认图片",
                         modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
-                            .clip(CircleShape).size(50.dp),
-                        contentScale = ContentScale.Crop)
+                            .clip(CircleShape)
+                            .size(50.dp),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }

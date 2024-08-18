@@ -11,6 +11,7 @@ import com.bitat.ui.Home
 import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.common.GDMapPage
+import com.bitat.ui.component.ImagePreviewPage
 import com.bitat.ui.discovery.DiscoveryDetailPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.discovery.SearchPage
@@ -42,7 +43,7 @@ enum class Screen {
     PICTURE_DISPLAY,
     VIDEO_DISPLAY,
     SEARCH,
-    SEARCH_RESULT
+    SEARCH_RESULT, IMAGEPREVIEW
 }
 
 sealed class NavigationItem(val route: String) {
@@ -64,6 +65,7 @@ sealed class NavigationItem(val route: String) {
     data object Search : NavigationItem(Screen.SEARCH.name)
     data object SearchResult : NavigationItem(Screen.SEARCH_RESULT.name)
     data object DiscoveryDetail : NavigationItem(Screen.DISCOVERY_DETAIL.name)
+    data object ImagePreview : NavigationItem(Screen.IMAGEPREVIEW.name)
 }
 
 
@@ -97,7 +99,8 @@ fun AppNavHost(
         composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
             type = NavType.IntType
         })) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
+            val id = backStackEntry.arguments?.getInt("id") ?: 1
+            //            ProfileOtherPage(id)
         }
 
         composable(NavigationItem.Discovery.route) {
@@ -108,7 +111,7 @@ fun AppNavHost(
         //            VideoPage()
         //        }
         composable(NavigationItem.ReelPageDemo.route) {
-            ReelPageDemo()
+            ReelPageDemo(navController, viewModelProvider)
         }
 
         //        composable(NavigationItem.Video.route) {
@@ -149,6 +152,11 @@ fun AppNavHost(
 
         composable(NavigationItem.DiscoveryDetail.route) {
             DiscoveryDetailPage(navController, viewModelProvider)
+        }
+
+        composable(NavigationItem.ImagePreview.route) {
+
+            ImagePreviewPage(navController = navController,viewModelProvider)
         }
     }
 }
@@ -202,6 +210,10 @@ class AtNavigation(navController: NavHostController) {
         navController.navigate((NavigationItem.GDMap.route)) {
 
         }
+    }
+
+    val navigateToImagePreviewPage: () -> Unit = {
+        navController.navigate(NavigationItem.ImagePreview.route)
     }
 
 

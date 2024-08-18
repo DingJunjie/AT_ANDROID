@@ -1,15 +1,12 @@
 package com.bitat.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -18,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -29,10 +25,7 @@ import com.bitat.ui.blog.BlogPage
 import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
-import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.viewModel.HomeViewModel
-import com.wordsfairy.note.ui.widgets.toast.ToastModel
-import com.wordsfairy.note.ui.widgets.toast.showToast
 
 /****
  * 首页的切换
@@ -40,11 +33,7 @@ import com.wordsfairy.note.ui.widgets.toast.showToast
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val viewModel: HomeViewModel = viewModel()
-    val tabList = listOf(HomeTabCfg.Home,
-        HomeTabCfg.Discovery,
-        HomeTabCfg.Add,
-        HomeTabCfg.Chat,
-        HomeTabCfg.Mine)
+
 
     var selectIndex by remember {
         mutableIntStateOf(0)
@@ -52,37 +41,21 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        BottomAppBar(modifier = Modifier.height(55.dp).padding(0.dp),
-            contentColor = Color.White,
-            containerColor = Color.White,
-            actions = {
-                TabRow(modifier = Modifier.padding(0.dp), selectedTabIndex = 0, indicator = {}) {
-                    tabList.forEachIndexed { index, tab -> //
-                        IconButton(onClick = {
-                            selectIndex = index
-                            if (selectIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
-                                AtNavigation(navController).navigateToPublish()
-                            }
-                        }) {
-                            Icon(if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                                id = tab.iconUnselect),
-                                contentDescription = "",
-                                modifier = Modifier.size(when (index) {
-                                    2 -> 60.cdp
-                                    1 -> 50.cdp
-                                    else -> 40.cdp
-                                }))
-                        }
-                    }
-                }
-            })
+        BottomAppBarBar() {
 
+            selectIndex = it
+            if (selectIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
+                AtNavigation(navController).navigateToPublish()
+            }
+        }
     }) { innerPadding ->
         when (selectIndex) {
             0 -> {
-                BlogPage(Modifier.padding(innerPadding),
+                BlogPage(
+                    Modifier.padding(innerPadding),
                     navController,
-                    viewModelProvider = viewModelProvider)
+                    viewModelProvider = viewModelProvider
+                )
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)
@@ -100,4 +73,84 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
         }
     }
 
+}
+
+@Composable
+fun BottomAppBarBar(onTabChange: (Int) -> Unit) {
+    val tabList = listOf(
+        HomeTabCfg.Home,
+        HomeTabCfg.Discovery,
+        HomeTabCfg.Add,
+        HomeTabCfg.Chat,
+        HomeTabCfg.Mine
+    )
+
+    var selectIndex by remember {
+        mutableIntStateOf(0)
+    }
+//    BottomAppBar(modifier = Modifier
+////        .height(60.dp)
+//        ,
+//        contentColor = Color.White,
+//        containerColor = Color.White,
+//        actions = {
+//            TabRow(
+//                modifier = Modifier.navigationBarsPadding(),
+//                selectedTabIndex = 0,
+//                indicator = {}) {
+//                tabList.forEachIndexed { index, tab -> //
+//                    IconButton(modifier = Modifier.background(color = Color.Blue), onClick = {
+//                        selectIndex = index
+//                        onTabChange(index)
+//                    }) {
+//                        Icon(
+//                            painter =
+//                            if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+//                                id = tab.iconUnselect
+//                            ),
+//                            contentDescription = "tabIcon",
+//                            modifier = Modifier
+//                                .size(
+//                                    when (index) {
+//                                        2 -> 50.cdp
+//                                        1 -> 50.cdp
+//                                        else -> 50.cdp
+//                                    }
+//                                )
+//                                .background(color = Color.Cyan)
+//                        )
+//                    }
+//                }
+//            }
+//
+//        })
+
+    BottomNavigation(backgroundColor = Color.White) {
+        tabList.forEachIndexed { index, tab ->
+            BottomNavigationItem(
+                icon = {
+                    Icon(
+                        painter =
+                        if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                            id = tab.iconUnselect
+                        ),
+                        contentDescription = "tabIcon",
+                        modifier = Modifier
+                            .size(
+                                when (index) {
+                                    2 -> 50.cdp
+                                    1 -> 50.cdp
+                                    else -> 50.cdp
+                                }
+                            )
+                    )
+                },
+                selected = selectIndex == index,
+                onClick = {
+                    selectIndex = index
+                    onTabChange(index)
+                }
+            )
+        }
+    }
 }

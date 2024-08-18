@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -15,7 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.dto.resp.BlogBaseDto
@@ -24,7 +23,6 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.router.AtNavigation
 import com.bitat.ui.reel.CuExoPlayer
-import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 
 @Composable
@@ -32,9 +30,9 @@ fun BlogVideo(
     dto: BlogBaseDto,
     height: Int,
     isPlaying: Boolean = false,
-    navController: NavHostController
+    navController: NavHostController, viewModelProvider: ViewModelProvider
 ) {
-    val vm: BlogViewModel = viewModel()
+    val vm = viewModelProvider[BlogViewModel::class]
     val blogState by vm.blogState.collectAsState() //    val videoState = rememberVideoPlayerState(videoSource = Uri.parse(dto.resource.video))
     Surface(
         shape = RoundedCornerShape(20.cdp),
@@ -42,6 +40,8 @@ fun BlogVideo(
             .fillMaxWidth()
             .height(height.dp)
             .clickable {
+                vm.filterResList()
+                vm.setCurrentBlog(dto)
                 AtNavigation(navController).navigateToVideo()
             }
     ) { //视频
@@ -56,7 +56,12 @@ fun BlogVideo(
 //        if (dto.id == currentId) { //item在页面中间才加载视频
         if (isPlaying) {
             val play =
-                CuExoPlayer(data = dto.resource.video, modifier = Modifier.fillMaxWidth(), true,false)
+                CuExoPlayer(
+                    data = dto.resource.video,
+                    modifier = Modifier.fillMaxWidth(),
+                    true,
+                    false
+                )
 
         } else { //未选中只加载封面
             AsyncImage(

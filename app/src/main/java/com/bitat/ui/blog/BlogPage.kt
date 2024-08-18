@@ -215,7 +215,7 @@ fun BlogPage(
                     isOpen.value,
                     { isOpen.value = it },
                     switchMenu = { vm.switchBlogMenu(it) })
-                RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
+                RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection).padding(padding.calculateBottomPadding()),
                     onRefresh = {
                         CuLog.debug(CuTag.Blog, "onRefresh 回调")
                         vm.initBlogList(state.currentMenu)
@@ -235,7 +235,7 @@ fun BlogPage(
                                     Surface(modifier = Modifier.fillMaxWidth()) {
                                         BlogItem(blog = item,
                                             isPlaying = playingIndex.value == index,
-                                            navController,
+                                            navController,viewModelProvider=viewModelProvider,
                                             tapComment = {
                                                 CommentStore.currentBlogId = item.id
                                                 coroutineScope.launch {

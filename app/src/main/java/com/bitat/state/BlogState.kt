@@ -34,7 +34,10 @@ data class BlogState(
     val hasMore: Boolean = true,
     val updating: Boolean = false,
     val currentBlog: BlogBaseDto? = null,
-    val topBarShow:Boolean=true
+    val topBarShow:Boolean=true,
+    val resList: SnapshotStateList<BlogBaseDto> = mutableStateListOf() ,//视频图片list
+    val resIndex:Int=0
+
 )
 
 

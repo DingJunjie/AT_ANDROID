@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
@@ -57,6 +58,7 @@ fun BlogItem(
     blog: BlogBaseDto,
     isPlaying: Boolean = false,
     navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider,
     contentClick: (BlogBaseDto) -> Unit,
     tapComment: () -> Unit,
     tapAt: () -> Unit,
@@ -125,7 +127,7 @@ fun BlogItem(
                         .padding(end = 10.dp)
                         .background(Color.Transparent)
                 ) {
-                    BlogContent(blog.kind.toInt(), blog, height, isPlaying, navHostController)
+                    BlogContent(blog.kind.toInt(), blog, height, isPlaying, navHostController,viewModelProvider)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
