@@ -3,7 +3,7 @@ package com.bitat.log
 import android.util.Log
 
 enum class CuTag {
-    SingleChat, GroupChat, Publish, Blog, Profile, Login, Base,
+    SingleChat, GroupChat, Publish, Blog, Profile, Login, Base, Comment
 }
 
 object CuLog {

@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -56,16 +57,20 @@ import com.bitat.router.AtNavigation
 import com.bitat.router.Screen
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogOperation
+import com.bitat.state.CommentState
 import com.bitat.state.MenuOptions
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CommentList
+import com.bitat.ui.component.CommentTextField
 import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.CommentViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -85,6 +90,9 @@ fun BlogPage(
     val loadMoreState = rememberLoadMoreState {
         CuLog.debug(CuTag.Blog, "loadMoreState") //        vm.initBlogList(blogState.currentMenu)
     }
+
+    val commentVm: CommentViewModel = viewModelProvider[CommentViewModel::class]
+    val commentState by commentVm.commentState.collectAsState()
 
     var currentId by remember {
         mutableLongStateOf(0L)
@@ -147,64 +155,12 @@ fun BlogPage(
             }
     }
 
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            confirmValueChange = {
-                val isClose = it.equals(ModalBottomSheetValue.Hidden)
-                if (isClose) {
-                    currentOperation = BlogOperation.None
-                }
-
-                isClose
-            })
     val coroutineScope = rememberCoroutineScope()
 
     val isCommentVisible = remember {
         mutableStateOf(false)
     }
 
-//    ModalBottomSheetLayout(sheetState = modalBottomSheetState, sheetContent = {
-//        when (currentOperation) {
-//            BlogOperation.Comment -> CommentList(CommentStore.currentBlogId)
-//
-//            BlogOperation.At -> Box(
-//                modifier
-//                    .fillMaxSize()
-//                    .background(Color.Yellow)
-//            ) {}
-//
-//            BlogOperation.Like -> Box(
-//                modifier
-//                    .fillMaxSize()
-//                    .background(Color.Red)
-//            ) {}
-//
-//            BlogOperation.Collect -> Box(
-//                modifier
-//                    .fillMaxSize()
-//                    .background(Color.Green)
-//            ) {}
-//
-//            BlogOperation.None -> Box {}
-//        }
-////        Column(
-////            modifier = Modifier
-////                .fillMaxWidth()
-////                .fillMaxHeight()
-////                .padding(16.dp)
-////        ) {
-////            Text("这是底部弹出的内容")
-////            Spacer(modifier = Modifier.height(16.dp))
-////            Button(onClick = {
-////                coroutineScope.launch {
-////                    modalBottomSheetState.hide()
-////                }
-////            }) {
-////                Text("关闭")
-////            }
-////        }
-//    }) {
     Scaffold(
         modifier = Modifier
             .fillMaxHeight()
@@ -247,7 +203,6 @@ fun BlogPage(
                                             CommentStore.currentBlogId = item.id
                                             coroutineScope.launch {
                                                 delay(1000)
-                                                modalBottomSheetState.show()
                                                 currentOperation = BlogOperation.Comment
                                             }
                                             isCommentVisible.value = true
@@ -255,14 +210,12 @@ fun BlogPage(
                                         tapAt = {
                                             coroutineScope.launch {
                                                 delay(1000)
-                                                modalBottomSheetState.show()
                                                 currentOperation = BlogOperation.At
                                             }
                                         },
                                         tapLike = {},
                                         tapCollect = {
                                             coroutineScope.launch {
-                                                modalBottomSheetState.show()
                                                 currentOperation = BlogOperation.Collect
                                             }
                                         },
@@ -289,8 +242,10 @@ fun BlogPage(
     CommentPopup(
         visible = isCommentVisible.value,
         blogId = CommentStore.currentBlogId,
+        commentViewModel = commentVm,
+        coroutineScope = coroutineScope,
+        commentState = commentState,
         onClose = { isCommentVisible.value = false })
-//    }
 }
 
 
@@ -323,12 +278,54 @@ fun BlogTopBar(
 }
 
 @Composable
-fun CommentPopup(visible: Boolean, blogId: Long, onClose: () -> Unit) {
+fun CommentPopup(
+    visible: Boolean,
+    commentViewModel: CommentViewModel,
+    commentState: CommentState,
+    coroutineScope: CoroutineScope,
+    blogId: Long,
+    onClose: () -> Unit
+) {
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(commentState.commentInput)
+        )
+    }
+
     Popup(visible, onClose = onClose) {
-        CommentList(blogId)
+        CommentList(blogId, commentViewModel, commentState, tapContentFn = {
+            commentViewModel.selectReplyComment(it)
+        })
+
+        Box(contentAlignment = Alignment.BottomCenter) {
+            CommentTextField(
+                textFieldValue,
+                sendComment = {
+                    coroutineScope.launch {
+                        if (commentState.replyComment == null) {
+                            commentViewModel.createComment {
+                                textFieldValue = textFieldValue.copy(text = "")
+                            }
+
+                        } else {
+                            commentViewModel.createSubComment {
+                                textFieldValue = textFieldValue.copy(text = "")
+                            }
+                        }
+                    }
+                },
+                placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
+                    if (commentState.replyComment == null) "请输入您的评论"
+                    else "回复${commentState.replyComment.nickname}："
+                },
+                onValueChange = {
+                    commentViewModel.updateComment(it.text)
+                    textFieldValue = it
+                })
+
+        }
     }
 }
-
 
 
 

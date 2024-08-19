@@ -9,8 +9,8 @@ class BlogCreateCommentDto(
     var blogId: Long, //博文id
     var content: String, //内容
     var labels: IntArray, //博文label数组
-    var resource: com.bitat.repository.dto.common.ResourceDto, //评论资源
-    var atUsers: Array<com.bitat.repository.dto.common.AtUserDto> //at用户数组
+    var resource: ResourceDto, //评论资源
+    var atUsers: Array<AtUserDto> //at用户数组
 )
 
 @Serializable
