@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">艾特（测试版）</string>
     <string name="no_data">无数据</string>
+    <string name="submit">提交</string>
 
     ##### Login
     <string name="count_down">还剩 %1$s 秒</string>
@@ -58,6 +59,8 @@
     <string name="blog_post">帖子</string>
     <string name="blog_dtl_follow">关注</string>
     <string name="blog_dtl_followed">已关注</string>
+    <string name="blog_report">举报</string>
+    <string name="blog_report_hint">选择你想要举报的类型</string>
 
 
 </resources>

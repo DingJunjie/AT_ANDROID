@@ -18,9 +18,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -44,12 +46,16 @@ import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
+import com.bitat.ui.component.OperationTipsPop
 import com.bitat.ui.component.UserInfo
 import com.bitat.ui.theme.blue
 import com.bitat.ui.theme.grey5
 import com.bitat.ui.theme.line
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /*****
  * blog item 组件L
@@ -63,7 +69,9 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
     val isMoreVisible = remember {
         mutableStateOf(false)
     }
+
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
+    val vm = viewModelProvider[BlogViewModel::class]
 
     Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
         .onSizeChanged { size ->
@@ -87,7 +95,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
         }
 
         CuLog.debug(CuTag.Blog,
-            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory}")
+            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}")
 
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
             Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
@@ -145,7 +153,12 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
         //            Common(blog)
         //        }
 
-        BlogMorePop(isMoreVisible.value, blog.id) { isMoreVisible.value = false }
+        if (isMoreVisible.value) {
+
+            BlogMorePop(isMoreVisible.value, blog) {
+                isMoreVisible.value = false
+            }
+        }
     }
 
 }

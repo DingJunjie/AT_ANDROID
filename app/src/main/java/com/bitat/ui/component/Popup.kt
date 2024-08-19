@@ -138,7 +138,7 @@ fun Popup(
                         }
                     )
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
                     .clickableWithoutRipple { }
                     .padding(padding)
                     .onSizeChanged {

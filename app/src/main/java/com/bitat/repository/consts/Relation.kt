@@ -6,7 +6,7 @@ package com.bitat.repository.consts
  *    desc   : 关系常量
  */
 
-const val FOLLOWED:Int=1 //关注
+const val FOLLOWED:Int=1 //关注/拉黑
 const val DEFAULT:Int=0 //默认
 const val BLACKLIST=-1  //已拉黑
 
