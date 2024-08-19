@@ -1,6 +1,7 @@
 package com.bitat.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,7 +51,7 @@ import com.bitat.utils.TimeUtils
  * 用户名的显示 和发布时间的显示
  */
 @Composable
-fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false) {
+fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false,moreClick:() -> Unit={}) {
     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
@@ -71,10 +72,13 @@ fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
                 fontSize = FontStyle.contentLargeSize)
+
             SvgIcon(path = "svg/verticalline.svg",
                 tint = Color.Black,
                 contentDescription = "",
-                modifier = Modifier.size(20.dp))
+                modifier = Modifier.size(20.dp).clickable {
+                    moreClick()
+                })
         }
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,20 +55,13 @@ import com.bitat.utils.ScreenUtils
  * blog item 组件L
  */
 @Composable
-fun BlogItem(
-    blog: BlogBaseDto,
-    isPlaying: Boolean = false,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    contentClick: (BlogBaseDto) -> Unit,
-    tapComment: () -> Unit,
-    tapAt: () -> Unit,
-    tapLike: () -> Unit,
-    tapCollect: () -> Unit
-) {
+fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: () -> Unit) {
     val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(0)
+    }
+    val isMoreVisible = remember {
+        mutableStateOf(false)
     }
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
 
@@ -86,18 +80,20 @@ fun BlogItem(
             }
 
             Surface(modifier = Modifier.padding(start = 14.dp)) {
-                UserInfo(blog.nickname)
+                UserInfo(blog.nickname) {
+                    isMoreVisible.value = true
+                }
             }
         }
 
-        CuLog.debug(CuTag.Blog, "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt()+"用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory}")
+        CuLog.debug(CuTag.Blog,
+            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory}")
 
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
             Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
                 .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally //                    .background(red1)
-            ) {
-                //                Box(
+            ) { //                Box(
                 //                    modifier = Modifier
                 //                        .height(lineHeight.intValue.dp)
                 //                        .width(2.dp)
@@ -121,13 +117,14 @@ fun BlogItem(
                 }
 
                 //博文类型
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(end = 10.dp)
-                        .background(Color.Transparent)
-                ) {
-                    BlogContent(blog.kind.toInt(), blog, height, isPlaying, navHostController,viewModelProvider)
+                Box(modifier = Modifier.fillMaxSize().padding(end = 10.dp)
+                    .background(Color.Transparent)) {
+                    BlogContent(blog.kind.toInt(),
+                        blog,
+                        height,
+                        isPlaying,
+                        navHostController,
+                        viewModelProvider)
                 }
 
                 Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
@@ -147,6 +144,8 @@ fun BlogItem(
         //            //评论
         //            Common(blog)
         //        }
+
+        BlogMorePop(isMoreVisible.value, blog.id) { isMoreVisible.value = false }
     }
 
 }

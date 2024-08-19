@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -42,30 +43,17 @@ fun ImagePreviewPage(navController: NavHostController, viewModelProvider: ViewMo
     val vm = viewModelProvider[ImagePreviewViewModel::class]
     val state by vm.imagePreviewState.collectAsState()
 
-
-
     Scaffold { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Black)
-                .padding(paddingValues = innerPadding)
-        ) {
-
+        Box(modifier = Modifier.fillMaxSize().background(color = Color.Black)
+            .padding(paddingValues = innerPadding)) {
             ImageBanner(state.imgList.toList())
             IconButton(onClick = { navController.popBackStack() }) {
-                SvgIcon(
-                    path = "svg/arrow-left.svg",
+                SvgIcon(path = "svg/arrow-left.svg",
                     contentDescription = "",
-                    modifier = Modifier.size(20.dp)
-                )
+                    modifier = Modifier.size(20.dp))
             }
-
         }
-
     }
-
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -73,15 +61,11 @@ fun ImagePreviewPage(navController: NavHostController, viewModelProvider: ViewMo
 fun ImageBanner(imgList: List<String>) {
     val pageState: PagerState = rememberPagerState(pageCount = { imgList.size })
     HorizontalPager(state = pageState, modifier = Modifier.fillMaxSize()) { index ->
-        Column(
-            modifier = Modifier.fillMaxSize(),
+        Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            AsyncImage(
-                model = imgList[index],
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+            verticalArrangement = Arrangement.Center) {
+            AsyncImage(model = imgList[index],
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
                     .background(Color.Black),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth //宽度撑满

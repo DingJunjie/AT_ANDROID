@@ -25,7 +25,7 @@ private val LightColorPalette = WeComposeColors(
     textPrimary = black3,
     textPrimaryMe = black3,
     textSecondary = grey1,
-    onBackground = white1,
+    onBackground = black,
     icon = black,
     iconCurrent = green3,
     badge = red1,
@@ -194,7 +194,7 @@ fun BitComposeTheme(
         dialogBackground = dialogBackground.value,
         placeholder = placeholder.value
     )
-    val colorsSch = lightColorScheme(primary = LightColorPalette.themeUi)
+    val colorsSch = lightColorScheme(primary = LightColorPalette.themeUi, onPrimary = Color.White, background= LightColorPalette.background,onBackground = LightColorPalette.onBackground)
 
     CompositionLocalProvider(LocalWeComposeColors provides colors) {
         MaterialTheme(
