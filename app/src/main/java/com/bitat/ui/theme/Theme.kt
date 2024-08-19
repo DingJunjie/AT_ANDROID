@@ -145,7 +145,7 @@ class WeComposeColors(
 
 @Composable
 fun BitComposeTheme(
-    theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Light,
+    theme: WeComposeTheme.Theme = WeComposeTheme.Theme.Dark,
     content: @Composable() () -> Unit
 ) {
     val targetColors = when (theme) {

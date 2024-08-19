@@ -62,6 +62,7 @@ import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CommentList
+import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
@@ -140,7 +141,7 @@ fun BlogPage(
         snapshotFlow { listState.layoutInfo }
             .collect { layoutInfo ->
                 val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                if (lastVisibleItemIndex == state.blogList.size-1) {
+                if (lastVisibleItemIndex == state.blogList.size - 1) {
                     vm.loadMore()
                 }
             }
@@ -159,125 +160,137 @@ fun BlogPage(
             })
     val coroutineScope = rememberCoroutineScope()
 
-    ModalBottomSheetLayout(sheetState = modalBottomSheetState, sheetContent = {
-        when (currentOperation) {
-            BlogOperation.Comment -> CommentList(CommentStore.currentBlogId)
+    val isCommentVisible = remember {
+        mutableStateOf(false)
+    }
 
-            BlogOperation.At -> Box(
-                modifier
-                    .fillMaxSize()
-                    .background(Color.Yellow)
-            ) {}
-
-            BlogOperation.Like -> Box(
-                modifier
-                    .fillMaxSize()
-                    .background(Color.Red)
-            ) {}
-
-            BlogOperation.Collect -> Box(
-                modifier
-                    .fillMaxSize()
-                    .background(Color.Green)
-            ) {}
-
-            BlogOperation.None -> Box {}
-        }
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .fillMaxHeight()
-//                .padding(16.dp)
-//        ) {
-//            Text("这是底部弹出的内容")
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(onClick = {
-//                coroutineScope.launch {
-//                    modalBottomSheetState.hide()
-//                }
-//            }) {
-//                Text("关闭")
-//            }
+//    ModalBottomSheetLayout(sheetState = modalBottomSheetState, sheetContent = {
+//        when (currentOperation) {
+//            BlogOperation.Comment -> CommentList(CommentStore.currentBlogId)
+//
+//            BlogOperation.At -> Box(
+//                modifier
+//                    .fillMaxSize()
+//                    .background(Color.Yellow)
+//            ) {}
+//
+//            BlogOperation.Like -> Box(
+//                modifier
+//                    .fillMaxSize()
+//                    .background(Color.Red)
+//            ) {}
+//
+//            BlogOperation.Collect -> Box(
+//                modifier
+//                    .fillMaxSize()
+//                    .background(Color.Green)
+//            ) {}
+//
+//            BlogOperation.None -> Box {}
 //        }
-    }) {
-        Scaffold(
+////        Column(
+////            modifier = Modifier
+////                .fillMaxWidth()
+////                .fillMaxHeight()
+////                .padding(16.dp)
+////        ) {
+////            Text("这是底部弹出的内容")
+////            Spacer(modifier = Modifier.height(16.dp))
+////            Button(onClick = {
+////                coroutineScope.launch {
+////                    modalBottomSheetState.hide()
+////                }
+////            }) {
+////                Text("关闭")
+////            }
+////        }
+//    }) {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .background(white)
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .background(white)
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize()
-            ) {
-                if (state.topBarShow) BlogTopBar(state.currentMenu,
-                    isOpen.value,
-                    { isOpen.value = it },
-                    switchMenu = { vm.switchBlogMenu(it) })
-                RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection).padding(padding.calculateBottomPadding()),
-                    onRefresh = {
-                        CuLog.debug(CuTag.Blog, "onRefresh 回调")
-                        vm.initBlogList(state.currentMenu)
-                    }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (state.blogList.size > 0) {
-                            if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
-                                currentId = state.blogList.first().id
-                            }
-                            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                                itemsIndexed(state.blogList) { index, item -> //Text(item.content)
-                                    Surface(modifier = Modifier.fillMaxWidth()) {
-                                        BlogItem(blog = item,
-                                            isPlaying = playingIndex.value == index,
-                                            navController,viewModelProvider=viewModelProvider,
-                                            tapComment = {
-                                                CommentStore.currentBlogId = item.id
-                                                coroutineScope.launch {
-                                                    delay(1000)
-                                                    modalBottomSheetState.show()
-                                                    currentOperation = BlogOperation.Comment
-                                                }
-                                            },
-                                            tapAt = {
-                                                coroutineScope.launch {
-                                                    delay(1000)
-                                                    modalBottomSheetState.show()
-                                                    currentOperation = BlogOperation.At
-                                                }
-                                            },
-                                            tapLike = {},
-                                            tapCollect = {
-                                                coroutineScope.launch {
-                                                    modalBottomSheetState.show()
-                                                    currentOperation = BlogOperation.Collect
-                                                }
-                                            },
-                                            contentClick = { item ->
-                                                vm.setCurrentBlog(item)
-                                                AtNavigation(navController).navigateToBlogDetail()
-                                            })
-                                    }
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            if (state.topBarShow) BlogTopBar(state.currentMenu,
+                isOpen.value,
+                { isOpen.value = it },
+                switchMenu = { vm.switchBlogMenu(it) })
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .padding(padding.calculateBottomPadding()),
+                onRefresh = {
+                    CuLog.debug(CuTag.Blog, "onRefresh 回调")
+                    vm.initBlogList(state.currentMenu)
+                }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.blogList.size > 0) {
+                        if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
+                            currentId = state.blogList.first().id
+                        }
+                        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                            itemsIndexed(state.blogList) { index, item -> //Text(item.content)
+                                Surface(modifier = Modifier.fillMaxWidth()) {
+                                    BlogItem(blog = item,
+                                        isPlaying = playingIndex.value == index,
+                                        navController, viewModelProvider = viewModelProvider,
+                                        tapComment = {
+                                            CommentStore.currentBlogId = item.id
+                                            coroutineScope.launch {
+                                                delay(1000)
+                                                modalBottomSheetState.show()
+                                                currentOperation = BlogOperation.Comment
+                                            }
+                                            isCommentVisible.value = true
+                                        },
+                                        tapAt = {
+                                            coroutineScope.launch {
+                                                delay(1000)
+                                                modalBottomSheetState.show()
+                                                currentOperation = BlogOperation.At
+                                            }
+                                        },
+                                        tapLike = {},
+                                        tapCollect = {
+                                            coroutineScope.launch {
+                                                modalBottomSheetState.show()
+                                                currentOperation = BlogOperation.Collect
+                                            }
+                                        },
+                                        contentClick = { item ->
+                                            vm.setCurrentBlog(item)
+                                            AtNavigation(navController).navigateToBlogDetail()
+                                        })
                                 }
                             }
-                        } else {
-                            when (state.currentMenu) {
-                                BlogMenuOptions.Recommend -> Text(text = "推荐" + stringResource(R.string.no_data))
-                                BlogMenuOptions.Latest -> Text(text = "最新" + stringResource(R.string.no_data))
-                                BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
-                            }
-
                         }
+                    } else {
+                        when (state.currentMenu) {
+                            BlogMenuOptions.Recommend -> Text(text = "推荐" + stringResource(R.string.no_data))
+                            BlogMenuOptions.Latest -> Text(text = "最新" + stringResource(R.string.no_data))
+                            BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
+                        }
+
                     }
                 }
             }
         }
     }
+
+    CommentPopup(
+        visible = isCommentVisible.value,
+        blogId = CommentStore.currentBlogId,
+        onClose = { isCommentVisible.value = false })
+//    }
 }
 
 
@@ -306,6 +319,13 @@ fun BlogTopBar(
         ) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
+    }
+}
+
+@Composable
+fun CommentPopup(visible: Boolean, blogId: Long, onClose: () -> Unit) {
+    Popup(visible, onClose = onClose) {
+        CommentList(blogId)
     }
 }
 

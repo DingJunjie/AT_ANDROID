@@ -1,4 +1,7 @@
 package com.bitat.viewModel
 
-class CommentViewModel {
+import androidx.lifecycle.ViewModel
+
+class CommentViewModel : ViewModel() {
+
 }
