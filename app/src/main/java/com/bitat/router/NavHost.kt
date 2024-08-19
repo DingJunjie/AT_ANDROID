@@ -1,13 +1,17 @@
 package com.bitat.router
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.bitat.MainCo
+import com.bitat.repository.store.TokenStore
 import com.bitat.ui.Home
+import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.common.GDMapPage
@@ -24,8 +28,10 @@ import com.bitat.ui.publish.PublishPage
 import com.bitat.ui.publish.VideoDisplay
 import com.bitat.ui.reel.ReelPageDemo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import kotlinx.coroutines.launch
 
 enum class Screen {
+    SPLASH,
     LOGIN,
     HOME,
     DISCOVERY,
@@ -39,14 +45,16 @@ enum class Screen {
     PUBLISH_DETAIL,
     CHAT_DETAIL,
     REEL_PAGE_DEMO,
-    GDMAP,
+    GD_MAP,
     PICTURE_DISPLAY,
     VIDEO_DISPLAY,
     SEARCH,
-    SEARCH_RESULT, IMAGEPREVIEW
+    SEARCH_RESULT,
+    IMAGE_PREVIEW
 }
 
 sealed class NavigationItem(val route: String) {
+    data object Splash : NavigationItem(Screen.SPLASH.name)
     data object Login : NavigationItem(Screen.LOGIN.name)
     data object Home : NavigationItem(Screen.HOME.name)
     data object Discovery : NavigationItem(Screen.DISCOVERY.name)
@@ -59,13 +67,13 @@ sealed class NavigationItem(val route: String) {
     data object PublishDetail : NavigationItem(Screen.PUBLISH_DETAIL.name)
     data object ChatDetails : NavigationItem(Screen.CHAT_DETAIL.name)
     data object ReelPageDemo : NavigationItem(Screen.REEL_PAGE_DEMO.name)
-    data object GDMap : NavigationItem(Screen.GDMAP.name)
+    data object GDMap : NavigationItem(Screen.GD_MAP.name)
     data object PictureDisplay : NavigationItem(Screen.PICTURE_DISPLAY.name)
     data object VideoDisplay : NavigationItem(Screen.VIDEO_DISPLAY.name)
     data object Search : NavigationItem(Screen.SEARCH.name)
     data object SearchResult : NavigationItem(Screen.SEARCH_RESULT.name)
     data object DiscoveryDetail : NavigationItem(Screen.DISCOVERY_DETAIL.name)
-    data object ImagePreview : NavigationItem(Screen.IMAGEPREVIEW.name)
+    data object ImagePreview : NavigationItem(Screen.IMAGE_PREVIEW.name)
 }
 
 
@@ -74,11 +82,15 @@ sealed class NavigationItem(val route: String) {
 fun AppNavHost(
     navController: NavHostController,
     navigation: AtNavigation,
-    startDestination: String = NavigationItem.Login.route,
+    startDestination: String = NavigationItem.Splash.route,
     viewModelProvider: ViewModelProvider,
 ) {
 
+
     NavHost(navController = navController, startDestination = startDestination) {
+        composable(NavigationItem.Splash.route) {
+            Splash(navHostController = navController)
+        }
 
         composable(NavigationItem.Login.route) {
             LoginPage(navController, navigation.navigateToHome)
@@ -156,7 +168,7 @@ fun AppNavHost(
 
         composable(NavigationItem.ImagePreview.route) {
 
-            ImagePreviewPage(navController = navController,viewModelProvider)
+            ImagePreviewPage(navController = navController, viewModelProvider)
         }
     }
 }
