@@ -38,6 +38,7 @@ data class BlogState(
     val resList: SnapshotStateList<BlogBaseDto> = mutableStateListOf() ,//视频图片list
     val resIndex:Int=0
 
+
 )
 
 

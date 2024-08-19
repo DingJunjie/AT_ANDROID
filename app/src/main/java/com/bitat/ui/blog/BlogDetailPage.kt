@@ -56,7 +56,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
     Log.i("BlogDetail", "current blog is $blogDetail")
 
     Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight(), topBar = {
-        TopBar {
+        TopBar(title = stringResource(id = R.string.blog_post)) {
             navHostController.popBackStack()
         }
     }) { padding ->
@@ -104,7 +104,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 }
 
 @Composable
-fun TopBar(backFn: () -> Unit) {
+fun TopBar(title:String,backFn: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().background(Color.White)) {
         Spacer(modifier = Modifier.statusBarsPadding().fillMaxWidth())
         Row(verticalAlignment = Alignment.CenterVertically,
@@ -118,7 +118,7 @@ fun TopBar(backFn: () -> Unit) {
                     contentDescription = "",
                     modifier = Modifier.size(20.dp))
             }
-            Text(text = stringResource(id = R.string.blog_post))
+            Text(text = title)
         }
     }
 
