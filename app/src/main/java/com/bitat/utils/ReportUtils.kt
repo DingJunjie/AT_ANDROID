@@ -29,27 +29,39 @@ import com.bitat.repository.consts.REASON_VIOLATION_LAW
  */
 
 object ReportUtils {
-    fun getReportTypeList(): ArrayMap<Int, String> {
 
-        val map: ArrayMap<Int, String> = arrayMapOf(REASON_FRAUD_INFORMATION to "诈骗信息",
-            REASON_PORNOGRAPHIC_VULGAR to "色情低俗",
-            REASON_ENTERPRISE_TORT to "涉企侵权",
-            REASON_PLAGIARISM_MANU_WASH to "抄袭洗稿",
-            REASON_MINORS_NOT_WATCH to "未成年不宜观看",
-            REASON_CAUSING_DISCOMFORT to "引人不适",
-            REASON_POLITICS_NOT to "时政不实信息",
-            REASON_INDUCE_FOLLOW_AGREE to "诱导关注点赞",
-            REASON_TORT_COMPLAINT to "侵权投诉",
-            REASON_SUSPECT_OTHER to "疑似其他",
-            REASON_VIOLATION_LAW to "违法违规",
-            REASON_FALSE_AND_UNTRUE to "虚假不实",
-            REASON_DANGEROUS_ACT to "危险行为",
-            REASON_ABUSIVE_ATTACK to "谩骂攻击",
-            REASON_TORT_MINORS to "侵害未成年人",
-            REASON_MINOR_MISCONDUCT to "未成年人不当行为",
-            REASON_ILLEGAL_SALE to "违规售卖",
-            REASON_CRUELTY_ANIMAL to "疑似虐待动物",
-            REASON_OTHER to "其他类型")
-        return map
+    fun getReportTypeList(): Array<ReportBean> {
+        val list: Array<ReportBean> = arrayOf(
+            ReportBean("诈骗信息", REASON_FRAUD_INFORMATION, false),
+            ReportBean("色情低俗", REASON_PORNOGRAPHIC_VULGAR, false),
+            ReportBean("涉企侵权", REASON_ENTERPRISE_TORT, false),
+            ReportBean("抄袭洗稿", REASON_PLAGIARISM_MANU_WASH, false),
+            ReportBean("未成年不宜观看", REASON_MINORS_NOT_WATCH, false),
+
+            ReportBean("引人不适", REASON_CAUSING_DISCOMFORT, false),
+            ReportBean("时政不实信息", REASON_POLITICS_NOT, false),
+            ReportBean("诱导关注点赞", REASON_INDUCE_FOLLOW_AGREE, false),
+            ReportBean("侵权投诉", REASON_TORT_COMPLAINT, false),
+            ReportBean("疑似其他", REASON_SUSPECT_OTHER, false),
+
+            ReportBean("违法违规", REASON_VIOLATION_LAW, false),
+            ReportBean("虚假不实", REASON_FALSE_AND_UNTRUE, false),
+            ReportBean("危险行为", REASON_DANGEROUS_ACT, false),
+            ReportBean("谩骂攻击", REASON_ABUSIVE_ATTACK, false),
+            ReportBean("侵害未成年人", REASON_TORT_MINORS, false),
+
+            ReportBean("未成年人不当行为", REASON_MINOR_MISCONDUCT, false),
+            ReportBean("违规售卖", REASON_ILLEGAL_SALE, false),
+            ReportBean("疑似虐待动物", REASON_CRUELTY_ANIMAL, false),
+            ReportBean("其他类型", REASON_OTHER, false)
+
+        )
+        return list
     }
+
+    data class ReportBean(
+        val name: String = "",
+        val type: Int = 0,
+        var isSelect: Boolean = false
+    )
 }

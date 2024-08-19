@@ -13,6 +13,7 @@ import com.bitat.repository.store.TokenStore
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
+import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.component.ImagePreviewPage
@@ -50,7 +51,8 @@ enum class Screen {
     VIDEO_DISPLAY,
     SEARCH,
     SEARCH_RESULT,
-    IMAGE_PREVIEW
+    IMAGE_PREVIEW,
+    REPORT_USER
 }
 
 sealed class NavigationItem(val route: String) {
@@ -74,6 +76,7 @@ sealed class NavigationItem(val route: String) {
     data object SearchResult : NavigationItem(Screen.SEARCH_RESULT.name)
     data object DiscoveryDetail : NavigationItem(Screen.DISCOVERY_DETAIL.name)
     data object ImagePreview : NavigationItem(Screen.IMAGE_PREVIEW.name)
+    data object ReportUser : NavigationItem(Screen.REPORT_USER.name)
 }
 
 
@@ -170,6 +173,9 @@ fun AppNavHost(
 
             ImagePreviewPage(navController = navController, viewModelProvider)
         }
+        composable(NavigationItem.ReportUser.route) {
+            ReportUserPage(navHostController = navController)
+        }
     }
 }
 
@@ -226,6 +232,10 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToImagePreviewPage: () -> Unit = {
         navController.navigate(NavigationItem.ImagePreview.route)
+    }
+
+    val navigateToReportUserPage: () -> Unit = {
+        navController.navigate(NavigationItem.ReportUser.route)
     }
 
 

@@ -11,7 +11,9 @@ import com.bitat.repository.http.service.BlogOpsReq
 import com.bitat.repository.http.service.SocialReq
 import com.bitat.repository.http.service.UserReportReq
 import com.bitat.state.BlogMoreState
+import com.bitat.utils.ReportUtils.ReportBean
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -27,6 +29,7 @@ enum class BlogMore {
 
 class BlogMoreViewModel : ViewModel() {
     val state = MutableStateFlow(BlogMoreState())
+    val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
 
     // 拉黑用户
     fun masking(userId: Long) {
@@ -34,7 +37,8 @@ class BlogMoreViewModel : ViewModel() {
             SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
                 state.update { it.copy(masking = true) }
             }.errMap {
-                state.update { it.copy(masking = false) } }
+                state.update { it.copy(masking = false) }
+            }
         }
     }
 
@@ -50,12 +54,42 @@ class BlogMoreViewModel : ViewModel() {
     }
 
     // 举报用户
-    fun report( sourceId: Long) {
+    fun report(sourceId: Long) {
         MainCo.launch {
-            UserReportReq.createReport(CreateUserReportDto(REPORT_KIND_USER.toByte(), sourceId, arrayOf(""))).await()
-                .map { }.errMap {
+            UserReportReq.createReport(
+                CreateUserReportDto(
+                    REPORT_KIND_USER.toByte(),
+                    sourceId,
+                    arrayOf("")
+                )
+            ).await()
+                .map {
+                    state.update { it.copy(report = true) }
+                }.errMap {
+                    state.update { it.copy(report = true) }
+                }
+        }
+    }
 
-            }
+    fun setReportList(report: Array<ReportBean>) {
+        state.update {
+            it.reportList.clear()
+            it.reportList.addAll(report)
+            it
+        }
+    }
+
+    fun selectRepor(report: ReportBean) {
+        val index = state.value.reportList.indexOf(report)
+        state.update {
+            it.reportList[index] = report
+            it
+
+        }
+
+        state.update {
+            state.value.updateIndex + 1
+            it.copy(updateIndex = state.value.updateIndex + 1)
         }
     }
 

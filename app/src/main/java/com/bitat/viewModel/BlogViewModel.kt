@@ -135,8 +135,6 @@ class BlogViewModel : ViewModel() {
                 it.resList.addAll(filterList)
                 it
             }
-        CuLog.debug(CuTag.Blog, "完成数据过滤，${blogState.value.resList.size}")
-
     }
 
 

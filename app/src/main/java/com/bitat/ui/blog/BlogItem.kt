@@ -155,7 +155,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
 
         if (isMoreVisible.value) {
 
-            BlogMorePop(isMoreVisible.value, blog) {
+            BlogMorePop(isMoreVisible.value, blog,navHostController) {
                 isMoreVisible.value = false
             }
         }
