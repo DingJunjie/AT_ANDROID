@@ -2,6 +2,7 @@ package com.bitat.ui.blog
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.Card
 import androidx.compose.material3.Card
@@ -20,22 +21,18 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BlogMorePop(visible: Boolean, blogId: Long, onClose: () -> Unit) {
     com.bitat.ui.component.Popup(visible = visible, onClose = onClose) {
-        Card(backgroundColor = Color.White) {
-            Column {
-                Text("艾特")
-                Text("艾特与世界会有，快去关注吧~")
-                Column {
-                    Text("不感兴趣")
-                    Text("二维码")
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                Column {
-                    Text("举报")
-                    Text("拉黑")
-                }
+        Column {
+            Text(modifier = Modifier.fillMaxWidth(), text = "艾特")
+            Text(modifier = Modifier.fillMaxWidth(),text = "艾特与世界会有，快去关注吧~")
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("不感兴趣")
+                Text("二维码")
             }
-
-
+            Spacer(modifier = Modifier.height(20.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("举报")
+                Text("拉黑")
+            }
         }
     }
 }
