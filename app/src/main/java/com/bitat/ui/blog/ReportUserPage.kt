@@ -24,17 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.utils.ReportUtils
 import com.bitat.viewModel.BlogMoreViewModel
+import com.bitat.viewModel.BlogViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 
@@ -45,13 +48,16 @@ import com.wordsfairy.note.ui.widgets.toast.showToast
  */
 
 @Composable
-fun ReportUserPage(navHostController: NavHostController) {
+fun ReportUserPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
-    val vm: BlogMoreViewModel = viewModel()
+    val vm = viewModelProvider[BlogMoreViewModel::class]
+    val vmBlog = viewModelProvider[BlogViewModel::class]
     val state = vm.state.collectAsState()
+    val ctx = LocalContext.current
     LaunchedEffect(state) {
         if (state.value.report) {
-            ToastModel("举报成功！", ToastModel.Type.Success).showToast()
+            ToastModel(ctx.getString(R.string.blog_report), ToastModel.Type.Success).showToast()
+            navHostController.popBackStack()
         }
     }
 
@@ -64,52 +70,34 @@ fun ReportUserPage(navHostController: NavHostController) {
             navHostController.popBackStack()
         }
     }) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.White)
-                .padding(innerPadding), verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.fillMaxSize().background(color = Color.White)
+            .padding(innerPadding),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally) {
 
-            Text(
-                text = stringResource(R.string.blog_report_hint),
+            Text(text = stringResource(R.string.blog_report_hint),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 10.dp),
-                textAlign = TextAlign.Start
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2), // 设置固定列数为2
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 10.dp),
+                textAlign = TextAlign.Start)
+            LazyVerticalGrid(columns = GridCells.Fixed(2), // 设置固定列数为2
                 contentPadding = PaddingValues(16.dp), // 设置内边距
                 verticalArrangement = Arrangement.spacedBy(10.dp), // 设置行间距
                 horizontalArrangement = Arrangement.spacedBy(10.dp) // 设置列间距
             ) {
                 items(state.value.reportList.size) { index ->
                     val item = state.value.reportList[index]
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                color = if (item.isSelect) colorResource(R.color.teal_700) else colorResource(
-                                    R.color.pop_content_bg
-                                )
-                            )
-                            .clickable {
-                                item.isSelect = !item.isSelect
-                                vm.selectRepor(item)
-                            },
+                    Column(modifier = Modifier.fillMaxWidth().height(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(color = if (item.isSelect) colorResource(R.color.teal_700) else colorResource(
+                            R.color.pop_content_bg)).clickable {
+                            item.isSelect = !item.isSelect
+                            vm.selectRepor(item)
+                        },
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                        horizontalAlignment = Alignment.CenterHorizontally) {
                         val text = ReportUtils.getReportTypeList()[index].name
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
-                        )
+                        Text(text = text,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp))
                     }
                 }
             }
@@ -118,14 +106,13 @@ fun ReportUserPage(navHostController: NavHostController) {
                 Text(text = state.value.updateIndex.toString())
             }
 
-            TextButton(modifier = Modifier
-                .fillMaxWidth()
+            TextButton(modifier = Modifier.fillMaxWidth()
                 .padding(start = 40.dp, end = 40.dp, top = 20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ), onClick = {
-
-//                    vm.report()
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                onClick = {
+                    vmBlog.blogState.value.currentBlog?.let {
+                        vm.report(it.userId.toLong())
+                    }
                 }) {
                 Text(text = stringResource(R.string.submit))
             }

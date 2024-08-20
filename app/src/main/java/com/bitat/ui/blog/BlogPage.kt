@@ -222,6 +222,8 @@ fun BlogPage(
                                         contentClick = { item ->
                                             vm.setCurrentBlog(item)
                                             AtNavigation(navController).navigateToBlogDetail()
+                                        }, moreClick = {
+                                            vm.setCurrentBlog(item)
                                         })
                                 }
                             }

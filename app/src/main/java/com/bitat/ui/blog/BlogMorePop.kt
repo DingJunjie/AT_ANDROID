@@ -28,7 +28,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,15 +57,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun BlogMorePop(
-    visible: Boolean,
-    blog: BlogBaseDto,
-    navController: NavHostController,
-    onClose: () -> Unit
-) {
+fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostController, onClose: () -> Unit) {
     val vm: BlogMoreViewModel = viewModel()
     val state by vm.state.collectAsState()
     val toast = rememberToastState()
+    val ctx = LocalContext.current
 
     LaunchedEffect(state) {
         snapshotFlow { state }.distinctUntilChanged().collect {
@@ -79,54 +77,38 @@ fun BlogMorePop(
     }
     com.bitat.ui.component.Popup(visible = visible, onClose = onClose) {
         Column {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
+            Text(modifier = Modifier.fillMaxWidth(),
                 text = "艾特",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "艾特与世界会友，快去关注吧~",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color = colorResource(R.color.pop_content_bg))
-                    .padding(20.dp)
-            ) {
+            Text(modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.blog_more_title),
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(20.dp))
+            Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(color = colorResource(R.color.pop_content_bg)).padding(20.dp)) {
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
 
                         if (!blog.labels.contentEquals(EmptyArray.int)) {
                             vm.notInterested(blog.labels)
-                            toast.show("操作成功")
+                            toast.show(ctx.getString(R.string.operation_success))
                             onClose()
                         } else {
-                            toast.show("操作成功")
+                            toast.show(ctx.getString(R.string.operation_success))
                             onClose()
                         }
 
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Notifications,
+                    Icon(imageVector = Icons.Outlined.Notifications,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(modifier = Modifier.fillMaxWidth(), text = "不感兴趣")
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.blog_not_interested))
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -134,39 +116,28 @@ fun BlogMorePop(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { //                        TODO()
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
+                    Icon(imageVector = Icons.Outlined.Person,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(modifier = Modifier.fillMaxWidth(), text = "二维码")
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.blog_qrcode))
                 }
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color = colorResource(R.color.pop_content_bg))
-                    .padding(20.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(color = colorResource(R.color.pop_content_bg)).padding(20.dp)) {
 
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
                         AtNavigation(navController).navigateToReportUserPage()
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Star,
+                    Icon(imageVector = Icons.Outlined.Star,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(modifier = Modifier.fillMaxWidth(), text = "举报")
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.blog_report))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.Center,
@@ -174,14 +145,11 @@ fun BlogMorePop(
                     modifier = Modifier.clickable {
                         vm.masking(blog.userId.toLong())
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.FavoriteBorder,
+                    Icon(imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(modifier = Modifier.fillMaxWidth(), text = "拉黑")
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.blog_masking))
                 }
             }
         }

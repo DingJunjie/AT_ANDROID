@@ -32,27 +32,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH,
-    LOGIN,
-    HOME,
-    DISCOVERY,
-    DISCOVERY_DETAIL,
-    PUBLISH,
-    CHAT,
-    PROFILE,
-    PROFILE_OTHER,
-    VIDEO,
-    BLOG_DETAIL,
-    PUBLISH_DETAIL,
-    CHAT_DETAIL,
-    REEL_PAGE_DEMO,
-    GD_MAP,
-    PICTURE_DISPLAY,
-    VIDEO_DISPLAY,
-    SEARCH,
-    SEARCH_RESULT,
-    IMAGE_PREVIEW,
-    REPORT_USER
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER
 }
 
 sealed class NavigationItem(val route: String) {
@@ -114,8 +94,7 @@ fun AppNavHost(
         composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
             type = NavType.IntType
         })) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 1
-            //            ProfileOtherPage(id)
+            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
         }
 
         composable(NavigationItem.Discovery.route) {
@@ -174,7 +153,7 @@ fun AppNavHost(
             ImagePreviewPage(navController = navController, viewModelProvider)
         }
         composable(NavigationItem.ReportUser.route) {
-            ReportUserPage(navHostController = navController)
+            ReportUserPage(navHostController = navController, viewModelProvider = viewModelProvider)
         }
     }
 }

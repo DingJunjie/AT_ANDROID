@@ -54,20 +54,20 @@ class BlogMoreViewModel : ViewModel() {
     }
 
     // 举报用户
-    fun report(sourceId: Long) {
+    fun report(userId: Long) {
         MainCo.launch {
-            UserReportReq.createReport(
-                CreateUserReportDto(
-                    REPORT_KIND_USER.toByte(),
-                    sourceId,
-                    arrayOf("")
-                )
-            ).await()
-                .map {
-                    state.update { it.copy(report = true) }
-                }.errMap {
-                    state.update { it.copy(report = true) }
-                }
+            val dto = CreateUserReportDto(REPORT_KIND_USER.toByte(),userId)
+            val arrayList = ArrayList<Int>()
+            state.value.reportList.filter { it.isSelect }.forEachIndexed { index, reportBean ->
+                arrayList.add(reportBean.type)
+            }
+            dto.reason = arrayList.toIntArray()
+            UserReportReq.createReport(dto).await().map {
+                it.toString()
+                state.update { it.copy(report = true) }
+            }.errMap {
+                state.update { it.copy(report = false) }
+            }
         }
     }
 

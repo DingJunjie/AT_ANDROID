@@ -3,6 +3,8 @@
     <string name="app_name">艾特（测试版）</string>
     <string name="no_data">无数据</string>
     <string name="submit">提交</string>
+    <string name="operation_success">"操作成功!"</string>
+    <string name="operation_failed">"操作失败!"</string>
 
     ##### Login
     <string name="count_down">还剩 %1$s 秒</string>
@@ -61,6 +63,14 @@
     <string name="blog_dtl_followed">已关注</string>
     <string name="blog_report">举报</string>
     <string name="blog_report_hint">选择你想要举报的类型</string>
+    <string name="blog_report_success">举报成功！</string>
+    <string name="blog_report_fail">举报失败！</string>
+    <string name="blog_more_title"> 艾特与世界会友，快去关注吧~</string>
+    <string name="blog_not_interested">不感兴趣</string>
+    <string name="blog_qrcode">二维码</string>
+    <string name="blog_masking">拉黑</string>
+
+
 
 
 </resources>

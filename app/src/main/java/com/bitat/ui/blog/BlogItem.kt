@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
  * blog item 组件L
  */
 @Composable
-fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: () -> Unit) {
+fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: () -> Unit,moreClick:() -> Unit) {
     val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(0)
@@ -90,6 +90,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
             Surface(modifier = Modifier.padding(start = 14.dp)) {
                 UserInfo(blog.nickname) {
                     isMoreVisible.value = true
+                    moreClick()
                 }
             }
         }
