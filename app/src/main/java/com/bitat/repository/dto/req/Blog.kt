@@ -1,6 +1,7 @@
 package  com.bitat.repository.dto.req
 
 import com.bitat.repository.consts.BLOG_COMMENTABLE_ALL
+import com.bitat.repository.consts.BLOG_NOT_EDIT
 import com.bitat.repository.consts.BLOG_VISIBLE_ALL
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
@@ -38,7 +39,7 @@ class DeleteBlogDto(
 class EditVisibleDto(
     var blogId: Long, //博文id
     var visible: Byte, //博文可见性(不修改为0)
-    var openComment: Byte //评论可见性(不修改为0)
+    var openComment: Byte=BLOG_NOT_EDIT.toByte() //评论可见性(不修改为0)
 )
 
 @Serializable

@@ -2,12 +2,21 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
+import com.bitat.repository.consts.HTTP_DEFAULT
+import com.bitat.repository.consts.HTTP_FAIL
+import com.bitat.repository.consts.HTTP_SUCCESS
 import com.bitat.repository.consts.REPORT_KIND_USER
 import com.bitat.repository.dto.req.BlogOpsNotInterestedDto
 import com.bitat.repository.dto.req.CreateUserReportDto
+import com.bitat.repository.dto.req.DeleteBlogDto
+import com.bitat.repository.dto.req.EditVisibleDto
 import com.bitat.repository.dto.req.SocialDto
 import com.bitat.repository.http.service.BlogOpsReq
+import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.SocialReq
 import com.bitat.repository.http.service.UserReportReq
 import com.bitat.state.BlogMoreState
@@ -35,9 +44,10 @@ class BlogMoreViewModel : ViewModel() {
     fun masking(userId: Long) {
         MainCo.launch {
             SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
-                state.update { it.copy(masking = true) }
+                state.update { it.copy(masking = HTTP_SUCCESS) }
             }.errMap {
-                state.update { it.copy(masking = false) }
+                state.update { it.copy(masking = HTTP_FAIL) }
+                CuLog.error(CuTag.Blog, "masking fail====> code:${it.code},msg:${it.msg}")
             }
         }
     }
@@ -46,9 +56,12 @@ class BlogMoreViewModel : ViewModel() {
     fun notInterested(labels: IntArray) {
         MainCo.launch {
             BlogOpsReq.notInterested(BlogOpsNotInterestedDto(labels)).await().map {
-                state.update { it.copy(notInterested = true) }
+                state.update { it.copy(notInterested = HTTP_SUCCESS) }
             }.errMap {
-                state.update { it.copy(notInterested = false) }
+                state.update {
+                    it.copy(notInterested = HTTP_FAIL)
+                }
+                CuLog.error(CuTag.Blog, "notInterested fail====> code:${it.code},msg:${it.msg}")
             }
         }
     }
@@ -56,17 +69,19 @@ class BlogMoreViewModel : ViewModel() {
     // 举报用户
     fun report(userId: Long) {
         MainCo.launch {
-            val dto = CreateUserReportDto(REPORT_KIND_USER.toByte(),userId)
+            val dto = CreateUserReportDto(REPORT_KIND_USER.toByte(), userId)
             val arrayList = ArrayList<Int>()
-            state.value.reportList.filter { it.isSelect }.forEachIndexed { index, reportBean ->
+            state.value.reportList.filter { it.isSelect }.forEachIndexed { _, reportBean ->
                 arrayList.add(reportBean.type)
             }
             dto.reason = arrayList.toIntArray()
             UserReportReq.createReport(dto).await().map {
-                it.toString()
-                state.update { it.copy(report = true) }
+
+                state.update { it.copy(report = HTTP_SUCCESS) }
+                CuLog.debug(CuTag.Blog, "举报成功${state.value.report}")
             }.errMap {
-                state.update { it.copy(report = false) }
+                state.update { it.copy(report = HTTP_FAIL) }
+                CuLog.error(CuTag.Blog, "举报失败,code:${it.code},msg:${it.msg}")
             }
         }
     }
@@ -84,7 +99,6 @@ class BlogMoreViewModel : ViewModel() {
         state.update {
             it.reportList[index] = report
             it
-
         }
 
         state.update {
@@ -93,5 +107,60 @@ class BlogMoreViewModel : ViewModel() {
         }
     }
 
+    fun isOther(other: Boolean) {
+        state.update {
+            it.copy(isOther = other)
+        }
+    }
+
+    fun deleteBlog(blogId: Long, kind: Byte) {
+        MainCo.launch {
+            BlogReq.delete(DeleteBlogDto(blogId, kind)).await().map {
+                state.update {
+                    it.copy(deleteResp = HTTP_SUCCESS)
+                }
+            }.errMap {
+                state.update {
+                    it.copy(deleteResp = HTTP_FAIL)
+                }
+            }
+        }
+    }
+
+    fun authBlog(blogId: Long, visible: Byte) {
+        MainCo.launch {
+            val dto = EditVisibleDto(blogId, visible)
+            BlogReq.editVisible(dto).await().map {
+                state.update {
+                    it.copy(authResp = HTTP_SUCCESS)
+                }
+            }.errMap {
+                state.update {
+                    it.copy(authResp = HTTP_FAIL)
+                }
+            }
+        }
+    }
+
+    fun authShow(isShow: Boolean) {
+        state.update {
+            it.copy(isAuthShow = isShow)
+        }
+    }
+
+    fun dtAuthBlog(blogId: Long, visible: Byte) {
+
+    }
+
+    fun stateReset() {
+        state.update {
+            it.copy(authResp = HTTP_DEFAULT,
+                deleteResp = HTTP_DEFAULT,
+                dtAuthResp = HTTP_DEFAULT,
+                notInterested = HTTP_DEFAULT,
+                masking = HTTP_DEFAULT,
+                report = HTTP_DEFAULT)
+        }
+    }
 
 }

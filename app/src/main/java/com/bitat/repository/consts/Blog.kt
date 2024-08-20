@@ -28,6 +28,8 @@ const val BLOG_VISIBLE_SELF = 1  // 仅自己可见
 const val BLOG_VISIBLE_FRIEND = 2  // 仅好友可见
 const val BLOG_VISIBLE_ALL = 3  // 所有人可见
 
+const val BLOG_NOT_EDIT = 0  // 不修改 博文/评论 可见性
+
 
 //博文是否点赞
 const val BLOG_AGREE_YES = 1

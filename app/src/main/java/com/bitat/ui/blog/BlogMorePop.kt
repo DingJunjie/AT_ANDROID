@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
@@ -20,6 +23,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,8 +45,13 @@ import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.HTTP_FAIL
+import com.bitat.repository.consts.HTTP_SUCCESS
+import com.bitat.repository.consts.Visibility
+import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.rememberToastState
+import com.bitat.ui.component.Popup
 import com.bitat.utils.EmptyArray
 import com.bitat.viewModel.BlogMoreViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
@@ -65,20 +74,61 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
 
     LaunchedEffect(state) {
         snapshotFlow { state }.distinctUntilChanged().collect {
-            if (state.masking) {
-                ToastModel("拉黑成功！", ToastModel.Type.Success).showToast()
+            if (state.masking == HTTP_SUCCESS) {
+                ToastModel(ctx.getString(R.string.operation_success),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            } else if (state.masking == HTTP_FAIL) {
+                ToastModel(ctx.getString(R.string.operation_failed),
+                    ToastModel.Type.Error).showToast()
+                vm.stateReset()
                 onClose()
             }
-            if (state.notInterested) {
-                ToastModel("操作成功！", ToastModel.Type.Success).showToast()
+            if (state.notInterested == HTTP_SUCCESS) {
+                ToastModel(ctx.getString(R.string.operation_success),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            } else if (state.notInterested == HTTP_FAIL) {
+                ToastModel(ctx.getString(R.string.operation_failed),
+                    ToastModel.Type.Error).showToast()
+                vm.stateReset()
                 onClose()
             }
+
+            if (state.deleteResp == HTTP_SUCCESS) {
+                ToastModel(ctx.getString(R.string.operation_success),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            } else if (state.deleteResp == HTTP_FAIL) {
+                ToastModel(ctx.getString(R.string.operation_failed),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            }
+            if (state.authResp == HTTP_SUCCESS) {
+                ToastModel(ctx.getString(R.string.operation_success),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            } else if (state.authResp == HTTP_FAIL) {
+                ToastModel(ctx.getString(R.string.operation_failed),
+                    ToastModel.Type.Success).showToast()
+                vm.stateReset()
+                onClose()
+            }
+        // 判断是否为自己发的博文
+        //            vm.isOther(UserStore.userInfo.id != blog.userId.toLong())
         }
     }
-    com.bitat.ui.component.Popup(visible = visible, onClose = onClose) {
+
+
+    Popup(visible = visible, onClose = onClose) {
         Column {
             Text(modifier = Modifier.fillMaxWidth(),
-                text = "艾特",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp,
                     fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.height(30.dp))
@@ -94,24 +144,28 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
 
-                        if (!blog.labels.contentEquals(EmptyArray.int)) {
-                            vm.notInterested(blog.labels)
-                            toast.show(ctx.getString(R.string.operation_success))
-                            onClose()
+                        if (state.isOther) {
+                            if (!blog.labels.contentEquals(EmptyArray.int)) {
+                                vm.notInterested(blog.labels)
+                                onClose()
+                            } else {
+                                ToastModel(ctx.getString(R.string.operation_success),
+                                    ToastModel.Type.Success).showToast()
+                                onClose()
+                            }
                         } else {
-                            toast.show(ctx.getString(R.string.operation_success))
-                            onClose()
+                            vm.deleteBlog(blog.id, blog.kind)
                         }
-
                     }) {
                     Icon(imageVector = Icons.Outlined.Notifications,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp).padding(end = 10.dp))
                     Text(modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.blog_not_interested))
+                        text = if (state.isOther) stringResource(R.string.blog_not_interested) else stringResource(
+                            R.string.blog_delete))
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { //                        TODO()
@@ -131,13 +185,15 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
-                        AtNavigation(navController).navigateToReportUserPage()
+                        if (state.isOther) AtNavigation(navController).navigateToReportUserPage()
+                        else vm.authShow(!state.isAuthShow)
                     }) {
                     Icon(imageVector = Icons.Outlined.Star,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp).padding(end = 10.dp))
                     Text(modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.blog_report))
+                        text = if (state.isOther) stringResource(R.string.blog_report) else stringResource(
+                            R.string.blog_auth))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.Center,
@@ -149,7 +205,40 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                         contentDescription = null,
                         modifier = Modifier.size(30.dp).padding(end = 10.dp))
                     Text(modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.blog_masking))
+                        text = if (state.isOther) stringResource(R.string.blog_masking) else stringResource(
+                            R.string.blog_dongtai_auth))
+                }
+            }
+            if (state.isAuthShow) BlogVisibilePop(Visibility.getVisibility(blog.visible),
+                state.isAuthShow,
+                onSelect = {
+                    vm.authBlog(blog.id, it.toCode())
+                },
+                onClose = {
+                    vm.authShow(false)
+                })
+        }
+
+    }
+}
+
+
+@Composable
+fun BlogVisibilePop(currentVisibility: Visibility, visible: Boolean, onSelect: (Visibility) -> Unit, onClose: () -> Unit) {
+    Popup(visible = visible, onClose = { onClose() }) {
+        LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
+            items(Visibility.entries.size) {
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
+                    .clickable {
+                        onSelect(Visibility.entries[it])
+                    }) {
+                    Text(modifier = Modifier.padding(end = 40.dp).align(Alignment.CenterStart),
+                        text = Visibility.getUiVisibility(visibility = Visibility.entries[it]),
+                        fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal)
+                    Icon(imageVector = Icons.Outlined.Favorite,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp).padding(start = 10.dp)
+                            .align(Alignment.CenterEnd))
                 }
             }
         }

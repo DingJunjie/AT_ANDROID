@@ -20,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,11 +36,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.utils.ReportUtils
 import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.BlogViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
  *    author : shilu
@@ -49,16 +53,24 @@ import com.wordsfairy.note.ui.widgets.toast.showToast
 
 @Composable
 fun ReportUserPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
-
     val vm = viewModelProvider[BlogMoreViewModel::class]
     val vmBlog = viewModelProvider[BlogViewModel::class]
     val state = vm.state.collectAsState()
     val ctx = LocalContext.current
     LaunchedEffect(state) {
-        if (state.value.report) {
-            ToastModel(ctx.getString(R.string.blog_report), ToastModel.Type.Success).showToast()
-            navHostController.popBackStack()
+        snapshotFlow { state.value.report }.distinctUntilChanged().collect {
+            CuLog.debug(CuTag.Blog, "state状态变化${state.value.report}")
+            if (state.value.report == 1) {
+                ToastModel(ctx.getString(R.string.blog_report_success),
+                    ToastModel.Type.Success).showToast()
+                navHostController.popBackStack()
+            } else if (state.value.report == 2) {
+                ToastModel(ctx.getString(R.string.blog_report_fail),
+                    ToastModel.Type.Error).showToast()
+                navHostController.popBackStack()
+            }
         }
+
     }
 
     LaunchedEffect(Unit) {
@@ -110,6 +122,7 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
                 .padding(start = 40.dp, end = 40.dp, top = 20.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
+                    CuLog.debug(CuTag.Blog, "点击举报${vmBlog.blogState.value.currentBlog?.userId}")
                     vmBlog.blogState.value.currentBlog?.let {
                         vm.report(it.userId.toLong())
                     }

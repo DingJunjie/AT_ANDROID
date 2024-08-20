@@ -3,6 +3,7 @@ package com.bitat.state
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.consts.HTTP_DEFAULT
 import com.bitat.utils.ReportUtils.ReportBean
 
 /**
@@ -12,9 +13,13 @@ import com.bitat.utils.ReportUtils.ReportBean
  */
 
 data class BlogMoreState(
-    val notInterested: Boolean = false,
-    val masking: Boolean = false,
-    val report: Boolean = false,
+    val notInterested: Int =  HTTP_DEFAULT,
+    val masking: Int = HTTP_DEFAULT,
+    val report: Int =  HTTP_DEFAULT, // 默认-1 1 成功 2 失败
+    val deleteResp:Int =HTTP_DEFAULT,
+    val authResp:Int =HTTP_DEFAULT,
+    val dtAuthResp:Int =HTTP_DEFAULT,
+    val isAuthShow:Boolean =false,
     val reportList: SnapshotStateList<ReportBean> = mutableStateListOf(),
-    val updateIndex: Int=0
-)
+    val updateIndex: Int = 0,
+    val isOther:Boolean= false)

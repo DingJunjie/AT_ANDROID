@@ -23,48 +23,41 @@ object BlogReq {
         Http.post<_, Unit>("${Http.HOST}/service/blog/editVisible", dto)
 
     //通过id查询博文
-    suspend inline fun getBlog(dto: GetBlogDto) = Http.post<_, BlogBaseDto>(
-        "${Http.HOST}/service/blog/getBlog", dto
-    )
+    suspend inline fun getBlog(dto: GetBlogDto) =
+        Http.post<_, BlogBaseDto>("${Http.HOST}/service/blog/getBlog", dto)
 
 
     //查看最新发布
-    suspend inline fun newBlogs(dto: NewBlogsDto) = Http.post<_, Array<BlogBaseDto>>(
-        "${Http.HOST}/service/blog/newBlogs", dto
-    )
+    suspend inline fun newBlogs(dto: NewBlogsDto) =
+        Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/blog/newBlogs", dto)
 
 
     //查看最热博文
-    suspend inline fun hotBlogs(dto: HotBlogsDto) = Http.post<_, Array<BlogPart3Dto>>(
-        "${Http.HOST}/service/blog/hotBlogs", dto
-    )
+    suspend inline fun hotBlogs(dto: HotBlogsDto) =
+        Http.post<_, Array<BlogPart3Dto>>("${Http.HOST}/service/blog/hotBlogs", dto)
 
 
     //查看关注对象发布的博文
-    suspend inline fun followBlogs(dto: FollowBlogsDto) = Http.post<_, Array<BlogBaseDto>>(
-        "${Http.HOST}/service/blog/followBlogs", dto
-    )
+    suspend inline fun followBlogs(dto: FollowBlogsDto) =
+        Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/blog/followBlogs", dto)
 
 
     //查看同城
-    suspend inline fun sameCityBlogs(dto: SameCityBlogsDto) = Http.post<_, Array<BlogPart2Dto>>(
-        "${Http.HOST}/service/blog/sameCityBlogs", dto
-    )
+    suspend inline fun sameCityBlogs(dto: SameCityBlogsDto) =
+        Http.post<_, Array<BlogPart2Dto>>("${Http.HOST}/service/blog/sameCityBlogs", dto)
 
     //获取推荐博文
     suspend inline fun recommendBlogs() =
         Http.get<Array<BlogBaseDto>>("${Http.HOST}/service/blog/recommendBlogs")
 
     //用过blogId数组查询博文封面信息
-    suspend inline fun queryCover(dto: QueryCoverDto) = Http.post<_, Array<BlogPartDto>>(
-        "${Http.HOST}/service/blog/queryCover", dto
-    )
+    suspend inline fun queryCover(dto: QueryCoverDto) =
+        Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/blog/queryCover", dto)
 
 
     //获取我的是时间线
-    suspend inline fun timeLine(dto: TimeLineDto) = Http.post<_, Array<BlogBaseDto>>(
-        "${Http.HOST}/service/blog/timeLine", dto
-    )
+    suspend inline fun timeLine(dto: TimeLineDto) =
+        Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/blog/timeLine", dto)
 
 
     //用户加入共创
@@ -72,15 +65,13 @@ object BlogReq {
         Http.post<_, Unit>("${Http.HOST}/service/blog/addCoCreates", dto)
 
     //博文其他信息
-    suspend inline fun blogOther(dto: BlogOtherDto) = Http.post<_, BlogAlbumDto>(
-        "${Http.HOST}/service/blog/blogOther", dto
-    )
+    suspend inline fun blogOther(dto: BlogOtherDto) =
+        Http.post<_, BlogAlbumDto>("${Http.HOST}/service/blog/blogOther", dto)
 
 
     //通过blogIds查询博文信息
-    suspend inline fun find(dto: BlogFindDto) = Http.post<_, Array<BlogBaseDto>>(
-        "${Http.HOST}/service/blog/find", dto
-    )
+    suspend inline fun find(dto: BlogFindDto) =
+        Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/blog/find", dto)
 
 
 }

@@ -69,7 +69,9 @@
     <string name="blog_not_interested">不感兴趣</string>
     <string name="blog_qrcode">二维码</string>
     <string name="blog_masking">拉黑</string>
-
+    <string name="blog_delete">删除博文</string>
+    <string name="blog_auth">权限设置</string>
+    <string name="blog_dongtai_auth">是否允许跟随设置</string>
 
 
 
