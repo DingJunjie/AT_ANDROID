@@ -44,6 +44,7 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
+import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.component.OperationTipsPop
@@ -61,8 +62,20 @@ import kotlinx.coroutines.flow.distinctUntilChanged
  * blog item 组件L
  */
 @Composable
-fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: () -> Unit,moreClick:() -> Unit) {
+fun BlogItem(
+    blog: BlogBaseDto,
+    isPlaying: Boolean = false,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider,
+    contentClick: (BlogBaseDto) -> Unit,
+    tapComment: () -> Unit,
+    tapAt: () -> Unit,
+    tapLike: () -> Unit,
+    tapCollect: () -> Unit,
+    moreClick: () -> Unit
+) {
     val height = getHeight(blog)
+//    val height = 500
     val lineHeight = remember {
         mutableIntStateOf(0)
     }
@@ -71,21 +84,24 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
     }
 
     val oneThirdScreenHeight = ScreenUtils.screenHeight.dp.toPx / 3
-    val vm = viewModelProvider[BlogViewModel::class]
 
     Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
         .onSizeChanged { size ->
             if (lineHeight.intValue == 0) {
                 lineHeight.intValue = (size.height / Density).toInt() - 75
             }
-        }.fillMaxWidth()) { //头像 和用户 和发布时间
-        Row(modifier = Modifier.fillMaxWidth().height(88.cdp).padding(start = 5.dp),
-            horizontalArrangement = Arrangement.Start) {
-            if (blog.profile.isNotEmpty()) {
-                CircleImage(blog.profile)
-            } else {
-                CircleImage(blog.profile)
-            }
+        }
+        .fillMaxWidth()
+        .fillMaxHeight()
+    ) { //头像 和用户 和发布时间
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(88.cdp)
+                .padding(start = 5.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Avatar(blog.profile, size = 35)
 
             Surface(modifier = Modifier.padding(start = 14.dp)) {
                 UserInfo(blog.nickname) {
@@ -95,12 +111,21 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
             }
         }
 
-        CuLog.debug(CuTag.Blog,
-            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}")
+        CuLog.debug(
+            CuTag.Blog,
+            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}"
+        )
 
-        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
-            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.12).dp)
-                .fillMaxHeight(),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
+            Column(
+                modifier = Modifier
+                    .width(ScreenUtils.screenWidth.times(0.12).dp)
+                    .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally //                    .background(red1)
             ) { //                Box(
                 //                    modifier = Modifier
@@ -109,37 +134,49 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                 //                        .background(Color.Red)
                 //                )
                 Line(lineHeight.intValue)
-                LottieBox(lottieRes = R.raw.follow_ani,
+                LottieBox(
+                    lottieRes = R.raw.follow_ani,
                     isRepeat = true,
-                    modifier = Modifier.size(40.cdp))
+                    modifier = Modifier.size(40.cdp)
+                )
 
             }
 
-            Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth().background(Color.Transparent)
-                    .padding(start = ScreenUtils.screenWidth.times(0.11).dp)) {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .padding(start = ScreenUtils.screenWidth.times(0.11).dp)
+            ) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier.padding(bottom = 10.dp)
+                    Surface(modifier = Modifier
+                        .padding(bottom = 10.dp)
                         .clickable { contentClick(blog) }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
                 }
 
                 //博文类型
-                Box(modifier = Modifier.fillMaxSize().padding(end = 10.dp)
-                    .background(Color.Transparent)) {
-                    BlogContent(blog.kind.toInt(),
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 10.dp)
+                        .background(Color.Transparent)
+                ) {
+                    BlogContent(
+                        blog.kind.toInt(),
                         blog,
                         height,
                         isPlaying,
                         navHostController,
-                        viewModelProvider)
+                        viewModelProvider
+                    )
                 }
 
                 Surface(modifier = Modifier.padding()) {
                     BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
-
             }
         }
 
@@ -155,8 +192,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
         //        }
 
         if (isMoreVisible.value) {
-
-            BlogMorePop(isMoreVisible.value, blog,navHostController) {
+            BlogMorePop(isMoreVisible.value, blog, navHostController) {
                 isMoreVisible.value = false
             }
         }
@@ -167,16 +203,24 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
 @Composable
 fun Line(lineHeight: Int) {
     Row(
-        modifier = Modifier.width(50.dp).height(lineHeight.dp).padding(5.dp),
+        modifier = Modifier
+            .width(50.dp)
+            .height(lineHeight.dp)
+            .padding(5.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Canvas(modifier = Modifier //                .height(lineHeight.dp)
-            .width(2.dp).height(lineHeight.dp)) {
-            drawLine(color = line,
+        Canvas(
+            modifier = Modifier //                .height(lineHeight.dp)
+                .width(2.dp)
+                .height(lineHeight.dp)
+        ) {
+            drawLine(
+                color = line,
                 start = Offset(size.width / 2f, 1f),
                 end = Offset(size.width / 2f, size.height),
-                strokeWidth = 1.dp.toPx())
+                strokeWidth = 1.dp.toPx()
+            )
         }
     }
 }

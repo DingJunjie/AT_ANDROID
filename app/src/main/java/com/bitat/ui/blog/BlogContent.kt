@@ -85,7 +85,8 @@ fun BlogContent(
             mBlogBaseDto,
             maxHeight,
             isPlaying,
-            navHostController,viewModelProvider
+            navHostController,
+            viewModelProvider
         )
 
         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(mBlogBaseDto)

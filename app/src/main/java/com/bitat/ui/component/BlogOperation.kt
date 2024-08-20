@@ -21,6 +21,8 @@ fun BlogOperation(
     tapLike: () -> Unit = {},
     tapCollect: () -> Unit = {}
 ) {
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,18 +37,21 @@ fun BlogOperation(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CommentButton(
-                blog.comments.toInt().toAmountUnit(), modifier = Modifier.padding(end = 10.dp)
+                blog.comments.toString(),
+                modifier = Modifier.padding(end = 10.dp)
             ) {
                 tapComment()
             }
 
-            AtButton(blog.ats.toInt().toAmountUnit(), modifier = Modifier.padding(end = 10.dp)) {
+            AtButton(
+                blog.ats.toString(),
+                modifier = Modifier.padding(end = 10.dp)) {
                 tapAt()
             }
 
             LikeButton(
                 blog.id,
-                blog.agrees.toInt().toAmountUnit(),
+                blog.agrees.toString(),
                 isLiked = blog.hasPraise,
                 modifier = Modifier.padding(end = 10.dp)
             ) {

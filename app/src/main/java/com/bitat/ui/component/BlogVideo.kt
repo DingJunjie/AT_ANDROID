@@ -55,26 +55,28 @@ fun BlogVideo(
 
 //        if (dto.id == currentId) { //item在页面中间才加载视频
         //未选中只加载封面
-        AsyncImage(
-            model = dto.cover,
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .fillMaxWidth()
-                .height(height.dp)
-                .background(Color.Transparent),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
-
-        if (isPlaying) {
-            CuExoPlayer(
-                data = dto.resource.video,
-                modifier = Modifier.fillMaxWidth(),
-                true,
-                false
+//        if (isPlaying) {
+//            CuExoPlayer(
+//                data = dto.resource.video,
+//                modifier = Modifier.fillMaxWidth(),
+//                true,
+//                false
+//            )
+//        } else {
+            AsyncImage(
+                model = dto.cover,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .height(height.dp)
+                    .background(Color.Transparent),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
             )
-        }
+//        }
 
-        CuLog.info(CuTag.Blog, "BlogVideo---------") //        ReelPage()
+
+
+        CuLog.info(CuTag.Blog, "BlogVideo--------- ${dto.id}") //        ReelPage()
     }
 }

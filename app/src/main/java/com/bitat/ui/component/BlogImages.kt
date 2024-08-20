@@ -31,13 +31,20 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.TotalIndexShow
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ImagePreviewViewModel
 
 @Composable
-fun BlogImages(dto: BlogBaseDto, maxHeight: Int, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun BlogImages(
+    dto: BlogBaseDto,
+    maxHeight: Int,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm = viewModelProvider[ImagePreviewViewModel::class]
     val context = LocalContext.current
     Column(
@@ -55,6 +62,8 @@ fun BlogImages(dto: BlogBaseDto, maxHeight: Int, navHostController: NavHostContr
             AtNavigation(navHostController).navigateToImagePreviewPage()
         };
     }
+    CuLog.info(CuTag.Blog, "BlogImage--------- ${dto.id}") //        ReelPage()
+
 }
 
 /**

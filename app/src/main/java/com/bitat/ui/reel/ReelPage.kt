@@ -124,7 +124,6 @@ fun CuExoPlayer(
         }
     }
 
-
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     DisposableEffect(lifecycleOwner) {
         val lifeCycleObserver = LifecycleEventObserver { _, event ->
@@ -188,14 +187,17 @@ fun CuExoPlayer(
         val listener = object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) { //是否正在播放的监听
                 isVideoPlaying = isPlaying
-            }
-
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                super.onPlaybackStateChanged(playbackState)
-                if (playbackState == Player.STATE_READY) {
+                if(isPlaying) {
                     startRender = true
                 }
             }
+
+//            override fun onPlaybackStateChanged(playbackState: Int) {
+//                super.onPlaybackStateChanged(playbackState)
+//                if (playbackState == Player.STATE_READY) {
+//                    startRender = true
+//                }
+//            }
         }
         exoPlayer.addListener(listener)
         onDispose { //收尾工作

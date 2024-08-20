@@ -68,6 +68,7 @@ import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CommentList
+import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.component.CommentTextField
 import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.white
@@ -122,44 +123,45 @@ fun BlogPage(
         mutableStateOf(0)
     }
 
-    LaunchedEffect(listState) {    // 滚动事件监听
-        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged()
-            .collect { _ ->
-                if (listState.layoutInfo.visibleItemsInfo.size > 1) {
-                    if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-                            3
-                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
-                    ) {
-                        playingIndex.value = listState.firstVisibleItemIndex + 1
-                    }
-                }
-            }
+//    LaunchedEffect(listState) {    // 滚动事件监听
+//        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged()
+//            .collect { _ ->
+//                if (listState.layoutInfo.visibleItemsInfo.size > 1) {
+//                    if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
+//                            3
+//                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
+//                    ) {
+//                        playingIndex.value = listState.firstVisibleItemIndex + 1
+//                    }
+//                }
+//            }
+//
+//    }
 
-    }
+//    LaunchedEffect(listState) {
+//        snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
+//            CuLog.debug(
+//                CuTag.Blog,
+//                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
+//            )
+//            if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
+//                vm.topBarState(false)
+//            } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
+//                vm.topBarState(true)
+//            }
+//            previousIndex = listState.firstVisibleItemIndex
+//        }
+//    }
 
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
-            CuLog.debug(
-                CuTag.Blog,
-                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
-            )
-            if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
-                vm.topBarState(false)
-            } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
-                vm.topBarState(true)
-            }
-            previousIndex = listState.firstVisibleItemIndex
-        }
-    }
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .collect { layoutInfo ->
-                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                if (lastVisibleItemIndex == state.blogList.size - 1) {
-                    vm.loadMore()
-                }
-            }
-    }
+//    LaunchedEffect(listState) {
+//        snapshotFlow { listState.layoutInfo }
+//            .collect { layoutInfo ->
+//                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+//                if (lastVisibleItemIndex == state.blogList.size - 1) {
+//                    vm.loadMore()
+//                }
+//            }
+//    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -178,10 +180,10 @@ fun BlogPage(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            if (state.topBarShow) BlogTopBar(state.currentMenu,
-                isOpen.value,
-                { isOpen.value = it },
-                switchMenu = { vm.switchBlogMenu(it) })
+//            if (state.topBarShow) BlogTopBar(state.currentMenu,
+//                isOpen.value,
+//                { isOpen.value = it },
+//                switchMenu = { vm.switchBlogMenu(it) })
             RefreshView(modifier = Modifier
                 .nestedScroll(loadMoreState.nestedScrollConnection)
                 .padding(padding.calculateBottomPadding()),
@@ -199,12 +201,16 @@ fun BlogPage(
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
                             currentId = state.blogList.first().id
                         }
-                        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize()) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
                                 Surface(modifier = Modifier.fillMaxWidth()) {
                                     BlogItem(blog = item,
                                         isPlaying = playingIndex.value == index,
-                                        navController, viewModelProvider = viewModelProvider,
+//                                        isPlaying = false,
+                                        navController,
+                                        viewModelProvider = viewModelProvider,
                                         tapComment = {
                                             CommentStore.currentBlogId = item.id
                                             coroutineScope.launch {
@@ -240,7 +246,6 @@ fun BlogPage(
                             BlogMenuOptions.Latest -> Text(text = "最新" + stringResource(R.string.no_data))
                             BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
                         }
-
                     }
                 }
             }
@@ -285,154 +290,6 @@ fun BlogTopBar(
             horizontalArrangement = Arrangement.End
         ) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
-        }
-    }
-}
-
-@Composable
-fun CommentPopup(
-    visible: Boolean,
-    commentViewModel: CommentViewModel,
-    commentState: CommentState,
-    coroutineScope: CoroutineScope,
-    tapImage: (String) -> Unit,
-    blogId: Long,
-    onClose: () -> Unit
-) {
-    var textFieldValue by remember {
-        mutableStateOf(
-            TextFieldValue(commentState.commentInput)
-        )
-    }
-
-    val focusRequester = remember {
-        FocusRequester()
-    }
-
-    val atStart = remember {
-        mutableStateOf(-1)
-    }
-
-    val atEnd = remember {
-        mutableStateOf(-1)
-    }
-
-    val inputAt = remember {
-        mutableStateOf("")
-    }
-
-    fun onContentChange(content: String, cursorOffset: Int = -1) {
-        if (cursorOffset == -1) return;
-        if (content.isEmpty()) {
-            atStart.value = -1
-            return
-        }
-
-        val latestChar = content.split("")[cursorOffset]
-
-        if (cursorOffset < atStart.value) {
-            atStart.value = -1
-            return
-        }
-
-        if (latestChar == "@" && atStart.value < 0) {
-            atStart.value = cursorOffset - 1
-            commentViewModel.searchUser("")
-        } else if (latestChar == " " && atStart.value >= 0) {
-            atEnd.value = cursorOffset - 1
-
-            atStart.value = -1
-            inputAt.value = ""
-            commentViewModel.clearUserSearch()
-        } else if (atStart.value >= 0) {
-            inputAt.value = content.substring(atStart.value + 1, cursorOffset)
-            commentViewModel.searchUser(inputAt.value)
-        }
-    }
-
-    fun addAtUser(user: UserBase1Dto) {
-
-        val result = commentViewModel.selectUser(user)
-        if (textFieldValue.text.isEmpty()) {
-            textFieldValue =
-                textFieldValue.copy(text = "@${user.nickname} ")
-            return
-        }
-        val textArr = textFieldValue.text.split("")
-        val before = textArr.subList(0, textFieldValue.selection.start + 1)
-        val afterStr = textArr.subList(textFieldValue.selection.start, textFieldValue.text.length)
-            .joinToString("")
-
-        val lastAtOffset = before.lastIndexOf("@")
-        val beforeString = before.subList(0, lastAtOffset).joinToString("")
-
-        val total = "$beforeString@${user.nickname}$afterStr "
-
-        textFieldValue = textFieldValue.copy(text = total, selection = TextRange(total.length))
-
-        commentViewModel.clearUserSearch()
-    }
-
-    Popup(visible, onClose = onClose) {
-        CommentList(blogId, commentViewModel, commentState, tapImage = tapImage, tapContentFn = {
-            commentViewModel.selectReplyComment(it)
-        })
-
-        Box(contentAlignment = Alignment.BottomCenter) {
-            CommentTextField(
-                textFieldValue,
-                focusRequester = focusRequester,
-                sendComment = {
-                    coroutineScope.launch {
-                        if (commentState.replyComment == null) {
-                            commentViewModel.createComment {
-                                textFieldValue = textFieldValue.copy(text = "")
-                            }
-
-                        } else {
-                            commentViewModel.createSubComment {
-                                textFieldValue = textFieldValue.copy(text = "")
-                            }
-                        }
-                    }
-                },
-                placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
-                    if (commentState.replyComment == null) "请输入您的评论"
-                    else "回复${commentState.replyComment.nickname}："
-                },
-                atUsers = commentState.atUserSearchResult,
-                selectUser = {
-                    addAtUser(it)
-                    atStart.value = -1
-                    inputAt.value = ""
-                },
-                tapAt = {
-                    val b = textFieldValue.text.substring(0, textFieldValue.selection.start)
-                    val a = textFieldValue.text.substring(
-                        TextRange(
-                            textFieldValue.selection.start,
-                            textFieldValue.text.length
-                        )
-                    )
-                    val t = "$b@$a"
-                    focusRequester.requestFocus()
-                    textFieldValue = textFieldValue.copy(
-                        text = t,
-                        selection = TextRange(textFieldValue.selection.start + 1)
-                    )
-                    atStart.value = textFieldValue.selection.start
-                    commentViewModel.searchUser("")
-                },
-                selectedImage = commentState.imagePath,
-                imageSelect = {
-                    commentViewModel.selectImage(it)
-                },
-                onValueChange = {
-                    commentViewModel.updateComment(it.text)
-                    textFieldValue = it
-                    onContentChange(it.text, it.selection.start)
-                })
-
         }
     }
 }
