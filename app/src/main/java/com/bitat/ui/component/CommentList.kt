@@ -1,5 +1,6 @@
 package com.bitat.ui.component
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,9 +34,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import coil.ImageLoader
+import coil.compose.AsyncImage
 import com.bitat.MainCo
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.repository.dto.resp.CommentPart1Dto
@@ -56,6 +61,7 @@ fun CommentList(
     blogId: Long,
     commentViewModel: CommentViewModel,
     commentState: CommentState,
+    tapImage: (String) -> Unit,
     tapContentFn: (CommentPartDto?) -> Unit
 ) {
     commentViewModel.updateBlogId(blogId)
@@ -68,12 +74,11 @@ fun CommentList(
         println("this one changed ${commentState.subComments}")
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .height(ScreenUtils.screenHeight.times(0.5).dp)
-            .clickableWithoutRipple {
-                tapContentFn(null)
-            }) {
+    LazyColumn(modifier = Modifier
+        .height(ScreenUtils.screenHeight.times(0.5).dp)
+        .clickableWithoutRipple {
+            tapContentFn(null)
+        }) {
         items(commentState.comments) { item ->
             CommentItem(
                 comment = item,
@@ -83,6 +88,7 @@ fun CommentList(
                         commentViewModel.getSubComment(item.id)
                     }
                 },
+                tapImage = tapImage,
                 tapSubCommentMore = {
                     MainCo.launch {
                         commentViewModel.getSubComment(item.id)
@@ -98,9 +104,11 @@ fun CommentList(
 fun SubCommentList(subComments: List<SubCommentPartDto>) {
     if (subComments.isEmpty()) Box {}
     else {
-        Surface(modifier = Modifier
-            .padding(start = 50.dp)
-            .background(Color.LightGray)) {
+        Surface(
+            modifier = Modifier
+                .padding(start = 50.dp)
+                .background(Color.LightGray)
+        ) {
             Column {
                 subComments.forEach { item ->
                     SubCommentItem(item)
@@ -128,6 +136,7 @@ fun SubCommentItem(subComment: SubCommentPartDto) {
 fun CommentItem(
     comment: CommentPartDto,
     subComments: List<SubCommentPartDto>,
+    tapImage: (String) -> Unit,
     tapSubCommentMore: () -> Unit,
     tapShowSubComment: (Long) -> Unit,
     tapFn: (CommentPartDto) -> Unit
@@ -171,10 +180,15 @@ fun CommentItem(
             .clickable {
                 tapFn(comment)
             }) {
+            if (comment.resource.images.isNotEmpty()) {
+                CommentImage(image = comment.resource.images.first()) {
+                    tapImage(it)
+                }
+            }
             Text(comment.content, style = Typography.bodyMedium.copy(lineHeight = 16.sp))
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = { /*TODO*/ }) {
+            TextButton(onClick = { tapFn(comment) }) {
                 Text("回复")
             }
         }
@@ -203,5 +217,20 @@ fun CommentItem(
             Text("查看${comment.comments}条回复")
             Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
         }
+    }
+}
+
+@Composable
+fun CommentImage(image: String, tapFn: (String) -> Unit) {
+    Box(modifier = Modifier
+        .size(60.dp)
+        .clickable {
+            tapFn(image)
+        }) {
+        AsyncImage(
+            model = image,
+            contentDescription = "",
+            contentScale = ContentScale.FillWidth
+        )
     }
 }

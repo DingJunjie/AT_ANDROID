@@ -40,10 +40,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -52,6 +55,7 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.store.CommentStore
 import com.bitat.router.AtNavigation
 import com.bitat.router.Screen
@@ -70,6 +74,7 @@ import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CommentViewModel
+import com.bitat.viewModel.ImagePreviewViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -85,6 +90,7 @@ fun BlogPage(
     modifier: Modifier, navController: NavHostController, viewModelProvider: ViewModelProvider
 ) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
+    val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
     val state by vm.blogState.collectAsState()
     val pagerState: PagerState = rememberPagerState { 3 }
     val loadMoreState = rememberLoadMoreState {
@@ -246,6 +252,10 @@ fun BlogPage(
         blogId = CommentStore.currentBlogId,
         commentViewModel = commentVm,
         coroutineScope = coroutineScope,
+        tapImage = {
+            imagePreviewVm.setImagePreView(arrayOf(it))
+            AtNavigation(navController).navigateToImagePreviewPage()
+        },
         commentState = commentState,
         onClose = { isCommentVisible.value = false })
 }
@@ -285,6 +295,7 @@ fun CommentPopup(
     commentViewModel: CommentViewModel,
     commentState: CommentState,
     coroutineScope: CoroutineScope,
+    tapImage: (String) -> Unit,
     blogId: Long,
     onClose: () -> Unit
 ) {
@@ -294,14 +305,83 @@ fun CommentPopup(
         )
     }
 
+    val focusRequester = remember {
+        FocusRequester()
+    }
+
+    val atStart = remember {
+        mutableStateOf(-1)
+    }
+
+    val atEnd = remember {
+        mutableStateOf(-1)
+    }
+
+    val inputAt = remember {
+        mutableStateOf("")
+    }
+
+    fun onContentChange(content: String, cursorOffset: Int = -1) {
+        if (cursorOffset == -1) return;
+        if (content.isEmpty()) {
+            atStart.value = -1
+            return
+        }
+
+        val latestChar = content.split("")[cursorOffset]
+
+        if (cursorOffset < atStart.value) {
+            atStart.value = -1
+            return
+        }
+
+        if (latestChar == "@" && atStart.value < 0) {
+            atStart.value = cursorOffset - 1
+            commentViewModel.searchUser("")
+        } else if (latestChar == " " && atStart.value >= 0) {
+            atEnd.value = cursorOffset - 1
+
+            atStart.value = -1
+            inputAt.value = ""
+            commentViewModel.clearUserSearch()
+        } else if (atStart.value >= 0) {
+            inputAt.value = content.substring(atStart.value + 1, cursorOffset)
+            commentViewModel.searchUser(inputAt.value)
+        }
+    }
+
+    fun addAtUser(user: UserBase1Dto) {
+
+        val result = commentViewModel.selectUser(user)
+        if (textFieldValue.text.isEmpty()) {
+            textFieldValue =
+                textFieldValue.copy(text = "@${user.nickname} ")
+            return
+        }
+        val textArr = textFieldValue.text.split("")
+        val before = textArr.subList(0, textFieldValue.selection.start + 1)
+        val afterStr = textArr.subList(textFieldValue.selection.start, textFieldValue.text.length)
+            .joinToString("")
+
+        val lastAtOffset = before.lastIndexOf("@")
+        val beforeString = before.subList(0, lastAtOffset).joinToString("")
+
+        val total = "$beforeString@${user.nickname}$afterStr "
+
+        textFieldValue = textFieldValue.copy(text = total, selection = TextRange(total.length))
+
+        commentViewModel.clearUserSearch()
+    }
+
     Popup(visible, onClose = onClose) {
-        CommentList(blogId, commentViewModel, commentState, tapContentFn = {
+        CommentList(blogId, commentViewModel, commentState, tapImage = tapImage, tapContentFn = {
             commentViewModel.selectReplyComment(it)
         })
 
         Box(contentAlignment = Alignment.BottomCenter) {
             CommentTextField(
                 textFieldValue,
+                focusRequester = focusRequester,
                 sendComment = {
                     coroutineScope.launch {
                         if (commentState.replyComment == null) {
@@ -320,9 +400,37 @@ fun CommentPopup(
                     if (commentState.replyComment == null) "请输入您的评论"
                     else "回复${commentState.replyComment.nickname}："
                 },
+                atUsers = commentState.atUserSearchResult,
+                selectUser = {
+                    addAtUser(it)
+                    atStart.value = -1
+                    inputAt.value = ""
+                },
+                tapAt = {
+                    val b = textFieldValue.text.substring(0, textFieldValue.selection.start)
+                    val a = textFieldValue.text.substring(
+                        TextRange(
+                            textFieldValue.selection.start,
+                            textFieldValue.text.length
+                        )
+                    )
+                    val t = "$b@$a"
+                    focusRequester.requestFocus()
+                    textFieldValue = textFieldValue.copy(
+                        text = t,
+                        selection = TextRange(textFieldValue.selection.start + 1)
+                    )
+                    atStart.value = textFieldValue.selection.start
+                    commentViewModel.searchUser("")
+                },
+                selectedImage = commentState.imagePath,
+                imageSelect = {
+                    commentViewModel.selectImage(it)
+                },
                 onValueChange = {
                     commentViewModel.updateComment(it.text)
                     textFieldValue = it
+                    onContentChange(it.text, it.selection.start)
                 })
 
         }

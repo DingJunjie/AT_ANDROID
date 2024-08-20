@@ -3,6 +3,7 @@ package com.bitat.repository.store
 import com.bitat.repository.dto.common.TokenDto
 import com.bitat.repository.dto.resp.AuthDto
 import com.bitat.repository.dto.resp.LoginResDto
+import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.http.Http
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.utils.JsonUtils
@@ -11,12 +12,15 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope as coScope
 import kotlinx.coroutines.delay
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
 
 object TokenStore {
     private const val TOKEN_KEY = "UserToken"
     private const val AUTHS_KEY = "UserAuths"
+    private const val USER_KEY = "User"
 
     fun isExpired() = (getToken()?.expire ?: 0) < TimeUtils.getNow()
 
@@ -51,6 +55,16 @@ object TokenStore {
         BaseStore.setStr(TOKEN_KEY, jsonData)
     }
 
+    private fun setUser(userDto: UserDto) {
+        BaseStore.setStr(USER_KEY, Json.encodeToString(UserDto.serializer(), userDto))
+    }
+
+    fun getUser(): UserDto? {
+        val user = BaseStore.getStr(USER_KEY)
+        return if (user == null) {
+            null
+        } else Json.decodeFromString(user)
+    }
 
     // 获取授权信息，如果过期则从 Keychain 中读取
     private fun getAuths(): Array<AuthDto>? {
@@ -81,6 +95,7 @@ object TokenStore {
     fun initLogin(dto: LoginResDto) {
         setToken(dto.access)
         setAuths(dto.auths)
+        setUser(dto.user)
     }
 
     // 刷新 token

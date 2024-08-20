@@ -91,6 +91,10 @@ fun CuExoPlayer(
     var isVideoPlaying by remember { mutableStateOf(false) } //自己实现的控制器是否可见
     var isControllerVisible by remember { mutableStateOf(false) }
 
+    var startRender by remember {
+        mutableStateOf(false)
+    }
+
     //标志是否为初次进入，防止 lifecycle 的 onStart 事件导致自动播放
     var isFirstIn by remember { mutableStateOf(true) }
 
@@ -114,9 +118,12 @@ fun CuExoPlayer(
             } //设置重复播放的模式（这里也不是很搞得懂）
             repeatMode = Player.REPEAT_MODE_ONE //自动重播
             playWhenReady = false //开始准备资源
+
             prepare()
+            this.seekTo(0)
         }
     }
+
 
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     DisposableEffect(lifecycleOwner) {
@@ -130,7 +137,7 @@ fun CuExoPlayer(
 
                 Lifecycle.Event.ON_START -> {
                     CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> ON_START$data")
-                    if (!isFirstIn ) exoPlayer.play()
+                    if (!isFirstIn) exoPlayer.play()
                 } //恢复播放
 
                 Lifecycle.Event.ON_PAUSE -> {
@@ -182,6 +189,13 @@ fun CuExoPlayer(
             override fun onIsPlayingChanged(isPlaying: Boolean) { //是否正在播放的监听
                 isVideoPlaying = isPlaying
             }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                if (playbackState == Player.STATE_READY) {
+                    startRender = true
+                }
+            }
         }
         exoPlayer.addListener(listener)
         onDispose { //收尾工作
@@ -231,7 +245,7 @@ fun CuExoPlayer(
         //        PlayerSurface(exoPlayer, surfaceType = SURFACE_TYPE_SURFACE_VIEW)
 
         Box(modifier = modifier) {
-            AndroidView(factory = {
+            if (startRender) AndroidView(factory = {
                 PlayerView(context).apply {
                     this.player = exoPlayer
 //                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升

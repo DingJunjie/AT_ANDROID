@@ -136,7 +136,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                         viewModelProvider)
                 }
 
-                Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.12).dp)) {
+                Surface(modifier = Modifier.padding()) {
                     BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
 
