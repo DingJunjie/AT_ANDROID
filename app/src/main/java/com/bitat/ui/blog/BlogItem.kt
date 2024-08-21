@@ -56,7 +56,7 @@ fun BlogItem(
     tapComment: () -> Unit,
     tapAt: () -> Unit,
     tapLike: () -> Unit,
-    tapCollect: () -> Unit,
+    tapCollect: (Int) -> Unit,
     moreClick: () -> Unit
 ) {
     val height = getHeight(blog)
