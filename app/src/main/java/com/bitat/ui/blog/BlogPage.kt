@@ -46,30 +46,20 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
-<<<<<<< HEAD
-import com.bitat.repository.store.CommentStore
-=======
 import com.bitat.repository.dto.resp.UserBase1Dto
->>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.router.AtNavigation
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogOperation
 import com.bitat.ui.common.RefreshView
-<<<<<<< HEAD
 import com.bitat.ui.common.SvgIcon
-=======
 import com.bitat.ui.common.WeDialog
 import com.bitat.ui.common.rememberDialogState
->>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AnimatedMenu
-<<<<<<< HEAD
-=======
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentList
->>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
