@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,22 +41,40 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
+import com.bitat.ext.Density
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
+<<<<<<< HEAD
 import com.bitat.repository.store.CommentStore
+=======
+import com.bitat.repository.dto.resp.UserBase1Dto
+>>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.router.AtNavigation
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogOperation
 import com.bitat.ui.common.RefreshView
+<<<<<<< HEAD
 import com.bitat.ui.common.SvgIcon
+=======
+import com.bitat.ui.common.WeDialog
+import com.bitat.ui.common.rememberDialogState
+>>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.ui.common.rememberLoadMoreState
+import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AnimatedMenu
+<<<<<<< HEAD
+=======
+import com.bitat.ui.component.CollectPopup
+import com.bitat.ui.component.CollectTips
+import com.bitat.ui.component.CommentList
+>>>>>>> 24dd2fe (collect, video and so on)
 import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
 import kotlinx.coroutines.delay
@@ -80,6 +99,9 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
     val commentVm: CommentViewModel = viewModelProvider[CommentViewModel::class]
     val commentState by commentVm.commentState.collectAsState()
 
+    val collectVm: CollectViewModel = viewModelProvider[CollectViewModel::class]
+    val collectState by collectVm.collectState.collectAsState()
+
     var currentId by remember {
         mutableLongStateOf(0L)
     }
@@ -92,6 +114,18 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
     }
 
     val isOpen = remember {
+        mutableStateOf(false)
+    }
+
+    var collectTipY by remember {
+        mutableIntStateOf(0)
+    }
+
+    var collectTipVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var collectPopupVisible by remember {
         mutableStateOf(false)
     }
 
@@ -112,7 +146,6 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                     }
                 }
             }
-
     }
 
     LaunchedEffect(listState) {
@@ -137,25 +170,44 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
             }
     }
 
+    val toast = rememberToastState()
+
     val coroutineScope = rememberCoroutineScope()
 
     val isCommentVisible = remember {
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .background(white)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) })
-            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
-                .padding(padding.calculateBottomPadding()), onRefresh = {
-                CuLog.debug(CuTag.Blog, "onRefresh 回调")
-                vm.initBlogList(state.currentMenu)
-            }) {
-                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                    contentAlignment = Alignment.Center) {
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .padding(bottom = padding.calculateBottomPadding())
+                .fillMaxHeight()
+                .fillMaxWidth(),
+                onRefresh = {
+                    CuLog.debug(CuTag.Blog, "onRefresh 回调")
+                    vm.initBlogList(state.currentMenu)
+                }) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+//                    contentAlignment = Alignment.Center
+                ) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
                             currentId = state.blogList.first().id
@@ -168,8 +220,8 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                         navController,
                                         viewModelProvider = viewModelProvider,
                                         tapComment = {
-                                            CommentStore.currentBlogId = item.id
                                             coroutineScope.launch {
+                                                commentVm.updateBlogId(item.id)
                                                 delay(1000)
                                                 currentOperation = BlogOperation.Comment
                                             }
@@ -183,9 +235,26 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                         },
                                         tapLike = {},
                                         tapCollect = {
+                                            collectTipY = it.div(Density).toInt()
+                                            collectVm.updateBlog(blog = item)
                                             coroutineScope.launch {
                                                 currentOperation = BlogOperation.Collect
                                             }
+                                            collectTipVisible = true
+
+                                            if (item.hasCollect) {
+                                                // 已收藏，取消
+                                                collectVm.cancelCollect()
+                                            } else {
+                                                // 未收藏，收藏
+                                                collectVm.collectBlog(0)
+                                            }
+
+                                            coroutineScope.launch {
+                                                delay(3000)
+                                                collectTipVisible = false
+                                            }
+
                                         },
                                         contentClick = { item ->
                                             vm.setCurrentBlog(item)
@@ -209,8 +278,37 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         }
     }
 
-    CommentPopup(visible = isCommentVisible.value,
-        blogId = CommentStore.currentBlogId,
+
+    CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+        collectTipVisible = false
+    }, openPopup = {
+        collectTipVisible = false
+        collectPopupVisible = true
+    })
+
+    CollectPopup(
+        visible = collectPopupVisible,
+        collectViewModel = collectVm,
+        collectState = collectState,
+        createCollection = {
+            collectVm.createCollection(it, completeFn = {
+                collectVm.initMyCollections()
+            })
+        },
+        tapCollect = {
+            collectVm.collectBlog(it.key, completeFn = {
+                toast.show("收藏成功")
+            })
+            collectPopupVisible = false
+        },
+        onClose = {
+            collectPopupVisible = false
+        }
+    )
+
+    CommentPopup(
+        visible = isCommentVisible.value,
+        blogId = commentState.currentBlogId,
         commentViewModel = commentVm,
         coroutineScope = coroutineScope,
         tapImage = {
@@ -219,6 +317,8 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         },
         commentState = commentState,
         onClose = { isCommentVisible.value = false })
+
+
 }
 
 

@@ -18,7 +18,7 @@ fun CollectButton(
             tapFn()
         },
         path = "svg/collection.svg",
-        tint = Color.Black,
+        tint = if (hasCollect) Color.Yellow else Color.Black,
         contentDescription = ""
     )
 }

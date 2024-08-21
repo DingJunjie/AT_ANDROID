@@ -79,7 +79,6 @@ fun CommentPopup(
     }
 
     fun addAtUser(user: UserBase1Dto) {
-
         val result = commentViewModel.selectUser(user)
         if (textFieldValue.text.isEmpty()) {
             textFieldValue = textFieldValue.copy(text = "@${user.nickname} ")
@@ -120,7 +119,6 @@ fun CommentPopup(
                         commentViewModel.createComment {
                             textFieldValue = textFieldValue.copy(text = "")
                         }
-
                     } else {
                         commentViewModel.createSubComment {
                             textFieldValue = textFieldValue.copy(text = "")

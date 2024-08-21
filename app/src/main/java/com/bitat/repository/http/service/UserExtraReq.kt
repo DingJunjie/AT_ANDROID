@@ -27,7 +27,7 @@ object UserExtraReq {
     suspend inline fun updateCollect(dto: UpdateCollectDto) = Http.post<_, Unit>("${Http.HOST}/service/userExtra/updateCollect", dto)
 
     //获取收藏夹列表
-    suspend inline fun collectList() = Http.get<Unit>("${Http.HOST}/service/userExtra/collectList")
+    suspend inline fun collectList() = Http.get<Array<CollectPartDto>>("${Http.HOST}/service/userExtra/collectList")
 
     //查询我收藏的所有作品
     suspend inline fun findCollectOpus(dto: FindCollectOpusDto) = Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/userExtra/findCollectOpus", dto)

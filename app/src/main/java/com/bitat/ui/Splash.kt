@@ -31,6 +31,8 @@ fun Splash(navHostController: NavHostController) {
                 UserReq.getUserInfo(GetUserInfoDto(userId = user.id)).await().map {
                     UserStore.updateByUserInfo(it)
                     navHostController.navigate(NavigationItem.Home.route)
+                }.errMap {
+                    println("get error message ${it.msg}")
                 }
             }
         }

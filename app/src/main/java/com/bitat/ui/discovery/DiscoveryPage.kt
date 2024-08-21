@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -124,10 +125,14 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
         Column(
             Modifier
                 .padding(padding)
+                .fillMaxSize()
                 .pullRefresh(pullRefreshState)
         ) {
             RefreshView(
-                modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection),
+                modifier = Modifier
+                    .nestedScroll(loadMoreState.nestedScrollConnection)
+                    .padding(bottom = padding.calculateBottomPadding())
+                    .fillMaxSize(),
                 onRefresh = {
                     vm.getDiscoveryList(isRefresh = true)
                 }
@@ -154,7 +159,7 @@ fun LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(3),
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.9f),
+            .fillMaxHeight(1f),
         state = rememberLazyStaggeredGridState(),
         contentPadding = PaddingValues(0.dp),//左右;两边的距离
         horizontalArrangement = Arrangement.spacedBy(0.dp),//横向图片两边的距离

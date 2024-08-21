@@ -47,7 +47,6 @@ import com.bitat.ext.clickableWithoutRipple
 import com.bitat.repository.dto.resp.CommentPart1Dto
 import com.bitat.repository.dto.resp.CommentPartDto
 import com.bitat.repository.dto.resp.SubCommentPartDto
-import com.bitat.repository.store.CommentStore
 import com.bitat.repository.store.UserStore
 import com.bitat.state.CommentState
 import com.bitat.ui.common.AnyPopDialog
@@ -236,7 +235,7 @@ fun CommentItem(
                 Icon(Icons.Filled.Add, contentDescription = "")
             }
         }
-        Surface(modifier = Modifier
+        Column(modifier = Modifier
             .padding(start = 52.dp)
             .clickable {
                 tapFn(comment)

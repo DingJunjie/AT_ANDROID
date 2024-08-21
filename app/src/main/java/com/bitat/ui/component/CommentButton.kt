@@ -9,11 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bitat.ext.toAmountUnit
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
 
 @Composable
-fun CommentButton(count: String, modifier: Modifier = Modifier, tapFn: () -> Unit) {
+fun CommentButton(count: Int, modifier: Modifier = Modifier, tapFn: () -> Unit) {
     Row(modifier = modifier
         .clickable { tapFn() }) {
         SvgIcon(
@@ -22,8 +23,8 @@ fun CommentButton(count: String, modifier: Modifier = Modifier, tapFn: () -> Uni
             tint = Color.Black,
             contentDescription = ""
         )
-        Text(
-            count, style = Typography.bodyMedium.copy(
+        if (count > 0) Text(
+            count.toAmountUnit(), style = Typography.bodyMedium.copy(
                 fontSize = 10.sp,
                 color = Color.Black
             )
