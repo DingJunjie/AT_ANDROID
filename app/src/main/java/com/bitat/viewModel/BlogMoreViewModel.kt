@@ -162,5 +162,4 @@ class BlogMoreViewModel : ViewModel() {
                 report = HTTP_DEFAULT)
         }
     }
-
 }

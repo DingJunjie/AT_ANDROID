@@ -88,42 +88,6 @@ fun BottomAppBarBar(onTabChange: (Int) -> Unit) {
     var selectIndex by remember {
         mutableIntStateOf(0)
     }
-//    BottomAppBar(modifier = Modifier
-////        .height(60.dp)
-//        ,
-//        contentColor = Color.White,
-//        containerColor = Color.White,
-//        actions = {
-//            TabRow(
-//                modifier = Modifier.navigationBarsPadding(),
-//                selectedTabIndex = 0,
-//                indicator = {}) {
-//                tabList.forEachIndexed { index, tab -> //
-//                    IconButton(modifier = Modifier.background(color = Color.Blue), onClick = {
-//                        selectIndex = index
-//                        onTabChange(index)
-//                    }) {
-//                        Icon(
-//                            painter =
-//                            if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-//                                id = tab.iconUnselect
-//                            ),
-//                            contentDescription = "tabIcon",
-//                            modifier = Modifier
-//                                .size(
-//                                    when (index) {
-//                                        2 -> 50.cdp
-//                                        1 -> 50.cdp
-//                                        else -> 50.cdp
-//                                    }
-//                                )
-//                                .background(color = Color.Cyan)
-//                        )
-//                    }
-//                }
-//            }
-//
-//        })
 
     BottomNavigation(backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->

@@ -14,22 +14,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -40,23 +34,14 @@ import com.bitat.ext.cdp
 import com.bitat.ext.toPx
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.consts.BLOG_VIDEO_ONLY
-import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.BlogOperation
-import com.bitat.ui.component.BlogText
-import com.bitat.ui.component.OperationTipsPop
 import com.bitat.ui.component.UserInfo
-import com.bitat.ui.theme.blue
-import com.bitat.ui.theme.grey5
 import com.bitat.ui.theme.line
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
-import com.bitat.viewModel.BlogViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 /*****
  * blog item 组件L
@@ -75,7 +60,7 @@ fun BlogItem(
     moreClick: () -> Unit
 ) {
     val height = getHeight(blog)
-//    val height = 500
+    //    val height = 500
     val lineHeight = remember {
         mutableIntStateOf(0)
     }

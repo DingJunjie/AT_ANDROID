@@ -72,17 +72,7 @@ import kotlinx.coroutines.isActive
  */
 @OptIn(UnstableApi::class)
 @Composable
-fun CuExoPlayer(
-    data: String?,
-    modifier: Modifier = Modifier,
-    isFixHeight: Boolean = false,
-    useExoController: Boolean = false,
-    cache: Cache? = null,
-    onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {},
-    onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> },
-    onVideoDispose: () -> Unit = {},
-    onVideoGoBackground: () -> Unit = {}
-) {
+fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boolean = false, useExoController: Boolean = false, cache: Cache? = null, onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {}, onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> }, onVideoDispose: () -> Unit = {}, onVideoGoBackground: () -> Unit = {}) {
     val context = LocalContext.current //初始的比例，设置成这么大用来模拟 0 高度
     var ratio by remember { mutableStateOf(1000f) }
 
@@ -109,10 +99,8 @@ fun CuExoPlayer(
                 val cacheSourceFactory = CacheDataSource.Factory().setCache(cache)
                     .setUpstreamDataSourceFactory(defaultDataSource)
                     .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-                setMediaSource(
-                    ProgressiveMediaSource.Factory(cacheSourceFactory)
-                        .createMediaSource(item)
-                )
+                setMediaSource(ProgressiveMediaSource.Factory(cacheSourceFactory)
+                    .createMediaSource(item))
             } else { //不启用缓存则直接 setMediaItem
                 setMediaItem(item)
             } //设置重复播放的模式（这里也不是很搞得懂）
@@ -165,7 +153,7 @@ fun CuExoPlayer(
             delay(5000)
             isControllerVisible = false
         }
-        exoPlayer.play()//控制自动播放
+        exoPlayer.play() //控制自动播放
         CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> LaunchedEffect")
     }
 
@@ -201,11 +189,10 @@ fun CuExoPlayer(
         }
         exoPlayer.addListener(listener)
         onDispose { //收尾工作
-//            CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> onDispose")
-//            exoPlayer.release()
-//            onVideoDispose()
-//            exoPlayer.removeListener(listener) //            playerView.setAspectRatioListener(null)
-
+            //            CuLog.info(CuTag.Blog, "VideoPlayer------------->>>> onDispose")
+            //            exoPlayer.release()
+            //            onVideoDispose()
+            //            exoPlayer.removeListener(listener) //            playerView.setAspectRatioListener(null)
         }
     }
 
@@ -249,8 +236,8 @@ fun CuExoPlayer(
         Box(modifier = modifier) {
             if (startRender) AndroidView(factory = {
                 PlayerView(context).apply {
-                    this.player = exoPlayer
-//                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
+                    this.player =
+                        exoPlayer //                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
                     resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满
                     useController = false // 不显示默认控制器
                     setBackgroundColor(context.resources.getColor(R.color.black))
@@ -266,42 +253,26 @@ fun CuExoPlayer(
             val controllerBgAlpha by animateFloatAsState(targetValue = if (isControllerVisible || isFirstIn) 0.7f else 0f)
             val controllerContentAlpha by animateFloatAsState(targetValue = if (isControllerVisible || isFirstIn) 1f else 0f)
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(10.dp)
-                    .height(20.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.Black.copy(alpha = controllerBgAlpha))
-                    .padding(horizontal = 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp).height(20.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.Black.copy(alpha = controllerBgAlpha)).padding(horizontal = 6.dp),
+                contentAlignment = Alignment.Center) {
                 val formattedTime =
                     "${currentPosition / 60}:${String.format("%02d", (currentPosition % 60))}"
-                Text(
-                    text = formattedTime,
+                Text(text = formattedTime,
                     color = Color.White.copy(alpha = controllerContentAlpha),
-                    style = MaterialTheme.typography.labelSmall
-                )
+                    style = MaterialTheme.typography.labelSmall)
             }
 
-            Box(modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(10.dp)
-                .size(30.dp)
-                .clip(CircleShape)
-                .background(Color.Black.copy(alpha = controllerBgAlpha))
+            Box(modifier = Modifier.align(Alignment.BottomStart).padding(10.dp).size(30.dp)
+                .clip(CircleShape).background(Color.Black.copy(alpha = controllerBgAlpha))
                 .clickable {
                     if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
                     isFirstIn = false
-                }
-                .padding(6.dp), contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
+                }.padding(6.dp), contentAlignment = Alignment.Center) {
+                Icon(if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
                     contentDescription = "",
-                    tint = Color.White.copy(alpha = controllerContentAlpha)
-                )
+                    tint = Color.White.copy(alpha = controllerContentAlpha))
             }
 
         }
