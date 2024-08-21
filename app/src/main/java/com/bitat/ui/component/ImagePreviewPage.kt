@@ -16,8 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.ui.common.SvgIcon
+import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.viewModel.ImagePreviewViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  *    author : shilu
@@ -58,18 +66,37 @@ fun ImagePreviewPage(navController: NavHostController, viewModelProvider: ViewMo
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageBanner(imgList: List<String>) {
+fun ImageBanner(imgList: List<String>, isAutoPlay: Boolean = false, playInterval: Long = 2000L) {
+
     val pageState: PagerState = rememberPagerState(pageCount = { imgList.size })
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(pageState) {
+        snapshotFlow { pageState.currentPage }.collect { page -> // 页面切换时触发的操作
+            if (isAutoPlay) {
+                delay(playInterval)
+                coroutineScope.launch {
+                    if (page  < pageState.pageCount -1) {
+                        pageState.animateScrollToPage(page + 1)
+                        CuLog.debug(CuTag.Blog,
+                            "pageState 当前为第$page 页，切换到第${page + 1}页 ，总共${pageState.pageCount}页")
+                    } else if(page==pageState.pageCount -1) {
+                        pageState.animateScrollToPage(0)
+                        CuLog.debug(CuTag.Blog, "pageState 当前为第$page 页，切换到第0页 ，总共${pageState.pageCount}页")
+                    }
+                }
+            }
+        }
+    }
     HorizontalPager(state = pageState, modifier = Modifier.fillMaxSize()) { index ->
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             AsyncImage(model = imgList[index],
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
-                    .background(Color.Black),
+                modifier = Modifier.fillMaxWidth().background(Color.Black),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth //宽度撑满
-            )
+            ) //            rememberAsyncPainter(url = imgList[index])
         }
     }
 }

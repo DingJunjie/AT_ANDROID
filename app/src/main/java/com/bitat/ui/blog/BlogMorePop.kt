@@ -1,6 +1,7 @@
 package com.bitat.ui.blog
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import com.bitat.R
 import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.HTTP_FAIL
 import com.bitat.repository.consts.HTTP_SUCCESS
 import com.bitat.repository.consts.Visibility
@@ -75,52 +77,33 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
     LaunchedEffect(state) {
         snapshotFlow { state }.distinctUntilChanged().collect {
             if (state.masking == HTTP_SUCCESS) {
-                ToastModel(ctx.getString(R.string.operation_success),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(true, ctx, vm, onClose)
             } else if (state.masking == HTTP_FAIL) {
-                ToastModel(ctx.getString(R.string.operation_failed),
-                    ToastModel.Type.Error).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(false, ctx, vm, onClose)
             }
             if (state.notInterested == HTTP_SUCCESS) {
-                ToastModel(ctx.getString(R.string.operation_success),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(true, ctx, vm, onClose)
             } else if (state.notInterested == HTTP_FAIL) {
-                ToastModel(ctx.getString(R.string.operation_failed),
-                    ToastModel.Type.Error).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(false, ctx, vm, onClose)
             }
 
             if (state.deleteResp == HTTP_SUCCESS) {
-                ToastModel(ctx.getString(R.string.operation_success),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(true, ctx, vm, onClose)
             } else if (state.deleteResp == HTTP_FAIL) {
-                ToastModel(ctx.getString(R.string.operation_failed),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(false, ctx, vm, onClose)
             }
             if (state.authResp == HTTP_SUCCESS) {
-                ToastModel(ctx.getString(R.string.operation_success),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(true, ctx, vm, onClose)
             } else if (state.authResp == HTTP_FAIL) {
-                ToastModel(ctx.getString(R.string.operation_failed),
-                    ToastModel.Type.Success).showToast()
-                vm.stateReset()
-                onClose()
+                showOptResult(false, ctx, vm, onClose)
             }
-        // 判断是否为自己发的博文
-        //            vm.isOther(UserStore.userInfo.id != blog.userId.toLong())
+
+            if (state.dtAuthResp == HTTP_SUCCESS) {
+                showOptResult(true, ctx, vm, onClose)
+            } else if (state.dtAuthResp == HTTP_FAIL) {
+                showOptResult(false, ctx, vm, onClose)
+            } // 判断是否为自己发的博文
+            vm.isOther(UserStore.userInfo.id != blog.userId.toLong())
         }
     }
 
@@ -199,7 +182,8 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
-                        vm.masking(blog.userId.toLong())
+                        if (state.isOther) vm.masking(blog.userId.toLong())
+                        else vm.dtAuthShow(!state.isDtAuthShow)
                     }) {
                     Icon(imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
@@ -217,9 +201,28 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                 onClose = {
                     vm.authShow(false)
                 })
+
+            if (state.isDtAuthShow) {
+                BlogDtAuth(state.isDtAuthShow,
+                    Followable.getFollowable(blog.albumId.toLong()),
+                    setFollowFn = {
+                        vm.dtAuthBlog(blogId = blog.id, albumOps = it.toCode(), cover = blog.cover)
+                    },
+                    onClose = { vm.dtAuthShow(false) })
+            }
         }
 
     }
+}
+
+fun showOptResult(isSuccess: Boolean, ctx: Context, vm: BlogMoreViewModel, onClose: () -> Unit) {
+    if (isSuccess) {
+        ToastModel(ctx.getString(R.string.operation_success), ToastModel.Type.Success).showToast()
+    } else {
+        ToastModel(ctx.getString(R.string.operation_failed), ToastModel.Type.Error).showToast()
+    }
+    vm.stateReset()
+    onClose()
 }
 
 
@@ -236,6 +239,28 @@ fun BlogVisibilePop(currentVisibility: Visibility, visible: Boolean, onSelect: (
                         text = Visibility.getUiVisibility(visibility = Visibility.entries[it]),
                         fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal)
                     Icon(imageVector = Icons.Outlined.Favorite,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp).padding(start = 10.dp)
+                            .align(Alignment.CenterEnd))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BlogDtAuth(visible: Boolean, currentFollowable: Followable, setFollowFn: (Followable) -> Unit, onClose: () -> Unit) {
+    Popup(visible = visible, onClose = { onClose() }) {
+        LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
+            items(Followable.entries.size) {
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
+                    .clickable {
+                        setFollowFn(Followable.entries[it])
+                    }) {
+                    Text(Followable.getUiFollowable(followable = Followable.entries[it]),
+                        fontWeight = if (currentFollowable == Followable.entries[it]) FontWeight.Bold else FontWeight.Normal)
+
+                    Icon(imageVector = Icons.Outlined.Star,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp).padding(start = 10.dp)
                             .align(Alignment.CenterEnd))

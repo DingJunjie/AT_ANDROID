@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.config.HomeTabCfg
 import com.bitat.ext.cdp
@@ -25,16 +24,12 @@ import com.bitat.ui.blog.BlogPage
 import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
-import com.bitat.viewModel.HomeViewModel
 
 /****
  * 首页的切换
  */
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
-    val viewModel: HomeViewModel = viewModel()
-
-
     var selectIndex by remember {
         mutableIntStateOf(0)
     }
@@ -42,7 +37,6 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         BottomAppBarBar() {
-
             selectIndex = it
             if (selectIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
                 AtNavigation(navController).navigateToPublish()
@@ -57,9 +51,9 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                     viewModelProvider = viewModelProvider
                 )
             }
-
             1 -> DiscoveryPage(navController, viewModelProvider)
-            2 -> { //                PublishTextPage(navController)
+            2 -> {
+            //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
                 //                    viewModelProvider = viewModelProvider
@@ -67,7 +61,6 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                AtNavigation(navController).navigateToPublishText
 
             }
-
             3 -> ChatPage(navController)
             4 -> ProfilePage(navController)
         }

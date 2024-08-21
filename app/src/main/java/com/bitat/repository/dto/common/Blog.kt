@@ -10,6 +10,6 @@ class TagsDto {
 
 @Serializable
 class UserAlbumDto(
-    var v0: Int,
-    var v1: String
+    var albumId: Int,
+    var cover: String
 )

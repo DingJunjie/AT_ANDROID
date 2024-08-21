@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,17 +85,17 @@ fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false
 }
 
 @Composable
-fun UserInfoWithAvatar(nickname: String, avatar: String, createTime: Long = 0, isShowTime: Boolean = false) {
-    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(vertical = 10.dp),
+fun UserInfoWithAvatar(modifier: Modifier=Modifier.fillMaxWidth().fillMaxHeight().padding(vertical = 10.dp),nickname: String, avatar: String, createTime: Long = 0, isShowTime: Boolean = false,textStyle: TextStyle=Typography.bodyLarge.copy(fontSize = 14.sp,
+    color = Color.Black, //                letterSpacing = 1.sp,
+    textAlign = TextAlign.Left),isShowMore:Boolean=true,avatarSize:Int=30) {
+    Row(modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
-        Avatar(url = avatar, size = 30)
+        Avatar(url = avatar, size = avatarSize)
         Text(modifier = Modifier.padding(start = 10.dp),
             text = nickname,
-            style = Typography.bodyLarge.copy(fontSize = 14.sp,
-                color = Color.Black, //                letterSpacing = 1.sp,
-                textAlign = TextAlign.Left))
+            style = textStyle)
 
         Row(modifier = Modifier.fillMaxWidth()
             .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
@@ -108,6 +109,7 @@ fun UserInfoWithAvatar(nickname: String, avatar: String, createTime: Long = 0, i
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
                 fontSize = FontStyle.contentLargeSize)
+            if (isShowMore)
             SvgIcon(path = "svg/verticalline.svg",
                 tint = Color.Black,
                 contentDescription = "",

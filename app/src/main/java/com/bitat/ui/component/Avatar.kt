@@ -17,7 +17,7 @@ import com.bitat.ui.common.rememberAsyncPainter
 @Composable
 fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40) {
     Surface(
-        shape = CircleShape, modifier = Modifier.padding(start = 10.dp)
+        shape = CircleShape, modifier = Modifier
     ) {
         Box(
             modifier = modifier

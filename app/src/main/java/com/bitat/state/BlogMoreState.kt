@@ -18,8 +18,10 @@ data class BlogMoreState(
     val report: Int =  HTTP_DEFAULT, // 默认-1 1 成功 2 失败
     val deleteResp:Int =HTTP_DEFAULT,
     val authResp:Int =HTTP_DEFAULT,
+    val albumResp:Int=HTTP_DEFAULT,
     val dtAuthResp:Int =HTTP_DEFAULT,
     val isAuthShow:Boolean =false,
+    val isDtAuthShow:Boolean =false,
     val reportList: SnapshotStateList<ReportBean> = mutableStateListOf(),
     val updateIndex: Int = 0,
     val isOther:Boolean= false)

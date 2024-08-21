@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
 import com.bitat.repository.consts.HTTP_DEFAULT
 import com.bitat.repository.consts.HTTP_FAIL
@@ -14,7 +13,9 @@ import com.bitat.repository.dto.req.BlogOpsNotInterestedDto
 import com.bitat.repository.dto.req.CreateUserReportDto
 import com.bitat.repository.dto.req.DeleteBlogDto
 import com.bitat.repository.dto.req.EditVisibleDto
+import com.bitat.repository.dto.req.OpenAlbumDto
 import com.bitat.repository.dto.req.SocialDto
+import com.bitat.repository.http.service.AlbumReq
 import com.bitat.repository.http.service.BlogOpsReq
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.SocialReq
@@ -81,7 +82,7 @@ class BlogMoreViewModel : ViewModel() {
                 CuLog.debug(CuTag.Blog, "举报成功${state.value.report}")
             }.errMap {
                 state.update { it.copy(report = HTTP_FAIL) }
-                CuLog.error(CuTag.Blog, "举报失败,code:${it.code},msg:${it.msg}")
+                CuLog.error(CuTag.Blog, "report error,code:${it.code},msg:${it.msg}")
             }
         }
     }
@@ -148,8 +149,25 @@ class BlogMoreViewModel : ViewModel() {
         }
     }
 
-    fun dtAuthBlog(blogId: Long, visible: Byte) {
+    fun dtAuthShow(isShow: Boolean) {
+        state.update {
+            it.copy(isDtAuthShow = isShow)
+        }
+    }
 
+    fun dtAuthBlog(blogId: Long, albumOps: Long, cover: String) {
+        MainCo.launch {
+            val dto = OpenAlbumDto(blogId = blogId, albumOps = albumOps, cover = cover)
+            AlbumReq.open(dto).await().map {
+                state.update {
+                    it.copy(dtAuthResp = HTTP_SUCCESS)
+                }
+            }.errMap {
+                state.update {
+                    it.copy(dtAuthResp = HTTP_FAIL)
+                }
+            }
+        }
     }
 
     fun stateReset() {
@@ -159,7 +177,11 @@ class BlogMoreViewModel : ViewModel() {
                 dtAuthResp = HTTP_DEFAULT,
                 notInterested = HTTP_DEFAULT,
                 masking = HTTP_DEFAULT,
-                report = HTTP_DEFAULT)
+                report = HTTP_DEFAULT,
+                isDtAuthShow = false,
+                isAuthShow = false,
+                isOther = false,
+                updateIndex = 0)
         }
     }
 }
