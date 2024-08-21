@@ -52,13 +52,19 @@ fun ImagePreviewPage(navController: NavHostController, viewModelProvider: ViewMo
     val state by vm.imagePreviewState.collectAsState()
 
     Scaffold { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().background(color = Color.Black)
-            .padding(paddingValues = innerPadding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Black)
+                .padding(paddingValues = innerPadding)
+        ) {
             ImageBanner(state.imgList.toList())
             IconButton(onClick = { navController.popBackStack() }) {
-                SvgIcon(path = "svg/arrow-left.svg",
+                SvgIcon(
+                    path = "svg/arrow-left.svg",
                     contentDescription = "",
-                    modifier = Modifier.size(20.dp))
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -73,27 +79,37 @@ fun ImageBanner(imgList: List<String>, isAutoPlay: Boolean = false, playInterval
 
     LaunchedEffect(pageState) {
         snapshotFlow { pageState.currentPage }.collect { page -> // 页面切换时触发的操作
-            if (isAutoPlay) {
+            if (isAutoPlay&&pageState.pageCount>1) {
                 delay(playInterval)
-                coroutineScope.launch {
-                    if (page  < pageState.pageCount -1) {
-                        pageState.animateScrollToPage(page + 1)
-                        CuLog.debug(CuTag.Blog,
-                            "pageState 当前为第$page 页，切换到第${page + 1}页 ，总共${pageState.pageCount}页")
-                    } else if(page==pageState.pageCount -1) {
-                        pageState.animateScrollToPage(0)
-                        CuLog.debug(CuTag.Blog, "pageState 当前为第$page 页，切换到第0页 ，总共${pageState.pageCount}页")
-                    }
+//                coroutineScope.launch {
+                if (page+1 < pageState.pageCount ) {
+                    pageState.animateScrollToPage(page + 1)
+                    CuLog.debug(
+                        CuTag.Blog,
+                        "pageState --- page:$page,${page + 1} pageCount: ${pageState.pageCount}"
+                    )
+                } else {
+                    CuLog.debug(CuTag.Blog,"pageState----111111")
+                    pageState.animateScrollToPage(0)
+                    CuLog.debug(
+                        CuTag.Blog,
+                        "pageState -- ScrollToPage 0 - page:$page,${page + 1} pageCount: ${pageState.pageCount}"
+                    )
                 }
             }
         }
     }
     HorizontalPager(state = pageState, modifier = Modifier.fillMaxSize()) { index ->
-        Column(modifier = Modifier.fillMaxSize(),
+        Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            AsyncImage(model = imgList[index],
-                modifier = Modifier.fillMaxWidth().background(Color.Black),
+            verticalArrangement = Arrangement.Center
+        ) {
+            AsyncImage(
+                model = imgList[index],
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth //宽度撑满
             ) //            rememberAsyncPainter(url = imgList[index])

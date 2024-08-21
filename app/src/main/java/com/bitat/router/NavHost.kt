@@ -65,7 +65,7 @@ sealed class NavigationItem(val route: String) {
 fun AppNavHost(
     navController: NavHostController,
     navigation: AtNavigation,
-    startDestination: String = NavigationItem.Splash.route,
+    startDestination: String = NavigationItem.Login.route,
     viewModelProvider: ViewModelProvider,
 ) {
 
@@ -91,11 +91,11 @@ fun AppNavHost(
             ProfilePage(navController)
         }
 
-        composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
-            type = NavType.IntType
-        })) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
-        }
+//        composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
+//            type = NavType.IntType
+//        })) { backStackEntry ->
+//            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
+//        }
 
         composable(NavigationItem.Discovery.route) {
             DiscoveryPage(navController, viewModelProvider)
@@ -215,6 +215,10 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToReportUserPage: () -> Unit = {
         navController.navigate(NavigationItem.ReportUser.route)
+    }
+
+    val navigateToProfilePage: () -> Unit = {
+        navController.navigate(NavigationItem.Profile.route)
     }
 
 
