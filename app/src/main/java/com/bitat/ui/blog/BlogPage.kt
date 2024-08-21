@@ -123,45 +123,45 @@ fun BlogPage(
         mutableStateOf(0)
     }
 
-    //    LaunchedEffect(listState) {    // 滚动事件监听
-    //        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged()
-    //            .collect { _ ->
-    //                if (listState.layoutInfo.visibleItemsInfo.size > 1) {
-    //                    if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-    //                            3
-    //                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
-    //                    ) {
-    //                        playingIndex.value = listState.firstVisibleItemIndex + 1
-    //                    }
-    //                }
-    //            }
-    //
-    //    }
+    LaunchedEffect(listState) {    // 滚动事件监听
+        snapshotFlow { listState.firstVisibleItemScrollOffset }.distinctUntilChanged()
+            .collect { _ ->
+                if (listState.layoutInfo.visibleItemsInfo.size > 1) {
+                    if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
+                            3
+                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
+                    ) {
+                        playingIndex.value = listState.firstVisibleItemIndex + 1
+                    }
+                }
+            }
 
-    //    LaunchedEffect(listState) {
-    //        snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
-    //            CuLog.debug(
-    //                CuTag.Blog,
-    //                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
-    //            )
-    //            if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
-    //                vm.topBarState(false)
-    //            } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
-    //                vm.topBarState(true)
-    //            }
-    //            previousIndex = listState.firstVisibleItemIndex
-    //        }
-    //    }
+    }
 
-    //    LaunchedEffect(listState) {
-    //        snapshotFlow { listState.layoutInfo }
-    //            .collect { layoutInfo ->
-    //                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-    //                if (lastVisibleItemIndex == state.blogList.size - 1) {
-    //                    vm.loadMore()
-    //                }
-    //            }
-    //    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
+            CuLog.debug(
+                CuTag.Blog,
+                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
+            )
+            if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
+                vm.topBarState(false)
+            } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
+                vm.topBarState(true)
+            }
+            previousIndex = listState.firstVisibleItemIndex
+        }
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .collect { layoutInfo ->
+                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                if (lastVisibleItemIndex == state.blogList.size - 1) {
+                    vm.loadMore()
+                }
+            }
+    }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -203,7 +203,8 @@ fun BlogPage(
                         }
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier.fillMaxSize()) {
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
                                 Surface(modifier = Modifier.fillMaxWidth()) {
                                     BlogItem(blog = item,

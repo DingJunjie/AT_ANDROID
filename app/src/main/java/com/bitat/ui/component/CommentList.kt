@@ -3,6 +3,7 @@ package com.bitat.ui.component
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +48,10 @@ import com.bitat.repository.dto.resp.CommentPart1Dto
 import com.bitat.repository.dto.resp.CommentPartDto
 import com.bitat.repository.dto.resp.SubCommentPartDto
 import com.bitat.repository.store.CommentStore
+import com.bitat.repository.store.UserStore
 import com.bitat.state.CommentState
+import com.bitat.ui.common.AnyPopDialog
+import com.bitat.ui.common.WeDialog
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
@@ -62,7 +67,10 @@ fun CommentList(
     commentViewModel: CommentViewModel,
     commentState: CommentState,
     tapImage: (String) -> Unit,
-    tapContentFn: (CommentPartDto?) -> Unit
+    removeComment: (CommentPartDto) -> Unit = {},
+    removeSubComment: (SubCommentPartDto, Long, Long) -> Unit,
+    tapContentFn: (CommentPartDto?) -> Unit,
+    subCommentTap: (SubCommentPartDto?) -> Unit
 ) {
     commentViewModel.updateBlogId(blogId)
 
@@ -94,6 +102,11 @@ fun CommentList(
                         commentViewModel.getSubComment(item.id)
                     }
                 },
+                removeComment = removeComment,
+                removeSubComment = {
+                    removeSubComment(it, item.blogId, item.id)
+                },
+                subCommentTap = subCommentTap,
                 tapFn = tapContentFn
             )
         }
@@ -101,7 +114,11 @@ fun CommentList(
 }
 
 @Composable
-fun SubCommentList(subComments: List<SubCommentPartDto>) {
+fun SubCommentList(
+    subComments: List<SubCommentPartDto>,
+    removeSubComment: (SubCommentPartDto) -> Unit = {},
+    subCommentTap: (SubCommentPartDto?) -> Unit
+) {
     if (subComments.isEmpty()) Box {}
     else {
         Surface(
@@ -111,7 +128,11 @@ fun SubCommentList(subComments: List<SubCommentPartDto>) {
         ) {
             Column {
                 subComments.forEach { item ->
-                    SubCommentItem(item)
+                    SubCommentItem(
+                        item,
+                        subCommentTap = subCommentTap,
+                        removeSubComment = removeSubComment
+                    )
                 }
             }
         }
@@ -119,8 +140,27 @@ fun SubCommentList(subComments: List<SubCommentPartDto>) {
 }
 
 @Composable
-fun SubCommentItem(subComment: SubCommentPartDto) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+fun SubCommentItem(
+    subComment: SubCommentPartDto,
+    subCommentTap: (SubCommentPartDto?) -> Unit,
+    removeSubComment: (SubCommentPartDto) -> Unit = {},
+) {
+    val deleteShow = remember {
+        mutableStateOf(false)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(onLongPress = {
+                    deleteShow.value = true
+                }, onTap = {
+                    subCommentTap(subComment)
+                })
+            },
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(subComment.nickname + " :")
             Text(subComment.content)
@@ -130,18 +170,34 @@ fun SubCommentItem(subComment: SubCommentPartDto) {
             Icon(Icons.Filled.Add, contentDescription = "")
         }
     }
+
+    if (deleteShow.value && subComment.userId == UserStore.userInfo.id) {
+        WeDialog(title = "删除评论", content = "是否删除该评论", onOk = {
+            removeSubComment(subComment)
+            deleteShow.value = false
+        }, okColor = Color.White, onDismiss = {
+            deleteShow.value = false
+        })
+    }
 }
 
 @Composable
 fun CommentItem(
     comment: CommentPartDto,
     subComments: List<SubCommentPartDto>,
+    removeComment: (CommentPartDto) -> Unit,
+    removeSubComment: (SubCommentPartDto) -> Unit = {},
     tapImage: (String) -> Unit,
     tapSubCommentMore: () -> Unit,
     tapShowSubComment: (Long) -> Unit,
+    subCommentTap: (SubCommentPartDto?) -> Unit,
     tapFn: (CommentPartDto) -> Unit
 ) {
     val isShowSub = remember {
+        mutableStateOf(false)
+    }
+
+    val deleteShow = remember {
         mutableStateOf(false)
     }
 
@@ -149,6 +205,11 @@ fun CommentItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 5.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onLongPress = {
+                    deleteShow.value = true
+                })
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
@@ -188,13 +249,16 @@ fun CommentItem(
             Text(comment.content, style = Typography.bodyMedium.copy(lineHeight = 16.sp))
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = { tapFn(comment) }) {
+            TextButton(onClick = {
+                tapFn(comment)
+
+            }) {
                 Text("回复")
             }
         }
         if (isShowSub.value && subComments.isNotEmpty()) {
             Column {
-                SubCommentList(subComments)
+                SubCommentList(subComments, removeSubComment, subCommentTap)
                 if (subComments.size < comment.comments.toInt()) Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -217,6 +281,17 @@ fun CommentItem(
             Text("查看${comment.comments}条回复")
             Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
         }
+    }
+
+
+
+    if (deleteShow.value && comment.userId == UserStore.userInfo.id) {
+        WeDialog(title = "删除评论", content = "是否删除该评论", onOk = {
+            removeComment(comment)
+            deleteShow.value = false
+        }, okColor = Color.White, onDismiss = {
+            deleteShow.value = false
+        })
     }
 }
 

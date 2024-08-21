@@ -43,10 +43,15 @@ fun InnerBlogPage(viewModelProvider: ViewModelProvider) {
     }
 
     VerticalPager(state = pagerState) { page -> // Our page content
-        if (state.blogList.get(page).kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.get(page).kind.toInt() == BLOG_VIDEO_TEXT) {
+        if (state.blogList[page].kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.get(page).kind.toInt() == BLOG_VIDEO_TEXT) {
 
             //视频类型
-            CuExoPlayer(data = videos[page], modifier = Modifier.fillMaxSize(), true)
+            CuExoPlayer(
+                data = videos[page],
+                modifier = Modifier.fillMaxSize(),
+                cover = state.blogList[page].cover,
+                isFixHeight = true
+            )
         } else {
 
             // 图片类型

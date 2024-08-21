@@ -14,9 +14,11 @@ import com.bitat.repository.dto.req.BlogCreateCommentDto
 import com.bitat.repository.dto.req.BlogCreateSubCommentDto
 import com.bitat.repository.dto.req.BlogFindCommentDto
 import com.bitat.repository.dto.req.BlogFindSubCommentDto
+import com.bitat.repository.dto.req.DeleteCommentDto
 import com.bitat.repository.dto.req.SearchCommonDto
 import com.bitat.repository.dto.req.UploadTokenDto
 import com.bitat.repository.dto.resp.CommentPartDto
+import com.bitat.repository.dto.resp.SubCommentPartDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.http.service.CommentReq
@@ -108,7 +110,49 @@ class CommentViewModel : ViewModel() {
 
     fun selectReplyComment(comment: CommentPartDto?) {
         _commentState.update {
-            it.copy(replyComment = comment)
+            it.copy(replyComment = comment, replySubComment = null)
+        }
+    }
+
+    fun selectReplySubComment(comment: SubCommentPartDto?) {
+        _commentState.update {
+            it.copy(replyComment = null, replySubComment = comment)
+        }
+    }
+
+    fun removeComment(comment: CommentPartDto) {
+        MainCo.launch {
+            CommentReq.delete(
+                DeleteCommentDto(
+                    blogId = comment.blogId,
+                    userId = UserStore.userInfo.id,
+                    commentId = comment.id,
+                    kind = 1
+                )
+            ).await().map {
+                _commentState.update {
+                    it.comments.remove(comment)
+                    it
+                }
+            }
+        }
+    }
+
+    fun removeSubComment(blogId: Long, parentId: Long, comment: SubCommentPartDto) {
+        MainCo.launch {
+            CommentReq.delete(
+                DeleteCommentDto(
+                    blogId = blogId,
+                    userId = UserStore.userInfo.id,
+                    commentId = comment.id,
+                    kind = 2
+                )
+            ).await().map {
+                _commentState.update {
+                    it.subComments[parentId]?.remove(comment)
+                    it
+                }
+            }
         }
     }
 

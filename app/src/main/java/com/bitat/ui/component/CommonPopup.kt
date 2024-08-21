@@ -82,8 +82,7 @@ fun CommentPopup(
 
         val result = commentViewModel.selectUser(user)
         if (textFieldValue.text.isEmpty()) {
-            textFieldValue =
-                textFieldValue.copy(text = "@${user.nickname} ")
+            textFieldValue = textFieldValue.copy(text = "@${user.nickname} ")
             return
         }
         val textArr = textFieldValue.text.split("")
@@ -102,64 +101,61 @@ fun CommentPopup(
     }
 
     Popup(visible, onClose = onClose) {
-        CommentList(blogId, commentViewModel, commentState, tapImage = tapImage, tapContentFn = {
+        CommentList(blogId, commentViewModel, commentState, tapImage = tapImage, removeComment = {
+            commentViewModel.removeComment(it)
+        }, removeSubComment = { c, blogId, pId ->
+            commentViewModel.removeSubComment(blogId, pId, c)
+        }, subCommentTap = {
+            commentViewModel.selectReplySubComment(it)
+            focusRequester.requestFocus()
+        }, tapContentFn = {
             commentViewModel.selectReplyComment(it)
+            focusRequester.requestFocus()
         })
 
         Box(contentAlignment = Alignment.BottomCenter) {
-            CommentTextField(
-                textFieldValue,
-                focusRequester = focusRequester,
-                sendComment = {
-                    coroutineScope.launch {
-                        if (commentState.replyComment == null) {
-                            commentViewModel.createComment {
-                                textFieldValue = textFieldValue.copy(text = "")
-                            }
+            CommentTextField(textFieldValue, focusRequester = focusRequester, sendComment = {
+                coroutineScope.launch {
+                    if (commentState.replyComment == null) {
+                        commentViewModel.createComment {
+                            textFieldValue = textFieldValue.copy(text = "")
+                        }
 
-                        } else {
-                            commentViewModel.createSubComment {
-                                textFieldValue = textFieldValue.copy(text = "")
-                            }
+                    } else {
+                        commentViewModel.createSubComment {
+                            textFieldValue = textFieldValue.copy(text = "")
                         }
                     }
-                },
-                placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
-                    if (commentState.replyComment == null) "请输入您的评论"
-                    else "回复${commentState.replyComment.nickname}："
-                },
-                atUsers = commentState.atUserSearchResult,
-                selectUser = {
-                    addAtUser(it)
-                    atStart.value = -1
-                    inputAt.value = ""
-                },
-                tapAt = {
-                    val b = textFieldValue.text.substring(0, textFieldValue.selection.start)
-                    val a = textFieldValue.text.substring(
-                        TextRange(
-                            textFieldValue.selection.start,
-                            textFieldValue.text.length
-                        )
+                }
+            }, placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
+                if (commentState.replyComment != null) "回复${commentState.replyComment.nickname}："
+                else if (commentState.replySubComment != null) "回复${commentState.replySubComment.nickname}："
+                else "请输入您的评论"
+            }, atUsers = commentState.atUserSearchResult, selectUser = {
+                addAtUser(it)
+                atStart.value = -1
+                inputAt.value = ""
+            }, tapAt = {
+                val b = textFieldValue.text.substring(0, textFieldValue.selection.start)
+                val a = textFieldValue.text.substring(
+                    TextRange(
+                        textFieldValue.selection.start, textFieldValue.text.length
                     )
-                    val t = "$b@$a"
-                    focusRequester.requestFocus()
-                    textFieldValue = textFieldValue.copy(
-                        text = t,
-                        selection = TextRange(textFieldValue.selection.start + 1)
-                    )
-                    atStart.value = textFieldValue.selection.start
-                    commentViewModel.searchUser("")
-                },
-                selectedImage = commentState.imagePath,
-                imageSelect = {
-                    commentViewModel.selectImage(it)
-                },
-                onValueChange = {
-                    commentViewModel.updateComment(it.text)
-                    textFieldValue = it
-                    onContentChange(it.text, it.selection.start)
-                })
+                )
+                val t = "$b@$a"
+                focusRequester.requestFocus()
+                textFieldValue = textFieldValue.copy(
+                    text = t, selection = TextRange(textFieldValue.selection.start + 1)
+                )
+                atStart.value = textFieldValue.selection.start
+                commentViewModel.searchUser("")
+            }, selectedImage = commentState.imagePath, imageSelect = {
+                commentViewModel.selectImage(it)
+            }, onValueChange = {
+                commentViewModel.updateComment(it.text)
+                textFieldValue = it
+                onContentChange(it.text, it.selection.start)
+            })
 
         }
     }

@@ -129,11 +129,12 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         when (currentDto.kind.toInt()) {
             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                 if (page == state.value.resIndex) {
-//                    isPlay.value = page == state.value.resIndex
+//                    isPlay.val ue = page == state.value.resIndex
                     CuExoPlayer(
                         data = currentDto.resource.video,
                         modifier = Modifier.fillMaxSize(),
-                        true
+                        cover = currentDto.cover,
+                        isFixHeight = true
                     )
                 }
 

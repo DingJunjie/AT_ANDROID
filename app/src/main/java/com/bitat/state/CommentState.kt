@@ -18,6 +18,8 @@ data class CommentState(
     val commentCount: Int = 0,
     val commentInput: String = "",
     val replyComment: CommentPartDto? = null,
+    val replySubComment: SubCommentPartDto? = null,
+
     val atUserSearchResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val ats: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val imagePath: Uri = Uri.EMPTY
