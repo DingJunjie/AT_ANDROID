@@ -1,5 +1,6 @@
 package  com.bitat.repository.dto.req
 
+import com.bitat.repository.dto.common.TagsDto
 import com.bitat.utils.EmptyArray
 import kotlinx.serialization.Serializable
 
@@ -33,6 +34,6 @@ class OpenAlbumDto(
     var albumOps: Long, //专辑id：-1，自己可跟随,-2:团队可跟随,-3:好友可跟随,-4粉丝可跟 -5所有人可跟随
     var albumId: Long = 0L,//专辑id
     var albumMembers: LongArray=EmptyArray.long,//专辑团队
-    var tags: Array<String> = arrayOf(""), //专辑标签
+    var tags: Array<TagsDto> = arrayOf(), //专辑标签
     var cover: String //专辑封面
 )
