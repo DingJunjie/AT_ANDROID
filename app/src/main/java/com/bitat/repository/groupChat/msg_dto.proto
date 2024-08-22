@@ -1,6 +1,10 @@
 syntax = "proto3";
-package com.bitat.repository.pbDto;
 
+message ResMsg{
+  string msg = 1;
+  int32 code = 2;
+  bytes data = 3;
+}
 //聊天消息载体
 message ChatMsg{
   //发送者id
@@ -19,7 +23,7 @@ message ChatMsg{
   string verify = 7;
 }
 //补偿msg
-message RemedyMsg{
+message PatchMsg{
   //发送者id
   int64 send_id = 1;
   //群组id
