@@ -75,6 +75,7 @@ fun BlogContent(
     kind: Int,
     mBlogBaseDto: BlogBaseDto,
     maxHeight: Int,
+    needRoundedCorner: Boolean = true,
     isPlaying: Boolean = false,
     navHostController: NavHostController,
     viewModelProvider: ViewModelProvider
@@ -85,12 +86,19 @@ fun BlogContent(
             mBlogBaseDto,
             maxHeight,
             isPlaying,
+            needRoundedCorner,
             navHostController,
             viewModelProvider
         )
 
         BLOG_AUDIO_ONLY -> BlogAudioOnlyShow(mBlogBaseDto)
-        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(mBlogBaseDto, maxHeight,navHostController,viewModelProvider)
+        BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(
+            mBlogBaseDto,
+            maxHeight,
+            navHostController,
+            viewModelProvider
+        )
+
         BLOG_AUDIO_TEXT -> BlogAudioTextShow(mBlogBaseDto)
         BLOG_VIDEO_IMAGE -> BlogVideoImageShow(mBlogBaseDto)
         BLOG_AUDIO_IMAGE -> BlogAudioImageShow(mBlogBaseDto)

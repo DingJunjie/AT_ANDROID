@@ -57,6 +57,7 @@ class BlogBaseDto {
     var height: Int = 0
 }
 
+@Serializable
 class BlogPartDto(
     var id: Long = 0L,
     var userId: Long = 0L,
@@ -64,17 +65,19 @@ class BlogPartDto(
     var profile: String = "", // 用户头像
     var visible: Byte = 0,
     var agrees: UInt = 0u,
+    var status: Int = 0,
     var longitude: Double = 0.0,
     var latitude: Double = 0.0,
     var comments: UInt = 0u,
     var ats: UInt = 0u,
+    var exposure: Int = 0,
     var kind: Byte = 0,
     var cover: String = "",
     var content: String = "",
     var createTime: Long = 0L,
     var vote: Byte = 0,
     var labels: IntArray = EmptyArray.int,
-    var tags: TagsDto = TagsDto(),
+    var tags: Array<TagsDto> = arrayOf(),
     var resource: ResourceDto = ResourceDto(),
     var blogVote: BlogVotesDto = BlogVotesDto(),
 )

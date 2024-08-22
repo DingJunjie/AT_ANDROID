@@ -22,6 +22,7 @@ import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
+import com.bitat.ui.profile.CollectionDetail
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
@@ -32,7 +33,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER,BLOG
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER,BLOG, COLLECTION_DETAIL
 }
 
 sealed class NavigationItem(val route: String) {
@@ -58,6 +59,7 @@ sealed class NavigationItem(val route: String) {
     data object ImagePreview : NavigationItem(Screen.IMAGE_PREVIEW.name)
     data object ReportUser : NavigationItem(Screen.REPORT_USER.name)
     data object Blog : NavigationItem(Screen.BLOG.name)
+    data object CollectionDetail : NavigationItem(Screen.COLLECTION_DETAIL.name)
 }
 
 
@@ -89,7 +91,7 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.Profile.route) {
-            ProfilePage(navController)
+            ProfilePage(navController, viewModelProvider)
         }
 
 //        composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
@@ -155,6 +157,13 @@ fun AppNavHost(
         }
         composable(NavigationItem.ReportUser.route) {
             ReportUserPage(navHostController = navController, viewModelProvider = viewModelProvider)
+        }
+
+        composable(NavigationItem.CollectionDetail.route) {
+            CollectionDetail(
+                navHostController = navController,
+                viewModelProvider = viewModelProvider
+            )
         }
     }
 }

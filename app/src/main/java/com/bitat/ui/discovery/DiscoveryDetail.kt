@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,10 +28,20 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+<<<<<<< HEAD
 import com.bitat.repository.dto.resp.BlogBaseDto
+=======
+import com.bitat.MainCo
+import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.ext.Density
+import com.bitat.ui.blog.BlogContent
+import com.bitat.ui.common.statusBarHeight
+>>>>>>> 3ed5ac4 (collection)
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.component.UserInfoWithAvatar
+import com.bitat.utils.ImageUtils
+import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.DiscoveryViewModel
 import kotlinx.coroutines.launch
 
@@ -53,55 +64,56 @@ fun DiscoveryDetailPage(
         mutableFloatStateOf(0f)
     }
 
-    Column {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
-                .pointerInput(
-                    Unit
-                ) {
-                    detectVerticalDragGestures(
-                        onVerticalDrag = { change, dragAmount ->
-                            change.consume()
-                            latestY.floatValue = change.position.y
+    Scaffold { padding ->
+        Column(modifier = Modifier.padding(padding)) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .pointerInput(
+                        Unit
+                    ) {
+                        detectVerticalDragGestures(
+                            onVerticalDrag = { change, dragAmount ->
+                                change.consume()
+                                latestY.floatValue = change.position.y
 //                            println("scrolling $change, $dragAmount")
-                        }, onDragEnd = {
-                            val offset = latestY.floatValue - dragStartY.floatValue
-                            if (offset > 50f) {
-                                // 下滚
-                                println("hello")
-                                coroutineScope.launch {
-                                    listState.firstVisibleItemScrollOffset
-                                    val targetItem = listState.firstVisibleItemIndex - 1
-                                    if (targetItem >= 0) {
-                                        listState.animateScrollToItem(targetItem)
+                            }, onDragEnd = {
+                                val offset = latestY.floatValue - dragStartY.floatValue
+                                if (offset > 50f) {
+                                    // 下滚
+                                    println("hello")
+                                    coroutineScope.launch {
+                                        listState.firstVisibleItemScrollOffset
+                                        val targetItem = listState.firstVisibleItemIndex - 1
+                                        if (targetItem >= 0) {
+                                            listState.animateScrollToItem(targetItem)
+                                        }
+                                    }
+                                } else if (offset < -50f) {
+                                    // 上滚
+                                    println("world")
+                                    coroutineScope.launch {
+                                        val targetItem = listState.firstVisibleItemIndex + 1
+                                        if (targetItem < listState.layoutInfo.totalItemsCount) {
+                                            listState.animateScrollToItem(targetItem)
+                                        }
                                     }
                                 }
-                            } else if (offset < -50f) {
-                                // 上滚
-                                println("world")
-                                coroutineScope.launch {
-                                    val targetItem = listState.firstVisibleItemIndex + 1
-                                    if (targetItem < listState.layoutInfo.totalItemsCount) {
-                                        listState.animateScrollToItem(targetItem)
-                                    }
-                                }
+                                print("start at ${dragStartY.floatValue}, end at ${latestY.floatValue}")
+                                dragStartY.floatValue = 0f
+                                latestY.floatValue = 0f
+                            }, onDragStart = {
+                                dragStartY.floatValue = it.y
                             }
-                            print("start at ${dragStartY.floatValue}, end at ${latestY.floatValue}")
-                            dragStartY.floatValue = 0f
-                            latestY.floatValue = 0f
-                        }, onDragStart = {
-                            dragStartY.floatValue = it.y
-                        }
-                    )
-                },
-            userScrollEnabled = false
-        ) {
-            items(state.discoveryList.size) { index ->
-                DiscoveryItem(state.discoveryList[index])
-                HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp))
+                        )
+                    },
+                userScrollEnabled = false
+            ) {
+                items(state.discoveryList.size) { index ->
+                    DiscoveryItem(state.discoveryList[index], navHostController, viewModelProvider)
+                    HorizontalDivider(modifier = Modifier.padding(vertical = statusBarHeight / 2))
 //                Box(
 //                    modifier = Modifier
 //                        .fillMaxWidth()
@@ -117,8 +129,9 @@ fun DiscoveryDetailPage(
 //                    Text("Holy fuck why is me $index !!!")
 //                }
 
-            }
+                }
 
+            }
         }
     }
 
@@ -154,15 +167,36 @@ fun DiscoveryDetailPage(
 }
 
 @Composable
-fun DiscoveryItem(item: BlogBaseDto) {
-    Column {
+fun DiscoveryItem(
+    item: BlogBaseDto,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
+    var height = 0
+    if (item.kind >= 2) {
+        val size = ImageUtils.getParamsFromUrl(item.cover)
+        height = ImageUtils.getHeight(size, ScreenUtils.screenWidth)
+        println("current height is $height")
+    }
+    val maxHeight = (ScreenUtils.screenHeight * 0.7).toInt()
+    val calHeight = if (height > maxHeight) maxHeight else height
+    // 高度不能超过屏幕高度的70%
+    Column() {
         UserInfoWithAvatar(nickname = item.nickname, avatar = item.profile)
         BlogText(content = item.content)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .background(color = Color.Cyan)
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(100.dp)
+//                .background(color = Color.Cyan)
+//        )
+        BlogContent(
+            kind = item.kind.toInt(),
+            mBlogBaseDto = item,
+            maxHeight = calHeight,
+            needRoundedCorner = false,
+            navHostController = navHostController,
+            viewModelProvider = viewModelProvider
         )
         BlogOperation(blog = item)
     }

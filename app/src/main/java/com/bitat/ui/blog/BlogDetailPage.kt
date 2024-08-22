@@ -81,7 +81,9 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
-    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight(), topBar = {
+    Scaffold(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(), topBar = {
         TopBar(title = stringResource(id = R.string.blog_post)) {
             navHostController.popBackStack()
         }
@@ -91,29 +93,45 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
             blogState.value.currentBlog?.let {
-                Row(modifier = Modifier.height(80.dp).padding(start = 10.dp, end = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .height(80.dp)
+                        .padding(start = 10.dp, end = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
                     Box(modifier = Modifier.weight(3f)) {
-                        UserInfoWithAddr(nickname = it.nickname,
+                        UserInfoWithAddr(
+                            nickname = it.nickname,
                             createTime = it.createTime,
                             isShowTime = true,
                             avatar = it.profile,
-                            address = it.ipTerritory)
+                            address = it.ipTerritory
+                        )
                     }
 
-                    FollowBtn(modifier = Modifier.weight(1f).height(40.dp),
+                    FollowBtn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
                         rel = it.rel,
-                        it.userId.toLong())
+                        it.userId.toLong()
+                    )
                 }
-                Column(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)) {
-                    Text(text = it.content,
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)) {
+                    Text(
+                        text = it.content,
                         modifier = Modifier.padding(bottom = 10.dp),
-                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight))
-                    BlogContent(it.kind.toInt(),
+                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight)
+                    )
+                    BlogContent(
+                        it.kind.toInt(),
                         it,
                         heigh,
-                        true,
+                        needRoundedCorner = true,
+                        isPlaying = true,
                         navHostController,
                         viewModelProvider)
                     Spacer(modifier = Modifier.height(40.cdp))
@@ -160,9 +178,11 @@ fun TopBar(title: String, backFn: () -> Unit) {
                 CuLog.debug(CuTag.Blog, "")
                 backFn()
             }) {
-                SvgIcon(path = "svg/arrow-left.svg",
+                SvgIcon(
+                    path = "svg/arrow-left.svg",
                     contentDescription = "",
-                    modifier = Modifier.size(20.dp))
+                    modifier = Modifier.size(20.dp)
+                )
             }
             Text(text = title)
         }

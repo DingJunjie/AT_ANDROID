@@ -7,10 +7,14 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.BlogOpsAddCollectDto
 import com.bitat.repository.dto.req.BlogOpsRemoveCollectDto
+import com.bitat.repository.dto.req.CollectNextListDto
 import com.bitat.repository.dto.req.CreateCollectDto
+import com.bitat.repository.dto.req.FindCollectOpusDto
+import com.bitat.repository.dto.resp.CollectPartDto
 import com.bitat.repository.http.service.BlogOpsReq
 import com.bitat.repository.http.service.UserExtraReq
 import com.bitat.state.CollectState
+import com.bitat.ui.profile.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +31,12 @@ class CollectViewModel : ViewModel() {
         }
     }
 
+    fun selectCollection(collection: CollectPartDto) {
+        _collectState.update {
+            it.copy(currentCollection = collection)
+        }
+    }
+
     fun initMyCollections() {
         MainCo.launch {
             UserExtraReq.collectList().await().map { res ->
@@ -36,6 +46,38 @@ class CollectViewModel : ViewModel() {
                     it
                 }
             }
+        }
+    }
+
+    fun getDefaultCollection(isReload: Boolean = false, lastId: Long = 0) {
+        MainCo.launch {
+            UserExtraReq.findCollectOpus(
+                FindCollectOpusDto(
+                    pageSize = 20,
+                    lastTime = lastId
+                )
+            ).await().map { res ->
+                _collectState.update {
+                    it.currentCollectionItems.clear()
+                    it.currentCollectionItems.addAll(res)
+                    it
+                }
+            }.errMap {
+                println("there is an error ${it.msg}")
+            }
+        }
+    }
+
+    fun getBlogInCollection(key: Int) {
+        MainCo.launch {
+            UserExtraReq.collectNextList(CollectNextListDto(key = key, pageSize = 20, pageNo = 0))
+                .await().map { res ->
+                    _collectState.update {
+                        it.currentCollectionItems.clear()
+                        it.currentCollectionItems.addAll(res)
+                        it
+                    }
+                }
         }
     }
 
