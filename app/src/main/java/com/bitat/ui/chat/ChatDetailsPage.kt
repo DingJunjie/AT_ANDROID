@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ui.common.CarmeraOpen
+import com.bitat.ui.discovery.CardView
 import com.bitat.viewModel.ChatDetailsViewModel
 
 /**
@@ -29,19 +30,20 @@ import com.bitat.viewModel.ChatDetailsViewModel
 fun ChatDetailsPage(navHostController: NavHostController) {
 
     val vm: ChatDetailsViewModel = viewModel()
-    val statte by vm.state.collectAsState()
-    Column(modifier = Modifier.fillMaxSize().padding(30.dp)) {
-        TextField(modifier = Modifier.fillMaxWidth().height(100.dp),
-            value = statte.chatMsg,
-            onValueChange = { vm.onChatChang(it) })
-
-        Button(onClick = { vm.sendClick(statte.chatMsg) }) {
-            Text("发送")
-        }
-
-
-        LaunchedEffect(Unit) { //            CarmeraOpen()
-        }
-
-    }
+    val state by vm.state.collectAsState()
+//    Column(modifier = Modifier.fillMaxSize().padding(30.dp)) {
+//        TextField(modifier = Modifier.fillMaxWidth().height(100.dp),
+//            value = statte.chatMsg,
+//            onValueChange = { vm.onChatChang(it) })
+//
+//        Button(onClick = { vm.sendClick(statte.chatMsg) }) {
+//            Text("发送")
+//        }
+//
+//
+//        LaunchedEffect(Unit) { //            CarmeraOpen()
+//        }
+//
+//    }
+//    CardView()
 }

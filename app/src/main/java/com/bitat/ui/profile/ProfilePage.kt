@@ -2,6 +2,7 @@ package com.bitat.ui.profile
 
 import com.bitat.repository.store.UserStore
 import android.content.Context
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,8 +36,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -67,6 +75,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -77,6 +86,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
@@ -90,6 +100,7 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.ui.common.LottieBox
+import com.bitat.ui.theme.Typography
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -124,7 +135,7 @@ fun MenuItem(path: String, desc: String = "", tapFun: () -> Unit) {
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ProfilePage(navController: NavHostController) {
+fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val dialog = rememberDialogState()
     val viewModel: ProfileViewModel = viewModel()
 
@@ -185,20 +196,18 @@ fun ProfilePage(navController: NavHostController) {
 
     ModalNavigationDrawer(drawerState = drawerState,
 //        modifier = Modifier.width(100.dp),
-        scrimColor = Color(0x33333333),
-        drawerContent = { /*TODO*/
+        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
             DrawerContainer(scope, drawerState)
-        },
-        content = {
+        }, content = {
             Box(
                 modifier = Modifier
                     .verticalScroll(state = scrollState)
+                    .background(Color.White)
                     .height((ScreenUtils.screenHeight * 2).dp)
             ) {
                 Box(
                     modifier = Modifier.draggable(
-                        orientation = Orientation.Vertical,
-                        state = draggableState
+                        orientation = Orientation.Vertical, state = draggableState
                     )
                 ) {
                     ProfileBg(menu = {
@@ -230,8 +239,7 @@ fun ProfilePage(navController: NavHostController) {
                     //            .verticalScroll(state = scrollState)
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.Top,
-                        modifier = Modifier.padding(0.dp)
+                        verticalArrangement = Arrangement.Top, modifier = Modifier.padding(0.dp)
                     ) {
                         Box(
                             modifier = Modifier
@@ -263,7 +271,12 @@ fun ProfilePage(navController: NavHostController) {
                                         .fillMaxWidth()
                                         .background(Color.White)
                                 )
-                                ProfileTabView(options = PROFILE_TAB_OPTIONS, pagerState) { index ->
+                                ProfileTabView(
+                                    options = PROFILE_TAB_OPTIONS,
+                                    pagerState,
+                                    navController,
+                                    viewModelProvider = viewModelProvider,
+                                ) { index ->
                                     Box(
                                         modifier = Modifier.fillMaxSize(),
                                         contentAlignment = Alignment.Center
@@ -288,13 +301,13 @@ fun ProfilePage(navController: NavHostController) {
                     }
 
                 }
-                Box(
-                    modifier = Modifier
-                        .padding(start = 20.dp)
-                        .padding(top = 180.dp)
-                ) {
-                    Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .padding(start = 20.dp)
+//                        .padding(top = 180.dp)
+//                ) {
+//                    Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+//                }
 
             }
 
@@ -332,7 +345,6 @@ fun ProfilePage(navController: NavHostController) {
 fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
     Scaffold(modifier = Modifier
         .width((ScreenUtils.screenWidth * 0.7).dp)
-        .offset(x = (ScreenUtils.screenWidth * 0).dp)
         .padding(start = 0.dp), topBar = {
         TopAppBar(title = { Text("Drawer Example") }, navigationIcon = {
             IconButton(onClick = {
@@ -351,8 +363,7 @@ fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it),
-            contentAlignment = Alignment.Center
+                .padding(it), contentAlignment = Alignment.Center
         ) {
             Text("Main Content")
         }
@@ -361,13 +372,11 @@ fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
 
 @Composable
 fun ReadDataFromDatabase(
-    context: Context,
-    viewModel: ProfileViewModel
+    context: Context, viewModel: ProfileViewModel
 ) { //    val data = viewModel.uiState.collectAsState()
     val data by remember {
         mutableStateOf(viewModel.uiState.value)
     }
-
 
     LazyColumn {
         items(count = data.userList.size) { item ->
@@ -408,7 +417,8 @@ fun ProfileBg(menu: @Composable (() -> Unit)) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: CoroutineScope) {
-    ModalNavigationDrawer(drawerState = drawerState,
+    ModalNavigationDrawer(
+        drawerState = drawerState,
         drawerContent = { /*TODO*/ //            Column {
             //                Text("hello")
             //                Text("world")
@@ -437,8 +447,7 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it),
-                contentAlignment = Alignment.Center
+                    .padding(it), contentAlignment = Alignment.Center
             ) {
                 Text("Main Content")
             }
@@ -466,23 +475,116 @@ fun ProfileDetail(
     }
 
     Surface(
-        shape = RoundedCornerShape(25.dp),
+        shape = RoundedCornerShape(40.dp),
     ) {
         Column(verticalArrangement = Arrangement.Top) {
             Row(
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 10.dp)
             ) {
-                SocialData(likes, follows, fans)
-                ReadDataFromDatabase(context = LocalContext.current, viewModel)
+                Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+
+                Column(
+                    modifier = Modifier
+                        .padding(top = 15.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
+                        TagLabel("28")
+                        TagLabel(
+                            "贵阳"
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 10.dp)
+                            .height(55.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        UserInfo(nickname, atAccount, introduction)
+                        SocialData(likes, follows, fans)
+//                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
+                    }
+                }
+
             }
-            Box(modifier = Modifier.padding(start = 30.dp)) {
-                UserInfo(nickname, atAccount, introduction)
-            }
-            AlbumList()
+//            Box(modifier = Modifier.padding(start = 30.dp)) {
+//                UserInfo(nickname, atAccount, introduction)
+//            }
+            Text(
+                introduction,
+                maxLines = 3,
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+            )
+            GoCreate()
+//            AlbumList()
         }
+    }
+}
+
+@Composable
+fun GoCreate() {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 15.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            "进入创作页 》",
+            style = Typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(start = 20.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        LazyRow(modifier = Modifier.fillMaxWidth()) {
+            items(3) {
+                Creation()
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+    }
+}
+
+@Composable
+fun Creation() {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.padding(start = 15.dp, end = 5.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(140.dp)
+                .background(Color.Cyan)
+        ) {
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TagLabel(content: String) {
+    Chip(
+        onClick = { /*TODO*/ },
+        modifier = Modifier
+            .height(20.dp)
+            .padding(horizontal = 3.dp),
+        colors = ChipDefaults.chipColors(backgroundColor = Color.Black),
+        leadingIcon = {
+            Icon(
+                Icons.Filled.CheckCircle,
+                contentDescription = "",
+                Modifier.size(12.dp),
+                tint = Color.White
+            )
+        }) {
+        Text(
+            content,
+            style = Typography.bodySmall.copy(fontSize = 12.sp, color = Color.White),
+        )
     }
 }
 
@@ -516,16 +618,16 @@ fun AlbumItem() {
 
 @Composable
 fun Avatar(url: String, modifier: Modifier = Modifier) {
-
     Surface(
-        shape = CircleShape, modifier = Modifier
-            .padding(start = 10.dp)
-            .offset(y = (-60).dp)
+        shape = CircleShape,
+        modifier = Modifier
+            .padding(start = 15.dp, top = 15.dp)
+            .shadow(elevation = 5.dp, shape = CircleShape)
     ) {
         Box(
             modifier = modifier
-                .size(80.dp)
-                .border(width = 40.dp, color = Color.Transparent, shape = CircleShape)
+                .size(76.dp)
+                .border(width = 38.dp, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
         ) {
 
@@ -537,7 +639,7 @@ fun Avatar(url: String, modifier: Modifier = Modifier) {
 fun SocialData(likes: Int, follows: Int, fans: Int) {
     Row(
         modifier = Modifier
-            .fillMaxWidth(2 / 3f)
+            .fillMaxWidth()
             .padding(top = 5.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -545,15 +647,13 @@ fun SocialData(likes: Int, follows: Int, fans: Int) {
         VerticalDivider(
             modifier = Modifier
                 .height(40.dp)
-                .padding(top = 10.dp),
-            color = Color(0xffeeeeee)
+                .padding(vertical = 10.dp), color = Color(0xffeeeeee)
         )
         SocialDataItem(fans, "粉丝")
         VerticalDivider(
             modifier = Modifier
                 .height(40.dp)
-                .padding(top = 10.dp),
-            color = Color(0xffeeeeee)
+                .padding(top = 10.dp), color = Color(0xffeeeeee)
         )
         SocialDataItem(follows, "关注")
     }
@@ -563,8 +663,7 @@ fun SocialData(likes: Int, follows: Int, fans: Int) {
 fun SocialDataItem(amount: Int, title: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-
-        ) {
+    ) {
         Text(text = amount.toAmountUnit(1), fontSize = 20.sp, fontWeight = FontWeight(600))
         Text(title, fontSize = 14.sp, color = Color.Gray)
     }
@@ -572,15 +671,19 @@ fun SocialDataItem(amount: Int, title: String) {
 
 @Composable
 fun UserInfo(nickname: String, atAccount: String, introduction: String) {
-    Column {
-        Text(nickname, fontSize = 20.sp, fontWeight = FontWeight(600))
+    Column(
+        modifier = Modifier
+            .padding(start = 10.dp, top = 5.dp)
+            .height(55.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(nickname, fontSize = 16.sp, fontWeight = FontWeight(600))
         Text(
             "艾特号：$atAccount",
             fontSize = 12.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 5.dp)
+            modifier = Modifier.padding(vertical = 3.dp)
         )
-        Text(introduction, maxLines = 3, fontSize = 18.sp, color = Color.Gray)
     }
 }
 
@@ -589,11 +692,22 @@ fun UserInfo(nickname: String, atAccount: String, introduction: String) {
 fun ProfileTabView(
     options: List<String>,
     pagerState: PagerState,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider,
     content: @Composable PagerScope.(Int) -> Unit
 ) { //    Column {
     //        ProfileTabBar(pagerState, options)
-    HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { index ->
-        content(index)
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.Top
+    ) { index ->
+        when (index) {
+            0 -> Box {}
+            1 -> Box {}
+            2 -> CollectionTab(navHostController, viewModelProvider = viewModelProvider)
+            3 -> Box {}
+        }
     } //    }
 }
 
@@ -626,8 +740,9 @@ fun ProfileTabBar(pagerState: PagerState, options: List<String>) {
                     }
                 }
                 .fillMaxWidth()
-                .padding(vertical = 16.dp), textAlign = TextAlign.Center
-            )
+                .padding(vertical = 16.dp), textAlign = TextAlign.Center)
         }
     }
 }
+
+

@@ -117,6 +117,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                     BlogContent(blog.kind.toInt(),
                         blog,
                         height,
+                        true,
                         isPlaying,
                         navHostController,
                         viewModelProvider)

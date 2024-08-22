@@ -53,6 +53,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
 //                AtNavigation(navController).navigateToBlog()
             }
+
             1 -> DiscoveryPage(navController, viewModelProvider)
             2 -> {
                 //                PublishTextPage(navController)
@@ -63,8 +64,9 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                AtNavigation(navController).navigateToPublishText
 
             }
+
             3 -> ChatPage(navController)
-            4 -> ProfilePage(navController)
+            4 -> ProfilePage(navController, viewModelProvider)
         }
     })
 
