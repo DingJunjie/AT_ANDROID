@@ -1,7 +1,5 @@
 package  com.bitat.repository.common
 
-class CodeErr(val code: Int, val msg: String)
-
 const val INVALID_CREDENTIAL = 101
 const val EXPIRED_CREDENTIAL = 102
 const val PERMISSION_LACKED = 103
@@ -10,6 +8,8 @@ const val EXCEPT_CODE = 104
 const val ERROR_CODE = 105
 const val INNER_ERROR = 106
 const val OK_CODE = 1
+
+class CodeErr(val code: Int, val msg: String)
 
 //http响应处理
 @JvmInline
