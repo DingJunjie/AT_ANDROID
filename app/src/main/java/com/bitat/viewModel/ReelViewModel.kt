@@ -40,14 +40,16 @@ class ReelViewModel : ViewModel() {
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {
         MainCo.launch {
-
             if (_state.value.resList.size > 0) {
+
                 val resListIndex = _state.value.resList.indexOf(currentBlog)
                 if (resListIndex > 0) _state.update {
                     it.resList[resListIndex] = currentBlog
                     it
                 }
-                CuLog.debug(CuTag.Publish, "点赞后,${_state.value.resList[resListIndex].agrees}")
+            }
+            _state.update {
+                it.copy(currentBlog = currentBlog)
             }
             _state.update {
                 it.copy(flag = _state.value.flag + 1)
@@ -61,7 +63,10 @@ class ReelViewModel : ViewModel() {
                 SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = it.id)).await()
                     .map { data ->
                         _state.update {
-                            if (isInit) it.resList.clear()
+                            if (isInit) {
+                                it.resList.clear()
+                                it.resList.add(_state.value.currentBlog!!)
+                            }
                             it.resList.addAll(data)
                             it
                         }

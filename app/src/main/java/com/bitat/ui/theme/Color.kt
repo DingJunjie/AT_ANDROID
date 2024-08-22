@@ -13,6 +13,14 @@ val Pink40 = Color(0xFF7D5260)
 
 val themeColor = Color(0xFF000000)
 
+// 常规字体 重要级别的文字信息、正文标题、主要文案
+val text=Color(0xFF333333)
+// 次重要颜色
+val subText=Color(0xFF666666)
+
+// 次要级别的文字信息、更多入口、日期、不可点击
+val hintText=Color(0xFF999999)
+
 
 val white = Color(0xFFFFFFFF).convert(ColorSpaces.CieXyz)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)

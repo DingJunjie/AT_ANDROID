@@ -32,7 +32,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER,BLOG
 }
 
 sealed class NavigationItem(val route: String) {
@@ -57,6 +57,7 @@ sealed class NavigationItem(val route: String) {
     data object DiscoveryDetail : NavigationItem(Screen.DISCOVERY_DETAIL.name)
     data object ImagePreview : NavigationItem(Screen.IMAGE_PREVIEW.name)
     data object ReportUser : NavigationItem(Screen.REPORT_USER.name)
+    data object Blog : NavigationItem(Screen.BLOG.name)
 }
 
 
@@ -166,6 +167,14 @@ class AtNavigation(navController: NavHostController) {
             }
         }
     }
+
+//    val navigateToBlog: () -> Unit = {
+//        navController.navigate(..route) {
+//            popUpTo(0) {
+//                inclusive = true
+//            }
+//        }
+//    }
 
     val navigateToHome: () -> Unit = { // launchSingleTop = true 只保留一个在顶层
         navController.navigate(NavigationItem.Home.route) { //                val homeBaseViewModel=  hiltViewModel<HomeBaseViewModel>()

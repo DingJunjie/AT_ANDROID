@@ -74,14 +74,12 @@ import kotlinx.coroutines.launch
 /***
  * 首页的数据显示
  */
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
     val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
     val state by vm.blogState.collectAsState()
-    val pagerState: PagerState = rememberPagerState { 3 }
     val loadMoreState = rememberLoadMoreState {
         CuLog.debug(CuTag.Blog, "loadMoreState") //        vm.initBlogList(blogState.currentMenu)
     }
@@ -153,11 +151,11 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
-                val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                if (lastVisibleItemIndex == state.blogList.size - 1) {
-                    vm.loadMore()
-                }
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+            if (lastVisibleItemIndex == state.blogList.size - 1) {
+                vm.loadMore()
             }
+        }
     }
 
     val toast = rememberToastState()
@@ -168,35 +166,21 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         mutableStateOf(false)
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(white)
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) })
-            RefreshView(modifier = Modifier
-                .nestedScroll(loadMoreState.nestedScrollConnection)
-                .padding(bottom = padding.calculateBottomPadding())
-                .fillMaxHeight()
-                .fillMaxWidth(),
+            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
+                .padding(bottom = padding.calculateBottomPadding()).fillMaxHeight().fillMaxWidth(),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(state.currentMenu)
                 }) {
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-//                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxWidth()
+                        .fillMaxHeight(), //                    contentAlignment = Alignment.Center
                 ) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
@@ -223,10 +207,10 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                                 currentOperation = BlogOperation.At
                                             }
                                         },
-                                        tapLike = {
-                                            //更新列表中 点赞数据
-                                            item.hasPraise=!item.hasPraise
-                                            item.agrees=if (item.hasPraise) item.agrees++ else item.agrees--
+                                        tapLike = { //更新列表中 点赞数据
+                                            item.hasPraise = !item.hasPraise
+                                            item.agrees =
+                                                if (item.hasPraise) item.agrees + 1u else item.agrees - 1u
                                             vm.refreshCurrent(item)
                                         },
                                         tapCollect = {
@@ -237,16 +221,15 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                             }
                                             collectTipVisible = true
 
-                                            if (item.hasCollect) {
-                                                // 已收藏，取消
+                                            if (item.hasCollect) { // 已收藏，取消
                                                 collectVm.cancelCollect()
-                                            } else {
-                                                // 未收藏，收藏
+                                            } else { // 未收藏，收藏
                                                 collectVm.collectBlog(0)
                                             }
 
-                                            item.hasCollect=!item.hasCollect
-                                            item.collects=if (item.hasCollect) item.collects++ else item.collects--
+                                            item.hasCollect = !item.hasCollect
+                                            item.collects =
+                                                if (item.hasCollect) item.collects + 1u else item.collects - 1u
                                             vm.refreshCurrent(item)
                                             coroutineScope.launch {
                                                 delay(3000)
@@ -284,8 +267,7 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         collectPopupVisible = true
     })
 
-    CollectPopup(
-        visible = collectPopupVisible,
+    CollectPopup(visible = collectPopupVisible,
         collectViewModel = collectVm,
         collectState = collectState,
         createCollection = {
@@ -301,11 +283,9 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         },
         onClose = {
             collectPopupVisible = false
-        }
-    )
+        })
 
-    CommentPopup(
-        visible = isCommentVisible.value,
+    CommentPopup(visible = isCommentVisible.value,
         blogId = commentState.currentBlogId,
         commentViewModel = commentVm,
         coroutineScope = coroutineScope,

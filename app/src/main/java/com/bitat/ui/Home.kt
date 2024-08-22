@@ -42,18 +42,20 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 AtNavigation(navController).navigateToPublish()
             }
         }
-    }) { innerPadding ->
+    }, content =  { innerPadding ->
         when (selectIndex) {
             0 -> {
-                BlogPage(
-                    Modifier.padding(innerPadding),
-                    navController,
-                    viewModelProvider = viewModelProvider
-                )
+                                BlogPage(
+                                    Modifier.padding(innerPadding),
+                                    navController,
+                                    viewModelProvider = viewModelProvider
+                                )
+
+//                AtNavigation(navController).navigateToBlog()
             }
             1 -> DiscoveryPage(navController, viewModelProvider)
             2 -> {
-            //                PublishTextPage(navController)
+                //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
                 //                    viewModelProvider = viewModelProvider
@@ -64,7 +66,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
             3 -> ChatPage(navController)
             4 -> ProfilePage(navController)
         }
-    }
+    })
 
 }
 

@@ -59,7 +59,6 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
     val ctx = LocalContext.current
     LaunchedEffect(state) {
         snapshotFlow { state.value.report }.distinctUntilChanged().collect {
-            CuLog.debug(CuTag.Blog, "state状态变化${state.value.report}")
             if (state.value.report == 1) {
                 ToastModel(ctx.getString(R.string.blog_report_success),
                     ToastModel.Type.Success).showToast()
@@ -100,7 +99,7 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
                     val item = state.value.reportList[index]
                     Column(modifier = Modifier.fillMaxWidth().height(40.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(color = if (item.isSelect) colorResource(R.color.teal_700) else colorResource(
+                        .background(color = if (item.isSelect) MaterialTheme.colorScheme.primary else colorResource(
                             R.color.pop_content_bg)).clickable {
                             item.isSelect = !item.isSelect
                             vm.selectRepor(item)
@@ -109,7 +108,8 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         val text = ReportUtils.getReportTypeList()[index].name
                         Text(text = text,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp))
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp,
+                                color = if (item.isSelect) MaterialTheme.colorScheme.onPrimary else MaterialTheme.typography.bodyMedium.color))
                     }
                 }
             }

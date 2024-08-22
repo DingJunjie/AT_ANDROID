@@ -50,7 +50,7 @@ fun LikeButton(
 
             })
         }
-        tapFn()
+//        tapFn()
     }) {
         SvgIcon(
             modifier = Modifier.size(20.dp),
