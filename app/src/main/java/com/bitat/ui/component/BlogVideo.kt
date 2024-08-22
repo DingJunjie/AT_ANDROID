@@ -41,6 +41,7 @@ fun BlogVideo(
             .fillMaxWidth()
             .height(height.dp)
             .clickable {
+
                 vm.setCurrentBlog(dto)
                 detailsVm.setCurrentBlog(dto)
                 AtNavigation(navController).navigateToVideo()

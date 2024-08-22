@@ -23,11 +23,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +57,7 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -77,9 +80,21 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
     val blogDetail = blogState.value.currentBlog
     val heigh = getHeight(blogState.value.currentBlog!!)
     val scrollState = rememberScrollState()
+    var isCommentVisible by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(Dispatchers.IO) {
+        blogDetail?.let {
+            commentVm.updateBlogId(it.id)
+            delay(1000)
+            isCommentVisible = true
+        }
+
+    }
 
 
-    Log.i("BlogDetail", "current blog is $blogDetail")
+
 
     Scaffold(modifier = Modifier
         .fillMaxWidth()
@@ -88,10 +103,14 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
             navHostController.popBackStack()
         }
     }) { padding ->
-        Column(modifier = Modifier.verticalScroll(scrollState).padding(padding) // 使Column支持垂直滚动
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(padding) // 使Column支持垂直滚动
             ,
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             blogState.value.currentBlog?.let {
                 Row(
                     modifier = Modifier
@@ -118,9 +137,11 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         it.userId.toLong()
                     )
                 }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
                     Text(
                         text = it.content,
                         modifier = Modifier.padding(bottom = 10.dp),
@@ -133,22 +154,30 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         needRoundedCorner = true,
                         isPlaying = true,
                         navHostController,
-                        viewModelProvider)
+                        viewModelProvider
+                    )
                     Spacer(modifier = Modifier.height(40.cdp))
                     BlogOperation(it)
                     Spacer(modifier = Modifier.height(60.cdp))
                 }
-                Column(modifier = Modifier.height(53.cdp)
-                    .background(MaterialTheme.colorScheme.primary).padding(start = 5.dp, end = 5.dp)
-                    .clip(CircleShape),
+                Column(
+                    modifier = Modifier
+                        .height(53.cdp)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(start = 5.dp, end = 5.dp)
+                        .clip(CircleShape),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "全部评论（${blogDetail?.comments}）",
-                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary))
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "全部评论（${it.comments}）",
+                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary)
+                    )
                 }
                 Spacer(modifier = Modifier.height(30.cdp))
-                if (it.comments > 0u) {
-                    CommentPopup(visible = true,
+                if (  isCommentVisible) {
+                    CommentPopup(
+                        visible = true,
                         blogId = commentState.currentBlogId,
                         commentViewModel = commentVm,
                         coroutineScope = coroutineScope,
@@ -158,7 +187,14 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         },
                         commentState = commentState,
                         onClose = { },
-                        isPop = false)
+                        isPop = false
+                    ){
+                        it.comments += 1u
+                        vm.refreshCurrent(it)
+                    }
+                    if (blogState.value.flag<0){
+                        Text(text = "")
+                    }
                 }
             }
         }
@@ -169,10 +205,22 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
 @Composable
 fun TopBar(title: String, backFn: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().background(Color.White)) {
-        Spacer(modifier = Modifier.statusBarsPadding().fillMaxWidth())
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(end = 20.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        Spacer(
+            modifier = Modifier
+                .statusBarsPadding()
+                .fillMaxWidth()
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp)
+        ) {
 
             IconButton(onClick = {
                 CuLog.debug(CuTag.Blog, "")

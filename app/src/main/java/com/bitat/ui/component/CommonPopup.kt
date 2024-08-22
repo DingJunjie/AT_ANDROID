@@ -19,7 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit, blogId: Long, onClose: () -> Unit, isPop: Boolean = true) {
+fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit, blogId: Long, onClose: () -> Unit, isPop: Boolean = true,commentSucc:() ->Unit={}) {
     if (isPop) {
         Popup(visible = visible, onClose = { onClose() }) {
             CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage)
@@ -32,7 +32,7 @@ fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentSt
 }
 
 @Composable
-fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit) {
+fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit,commentSucc:() ->Unit={}) {
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(commentState.commentInput))
     }
@@ -127,6 +127,7 @@ fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState:
                         textFieldValue = textFieldValue.copy(text = "")
                     }
                 }
+                commentSucc()
             }
         }, placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
             if (commentState.replyComment != null) "回复${commentState.replyComment.nickname}："

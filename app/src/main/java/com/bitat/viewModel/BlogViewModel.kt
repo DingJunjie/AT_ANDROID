@@ -93,12 +93,13 @@ class BlogViewModel : ViewModel() {
         blogState.update {
             it.copy(currentBlog = currentBlog)
         }
+        CuLog.debug(CuTag.Blog,"111 currentBlog: ${blogState.value.currentBlog?.content}")
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {
         MainCo.launch {
             val blogListIndex = blogState.value.blogList.indexOf(currentBlog)
-            CuLog.debug(CuTag.Publish, "点赞前,${blogState.value.blogList[blogListIndex].agrees}")
+
             if (blogListIndex > 0) blogState.update {
                 it.blogList[blogListIndex] = currentBlog
                 it
@@ -107,8 +108,6 @@ class BlogViewModel : ViewModel() {
             blogState.update {
                 it.copy(flag = blogState.value.flag + 1)
             }
-
-            CuLog.debug(CuTag.Publish, "点赞后,${blogState.value.blogList[blogListIndex].agrees}")
         }
     }
 

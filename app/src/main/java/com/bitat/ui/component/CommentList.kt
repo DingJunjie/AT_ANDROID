@@ -82,7 +82,7 @@ fun CommentList(
     }
 
     LazyColumn(modifier = Modifier
-        .height(ScreenUtils.screenHeight.times(0.5).dp)
+        .height(if (commentState.comments.size>0)ScreenUtils.screenHeight.times(0.5).dp else 0.dp)
         .clickableWithoutRipple {
             tapContentFn(null)
         }) {
