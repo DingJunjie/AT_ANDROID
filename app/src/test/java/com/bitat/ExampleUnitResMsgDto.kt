@@ -9,10 +9,11 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class ExampleUnitResMsgDto {
     @Test
     fun addition_isCorrect() {
         println(255.toByte())
+        val deque = ArrayDeque<Int>(0)
     }
 
     private val tagDict = HashMap<String, Long>()
@@ -22,7 +23,7 @@ class ExampleUnitTest {
         val tagIds = tags.map { Pair(it, tagDict[it] ?: -1) }
     }
 
-    fun tags(str: String): Array<String> {
+    private fun tags(str: String): Array<String> {
         return arrayOf("tag")
     }
 
