@@ -24,6 +24,9 @@ object SearchReq {
     //搜索推荐
     suspend inline fun recommendSearch(dto: RecommendSearchDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/search/recommendSearch", dto)
 
+    //搜索推荐详情
+    suspend inline fun recommendSearchDetail(dto: RecommendSearchDetailDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/search/recommendSearchDetail", dto)
+
     //通过tag进行搜索
     suspend inline fun findSearchTag(dto: FindSearchTagDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/search/findSearchTag", dto)
 }
