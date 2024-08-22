@@ -26,6 +26,7 @@ fun LikeButton(
     id: Long,
     count: Int,
     isLiked: Boolean = false,
+    tintColor:Color= Color.Black,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     tapFn: () -> Unit
 ) {
@@ -54,12 +55,12 @@ fun LikeButton(
         SvgIcon(
             modifier = Modifier.size(20.dp),
             path = if (currentLike.value) "svg/like_fill.svg" else "svg/like_line.svg",
-            tint = Color.Black,
-            contentDescription = ""
+            tint = tintColor,
+            contentDescription = "",
         )
         if (tmpCount.intValue > 0) Text(
             tmpCount.intValue.toAmountUnit(), style = Typography.bodyMedium.copy(
-                fontSize = 10.sp, color = Color.Black
+                fontSize = 10.sp, color = tintColor
             )
         )
     }

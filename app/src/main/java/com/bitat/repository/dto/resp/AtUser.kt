@@ -1,6 +1,5 @@
 package  com.bitat.repository.dto.resp
 
-import com.bitat.dto.resp.*
 import kotlinx.serialization.Serializable
 import  com.bitat.repository.dto.common.*
 import com.bitat.utils.EmptyArray
@@ -54,7 +53,7 @@ class BlogAtDto {
     var coCreates: String = "" //共创
     var createTime: Long = 0 //发布时间
     var coCreateInfos: Array<UserBaseDto> = emptyArray()//共创用户信息
-    var blogVote: BlogVotesDto  = BlogVotesDto() //投票
+    var blogVote: BlogVotesDto = BlogVotesDto() //投票
     var nickname: String = "" //用户名
     var profile: String = "" //头像
     var gender: Byte = 0 //性别

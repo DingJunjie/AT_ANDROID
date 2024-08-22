@@ -46,10 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.rememberLoadMoreState
-import com.bitat.router.AtNavigation
 import com.bitat.router.NavigationItem
 import com.bitat.state.DiscoveryMenuOptions
 import com.bitat.ui.common.WeLoadMore

@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,9 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
-import com.bitat.dto.resp.BlogBaseDto
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.HTTP_FAIL
 import com.bitat.repository.consts.HTTP_SUCCESS

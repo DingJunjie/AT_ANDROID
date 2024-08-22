@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 private val LightColorPalette = WeComposeColors(
     themeUi = themeColor,
     bottomBar = white1,
-    background = white2,
+    background = white,
     divider = white3,
     chatPage = white2,
     textPrimary = black3,
@@ -35,7 +35,7 @@ private val LightColorPalette = WeComposeColors(
     success = green3,
     info = blue,
     error = red2,
-    dialogBackground = dialogBackgroundLight,
+    dialogBackground = white,
     placeholder = white3
 )
 private val DarkColorPalette = WeComposeColors(

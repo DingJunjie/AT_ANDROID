@@ -13,6 +13,7 @@ val Pink40 = Color(0xFF7D5260)
 
 val themeColor = Color(0xFF000000)
 
+
 val white = Color(0xFFFFFFFF).convert(ColorSpaces.CieXyz)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)
 val white2 = Color(0xFFEDEDED).convert(ColorSpaces.CieXyz)

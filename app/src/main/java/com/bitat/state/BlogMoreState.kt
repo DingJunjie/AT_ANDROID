@@ -2,7 +2,6 @@ package com.bitat.state
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.repository.consts.HTTP_DEFAULT
 import com.bitat.utils.ReportUtils.ReportBean
 

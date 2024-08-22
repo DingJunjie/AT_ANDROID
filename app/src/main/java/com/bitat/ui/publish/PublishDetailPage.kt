@@ -4,7 +4,6 @@ package com.bitat.ui.publish
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,7 +46,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,7 +67,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -84,8 +81,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.R
-import com.bitat.dto.resp.BlogBaseDto
-import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -111,7 +106,6 @@ import com.bitat.ui.common.AnyPopDialog
 import com.bitat.ui.common.AnyPopDialogProperties
 import com.bitat.ui.common.DirectionState
 import com.bitat.ui.common.rememberDialogState
-import com.bitat.ui.component.Avatar
 import com.bitat.ui.theme.Typography
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast

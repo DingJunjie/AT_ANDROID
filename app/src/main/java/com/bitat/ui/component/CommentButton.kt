@@ -14,19 +14,19 @@ import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
 
 @Composable
-fun CommentButton(count: Int, modifier: Modifier = Modifier, tapFn: () -> Unit) {
+fun CommentButton(count: Int, modifier: Modifier = Modifier,tintColor: Color=Color.Black, tapFn: () -> Unit) {
     Row(modifier = modifier
         .clickable { tapFn() }) {
         SvgIcon(
             modifier = Modifier.size(20.dp),
             path = "svg/bottom_msg.svg",
-            tint = Color.Black,
+            tint = tintColor,
             contentDescription = ""
         )
         if (count > 0) Text(
             count.toAmountUnit(), style = Typography.bodyMedium.copy(
                 fontSize = 10.sp,
-                color = Color.Black
+                color = tintColor
             )
         )
     }

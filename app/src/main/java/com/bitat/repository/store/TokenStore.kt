@@ -1,5 +1,8 @@
 package com.bitat.repository.store
 
+import com.bitat.repository.common.CuRes
+import com.bitat.repository.common.EXPIRED_CREDENTIAL
+import com.bitat.repository.common.INVALID_CREDENTIAL
 import com.bitat.repository.dto.common.TokenDto
 import com.bitat.repository.dto.resp.AuthDto
 import com.bitat.repository.dto.resp.LoginResDto
@@ -104,7 +107,7 @@ object TokenStore {
         if (token != null) {
             var res = LoginReq.refresh(token).await()
             for (i in 0..2) {
-                if (res.isErr() && res.getErr().code == Http.EXPIRED_CREDENTIAL) {
+                if (res.isErr() && res.getErr().code == EXPIRED_CREDENTIAL) {
                     delay(1000)
                     res = LoginReq.refresh(token).await()
                 } else break
@@ -113,7 +116,7 @@ object TokenStore {
                 setToken(it.access)
                 setAuths(it.auths)
             }.errMap {
-                if (it.code == Http.INVALID_CREDENTIAL) isInvalid = true
+                if (it.code == INVALID_CREDENTIAL) isInvalid = true
             }
         }
     }

@@ -2,7 +2,7 @@ package com.bitat.state
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogBaseDto
 
 /**
  *    author : shilu
@@ -11,6 +11,6 @@ import com.bitat.dto.resp.BlogBaseDto
  */
 data class InnerBoleState(
     val blogList: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
-    val currentBlog: BlogBaseDto=BlogBaseDto(),
+    val currentBlog: BlogBaseDto = BlogBaseDto(),
     val currentIndex: Int = 0,
 )

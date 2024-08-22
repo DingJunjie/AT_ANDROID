@@ -1,9 +1,8 @@
 package com.bitat.viewModel
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
-import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.BlogOpsAddCollectDto

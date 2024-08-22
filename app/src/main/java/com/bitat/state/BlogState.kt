@@ -1,10 +1,8 @@
 package com.bitat.state
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogBaseDto
 
 enum class BlogMenuOptions : MenuOptions {
     Recommend, Latest, Followed;
@@ -35,10 +33,7 @@ data class BlogState(
     val updating: Boolean = false,
     val currentBlog: BlogBaseDto? = null,
     val topBarShow:Boolean=true,
-    val resList: SnapshotStateList<BlogBaseDto> = mutableStateListOf() ,//视频图片list
-    val resIndex:Int=0
-
-
+    val flag:Int=0
 )
 
 

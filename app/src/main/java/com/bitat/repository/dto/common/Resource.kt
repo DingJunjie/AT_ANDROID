@@ -1,6 +1,5 @@
 package  com.bitat.repository.dto.common
 
-import com.bitat.dto.resp.BlogVotesDto
 import kotlinx.serialization.Serializable
 
 //博文资源类

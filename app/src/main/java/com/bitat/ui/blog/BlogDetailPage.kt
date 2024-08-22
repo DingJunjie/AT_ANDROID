@@ -24,6 +24,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,23 +39,45 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
+import com.bitat.ext.Density
+import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.router.AtNavigation
 import com.bitat.ui.common.FollowBtn
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.BlogOperation
+import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.component.UserInfoWithAddr
+import com.bitat.ui.theme.Typography
 import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.CollectViewModel
+import com.bitat.viewModel.CommentViewModel
+import com.bitat.viewModel.ImagePreviewViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
     val blogState = vm.blogState.collectAsState()
+
+    val commentVm: CommentViewModel = viewModelProvider[CommentViewModel::class]
+    val commentState by commentVm.commentState.collectAsState()
+
+    val collectVm: CollectViewModel = viewModelProvider[CollectViewModel::class]
+    val collectState by collectVm.collectState.collectAsState()
+
+    val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
+
+    val coroutineScope = rememberCoroutineScope()
+
     val blogDetail = blogState.value.currentBlog
     val heigh = getHeight(blogState.value.currentBlog!!)
     val scrollState = rememberScrollState()
+
 
     Log.i("BlogDetail", "current blog is $blogDetail")
 
@@ -61,7 +87,9 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
         }
     }) { padding ->
         Column(modifier = Modifier.verticalScroll(scrollState).padding(padding) // 使Column支持垂直滚动
-        ) {
+            ,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             blogState.value.currentBlog?.let {
                 Row(modifier = Modifier.height(80.dp).padding(start = 10.dp, end = 10.dp),
                     verticalAlignment = Alignment.CenterVertically) {
@@ -88,23 +116,41 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         true,
                         navHostController,
                         viewModelProvider)
+                    Spacer(modifier = Modifier.height(40.cdp))
                     BlogOperation(it)
-                    Spacer(modifier = Modifier.height(30.dp))
-
+                    Spacer(modifier = Modifier.height(60.cdp))
                 }
-                Column(modifier = Modifier.fillMaxWidth().height(50.dp).background(Color.Gray),
+                Column(modifier = Modifier.height(53.cdp)
+                    .background(MaterialTheme.colorScheme.primary).padding(start = 5.dp, end = 5.dp)
+                    .clip(CircleShape),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("${blogDetail?.comments}个评论")
+                    Text(text = "全部评论（${blogDetail?.comments}）",
+                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary))
+                }
+                Spacer(modifier = Modifier.height(30.cdp))
+                if (it.comments > 0u) {
+                    CommentPopup(visible = true,
+                        blogId = commentState.currentBlogId,
+                        commentViewModel = commentVm,
+                        coroutineScope = coroutineScope,
+                        tapImage = {
+                            imagePreviewVm.setImagePreView(arrayOf(it))
+                            AtNavigation(navHostController).navigateToImagePreviewPage()
+                        },
+                        commentState = commentState,
+                        onClose = { },
+                        isPop = false)
                 }
             }
         }
     }
 
+
 }
 
 @Composable
-fun TopBar(title:String,backFn: () -> Unit) {
+fun TopBar(title: String, backFn: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().background(Color.White)) {
         Spacer(modifier = Modifier.statusBarsPadding().fillMaxWidth())
         Row(verticalAlignment = Alignment.CenterVertically,

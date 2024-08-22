@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 //import com.bitat.core.ui.components.videoplayer.WeVideoPlayer
 //import com.bitat.core.ui.components.videoplayer.rememberVideoPlayerState
-import com.bitat.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.consts.BLOG_AUDIO_IMAGE
 import com.bitat.repository.consts.BLOG_AUDIO_IMAGE_TEXT
 import com.bitat.repository.consts.BLOG_AUDIO_ONLY

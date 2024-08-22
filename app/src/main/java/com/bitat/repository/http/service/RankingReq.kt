@@ -1,7 +1,5 @@
 package com.bitat.repository.http.service
 
-import com.bitat.dto.resp.BlogPartDto
-
 //榜单
 object RankingReq {
     //获取榜单

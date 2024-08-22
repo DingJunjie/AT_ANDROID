@@ -1,7 +1,7 @@
 package com.bitat.repository.http.service
 
-import com.bitat.dto.resp.BlogBaseDto
-import com.bitat.dto.resp.BlogPartDto
+import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.req.*
 import com.bitat.repository.dto.resp.*
 import com.bitat.repository.http.Http

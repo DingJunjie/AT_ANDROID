@@ -8,15 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
-import com.bitat.dto.resp.BlogBaseDto
-import com.bitat.ext.toAmountUnit
+import com.bitat.repository.dto.resp.BlogBaseDto
 
 @Composable
 fun BlogOperation(

@@ -1,7 +1,7 @@
 package com.bitat.repo.httpReq.service
 
 
-import com.bitat.dto.resp.BlogPartDto
+import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.req.FindMusicBlog
 import com.bitat.repository.dto.req.GetCollect
 import com.bitat.repository.dto.req.MusicCollect

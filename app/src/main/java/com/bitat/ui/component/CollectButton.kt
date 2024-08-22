@@ -9,7 +9,7 @@ import com.bitat.ui.common.SvgIcon
 
 @Composable
 fun CollectButton(
-    hasCollect: Boolean = false,
+    hasCollect: Boolean = false,tintColor: Color= Color.Black,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     tapFn: () -> Unit
 ) {
@@ -18,7 +18,7 @@ fun CollectButton(
             tapFn()
         },
         path = "svg/collection.svg",
-        tint = if (hasCollect) Color.Yellow else Color.Black,
+        tint = if (hasCollect) Color.Yellow else tintColor,
         contentDescription = ""
     )
 }

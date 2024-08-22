@@ -1,8 +1,7 @@
-package  com.bitat.dto.resp
+package  com.bitat.repository.dto.resp
 
 import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.common.TagsDto
-import com.bitat.repository.dto.resp.*
 import com.bitat.utils.EmptyArray
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient

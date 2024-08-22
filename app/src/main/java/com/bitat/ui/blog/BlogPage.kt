@@ -223,7 +223,12 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                                 currentOperation = BlogOperation.At
                                             }
                                         },
-                                        tapLike = {},
+                                        tapLike = {
+                                            //更新列表中 点赞数据
+                                            item.hasPraise=!item.hasPraise
+                                            item.agrees=if (item.hasPraise) item.agrees++ else item.agrees--
+                                            vm.refreshCurrent(item)
+                                        },
                                         tapCollect = {
                                             collectTipY = it.div(Density).toInt()
                                             collectVm.updateBlog(blog = item)
@@ -240,6 +245,9 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
                                                 collectVm.collectBlog(0)
                                             }
 
+                                            item.hasCollect=!item.hasCollect
+                                            item.collects=if (item.hasCollect) item.collects++ else item.collects--
+                                            vm.refreshCurrent(item)
                                             coroutineScope.launch {
                                                 delay(3000)
                                                 collectTipVisible = false
