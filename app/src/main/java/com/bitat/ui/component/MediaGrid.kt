@@ -29,8 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bitat.R
-import com.bitat.dto.resp.BlogBaseDto
-import com.bitat.dto.resp.BlogPartDto
+import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.utils.ReportUtils
 import com.bitat.utils.ScreenUtils

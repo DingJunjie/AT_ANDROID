@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.Density
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.state.DiscoveryState
 import com.bitat.viewModel.DiscoveryViewModel
 import kotlinx.coroutines.Dispatchers

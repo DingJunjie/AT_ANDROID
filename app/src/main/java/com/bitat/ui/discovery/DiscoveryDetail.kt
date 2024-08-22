@@ -28,15 +28,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-<<<<<<< HEAD
-import com.bitat.repository.dto.resp.BlogBaseDto
-=======
 import com.bitat.MainCo
-import com.bitat.dto.resp.BlogBaseDto
 import com.bitat.ext.Density
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ui.blog.BlogContent
 import com.bitat.ui.common.statusBarHeight
->>>>>>> 3ed5ac4 (collection)
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.BlogText
 import com.bitat.ui.component.UserInfoWithAvatar

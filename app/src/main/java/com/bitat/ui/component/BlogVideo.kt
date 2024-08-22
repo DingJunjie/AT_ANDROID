@@ -25,28 +25,45 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
 
 @Composable
-fun BlogVideo(dto: BlogBaseDto, height: Int, isPlaying: Boolean = false, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun BlogVideo(
+    dto: BlogBaseDto,
+    height: Int,
+    isPlaying: Boolean = false,
+    needRoundedCorner: Boolean = true,
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm = viewModelProvider[BlogViewModel::class]
     val detailsVm = viewModelProvider[ReelViewModel::class]
 
-    Surface(shape = RoundedCornerShape(20.cdp),
-        modifier = Modifier.fillMaxWidth().height(height.dp).clickable {
+    Surface(shape = RoundedCornerShape(if (needRoundedCorner) 20.cdp else 0.cdp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height.dp)
+            .clickable {
                 vm.setCurrentBlog(dto)
                 detailsVm.setCurrentBlog(dto)
                 AtNavigation(navController).navigateToVideo()
             }) {
-        AsyncImage(model = dto.cover,
-            modifier = Modifier.clip(RoundedCornerShape(8.dp)).fillMaxWidth().height(height.dp)
+        AsyncImage(
+            model = dto.cover,
+            modifier = Modifier
+                .clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
+                .fillMaxWidth()
+                .height(height.dp)
                 .background(Color.Transparent),
             contentDescription = null,
-            contentScale = ContentScale.Crop)
+            contentScale = ContentScale.Crop
+        )
 
         if (isPlaying) {
-            CuExoPlayer(data = dto.resource.video,
+            CuExoPlayer(
+                data = dto.resource.video,
                 modifier = Modifier.fillMaxWidth(),
                 cover = dto.cover,
                 isFixHeight = true,
-                useExoController = false)
+                useExoController = false
+            )
         }
         CuLog.info(CuTag.Blog, "BlogVideo--------- ${dto.id}")
     }
