@@ -1,7 +1,6 @@
 package  com.bitat.repository.http
 
 import com.bitat.repository.common.CuRes
-import com.bitat.repository.common.EXCEPT_CODE
 import com.bitat.repository.common.INNER_ERROR
 import com.bitat.repository.common.OK_CODE
 import com.bitat.repository.store.TokenStore
