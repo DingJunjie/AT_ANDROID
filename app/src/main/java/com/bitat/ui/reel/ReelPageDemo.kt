@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,8 +59,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     // 监听当前页面的变化
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page -> // 页面切换时触发的操作
-            CuLog.debug(CuTag.Blog, "1111Current page: $page")
-            vm.setResIndex(page)
+            if (page == pagerState.pageCount - 1) {
+                vm.loadMore(true)
+            }
         }
     }
 
@@ -69,21 +71,14 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
 
         currentDto = state.value.resList[page]
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Black)
-        ) {
-            // 视频/图片 部分
+        Box(modifier = Modifier.fillMaxSize().background(color = Color.Black)) { // 视频/图片 部分
             when (currentDto.kind.toInt()) {
                 BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                     if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
-                        CuExoPlayer(
-                            data = currentDto.resource.video,
+                        CuExoPlayer(data = currentDto.resource.video,
                             modifier = Modifier.fillMaxSize(),
                             cover = currentDto.cover,
-                            isFixHeight = true
-                        )
+                            isFixHeight = true)
                     }
                 }
 
@@ -91,42 +86,25 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     ImageBanner(currentDto.resource.images.toList(), true)
                 }
             } // 用户信息部分
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(20.dp),
+            Column(modifier = Modifier.align(Alignment.BottomStart).padding(20.dp),
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Column(
-                    modifier = Modifier
-                        .height(130.cdp)
-                        .padding(end = 50.dp)
-                ) {
-                    UserInfoWithAvatar(
-                        modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Bottom) {
+                Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
+                    UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
                         currentDto.nickname,
                         currentDto.profile,
-                        textStyle = Typography.bodyLarge.copy(
-                            fontSize = 14.sp,
+                        textStyle = Typography.bodyLarge.copy(fontSize = 14.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Left
-                        ),
+                            textAlign = TextAlign.Left),
                         isShowMore = false,
-                        avatarSize = 40
-                    )
+                        avatarSize = 40)
                 }
-                CollapseText(
-                    value = currentDto.content,
+                CollapseText(value = currentDto.content,
                     maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 50.dp),
+                    modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
                     textStyle = Typography.bodyLarge.copy(color = Color.White, lineHeight = 26.sp),
-                    maxLength = 17
-                )
-
+                    maxLength = 17)
                 if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
                     iconPath = "svg/location_line.svg",
                     selected = false,
@@ -136,7 +114,5 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     })
             }
         }
-
-
     }
 }

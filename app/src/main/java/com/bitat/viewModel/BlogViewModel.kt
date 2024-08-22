@@ -83,10 +83,8 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(
-                            CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
-                        )
+                        CuLog.debug(CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -130,11 +128,10 @@ class BlogViewModel : ViewModel() {
     fun filterResList() {
         val filterList =
             blogState.value.blogList.filter { it.kind.toInt() == BLOG_VIDEO_ONLY || it.kind.toInt() == BLOG_VIDEO_TEXT || it.kind.toInt() == BLOG_IMAGE_TEXT || it.kind.toInt() == BLOG_IMAGES_ONLY }
-        if (filterList.isNotEmpty())
-            blogState.update {
-                it.resList.addAll(filterList)
-                it
-            }
+        if (filterList.isNotEmpty()) blogState.update {
+            it.resList.addAll(filterList)
+            it
+        }
     }
 
 
@@ -142,8 +139,7 @@ class BlogViewModel : ViewModel() {
         when (currentBlog.kind.toInt()) {
             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT, BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
                 val resIndex = blogState.value.resList.indexOf(currentBlog)
-                if (resIndex > 0)
-                    blogState.update { it.copy(resIndex = resIndex) }
+                if (resIndex > 0) blogState.update { it.copy(resIndex = resIndex) }
             }
         }
 
@@ -168,7 +164,7 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun loadMore() {
+    fun loadMore(addresList: Boolean = false) {
         if (blogState.value.updating) {
             return
         }
@@ -183,6 +179,10 @@ class BlogViewModel : ViewModel() {
                 }
                 blogState.update {
                     it.copy(updating = false)
+                }
+
+                if (addresList) {
+                    filterResList()
                 }
             }.errMap {
                 CuLog.debug(CuTag.Blog, "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")

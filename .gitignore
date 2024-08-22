@@ -14,4 +14,4 @@
 .cxx
 local.properties
 
-TestConfig.kt
+/app/src/main/java/com/bitat/config/TestConfig.kt
