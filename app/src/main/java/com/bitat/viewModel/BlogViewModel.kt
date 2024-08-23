@@ -93,7 +93,7 @@ class BlogViewModel : ViewModel() {
         blogState.update {
             it.copy(currentBlog = currentBlog)
         }
-        CuLog.debug(CuTag.Blog,"111 currentBlog: ${blogState.value.currentBlog?.content}")
+        CuLog.debug(CuTag.Blog, "111 currentBlog: ${blogState.value.currentBlog?.content}")
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {

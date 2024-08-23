@@ -258,7 +258,9 @@ class LoginViewModel() : ViewModel() {
             atInfo = ""
         }
         MainCo.launch {
+            CuLog.debug(CuTag.Login,"登录11}")
             val result = LoginReq.phone(dto).await()
+            CuLog.debug(CuTag.Login,"登录22}")
             result.map {
                 CuLog.debug(CuTag.Login,"登录成功，用户ID{${it.user.id}}")
                 TokenStore.initLogin(it)

@@ -33,8 +33,9 @@ import com.wordsfairy.note.ui.widgets.toast.ToastUIState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
-val MainCo = MainScope()
+var MainCo = MainScope()
 
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         //        window.setDecorFitsSystemWindows(false)
+        CuLog.debug(CuTag.Login,"MainActivity----- onCreate")
         //设置全屏显示
         enableEdgeToEdge()
         setContent {
@@ -85,6 +87,28 @@ class MainActivity : ComponentActivity() {
         TcpClient.start()
     }
 
+    override fun onStart() {
+        super.onStart()
+        CuLog.debug(CuTag.Login,"MainActivity----- onStart")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        CuLog.debug(CuTag.Login,"MainActivity----- onPause")
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+
+        CuLog.debug(CuTag.Login,"MainActivity----- onResume")
+//        MainCo= MainScope()
+    }
+
+
+
+
     fun getAvailableMemory(): ActivityManager.MemoryInfo {
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         return ActivityManager.MemoryInfo().also { memoryInfo ->
@@ -96,5 +120,9 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         MainCo.cancel()
+        finishAffinity()
+        android.os.Process.killProcess(android.os.Process.myPid())
+        exitProcess(0)
     }
+
 }
