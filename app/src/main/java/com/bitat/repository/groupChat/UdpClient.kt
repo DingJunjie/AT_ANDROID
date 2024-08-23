@@ -8,8 +8,6 @@ import com.bitat.repository.common.KeySecret
 import com.bitat.repository.groupChat.UdpClient.HB_INTERVAL
 import com.bitat.repository.groupChat.UdpClient.MAX_INACTIVE_MS
 import com.bitat.repository.singleChat.MsgDto.ChatMsg
-import com.bitat.repository.singleChat.TcpMsgEvent
-import com.bitat.repository.singleChat.TcpMsgHead
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
 import com.bitat.utils.TimeUtils
@@ -65,7 +63,7 @@ object UdpClient {
             while (!KeySecret.isValid()) delay(1000)
             val body = token.toByteArray()
             val key = KeySecret.currentKey()
-            val head = UdpMsgHead(key, TcpMsgEvent.AUTH).toBytes()
+            val head = UdpMsgHead(key, UdpMsgEvent.AUTH).toBytes()
             val data = KeySecret.encryptByKey(key, body, head)
             if (data != null) {
                 write(owner, data)
@@ -81,7 +79,7 @@ object UdpClient {
             while (!KeySecret.isValid()) delay(1000)
             val body = token.toByteArray()
             val key = KeySecret.currentKey()
-            val head = UdpMsgHead(key, TcpMsgEvent.AUTH).toBytes()
+            val head = UdpMsgHead(key, UdpMsgEvent.AUTH).toBytes()
             val data = KeySecret.encryptByKey(key, body, head)
             if (data != null) {
                 val byteBuf = ByteBuffer.wrap(data)
@@ -115,7 +113,7 @@ object UdpClient {
     private fun genMsg(event: Short, body: ByteArray): ByteArray? {
         if (KeySecret.isValid()) {
             val key = KeySecret.currentKey()
-            val head = TcpMsgHead(key, event, body.size)
+            val head = UdpMsgHead(key, event)
             return KeySecret.encryptByKey(key, body, head.toBytes())
         }
         return null
@@ -133,7 +131,7 @@ object UdpClient {
                 it.kind = kind
                 it.data = ByteString.copyFrom(data)
             }.build()
-            val msg = genMsg(TcpMsgEvent.CHAT, body.toByteArray())
+            val msg = genMsg(UdpMsgEvent.CHAT, body.toByteArray())
             val owner = ownerDict[toId]
             if (msg != null && owner != null) write(owner, msg)
             else CuLog.error(CuTag.SingleChat, "Bad gen msg")
@@ -190,6 +188,12 @@ class UdpMsgHead(val secret: Short, val event: Short) {
         return bytes
     }
 
+}
+
+object UdpMsgEvent {
+    const val AUTH = 1.toShort()
+    const val AUTH_REC = (-AUTH).toShort()
+    const val CHAT = 2.toShort()
 }
 
 
