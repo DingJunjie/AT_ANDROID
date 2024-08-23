@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-message ResMsg{
-  string msg = 1;
-  int32 code = 2;
-  bytes data = 3;
-}

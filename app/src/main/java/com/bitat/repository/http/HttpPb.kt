@@ -2,12 +2,9 @@ package com.bitat.repository.http
 
 import com.bitat.repository.common.CuRes
 import com.bitat.repository.common.INNER_ERROR
-import com.bitat.repository.common.OK_CODE
-import com.bitat.repository.dto.pb.ResMsgDto
 import com.bitat.repository.http.Http.HttpClient
 import com.bitat.repository.store.TokenStore
 import com.bitat.utils.JsonUtils
-import com.google.protobuf.ByteString
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import okhttp3.Call
@@ -21,13 +18,14 @@ import java.io.IOException
 // 封装http请求处理
 object HttpPb {
     const val HOST = "https://test.bitebei.com"
+    const val PB_TYPE = "application/x-protobuf"
 
     suspend fun <T, R> common(
-        toJsonFn: (T) -> String, fromPbFn: (ByteString) -> R, //参数
+        toJsonFn: (T) -> String, fromPbFn: (ByteArray) -> R, //参数
         method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean
     ): Deferred<CuRes<R>> {
         val headerMap = HashMap<String, String>(2)
-        headerMap["Content-Type"] = "application/json"
+        headerMap["content-Type"] = "application/json"
         val cd = CompletableDeferred<CuRes<R>>()
         if (login) {
             val token = TokenStore.fetchToken()
@@ -51,12 +49,10 @@ object HttpPb {
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body
                 if (response.isSuccessful && body != null) {
-                    val resDto = ResMsgDto.ResMsg.parseFrom(body.bytes())
-                    cd.complete(
-                        if (resDto.code == OK_CODE) {
-                            CuRes.ok(resDto.data.let(fromPbFn))
-                        } else CuRes.err(resDto.code, resDto.msg)
-                    )
+                    cd.complete(if (response.headers["content-Type"] == PB_TYPE) {
+                        CuRes.ok(fromPbFn(body.bytes()))
+                    } else JsonUtils.fromJson<ResDto<Unit>>(body.toString())
+                        .run { CuRes.err(code, msg) })
                 } else cd.complete(CuRes.err(INNER_ERROR, "Http status:${response.code}"))
             }
 
@@ -65,14 +61,14 @@ object HttpPb {
     }
 
     suspend inline fun <R> get(
-        noinline fromPbFn: (ByteString) -> R,
+        noinline fromPbFn: (ByteArray) -> R,
         url: String,
         headers: Map<String, String> = emptyMap(),
         login: Boolean = true
     ) = common<Unit, R>({ "" }, fromPbFn, "GET", url, null, headers, login)
 
     suspend inline fun <reified T, R> post(
-        noinline fromPbFn: (ByteString) -> R,
+        noinline fromPbFn: (ByteArray) -> R,
         url: String,
         data: T,
         headers: Map<String, String> = emptyMap(),

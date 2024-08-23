@@ -37,25 +37,23 @@ object UdpClient {
 
     fun start() {
         clear()
-        MainCo.launch(IO) {
+        timing = MainCo.launch(IO) {
             while (!KeySecret.isValid()) delay(1000)
             conn = DatagramChannel.open().apply {
                 configureBlocking(false)
             }
-            timing = MainCo.launch(IO) {
-                if (authAll()) {
-                    read()
-                    delay(1000)
-                    while (isReady()) {
-                        val nowTime = TimeUtils.getNow()
-                        ownerDict.forEachValue {
-                            val inactiveMs = it.inactiveMs(nowTime)
-                            if (inactiveMs > 0) {
-                                write(it, it.pingBytes())
-                            }
+            if (authAll()) {
+                read()
+                delay(1000)
+                while (isReady()) {
+                    val nowTime = TimeUtils.getNow()
+                    ownerDict.forEachValue {
+                        val inactiveMs = it.inactiveMs(nowTime)
+                        if (inactiveMs > 0) {
+                            write(it, it.pingBytes())
                         }
-                        delay(1000)
                     }
+                    delay(1000)
                 }
             }
         }

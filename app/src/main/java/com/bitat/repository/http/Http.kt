@@ -32,7 +32,7 @@ object Http {
         method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean
     ): Deferred<CuRes<R>> {
         val headerMap = HashMap<String, String>(2)
-        headerMap["Content-Type"] = "application/json"
+        headerMap["content-Type"] = "application/json"
         val cd = CompletableDeferred<CuRes<R>>()
         if (login) {
             val token = TokenStore.fetchToken()
