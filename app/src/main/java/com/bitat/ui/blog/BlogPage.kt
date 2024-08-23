@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
  */
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
     val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
     val state by vm.blogState.collectAsState()
@@ -94,12 +94,16 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         mutableLongStateOf(0L)
     }
 
-    var isFirst by remember { mutableStateOf(true) }
 
-    LaunchedEffect(state.currentMenu) { //        if (isFirst){
-        vm.initBlogList(state.currentMenu)
-        CuLog.debug(CuTag.Blog, "加载数据，${state.currentMenu}")
-        isFirst = false //        }
+
+    LaunchedEffect(state.currentMenu) {
+        if (state.isFirst) {
+            vm.initBlogList(state.currentMenu, isRefresh = true)
+            vm.firstFetchFinish()
+        }
+//        vm.initBlogList(state.currentMenu, isRefresh = true)
+//        CuLog.debug(CuTag.Blog, "加载数据，${state.currentMenu}")
+
     }
 
     var currentOperation by remember {
@@ -134,7 +138,9 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
             .collect { _ ->
                 if (listState.layoutInfo.visibleItemsInfo.size > 1) {
                     if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-                            3) && playingIndex.value != listState.firstVisibleItemIndex + 1) {
+                            3
+                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
+                    ) {
                         playingIndex.value = listState.firstVisibleItemIndex + 1
                     }
                 }
@@ -143,8 +149,10 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
-            CuLog.debug(CuTag.Blog,
-                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}")
+            CuLog.debug(
+                CuTag.Blog,
+                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
+            )
             if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
                 vm.topBarState(false)
             } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
@@ -171,20 +179,33 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .background(white)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) })
-            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
-                .padding(bottom = padding.calculateBottomPadding()).fillMaxHeight().fillMaxWidth(),
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .padding(bottom = padding.calculateBottomPadding())
+                .fillMaxHeight()
+                .fillMaxWidth(),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(state.currentMenu)
                 }) {
                 Surface(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .fillMaxHeight(), //                    contentAlignment = Alignment.Center
                 ) {
                     if (state.blogList.size > 0) {
@@ -306,15 +327,28 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
 
 
 @Composable
-fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit) {
-    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start) {
+fun BlogTopBar(
+    currentMenu: BlogMenuOptions,
+    isOpen: Boolean,
+    toggleMenu: (Boolean) -> Unit,
+    switchMenu: (BlogMenuOptions) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .height(30.dp)
+            .padding(start = 5.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
-        Row(modifier = Modifier.fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.End) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }

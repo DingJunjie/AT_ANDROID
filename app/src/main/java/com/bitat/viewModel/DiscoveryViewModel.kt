@@ -24,6 +24,12 @@ class DiscoveryViewModel : ViewModel() {
         }
     }
 
+    fun firstFetchFinish() {
+        _discoveryState.update {
+            it.copy(isFirst = false)
+        }
+    }
+
     fun getDiscoveryList(isRefresh: Boolean = true, pageSize: Int = 30) {
         MainCo.launch {
             SearchReq.recommendSearch(RecommendSearchDto(pageSize, labels = IntArray(0)))

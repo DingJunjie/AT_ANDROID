@@ -73,7 +73,10 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
     val height = screenWidthDp / 3
 
     LaunchedEffect(Unit) {
-        vm.getDiscoveryList()
+        if (state.isFirst) {
+            vm.getDiscoveryList()
+            vm.firstFetchFinish()
+        }
     }
 
     val isMenuOpen = remember {

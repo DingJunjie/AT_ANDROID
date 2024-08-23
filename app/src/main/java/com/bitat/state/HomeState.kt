@@ -8,8 +8,11 @@ import com.bitat.config.HomeTabCfg
  *    desc   :
  */
 data class HomeState(
-    val tabList: List<HomeTabCfg> = listOf(HomeTabCfg.Home,
-    HomeTabCfg.Discovery,
-    HomeTabCfg.Add,
-    HomeTabCfg.Chat,
-    HomeTabCfg.Mine))
+    val tabList: List<HomeTabCfg> = listOf(
+        HomeTabCfg.Home,
+        HomeTabCfg.Discovery,
+        HomeTabCfg.Add,
+        HomeTabCfg.Chat,
+        HomeTabCfg.Mine
+    ), val selectedIndex: Int = 0
+)

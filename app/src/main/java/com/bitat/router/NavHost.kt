@@ -33,7 +33,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER,BLOG, COLLECTION_DETAIL
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL
 }
 
 sealed class NavigationItem(val route: String) {
@@ -68,11 +68,9 @@ sealed class NavigationItem(val route: String) {
 fun AppNavHost(
     navController: NavHostController,
     navigation: AtNavigation,
-    startDestination: String = NavigationItem.Login.route,
+    startDestination: String = NavigationItem.Splash.route,
     viewModelProvider: ViewModelProvider,
 ) {
-
-
     NavHost(navController = navController, startDestination = startDestination) {
         composable(NavigationItem.Splash.route) {
             Splash(navHostController = navController)

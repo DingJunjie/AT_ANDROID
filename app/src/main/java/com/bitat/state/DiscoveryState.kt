@@ -26,5 +26,6 @@ data class DiscoveryState(
     val discoveryList: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
     val discoveryHeightList: SnapshotStateList<Float> = mutableStateListOf(),
 
-    val currentMenu: DiscoveryMenuOptions = DiscoveryMenuOptions.DISCOVERY
+    val currentMenu: DiscoveryMenuOptions = DiscoveryMenuOptions.DISCOVERY,
+    val isFirst: Boolean = true
 )

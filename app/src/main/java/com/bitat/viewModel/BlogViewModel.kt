@@ -20,8 +20,16 @@ class BlogViewModel : ViewModel() {
 
     //    private val _eventFlow = MutableSharedFlow<String>()
     //    val eventFlow: SharedFlow<String> get() = _eventFlow
+    fun firstFetchFinish() {
+        blogState.update {
+            it.copy(isFirst = false)
+        }
+    }
 
-    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend) { // TODO
+    fun initBlogList(
+        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
+        isRefresh: Boolean = false
+    ) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -46,8 +54,10 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(
+                            CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
 
@@ -115,6 +125,9 @@ class BlogViewModel : ViewModel() {
         blogState.update {
             it.copy(currentMenu = menu)
         }
+
+        initBlogList(blogState.value.currentMenu, isRefresh = true)
+        CuLog.debug(CuTag.Blog, "加载数据，${blogState.value.currentMenu}")
     }
 
     fun topBarState(isShow: Boolean) {

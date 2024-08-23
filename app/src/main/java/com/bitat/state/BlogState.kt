@@ -32,8 +32,9 @@ data class BlogState(
     val hasMore: Boolean = true,
     val updating: Boolean = false,
     val currentBlog: BlogBaseDto? = null,
-    val topBarShow:Boolean=true,
-    val flag:Int=0
+    val topBarShow: Boolean = true,
+    val flag: Int = 0,
+    val isFirst: Boolean = true
 )
 
 
