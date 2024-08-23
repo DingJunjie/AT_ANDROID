@@ -73,6 +73,10 @@ class CommentViewModel : ViewModel() {
                         it.atUserSearchResult.addAll(res)
                         it
                     }
+
+                    _commentState.update {
+                        it.copy(commentCount = commentState.value.commentCount+ 1)
+                    }
                 }.errMap {
                     CuLog.error(
                         CuTag.Publish, "获取@好友列表失败，接口返回：code(${it.code}),msg:${it.msg}"

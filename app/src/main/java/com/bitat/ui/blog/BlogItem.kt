@@ -179,5 +179,6 @@ fun getHeight(item: BlogBaseDto): Int {
         val resSize = ImageUtils.getParamsFromUrl(firstImageUrl)
         height = ImageUtils.getHeight(resSize, imageMaxWidth)
     }
+    CuLog.debug(CuTag.Blog,"图片高度计算：$height")
     return height
 }

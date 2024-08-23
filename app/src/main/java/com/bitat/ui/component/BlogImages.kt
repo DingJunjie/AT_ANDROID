@@ -1,5 +1,6 @@
 package com.bitat.ui.component
 
+import android.util.Size
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import com.bitat.R
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
@@ -37,25 +39,16 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ImagePreviewViewModel
 
 @Composable
-fun BlogImages(
-    dto: BlogBaseDto,
-    maxHeight: Int,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun BlogImages(dto: BlogBaseDto, maxHeight: Int, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[ImagePreviewViewModel::class]
     val context = LocalContext.current
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent),
         horizontalAlignment = Alignment.Start,
     ) {
-        ImageBox(dto, maxHeight, navHostController) {
-//            Toast
-//                .makeText(context, data, Toast.LENGTH_SHORT)
-//                .show()
+        ImageBox(dto, maxHeight, navHostController) { //            Toast
+            //                .makeText(context, data, Toast.LENGTH_SHORT)
+            //                .show()
             vm.setImagePreView(dto.resource.images)
             AtNavigation(navHostController).navigateToImagePreviewPage()
         };
@@ -68,29 +61,19 @@ fun BlogImages(
  * 横向列表LazyRow
  */
 @Composable
-fun ImageBox(
-    blog: BlogBaseDto,
-    maxHeight: Int,
-    navHostController: NavHostController,
-    onClic: (Int) -> Unit
-) {
+fun ImageBox(blog: BlogBaseDto, maxHeight: Int, navHostController: NavHostController, onClic: (Int) -> Unit) {
 
     val dataList = blog.resource.images
 
 
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-//        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)
+        modifier = Modifier.fillMaxWidth(), //        contentPadding = PaddingValues(start = ScreenUtils.screenWidth.times(0.11).dp)
     ) {
         itemsIndexed(dataList) { index, data ->
             Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .clickable {
+                modifier = Modifier.fillMaxHeight().clickable {
                         onClic(index)
-                    }
-                    .padding(3.dp)
-                    .background(Color.Transparent),
+                    }.padding(3.dp).background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
 
@@ -98,22 +81,24 @@ fun ImageBox(
                     val wrapperWidth = ScreenUtils.screenWidth * 0.88 - 10
 
                     Box {
-                        AsyncImage(
-                            model = data,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .width(wrapperWidth.dp)
-                                .height(maxHeight.dp)
+                        AsyncImage(model = data,
+                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                                .width(wrapperWidth.dp).height(maxHeight.dp)
                                 .background(Color.Transparent),
                             contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
-                            contentAlignment = Alignment.TopEnd
-                        ) {
+                            contentScale = ContentScale.Crop,
+                            onState = { state ->
+                                if (state is AsyncImagePainter.State.Success) {
+                                    val width = state.painter.intrinsicSize.width
+                                    val height =
+                                        state.painter.intrinsicSize.height //                                    imageSize = Size(width.toInt(), height.toInt())
+                                    CuLog.debug(CuTag.Blog,
+                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}")
+                                }
+                            })
+                        Box(modifier = Modifier.fillMaxWidth()
+                            .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
+                            contentAlignment = Alignment.TopEnd) {
                             if (dataList.size > 1) {
                                 TotalIndexShow((index + 1).toString(), dataList.size.toString())
                             }
@@ -121,14 +106,11 @@ fun ImageBox(
                         }
                     }
                 } else {
-                    Image(
-                        painterResource(R.drawable.logo),
+                    Image(painterResource(R.drawable.logo),
                         contentDescription = "默认图片",
                         modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
-                            .clip(CircleShape)
-                            .size(50.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                            .clip(CircleShape).size(50.dp),
+                        contentScale = ContentScale.Crop)
                 }
             }
         }

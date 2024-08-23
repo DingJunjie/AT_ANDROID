@@ -93,8 +93,13 @@ fun BlogPage(modifier: Modifier, navController: NavHostController, viewModelProv
     var currentId by remember {
         mutableLongStateOf(0L)
     }
-    LaunchedEffect(state.currentMenu) {
+
+    var isFirst by remember { mutableStateOf(true) }
+
+    LaunchedEffect(state.currentMenu) { //        if (isFirst){
         vm.initBlogList(state.currentMenu)
+        CuLog.debug(CuTag.Blog, "加载数据，${state.currentMenu}")
+        isFirst = false //        }
     }
 
     var currentOperation by remember {

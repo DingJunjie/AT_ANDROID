@@ -26,13 +26,6 @@ class ReelViewModel : ViewModel() {
 
 
     fun setCurrentBlog(currentBlog: BlogBaseDto) {
-        when (currentBlog.kind.toInt()) {
-            BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT, BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
-                val resIndex = _state.value.resList.indexOf(currentBlog)
-                if (resIndex > 0) _state.update { it.copy(resIndex = resIndex) }
-            }
-        }
-
         _state.update {
             it.copy(currentBlog = currentBlog)
         }
@@ -41,16 +34,19 @@ class ReelViewModel : ViewModel() {
     fun refreshCurrent(currentBlog: BlogBaseDto) {
         MainCo.launch {
             if (_state.value.resList.size > 0) {
-
                 val resListIndex = _state.value.resList.indexOf(currentBlog)
-                if (resListIndex > 0) _state.update {
+                if (resListIndex >= 0) _state.update {
                     it.resList[resListIndex] = currentBlog
+                    CuLog.debug(
+                        CuTag.Blog,
+                        "1111 data update success${it.resList[resListIndex].agrees}"
+                    )
                     it
                 }
             }
-            _state.update {
-                it.copy(currentBlog = currentBlog)
-            }
+//            _state.update {
+//                it.copy(currentBlog = currentBlog)
+//            }
             _state.update {
                 it.copy(flag = _state.value.flag + 1)
             }
@@ -59,22 +55,40 @@ class ReelViewModel : ViewModel() {
 
     fun getList(isInit: Boolean) {
         MainCo.launch {
-            _state.value.currentBlog?.let {
-                SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = it.id)).await()
+
+            _state.value.currentBlog?.let { item->
+
+                if (isInit) {
+                    _state.update {
+                        it.resList.clear()
+                       it
+                    }
+
+                    _state.update {
+                        it.resList.add(item)
+                        it
+                    }
+
+                }
+                SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()
                     .map { data ->
                         _state.update {
-                            if (isInit) {
-                                it.resList.clear()
-                                it.resList.add(_state.value.currentBlog!!)
-                            }
                             it.resList.addAll(data)
                             it
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}")
+                        CuLog.debug(
+                            CuTag.Blog,
+                            "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}"
+                        )
                     }
             }
+        }
+    }
+
+    fun setIndex(index: Int) {
+        _state.update {
+            it.copy(resIndex = index)
         }
     }
 }

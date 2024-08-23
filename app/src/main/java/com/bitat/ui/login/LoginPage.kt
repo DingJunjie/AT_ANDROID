@@ -176,9 +176,12 @@ fun LoginPage(navHostController: NavHostController, navigateToHome: () -> Unit) 
                     timerCount = timerCount,
                     loginFun = {
                         login(viewModel, dialog, successFn = {
-
                             navigateToHome()
                         })
+
+                        MainCo.launch {
+                            CuLog.debug(CuTag.Login,"登录login")
+                        }
                     })
             }
 
