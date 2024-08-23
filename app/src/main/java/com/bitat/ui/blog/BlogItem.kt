@@ -48,6 +48,8 @@ import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.OthersViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /*****
  * blog item 组件L
@@ -65,6 +67,7 @@ fun BlogItem(
     tapCollect: (Int) -> Unit,
     moreClick: () -> Unit
 ) {
+    println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog) //    val height = 500
     val lineHeight = remember {
         mutableIntStateOf(0)

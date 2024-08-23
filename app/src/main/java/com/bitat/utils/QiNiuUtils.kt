@@ -26,6 +26,7 @@ enum class FileType(val str: String) {
 object QiNiuUtil {
 
     const val QINIU_PREFIX = "http://file.bitebei.com/";
+    const val QINIU_AVATAR_PREFIX = "https://bit-pub.bitebei.com"
     const val VIDEO_COVER = "?vframe/jpg/offset/0.1/w/ww/h/hh";
 
     private val uploadManager = Configuration.Builder().connectTimeout(90) // 链接超时。默认90秒
@@ -56,6 +57,7 @@ object QiNiuUtil {
             is Uri -> uploadManager.put(
                 file, Local.ctx?.contentResolver, upKey, token, completionFn, options
             )
+
             is ByteArray -> uploadManager.put(file, upKey, token, completionFn, options)
             is String -> uploadManager.put(file, upKey, token, completionFn, options)
             is File -> uploadManager.put(file, upKey, token, completionFn, options)

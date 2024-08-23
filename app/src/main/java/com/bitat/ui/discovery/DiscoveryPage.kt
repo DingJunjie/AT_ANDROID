@@ -190,8 +190,8 @@ fun VerticalRandomColorBox(item: BlogBaseDto, height: Dp, tapFn: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(2.dp)
-            .height(if (item.height == 1) height - 2.dp else height.times(2))
+            .padding(1.dp)
+            .height(if (item.height == 1) height - 1.dp else height.times(2))
             .clickable {
                 tapFn()
             }
@@ -200,7 +200,7 @@ fun VerticalRandomColorBox(item: BlogBaseDto, height: Dp, tapFn: () -> Unit) {
             AsyncImage(
                 model = item.cover,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(4.dp))
                     .fillMaxWidth(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
