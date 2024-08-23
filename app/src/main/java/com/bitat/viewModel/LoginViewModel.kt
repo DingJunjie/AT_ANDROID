@@ -24,7 +24,10 @@ import com.netease.nis.quicklogin.QuickLogin
 import com.netease.nis.quicklogin.helper.UnifyUiConfig
 import com.netease.nis.quicklogin.listener.QuickLoginPreMobileListener
 import com.netease.nis.quicklogin.listener.QuickLoginTokenListener
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -117,33 +120,45 @@ class LoginViewModel() : ViewModel() {
     }
 
     private val getNumberListener = object : QuickLoginPreMobileListener {
-        override fun onGetMobileNumberSuccess(token: String?, phone: String?) { //            TODO("Not yet implemented")
-            CuLog.debug(CuTag.Login,
-                "we got pre mobile success the token and phone is $token, $phone")
+        override fun onGetMobileNumberSuccess(
+            token: String?, phone: String?
+        ) { //            TODO("Not yet implemented")
+            CuLog.debug(
+                CuTag.Login, "we got pre mobile success the token and phone is $token, $phone"
+            )
             oneClickState.update {
-                it.copy(supported = true,
+                it.copy(
+                    supported = true,
                     initialized = true,
                     enabled = true,
                     phoneNumber = phone ?: "",
-                    token = token ?: "")
+                    token = token ?: ""
+                )
             }
         }
 
-        override fun onGetMobileNumberError(token: String?, msg: String?) { //            TODO("Not yet implemented")
+        override fun onGetMobileNumberError(
+            token: String?, msg: String?
+        ) { //            TODO("Not yet implemented")
             CuLog.debug(CuTag.Login, "we got pre mobile error the p0 and p1 is $token, $msg")
             oneClickState.update {
-                it.copy(supported = false,
+                it.copy(
+                    supported = false,
                     initialized = true,
                     enabled = false,
-                    errorMsg = msg ?: "一键登录号码获取失败")
+                    errorMsg = msg ?: "一键登录号码获取失败"
+                )
             }
         }
     }
 
     private val getTokenListener = object : QuickLoginTokenListener {
-        override fun onGetTokenSuccess(token: String?, accessCode: String?) { //            TODO("Not yet implemented")
-            CuLog.debug(CuTag.Login,
-                "we got token success the token and accessCode is $token, $accessCode")
+        override fun onGetTokenSuccess(
+            token: String?, accessCode: String?
+        ) { //            TODO("Not yet implemented")
+            CuLog.debug(
+                CuTag.Login, "we got token success the token and accessCode is $token, $accessCode"
+            )
             oneClickState.update {
                 it.copy(accessToken = token ?: "", signing = true)
             }
@@ -162,13 +177,17 @@ class LoginViewModel() : ViewModel() {
             }
         }
 
-        override fun onGetTokenError(p0: String?, p1: Int, p2: String?) { //            TODO("Not yet implemented")
+        override fun onGetTokenError(
+            p0: String?, p1: Int, p2: String?
+        ) { //            TODO("Not yet implemented")
             CuLog.debug(CuTag.Login, "we got token error the p0 and p1 and p2 is $p0, $p1, $p2")
             oneClickState.update {
-                it.copy(supported = true,
+                it.copy(
+                    supported = true,
                     initialized = true,
                     enabled = false,
-                    errorMsg = p0 ?: "一键登录凭证获取失败")
+                    errorMsg = p0 ?: "一键登录凭证获取失败"
+                )
             }
         }
     }
@@ -249,7 +268,7 @@ class LoginViewModel() : ViewModel() {
     }
 
 
-    fun loginByCaptcha(successFn: () -> Unit, errorFn: (msg: String) -> Unit) {
+    suspend fun loginByCaptcha(successFn: () -> Unit, errorFn: (msg: String) -> Unit) {
         val dto = PhoneLoginDto().apply {
             phone = loginState.value.phone
             captcha = loginState.value.captcha
@@ -258,9 +277,8 @@ class LoginViewModel() : ViewModel() {
             atInfo = ""
         }
         MainCo.launch {
-            val result = LoginReq.phone(dto).await()
-            result.map {
-                CuLog.debug(CuTag.Login,"登录成功，用户ID{${it.user.id}}")
+            LoginReq.phone(dto).await().map {
+                CuLog.debug(CuTag.Login, "登录成功，用户ID{${it.user.id}}")
                 TokenStore.initLogin(it)
                 UserStore.initUserInfo(it.user)
                 successFn()
@@ -307,7 +325,9 @@ class LoginViewModel() : ViewModel() {
         return Build.FINGERPRINT.startsWith("generic") || Build.FINGERPRINT.lowercase(Locale.getDefault())
             .contains("vbox") || Build.FINGERPRINT.lowercase(Locale.getDefault())
             .contains("test-keys") || Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
-            "Android SDK built for x86") || Build.MANUFACTURER.contains("Genymotion") || (Build.BRAND.startsWith(
-            "generic") && Build.DEVICE.startsWith("generic"))
+            "Android SDK built for x86"
+        ) || Build.MANUFACTURER.contains("Genymotion") || (Build.BRAND.startsWith(
+            "generic"
+        ) && Build.DEVICE.startsWith("generic"))
     }
 }

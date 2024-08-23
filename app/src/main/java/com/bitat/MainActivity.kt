@@ -32,10 +32,10 @@ import com.wordsfairy.note.ui.widgets.toast.ToastUI
 import com.wordsfairy.note.ui.widgets.toast.ToastUIState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-val MainCo = MainScope()
-
+var MainCo = MainScope()
 
 class MainActivity : ComponentActivity() {
 
@@ -66,9 +66,11 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(navController,
+                AppNavHost(
+                    navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider)
+                    viewModelProvider = viewModelProvider
+                )
                 ToastUI(toastState)
             }
 
@@ -91,6 +93,14 @@ class MainActivity : ComponentActivity() {
             activityManager.getMemoryInfo(memoryInfo)
             CuLog.debug(CuTag.Blog, "系统运行内存${memoryInfo.availMem}")
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
     }
 
     override fun onDestroy() {

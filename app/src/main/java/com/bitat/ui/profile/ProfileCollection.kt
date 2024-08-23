@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.bitat.R
 import com.bitat.ext.timestampFormat
@@ -206,17 +207,19 @@ fun CollectionItem(
     Row(modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp)) {
         Box(modifier = Modifier
             .fillMaxWidth(0.5f)
-            .paint(
-                painter = rememberAsyncImagePainter(
-                    model = collection.cover
-                )
-            )
+//            .paint(
+//                painter = rememberAsyncImagePainter(
+//                    model = collection.cover
+//                )
+//            )
             .clickable {
                 tapCollection(collection)
                 navHostController.navigate(NavigationItem.CollectionDetail.route)
             }) {
             if (collection.cover.isEmpty()) {
                 Icon(Icons.Filled.AccountCircle, contentDescription = "")
+            } else {
+                AsyncImage(model = collection.cover, contentDescription = "")
             }
         }
 

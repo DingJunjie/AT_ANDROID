@@ -132,6 +132,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         heigh,
                         needRoundedCorner = true,
                         isPlaying = true,
+                        coverIsFull = true,
                         navHostController,
                         viewModelProvider)
                     Spacer(modifier = Modifier.height(40.cdp))

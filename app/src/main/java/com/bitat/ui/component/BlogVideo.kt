@@ -29,6 +29,7 @@ fun BlogVideo(
     dto: BlogBaseDto,
     height: Int,
     isPlaying: Boolean = false,
+    coverIsFull: Boolean = true,
     needRoundedCorner: Boolean = true,
     navController: NavHostController,
     viewModelProvider: ViewModelProvider
@@ -53,7 +54,7 @@ fun BlogVideo(
                 .height(height.dp)
                 .background(Color.Transparent),
             contentDescription = null,
-            contentScale = ContentScale.Crop
+            contentScale = if (coverIsFull) ContentScale.Crop else ContentScale.FillWidth
         )
 
         if (isPlaying) {

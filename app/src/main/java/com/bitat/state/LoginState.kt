@@ -19,6 +19,7 @@ data class LoginState(
     val isShowOneClickToast: Boolean = false,
     val toastContent: String = "",
 
+    val canLogin: Boolean = false,
 
     val isShowDialog: Boolean = false
 )

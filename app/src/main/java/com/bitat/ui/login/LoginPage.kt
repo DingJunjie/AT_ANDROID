@@ -135,25 +135,40 @@ fun LoginPage(navHostController: NavHostController, navigateToHome: () -> Unit) 
 
     MapsInitializer.updatePrivacyShow(LocalContext.current, true, true)
 
-    Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight()
 
-        .bringIntoViewRequester(bringIntoViewRequester).onFocusChanged { focusState ->
+        .bringIntoViewRequester(bringIntoViewRequester)
+        .onFocusChanged { focusState ->
             if (focusState.isFocused) {
                 MainCo.launch {
                     bringIntoViewRequester.bringIntoView()
                 }
             }
-        }.imePadding()) {
-        Column(modifier = Modifier.fillMaxHeight().align(Alignment.Center),
+        }
+        .imePadding()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Box(modifier = Modifier.width(100.dp).padding(top = 80.dp)) {
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .padding(top = 80.dp)
+            ) {
                 Image(painter = rememberAsyncAssetPainter("logo.jpg"), contentDescription = "")
             }
 
 
-            Row(horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(0.88f)) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(0.88f)
+            ) {
                 LoginMain(loginState = loginState,
                     oneClickState = oneClickState,
                     viewModel = viewModel,
@@ -184,17 +199,32 @@ fun LoginPage(navHostController: NavHostController, navigateToHome: () -> Unit) 
 }
 
 @Composable
-fun LoginMain(loginState: LoginState, viewModel: LoginViewModel, oneClickState: OneClickState, timerCount: Int, loginType: LoginType, loginFun: () -> Unit) {
-    Column(verticalArrangement = Arrangement.Top,
+fun LoginMain(
+    loginState: LoginState,
+    viewModel: LoginViewModel,
+    oneClickState: OneClickState,
+    timerCount: Int,
+    loginType: LoginType,
+    loginFun: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.background(Color(0xfffbfbfb)).padding(bottom = 100.dp)) {
+        modifier = Modifier
+            .background(Color(0xfffbfbfb))
+            .padding(bottom = 100.dp)
+    ) {
         if (loginType == LoginType.OneClick && oneClickState.initialized && oneClickState.supported && oneClickState.enabled) {
             OneClickWidget(phone = oneClickState.phoneNumber) {
                 viewModel.oneClick()
             }
         } else {
-            Column(modifier = Modifier.padding(top = 60.dp).fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 60.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 LoginCaptcha(loginState.phone, loginState.captcha, onPhoneChange = {
                     viewModel.updatePhone(it)
                 }, onCaptchaChange = {
@@ -242,19 +272,33 @@ fun CountDownContent(timerCount: Int) {
 }
 
 @Composable
-fun LoginCaptcha(phone: String, captcha: String, onPhoneChange: (String) -> Unit, onCaptchaChange: (String) -> Unit, timerCount: Int, getCaptcha: () -> Unit) {
+fun LoginCaptcha(
+    phone: String,
+    captcha: String,
+    onPhoneChange: (String) -> Unit,
+    onCaptchaChange: (String) -> Unit,
+    timerCount: Int,
+    getCaptcha: () -> Unit
+) {
     val kc = LocalSoftwareKeyboardController.current
     val callback = {
         kc?.show()
     }
 
     Column(
-
-        modifier = Modifier.padding(vertical = 10.dp).fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 10.dp)
-            .border(width = 0.dp, color = Color.Transparent, shape = RoundedCornerShape(20.dp))) {
-            OutlinedTextField(value = phone,
+        modifier = Modifier
+            .padding(vertical = 10.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 10.dp)
+                .border(width = 0.dp, color = Color.Transparent, shape = RoundedCornerShape(20.dp))
+        ) {
+            OutlinedTextField(
+                value = phone,
                 onValueChange = onPhoneChange,
                 isError = false,
                 enabled = true,
@@ -262,9 +306,11 @@ fun LoginCaptcha(phone: String, captcha: String, onPhoneChange: (String) -> Unit
                     Text(stringResource(id = R.string.input_phone))
                 },
                 shape = CircleShape,
-                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xffeeeeee),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xffeeeeee),
                     unfocusedBorderColor = Color.Transparent,
-                    unfocusedLabelColor = Color(0xff999999)),
+                    unfocusedLabelColor = Color(0xff999999)
+                ),
                 leadingIcon = {
                     Box(modifier = Modifier.padding(horizontal = 5.dp)) {
                         TextButton(
@@ -275,39 +321,62 @@ fun LoginCaptcha(phone: String, captcha: String, onPhoneChange: (String) -> Unit
                     }
                 },
                 keyboardActions = KeyboardActions(onDone = {}),
-                modifier = Modifier.border(width = 0.dp,
+                modifier = Modifier
+                    .border(
+                        width = 0.dp,
                         color = Color.Transparent,
-                        shape = CircleShape).padding(horizontal = 10.dp).fillMaxWidth()
-                    .background(color = Color(0xfff5f5f5), CircleShape))
+                        shape = CircleShape
+                    )
+                    .padding(horizontal = 10.dp)
+                    .fillMaxWidth()
+                    .background(color = Color(0xfff5f5f5), CircleShape)
+            )
         }
 
 
-        Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding()
-            .border(width = 0.dp, color = Color.Transparent, shape = RoundedCornerShape(20.dp))) {
-            OutlinedTextField(value = captcha,
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding()
+                .border(width = 0.dp, color = Color.Transparent, shape = RoundedCornerShape(20.dp))
+        ) {
+            OutlinedTextField(
+                value = captcha,
                 onValueChange = onCaptchaChange,
                 label = {
                     Text(stringResource(id = R.string.input_capture))
                 },
                 shape = CircleShape,
-                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xffeeeeee),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xffeeeeee),
                     unfocusedBorderColor = Color.Transparent,
-                    unfocusedLabelColor = Color(0xff999999)),
+                    unfocusedLabelColor = Color(0xff999999)
+                ),
                 trailingIcon = {
-                    TextButton(onClick = getCaptcha,
-                        contentPadding = PaddingValues(end = 15.dp, start = 15.dp)) {
+                    TextButton(
+                        onClick = getCaptcha,
+                        contentPadding = PaddingValues(end = 15.dp, start = 15.dp)
+                    ) {
                         CountDownContent(timerCount)
                     }
                 },
-                modifier = Modifier.border(width = 0.dp,
+                modifier = Modifier
+                    .border(
+                        width = 0.dp,
                         color = Color.Transparent,
-                        shape = CircleShape).padding(horizontal = 10.dp).fillMaxWidth()
+                        shape = CircleShape
+                    )
+                    .padding(horizontal = 10.dp)
+                    .fillMaxWidth()
                     .background(color = Color(0xfff5f5f5), CircleShape),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
                 keyboardActions = KeyboardActions(onDone = {
                     callback()
-                }))
+                })
+            )
         }
     }
 }
@@ -326,10 +395,14 @@ fun OneClickWidget(phone: String, clickFun: () -> Unit) {
         TextButton(onClick = {}, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(text = phone, fontSize = 20.sp, color = Color.Black, letterSpacing = 2.sp)
         }
-        LoginButton(content = stringResource(id = R.string.one_click),
+        LoginButton(
+            content = stringResource(id = R.string.one_click),
             clickFun,
             enabled = true,
-            widthPercentage = 0.88f)
+            widthPercentage = 0.88f
+        ) {
+            println("cannot tap")
+        }
     }
 }
 
@@ -343,9 +416,12 @@ fun LoginButtons(
     disableClickFn: (() -> Unit) = {},
     disableOneClickFn: (() -> Unit) = {},
 ) {
-    FlowRow(horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(top = 10.cdp, bottom = 10.cdp, start = 10.cdp, end = 10.cdp)
-            .fillMaxWidth()) {
+    FlowRow(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .padding(top = 10.cdp, bottom = 10.cdp, start = 10.cdp, end = 10.cdp)
+            .fillMaxWidth()
+    ) {
         LoginButton(
             content = stringResource(id = R.string.login_register),
             clickFun = login,
@@ -362,7 +438,13 @@ fun LoginButtons(
 }
 
 @Composable
-fun LoginButton(content: String, clickFun: () -> Unit, enabled: Boolean, widthPercentage: Float = 0.45f, disableClickFun: (() -> Unit) = {}) {
+fun LoginButton(
+    content: String,
+    clickFun: () -> Unit,
+    enabled: Boolean,
+    widthPercentage: Float = 0.45f,
+    disableClickFun: (() -> Unit) = {}
+) {
     Button( //        enabled = enabled,
         colors = if (enabled) ButtonDefaults.buttonColors(
             contentColor = Color.White,
@@ -371,14 +453,18 @@ fun LoginButton(content: String, clickFun: () -> Unit, enabled: Boolean, widthPe
             contentColor = Color.White,
             containerColor = Color.LightGray,
         ),
-        onClick = { if (enabled) clickFun.invoke() else disableClickFun() },
-        modifier = Modifier.fillMaxWidth(widthPercentage).height(88.cdp).pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    if (!enabled) {
-                        disableClickFun()
-                    }
-                })
-            }) {
+        onClick = { if (enabled) clickFun() else disableClickFun() },
+        modifier = Modifier
+            .fillMaxWidth(widthPercentage)
+            .height(88.cdp)
+//            .pointerInput(Unit) {
+//                detectTapGestures(onTap = {
+//                    if (!enabled) {
+//                        disableClickFun()
+//                    }
+//                })
+//            }
+    ) {
         Text(content, fontSize = FontStyle.contentLargeSize, fontWeight = FontWeight.Bold)
     }
 }
@@ -393,9 +479,11 @@ fun ShowToast(content: String, context: Context) {
 fun PolicyAndPolitics(accepted: Boolean = true, toggleAccept: (Boolean) -> Unit) {
     FlowRow {
         Checkbox(checked = accepted, onCheckedChange = toggleAccept)
-        Text("我已阅读并同意",
+        Text(
+            "我已阅读并同意",
             modifier = Modifier.align(Alignment.CenterVertically),
-            color = Color.Black)
+            color = Color.Black
+        )
         TextButton(onClick = {}) {
             Text("用户协议")
         }

@@ -119,6 +119,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                         height,
                         true,
                         isPlaying,
+                        coverIsFull = true,
                         navHostController,
                         viewModelProvider)
                 }

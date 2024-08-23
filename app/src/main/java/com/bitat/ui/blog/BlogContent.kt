@@ -77,6 +77,7 @@ fun BlogContent(
     maxHeight: Int,
     needRoundedCorner: Boolean = true,
     isPlaying: Boolean = false,
+    coverIsFull: Boolean = true,
     navHostController: NavHostController,
     viewModelProvider: ViewModelProvider
 ) {
@@ -86,6 +87,7 @@ fun BlogContent(
             mBlogBaseDto,
             maxHeight,
             isPlaying,
+            coverIsFull,
             needRoundedCorner,
             navHostController,
             viewModelProvider
