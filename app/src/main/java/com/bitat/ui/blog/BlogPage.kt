@@ -181,7 +181,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                 switchMenu = { vm.switchBlogMenu(it) },
                 navController)
             RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
-                .padding(bottom = padding.calculateBottomPadding()).fillMaxHeight().fillMaxWidth(),
+//                .padding(bottom = padding.calculateBottomPadding())
+                .fillMaxHeight().fillMaxWidth(),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(state.currentMenu)

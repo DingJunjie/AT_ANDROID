@@ -26,7 +26,10 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend, isRefresh: Boolean = false) { // TODO
+    fun initBlogList(
+        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
+        isRefresh: Boolean = false
+    ) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -51,8 +54,10 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(
+                            CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
 
@@ -107,8 +112,10 @@ class BlogViewModel : ViewModel() {
 
             if (blogListIndex > 0) blogState.update {
                 it.blogList[blogListIndex] = currentBlog
-                CuLog.debug(CuTag.Blog,
-                    "111 blog列表更新成功: ${it.blogList[blogListIndex].hasPraise}")
+                CuLog.debug(
+                    CuTag.Blog,
+                    "111 blog列表更新成功: ${it.blogList[blogListIndex].hasPraise}"
+                )
                 it
             }
 
@@ -152,6 +159,9 @@ class BlogViewModel : ViewModel() {
                 }
             }.errMap {
                 CuLog.debug(CuTag.Blog, "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                blogState.update { tt ->
+                    tt.copy(updating = false)
+                }
             }
         }
     }
@@ -169,7 +179,7 @@ class BlogViewModel : ViewModel() {
     }
 
     fun commentClick(blog: BlogBaseDto) {
-        blog.comments =  blog.comments + 1u
+        blog.comments = blog.comments + 1u
         refreshCurrent(blog)
     }
 }
