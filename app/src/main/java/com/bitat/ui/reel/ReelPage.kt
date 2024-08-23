@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,10 +62,13 @@ import com.bitat.ui.component.LikeButton
 import com.bitat.ui.component.UserInfoWithAvatar
 import com.bitat.ui.publish.Options
 import com.bitat.ui.theme.Typography
+import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
 import com.bitat.viewModel.ReelViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -92,6 +96,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     val collectVm: CollectViewModel = viewModelProvider[CollectViewModel::class]
     val collectState by collectVm.collectState.collectAsState()
 
+    val blogVm = viewModelProvider[BlogViewModel::class]
+
 
     var collectTipY by remember {
         mutableIntStateOf(0)
@@ -113,15 +119,25 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page -> // 页面切换时触发的操作
             if (page == pagerState.pageCount - 1) {
-                vm.getList(false)
+                vm.getList(false) {
+                    ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
+                }
             }
             vm.setIndex(page)
-        }
+        } //        CuLog.debug(CuTag.Blog, "1111 init data")
     }
 
-    LaunchedEffect(Dispatchers.IO) { // 初始化数据
+    //    LaunchedEffect(Unit) { // 初始化数据
+    //        CuLog.debug(CuTag.Blog, "1111 init data")
+    //        vm.getList(true)
+    //    }
+
+    DisposableEffect(Unit) {
         CuLog.debug(CuTag.Blog, "1111 init data")
-        vm.getList(true)
+        vm.getList(true) {}
+        onDispose { // 页面离开时可以执行一些清理操作
+            vm.reset()
+        }
     }
 
 
@@ -134,20 +150,17 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
                     CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = Color.Black)
-                    ) { // 视频/图片 部分
+                    Box(modifier = Modifier.fillMaxSize()
+                        .background(color = Color.Black)) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
-                                    CuExoPlayer(
-                                        data = currentDto.resource.video,
+                                    CuExoPlayer(data = currentDto.resource.video,
                                         modifier = Modifier.fillMaxSize(),
                                         cover = currentDto.cover,
-                                        isFixHeight = true
-                                    )
+                                        isFixHeight = true)
+                                    CuLog.debug(CuTag.Blog,
+                                        "1111 视频地址:${currentDto.resource.video}")
                                 }
                             }
 
@@ -155,44 +168,27 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 ImageBanner(currentDto.resource.images.toList(), true)
                             }
                         } // 用户信息部分
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(start = 30.cdp, bottom = 30.cdp),
+                        Column(modifier = Modifier.align(Alignment.BottomStart)
+                            .padding(start = 30.cdp, bottom = 30.cdp),
                             horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.Bottom
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .height(130.cdp)
-                                    .padding(end = 50.dp)
-                            ) {
-                                UserInfoWithAvatar(
-                                    modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Bottom) {
+                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
+                                UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
                                     currentDto.nickname,
                                     currentDto.profile,
-                                    textStyle = Typography.bodyLarge.copy(
-                                        fontSize = 14.sp,
+                                    textStyle = Typography.bodyLarge.copy(fontSize = 14.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Left
-                                    ),
+                                        textAlign = TextAlign.Left),
                                     isShowMore = false,
-                                    avatarSize = 40
-                                )
+                                    avatarSize = 40)
                             }
-                            CollapseText(
-                                value = currentDto.content,
+                            CollapseText(value = currentDto.content,
                                 maxLines = 1,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 50.dp),
-                                textStyle = Typography.bodyLarge.copy(
-                                    color = Color.White,
-                                    lineHeight = 26.sp
-                                ),
-                                maxLength = 17
-                            )
+                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
+                                textStyle = Typography.bodyLarge.copy(color = Color.White,
+                                    lineHeight = 26.sp),
+                                maxLength = 17)
                             if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
                                 iconPath = "svg/location_line.svg",
                                 selected = false,
@@ -203,23 +199,17 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         }
 
                         // 点赞、收藏 部分
-                        Column(
-                            modifier = Modifier
-                                .padding(end = 30.cdp, bottom = 30.cdp)
-                                .align(Alignment.BottomEnd)
-                        ) {
-                            LikeButton(
-                                currentDto.id,
+                        Column(modifier = Modifier.padding(end = 30.cdp, bottom = 30.cdp)
+                            .align(Alignment.BottomEnd)) {
+                            LikeButton(currentDto.id,
                                 currentDto.agrees.toInt(),
                                 isLiked = currentDto.hasPraise,
-                                tintColor = Color.White
-                            ) {
+                                tintColor = Color.White) {
                                 CuLog.debug(CuTag.Blog, "LikeButton 1111 ${currentDto.agrees}")
-                                currentDto.hasPraise = !currentDto.hasPraise
-                                currentDto.agrees =
-                                    if (currentDto.hasPraise) currentDto.agrees + 1u else currentDto.agrees - 1u
-                                vm.refreshCurrent(currentDto)
-                                CuLog.debug(CuTag.Blog, "1111:${currentDto.agrees}")
+
+                                //刷新页面、列表状态
+                                vm.likeClick(currentDto)
+                                blogVm.refreshCurrent(currentDto)
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
@@ -227,10 +217,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            CommentButton(
-                                count = currentDto.comments.toInt(),
-                                tintColor = Color.White
-                            ) {
+                            CommentButton(count = currentDto.comments.toInt(),
+                                tintColor = Color.White) {
 
                                 coroutineScope.launch {
                                     commentVm.updateBlogId(currentDto.id)
@@ -239,15 +227,12 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 isCommentVisible.value = true
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            CollectButton(
-                                currentDto.hasCollect,
+                            CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .onGloballyPositioned {
-                                        collectTipY = it.positionInWindow().y.toInt()
-                                        CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
-                                    }) {
+                                modifier = Modifier.size(30.dp).onGloballyPositioned {
+                                    collectTipY = it.positionInWindow().y.toInt()
+                                    CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
+                                }) {
 
                                 collectVm.updateBlog(blog = currentDto)
 
@@ -257,17 +242,13 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 } else { // 未收藏，收藏
                                     collectVm.collectBlog(0)
                                 }
-
-                                currentDto.hasCollect = !currentDto.hasCollect
-                                currentDto.collects =
-                                    if (currentDto.hasCollect) currentDto.collects + 1u else currentDto.collects - 1u
-                                vm.refreshCurrent(currentDto)
+                                vm.collectClick(currentDto)
                                 coroutineScope.launch {
                                     delay(3000)
                                     collectTipVisible = false
                                 }
                             }
-                            Spacer(modifier = Modifier.height(70.cdp))
+                            Spacer(modifier = Modifier.height(180.cdp))
                         }
 
                         CollectTips(collectTipVisible, y = collectTipY, closeTip = {
@@ -282,11 +263,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
             }
 
             1 -> {
-                Text(
-                    modifier = Modifier.fillMaxSize(),
+                Text(modifier = Modifier.fillMaxSize(),
                     text = "我是个人页",
-                    textAlign = TextAlign.Center
-                ) //                    AtNavigation(navController).navigateToProfilePage()
+                    textAlign = TextAlign.Center) //                    AtNavigation(navController).navigateToProfilePage()
             }
 
         }
@@ -301,8 +280,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
             AtNavigation(navController).navigateToImagePreviewPage()
         },
         commentState = commentState,
-        onClose = { isCommentVisible.value = false }, commentSucc = {
-            //评论成功回调
+        onClose = { isCommentVisible.value = false },
+        commentSucc = { //评论成功回调
             var currentDto = state.value.resList[state.value.resIndex]
             currentDto.comments = currentDto.comments + 1u
             vm.refreshCurrent(currentDto)

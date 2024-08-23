@@ -2,6 +2,7 @@ package com.bitat.viewModel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import com.bitat.state.HomeState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,12 @@ class HomeViewModel : ViewModel() {
     fun setIndex(newIndex: Int) {
         _homeState.update {
             it.copy(selectedIndex = newIndex)
+        }
+    }
+
+    fun setBottom(height: Dp) {
+        _homeState.update {
+            it.copy(bottomSize = height)
         }
     }
 }

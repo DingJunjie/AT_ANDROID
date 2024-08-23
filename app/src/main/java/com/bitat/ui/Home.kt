@@ -1,6 +1,9 @@
 package com.bitat.ui
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -20,12 +23,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.R
 import com.bitat.config.HomeTabCfg
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
@@ -40,16 +48,18 @@ import com.bitat.viewModel.HomeViewModel
 /****
  * 首页的切换
  */
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @Composable
 fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: HomeViewModel = viewModelProvider[HomeViewModel::class]
     val state by vm.homeState.collectAsState()
 
 
-//    var selectIndex by remember {
-//        mutableIntStateOf(0)
-//    }
-//     var isBack by remember { mutableStateOf(false) }
+    //    var selectIndex by remember {
+    //        mutableIntStateOf(0)
+    //    }
+    //     var isBack by remember { mutableStateOf(false) }
+
 
     val lifecycleOwner by rememberUpdatedState(LocalLifecycleOwner.current)
     DisposableEffect(lifecycleOwner) {
@@ -78,8 +88,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
             }
         }
         lifecycleOwner.lifecycle.addObserver(lifeCycleObserver)
-        onDispose {
-//            isBack=true
+        onDispose { //            isBack=true
             CuLog.info(CuTag.Blog, "Home------------->>>> onDispose")
             lifecycleOwner.lifecycle.removeObserver(lifeCycleObserver)
         }
@@ -93,17 +102,12 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 vm.setIndex(it)
             }
         }
-    }, content = { _ ->
-//        if (!isBack){
+    }, content = { _ -> //        if (!isBack){
         when (state.selectedIndex) {
-
             0 -> {
-                BlogPage(
-                    navController,
-                    viewModelProvider = viewModelProvider
-                )
 
-                //                AtNavigation(navController).navigateToBlog()
+                BlogPage(navController,
+                    viewModelProvider = viewModelProvider) //                AtNavigation(navController).navigateToBlog()
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)
@@ -118,38 +122,37 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
             3 -> ChatPage(navController)
             4 -> ProfilePage(navController, viewModelProvider)
-        }
-//        }
+        } //        }
     })
 
 }
 
 @Composable
 fun BottomAppBarBar(selectIndex: Int, onTabChange: (Int) -> Unit) {
-    val tabList = listOf(
-        HomeTabCfg.Home,
+    val tabList = listOf(HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine
-    )
+        HomeTabCfg.Mine)
 
-    BottomNavigation(backgroundColor = Color.White) {
+    var bottomBarHeight = 0
+    BottomNavigation(modifier = Modifier //        .padding(bottom = 60.cdp)
+        .onGloballyPositioned { coordinates -> // 获取高度
+            val heightPx =
+                coordinates.size.height //            bottomBarHeight = with(LocalDensity.current){ heightPx.toDp() }
+        }, //            .height(dimensionResource(R.dimen.home_tab_height)),
+        backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->
             BottomNavigationItem(icon = {
-                Icon(
-                    painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                        id = tab.iconUnselect
-                    ),
+                Icon(painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                    id = tab.iconUnselect),
                     contentDescription = "tabIcon",
-                    modifier = Modifier.size(
-                        when (index) {
-                            2 -> 50.cdp
-                            1 -> 50.cdp
-                            else -> 50.cdp
-                        }
-                    )
-                )
+                    modifier = Modifier.size(when (index) {
+                        2 -> 100.cdp
+                        1 -> 40.cdp
+                        else -> 40.cdp
+                    }),
+                    tint = Color.Unspecified)
             }, selected = selectIndex == index, onClick = {
 
                 onTabChange(index)
@@ -157,3 +160,4 @@ fun BottomAppBarBar(selectIndex: Int, onTabChange: (Int) -> Unit) {
         }
     }
 }
+

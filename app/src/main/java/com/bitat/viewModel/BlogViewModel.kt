@@ -26,10 +26,7 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun initBlogList(
-        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
-        isRefresh: Boolean = false
-    ) { // TODO
+    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend, isRefresh: Boolean = false) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -54,10 +51,8 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(
-                            CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
-                        )
+                        CuLog.debug(CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -103,7 +98,7 @@ class BlogViewModel : ViewModel() {
         blogState.update {
             it.copy(currentBlog = currentBlog)
         }
-        CuLog.debug(CuTag.Blog, "111 currentBlog: ${blogState.value.currentBlog?.content}")
+
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {
@@ -112,12 +107,15 @@ class BlogViewModel : ViewModel() {
 
             if (blogListIndex > 0) blogState.update {
                 it.blogList[blogListIndex] = currentBlog
+                CuLog.debug(CuTag.Blog,
+                    "111 blog列表更新成功: ${it.blogList[blogListIndex].hasPraise}")
                 it
             }
 
             blogState.update {
                 it.copy(flag = blogState.value.flag + 1)
             }
+
         }
     }
 
@@ -136,7 +134,7 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun loadMore() {
+    fun loadMore(successFn: () -> Unit) {
         if (blogState.value.updating) {
             return
         }
@@ -152,13 +150,26 @@ class BlogViewModel : ViewModel() {
                 blogState.update {
                     it.copy(updating = false)
                 }
-
-
             }.errMap {
                 CuLog.debug(CuTag.Blog, "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
             }
         }
     }
 
+    fun collectClick(blog: BlogBaseDto) {
+        blog.hasCollect = !blog.hasCollect
+        blog.collects = if (blog.hasCollect) blog.collects + 1u else blog.collects - 1u
+        refreshCurrent(blog)
+    }
 
+    fun likeClick(blog: BlogBaseDto) {
+        blog.hasPraise = !blog.hasPraise
+        blog.agrees = if (blog.hasPraise) blog.agrees + 1u else blog.agrees - 1u
+        refreshCurrent(blog)
+    }
+
+    fun commentClick(blog: BlogBaseDto) {
+        blog.comments =  blog.comments + 1u
+        refreshCurrent(blog)
+    }
 }

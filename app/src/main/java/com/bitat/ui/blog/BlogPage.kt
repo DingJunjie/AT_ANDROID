@@ -1,8 +1,8 @@
 package com.bitat.ui.blog
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,10 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -46,27 +43,27 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
-import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
+import com.bitat.router.NavigationItem
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogOperation
 import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.SvgIcon
-import com.bitat.ui.common.WeDialog
-import com.bitat.ui.common.rememberDialogState
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
-import com.bitat.ui.component.CommentList
 import com.bitat.ui.component.CommentPopup
+import com.bitat.ui.discovery.SearchInputButton
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -101,9 +98,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             vm.initBlogList(state.currentMenu, isRefresh = true)
             vm.firstFetchFinish()
         }
-//        vm.initBlogList(state.currentMenu, isRefresh = true)
-//        CuLog.debug(CuTag.Blog, "加载数据，${state.currentMenu}")
-
+    //        vm.initBlogList(state.currentMenu, isRefresh = true)
+        //        CuLog.debug(CuTag.Blog, "加载数据，${state.currentMenu}")
     }
 
     var currentOperation by remember {
@@ -138,9 +134,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             .collect { _ ->
                 if (listState.layoutInfo.visibleItemsInfo.size > 1) {
                     if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-                            3
-                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
-                    ) {
+                            3) && playingIndex.value != listState.firstVisibleItemIndex + 1) {
                         playingIndex.value = listState.firstVisibleItemIndex + 1
                     }
                 }
@@ -149,10 +143,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
-            CuLog.debug(
-                CuTag.Blog,
-                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
-            )
+            CuLog.debug(CuTag.Blog,
+                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}")
             if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
                 vm.topBarState(false)
             } else if (previousIndex > listState.firstVisibleItemIndex && !state.topBarShow && previousIndex > 0) {
@@ -166,7 +158,9 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
             val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
             if (lastVisibleItemIndex == state.blogList.size - 1) {
-                vm.loadMore()
+                vm.loadMore() {
+                    ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
+                }
             }
         }
     }
@@ -179,34 +173,22 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(white)
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
-                switchMenu = { vm.switchBlogMenu(it) })
-            RefreshView(modifier = Modifier
-                .nestedScroll(loadMoreState.nestedScrollConnection)
-                .padding(bottom = padding.calculateBottomPadding())
-                .fillMaxHeight()
-                .fillMaxWidth(),
+                switchMenu = { vm.switchBlogMenu(it) },
+                navController)
+            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
+                .padding(bottom = padding.calculateBottomPadding()).fillMaxHeight().fillMaxWidth(),
                 onRefresh = {
                     CuLog.debug(CuTag.Blog, "onRefresh 回调")
                     vm.initBlogList(state.currentMenu)
                 }) {
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(), //                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)), //                    contentAlignment = Alignment.Center
                 ) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
@@ -226,6 +208,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                                 currentOperation = BlogOperation.Comment
                                             }
                                             isCommentVisible.value = true
+
                                         },
                                         tapAt = {
                                             coroutineScope.launch {
@@ -234,10 +217,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                             }
                                         },
                                         tapLike = { //更新列表中 点赞数据
-                                            item.hasPraise = !item.hasPraise
-                                            item.agrees =
-                                                if (item.hasPraise) item.agrees + 1u else item.agrees - 1u
-                                            vm.refreshCurrent(item)
+                                            vm.likeClick(item)
                                         },
                                         tapCollect = {
                                             collectTipY = it.div(Density).toInt()
@@ -252,11 +232,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                             } else { // 未收藏，收藏
                                                 collectVm.collectBlog(0)
                                             }
-
-                                            item.hasCollect = !item.hasCollect
-                                            item.collects =
-                                                if (item.hasCollect) item.collects + 1u else item.collects - 1u
-                                            vm.refreshCurrent(item)
+                                            vm.collectClick(item)
                                             coroutineScope.launch {
                                                 delay(3000)
                                                 collectTipVisible = false
@@ -327,28 +303,18 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
 
 @Composable
-fun BlogTopBar(
-    currentMenu: BlogMenuOptions,
-    isOpen: Boolean,
-    toggleMenu: (Boolean) -> Unit,
-    switchMenu: (BlogMenuOptions) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .height(30.dp)
-            .padding(start = 5.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
+fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit, navController: NavHostController) {
+    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
+
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).clickable {
+                navController.navigate(NavigationItem.Search.route)
+            }, horizontalArrangement = Arrangement.End) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }

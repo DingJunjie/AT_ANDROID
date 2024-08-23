@@ -1,5 +1,7 @@
 package com.bitat.state
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.bitat.config.HomeTabCfg
 
 /**
@@ -14,5 +16,5 @@ data class HomeState(
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
         HomeTabCfg.Mine
-    ), val selectedIndex: Int = 0
+    ), val selectedIndex: Int = 0,val bottomSize:Dp=0.dp
 )

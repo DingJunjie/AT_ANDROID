@@ -48,10 +48,13 @@ object ImageUtils {
             return fixedWidth;
         } else { // 竖图
             return if (abs(y / x - 16 / 9) < 0.22 || y / x > 16 / 9) {
+                CuLog.debug(CuTag.Blog,"16:9")
                 (16f / 9f * fixedWidth).toInt();
             } else if (abs(y / x - 4 / 3) < 0.1) {
+                CuLog.debug(CuTag.Blog,"4:3")
                 (4 / 3 * fixedWidth);
             } else {
+                CuLog.debug(CuTag.Blog,"4:3")
                 (4 / 3 * fixedWidth);
             }
         }

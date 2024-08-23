@@ -35,7 +35,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-var MainCo = MainScope()
+val MainCo = MainScope()
 
 
 class MainActivity : ComponentActivity() {

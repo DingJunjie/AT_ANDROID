@@ -29,6 +29,7 @@ class ReelViewModel : ViewModel() {
         _state.update {
             it.copy(currentBlog = currentBlog)
         }
+        CuLog.debug(CuTag.Blog, "1111 reelPage setCurrentBlog${_state.value.currentBlog?.content}")
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {
@@ -37,37 +38,35 @@ class ReelViewModel : ViewModel() {
                 val resListIndex = _state.value.resList.indexOf(currentBlog)
                 if (resListIndex >= 0) _state.update {
                     it.resList[resListIndex] = currentBlog
-                    CuLog.debug(
-                        CuTag.Blog,
-                        "1111 data update success${it.resList[resListIndex].agrees}"
-                    )
+                    CuLog.debug(CuTag.Blog,
+                        "1111 data update success${it.resList[resListIndex].agrees}")
                     it
                 }
-            }
-//            _state.update {
-//                it.copy(currentBlog = currentBlog)
-//            }
+            } //            _state.update {
+            //                it.copy(currentBlog = currentBlog)
+            //            }
             _state.update {
                 it.copy(flag = _state.value.flag + 1)
             }
         }
     }
 
-    fun getList(isInit: Boolean) {
+    fun getList(isInit: Boolean, successFn: () -> Unit) {
         MainCo.launch {
 
-            _state.value.currentBlog?.let { item->
+            _state.value.currentBlog?.let { item ->
 
                 if (isInit) {
                     _state.update {
                         it.resList.clear()
-                       it
+                        it
                     }
 
                     _state.update {
                         it.resList.add(item)
                         it
                     }
+                    CuLog.debug(CuTag.Blog, "1111 add first${item.content}")
 
                 }
                 SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()
@@ -76,11 +75,10 @@ class ReelViewModel : ViewModel() {
                             it.resList.addAll(data)
                             it
                         }
+                        successFn()
                     }.errMap {
-                        CuLog.debug(
-                            CuTag.Blog,
-                            "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}"
-                        )
+                        CuLog.debug(CuTag.Blog,
+                            "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}")
                     }
             }
         }
@@ -90,5 +88,25 @@ class ReelViewModel : ViewModel() {
         _state.update {
             it.copy(resIndex = index)
         }
+    }
+
+    fun reset() {
+        _state.update { it.copy(resIndex = 0) }
+        _state.update {
+            it.resList.clear()
+            it
+        }
+    }
+
+    fun likeClick(blog: BlogBaseDto) {
+        blog.hasPraise = !blog.hasPraise
+        blog.agrees = if (blog.hasPraise) blog.agrees + 1u else blog.agrees - 1u
+        refreshCurrent(blog)
+    }
+
+    fun collectClick(blog: BlogBaseDto) {
+        blog.hasCollect = !blog.hasCollect
+        blog.collects = if (blog.hasCollect) blog.collects + 1u else blog.collects - 1u
+        refreshCurrent(blog)
     }
 }
