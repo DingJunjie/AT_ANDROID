@@ -60,12 +60,14 @@ import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.component.ImageBanner
 import com.bitat.ui.component.LikeButton
 import com.bitat.ui.component.UserInfoWithAvatar
+import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.publish.Options
 import com.bitat.ui.theme.Typography
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.bitat.viewModel.OthersViewModel
 import com.bitat.viewModel.ReelViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
@@ -80,7 +82,8 @@ import kotlinx.coroutines.launch
 fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[ReelViewModel::class]
     val state = vm.state.collectAsState()
-    val pagerState = rememberPagerState(initialPage = state.value.resIndex,
+    val pagerState = rememberPagerState(
+        initialPage = state.value.resIndex,
         pageCount = { state.value.resList.size })
     val horPagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
@@ -97,6 +100,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     val collectState by collectVm.collectState.collectAsState()
 
     val blogVm = viewModelProvider[BlogViewModel::class]
+
+    val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
 
 
     var collectTipY by remember {
@@ -150,17 +155,21 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
                     CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
-                    Box(modifier = Modifier.fillMaxSize()
-                        .background(color = Color.Black)) { // 视频/图片 部分
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Black)
+                    ) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
                                     CuExoPlayer(data = currentDto.resource.video,
+                                    othersVm.initUserId(currentDto.userId)
+                                    CuExoPlayer(data = currentDto.resource.video,
                                         modifier = Modifier.fillMaxSize(),
                                         cover = currentDto.cover,
-                                        isFixHeight = true)
-                                    CuLog.debug(CuTag.Blog,
-                                        "1111 视频地址:${currentDto.resource.video}")
+                                        isFixHeight = true
+                                    )
                                 }
                             }
 
@@ -189,6 +198,14 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 textStyle = Typography.bodyLarge.copy(color = Color.White,
                                     lineHeight = 26.sp),
                                 maxLength = 17)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 50.dp),
+                                textStyle = Typography.bodyLarge.copy(
+                                    color = Color.White, lineHeight = 26.sp
+                                ),
+                                maxLength = 17
+                            )
                             if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
                                 iconPath = "svg/location_line.svg",
                                 selected = false,
@@ -263,9 +280,12 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
             }
 
             1 -> {
-                Text(modifier = Modifier.fillMaxSize(),
-                    text = "我是个人页",
-                    textAlign = TextAlign.Center) //                    AtNavigation(navController).navigateToProfilePage()
+                OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+//                Text(
+//                    modifier = Modifier.fillMaxSize(),
+//                    text = "我是个人页",
+//                    textAlign = TextAlign.Center
+//                ) //                    AtNavigation(navController).navigateToProfilePage()
             }
 
         }
@@ -281,7 +301,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         },
         commentState = commentState,
         onClose = { isCommentVisible.value = false },
-        commentSucc = { //评论成功回调
+        commentSucc = {
+            //评论成功回调
             var currentDto = state.value.resList[state.value.resIndex]
             currentDto.comments = currentDto.comments + 1u
             vm.refreshCurrent(currentDto)
