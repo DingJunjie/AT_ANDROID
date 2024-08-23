@@ -97,6 +97,7 @@ fun BlogContent(
         BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> BlogImages(
             mBlogBaseDto,
             maxHeight,
+            needRoundedCorner,
             navHostController,
             viewModelProvider
         )
