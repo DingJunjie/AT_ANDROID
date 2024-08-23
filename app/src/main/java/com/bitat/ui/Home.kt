@@ -86,10 +86,11 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        BottomAppBarBar() {
-            vm.setIndex(it)
-            if (state.selectedIndex == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
+        BottomAppBarBar(selectIndex = state.selectedIndex) {
+            if (it == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
                 AtNavigation(navController).navigateToPublish()
+            } else {
+                vm.setIndex(it)
             }
         }
     }, content = { _ ->
@@ -112,6 +113,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 //                    viewModelProvider = viewModelProvider
                 //                )
                 //                AtNavigation(navController).navigateToPublishText
+                AtNavigation(navController).navigateToPublish()
             }
 
             3 -> ChatPage(navController)
@@ -123,7 +125,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 }
 
 @Composable
-fun BottomAppBarBar(onTabChange: (Int) -> Unit) {
+fun BottomAppBarBar(selectIndex: Int, onTabChange: (Int) -> Unit) {
     val tabList = listOf(
         HomeTabCfg.Home,
         HomeTabCfg.Discovery,
@@ -131,10 +133,6 @@ fun BottomAppBarBar(onTabChange: (Int) -> Unit) {
         HomeTabCfg.Chat,
         HomeTabCfg.Mine
     )
-
-    var selectIndex by remember {
-        mutableIntStateOf(0)
-    }
 
     BottomNavigation(backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->
@@ -153,7 +151,7 @@ fun BottomAppBarBar(onTabChange: (Int) -> Unit) {
                     )
                 )
             }, selected = selectIndex == index, onClick = {
-                selectIndex = index
+
                 onTabChange(index)
             })
         }

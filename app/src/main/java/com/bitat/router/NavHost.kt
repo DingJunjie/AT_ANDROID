@@ -23,6 +23,9 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.CollectionDetail
+import com.bitat.ui.profile.FansPage
+import com.bitat.ui.profile.FollowsPage
+import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
@@ -33,7 +36,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS
 }
 
 sealed class NavigationItem(val route: String) {
@@ -60,6 +63,9 @@ sealed class NavigationItem(val route: String) {
     data object ReportUser : NavigationItem(Screen.REPORT_USER.name)
     data object Blog : NavigationItem(Screen.BLOG.name)
     data object CollectionDetail : NavigationItem(Screen.COLLECTION_DETAIL.name)
+    data object Others : NavigationItem(Screen.OTHERS.name)
+    data object Fans : NavigationItem(Screen.FANS.name)
+    data object Follows : NavigationItem(Screen.FOLLOWS.name)
 }
 
 
@@ -162,6 +168,18 @@ fun AppNavHost(
                 navHostController = navController,
                 viewModelProvider = viewModelProvider
             )
+        }
+
+        composable(NavigationItem.Others.route) {
+            OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+        }
+
+        composable(NavigationItem.Fans.route) {
+            FansPage(navHostController = navController, viewModelProvider = viewModelProvider)
+        }
+
+        composable(NavigationItem.Follows.route) {
+            FollowsPage(navHostController = navController, viewModelProvider = viewModelProvider)
         }
     }
 }

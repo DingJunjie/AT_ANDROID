@@ -2,6 +2,9 @@ package com.bitat.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +18,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
@@ -39,7 +48,10 @@ import com.bitat.utils.ScreenUtils
 fun MediaGrid(mediaList: List<BlogPartDto>) {
     val width = (ScreenUtils.screenWidth / 3)
     val height = width * 1.33
-    FlowRow(verticalArrangement = Arrangement.Top) {
+
+    FlowRow(
+        verticalArrangement = Arrangement.Top,
+    ) {
         mediaList.forEach {
             Box(
                 modifier = Modifier
@@ -48,9 +60,16 @@ fun MediaGrid(mediaList: List<BlogPartDto>) {
                     .padding(1.dp)
             ) {
                 AsyncImage(
-                    model = it.cover,
+                    model = it.cover.ifEmpty { it.resource.images.first() },
                     contentDescription = "",
                     contentScale = ContentScale.Crop
+                )
+
+                Icon(
+                    Icons.Filled.AccountBox,
+                    contentDescription = "",
+                    tint = Color.White,
+                    modifier = Modifier.align(Alignment.TopEnd)
                 )
             }
         }

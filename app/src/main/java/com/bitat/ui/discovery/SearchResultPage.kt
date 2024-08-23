@@ -34,7 +34,8 @@ import com.bitat.ext.toAmountUnit
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.state.SearchType
 import com.bitat.ui.common.statusBarHeight
-import com.bitat.ui.profile.Avatar
+import com.bitat.ui.component.Avatar
+import com.bitat.ui.profile.AvatarWithShadow
 import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.SearchViewModel
 
@@ -141,3 +142,5 @@ fun ResultTopBar(
         }
     }
 }
+
+

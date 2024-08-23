@@ -1,6 +1,7 @@
 package com.bitat.ui.component
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,13 +16,16 @@ import androidx.compose.ui.unit.dp
 import com.bitat.ui.common.rememberAsyncPainter
 
 @Composable
-fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40) {
+fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40, tapFn: () -> Unit = {}) {
     Surface(
         shape = CircleShape, modifier = Modifier
     ) {
         Box(
             modifier = modifier
                 .size(size.dp)
+                .clickable {
+                    tapFn()
+                }
                 .border(width = size.dp, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
         ) {

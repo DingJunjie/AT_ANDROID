@@ -53,7 +53,6 @@ import coil.compose.AsyncImage
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
-import com.bitat.ui.profile.User
 import com.bitat.ui.theme.Typography
 
 @Composable
