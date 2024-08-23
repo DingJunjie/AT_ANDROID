@@ -14,7 +14,7 @@ import com.bitat.repository.dto.resp.CollectPartDto
 import com.bitat.repository.http.service.BlogOpsReq
 import com.bitat.repository.http.service.UserExtraReq
 import com.bitat.state.CollectState
-import com.bitat.ui.profile.User
+import com.bitat.state.CollectionTabs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +34,12 @@ class CollectViewModel : ViewModel() {
     fun selectCollection(collection: CollectPartDto) {
         _collectState.update {
             it.copy(currentCollection = collection)
+        }
+    }
+
+    fun setTab(tab: CollectionTabs) {
+        _collectState.update {
+            it.copy(currentTab = tab)
         }
     }
 

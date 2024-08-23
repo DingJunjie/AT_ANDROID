@@ -73,6 +73,7 @@ fun SearchInput(keyword: String, updateKeyword: (String) -> Unit) {
         onValueChange = { updateKeyword(it) },
         Modifier
             .padding(top = 5.dp, start = 10.dp)
+            .fillMaxWidth()
             .height(60.dp),
         singleLine = true,
 //                label = { Text() }

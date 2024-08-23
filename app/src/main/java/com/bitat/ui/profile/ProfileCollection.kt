@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +54,7 @@ import com.bitat.R
 import com.bitat.ext.timestampFormat
 import com.bitat.repository.dto.resp.CollectPartDto
 import com.bitat.router.NavigationItem
+import com.bitat.state.CollectionTabs
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.CollectViewModel
@@ -59,23 +62,10 @@ import kotlinx.coroutines.Dispatchers
 import java.text.SimpleDateFormat
 import java.util.Date
 
-enum class CollectionTabs {
-    Works, Custom, Music;
-
-    fun getUiContent(): String {
-        return when (this) {
-            Works -> "作品"
-            Custom -> "自定义收藏夹"
-            Music -> "音乐"
-        }
-    }
-}
 
 @Composable
 fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
-    var currentTab by remember {
-        mutableStateOf(CollectionTabs.Works)
-    }
+
 
     val vm: CollectViewModel = viewModelProvider[CollectViewModel::class]
     val state by vm.collectState.collectAsState()
@@ -87,21 +77,20 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
 
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.Top) {
-            TextButton(onClick = { currentTab = CollectionTabs.Works }) {
+            TextButton(onClick = { vm.setTab(CollectionTabs.Works) }) {
                 Text("作品")
             }
 
-            TextButton(onClick = { currentTab = CollectionTabs.Custom }) {
+            TextButton(onClick = { vm.setTab(CollectionTabs.Custom) }) {
                 Text("自定义收藏夹")
             }
 
-            TextButton(onClick = { currentTab = CollectionTabs.Music }) {
+            TextButton(onClick = { vm.setTab(CollectionTabs.Music) }) {
                 Text("音乐")
             }
         }
 
-
-        when (currentTab) {
+        when (state.currentTab) {
             CollectionTabs.Works -> MediaGrid(mediaList = state.currentCollectionItems)
             CollectionTabs.Custom -> CustomCollections(
                 myCustomCollections = state.collections, {
@@ -125,8 +114,6 @@ fun CustomCollections(
     createCollection: (String) -> Unit,
     navHostController: NavHostController
 ) {
-
-
     val isCreating = remember {
         mutableStateOf(false)
     }
@@ -143,7 +130,7 @@ fun CustomCollections(
     Column(verticalArrangement = Arrangement.Top) {
         Surface(
             color = bg,
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
@@ -204,23 +191,39 @@ fun CollectionItem(
     tapCollection: (CollectPartDto) -> Unit,
     navHostController: NavHostController
 ) {
-    Row(modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp)) {
-        Box(modifier = Modifier
-            .fillMaxWidth(0.5f)
+    Row(
+        modifier = Modifier
+            .padding(vertical = 5.dp, horizontal = 20.dp)
+            .fillMaxWidth()
+            .height(80.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(shape = RoundedCornerShape(20.dp), modifier = Modifier.padding(end = 10.dp)) {
+
+            Box(modifier = Modifier
+                .fillMaxWidth(0.5f)
+                .fillMaxHeight()
+
 //            .paint(
 //                painter = rememberAsyncImagePainter(
 //                    model = collection.cover
 //                )
 //            )
-            .clickable {
-                tapCollection(collection)
-                navHostController.navigate(NavigationItem.CollectionDetail.route)
-            }) {
-            if (collection.cover.isEmpty()) {
-                Icon(Icons.Filled.AccountCircle, contentDescription = "")
-            } else {
-                AsyncImage(model = collection.cover, contentDescription = "")
+                .clickable {
+                    tapCollection(collection)
+                    navHostController.navigate(NavigationItem.CollectionDetail.route)
+                }) {
+                if (collection.cover.isEmpty()) {
+                    Icon(Icons.Filled.AccountCircle, contentDescription = "")
+                } else {
+                    AsyncImage(
+                        model = collection.cover,
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
+
         }
 
         Column {

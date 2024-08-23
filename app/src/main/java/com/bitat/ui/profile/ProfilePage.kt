@@ -94,6 +94,7 @@ import com.bitat.ext.clickableWithoutRipple
 import com.bitat.ext.toAmountUnit
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.router.NavigationItem
 import com.bitat.ui.common.rememberDialogState
 import com.bitat.state.PROFILE_TAB_OPTIONS
 import com.bitat.utils.ScreenUtils
@@ -133,13 +134,13 @@ fun MenuItem(path: String, desc: String = "", tapFun: () -> Unit) {
 }
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val dialog = rememberDialogState()
-    val viewModel: ProfileViewModel = viewModel()
+    val vm = viewModelProvider[ProfileViewModel::class]
 
-    val state by viewModel.uiState.collectAsState()
+    val state by vm.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -179,9 +180,9 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
     // scroll 的触发
     if (scrollState.value > positionTopBar.y && !state.isTabbarTop) {
-        viewModel.switchTabbar(true)
+        vm.switchTabbar(true)
     } else if (scrollState.value < positionTopBar.y && state.isTabbarTop) {
-        viewModel.switchTabbar(false)
+        vm.switchTabbar(false)
     }
 
     var offsetY by remember {
@@ -192,8 +193,6 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         offsetY += delta
     }
 
-
-
     ModalNavigationDrawer(drawerState = drawerState,
 //        modifier = Modifier.width(100.dp),
         scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
@@ -203,7 +202,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 modifier = Modifier
                     .verticalScroll(state = scrollState)
                     .background(Color.White)
-                    .height((ScreenUtils.screenHeight * 2).dp)
+                    .padding(bottom = 40.dp)
+//                    .height((ScreenUtils.screenHeight * 2).dp)
             ) {
                 Box(
                     modifier = Modifier.draggable(
@@ -247,7 +247,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                                 .fillMaxWidth()
                         )
                         ProfileDetail(
-                            viewModel,
+                            vm,
+                            navController,
                             nickname = userInfo.nickname,
                             atAccount = userInfo.account,
                             introduction = userInfo.introduce,
@@ -306,7 +307,7 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 //                        .padding(start = 20.dp)
 //                        .padding(top = 180.dp)
 //                ) {
-//                    Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+//                    AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
 //                }
 
             }
@@ -387,28 +388,25 @@ fun ReadDataFromDatabase(
     }
 }
 
-
 @Composable
 fun ProfileBg(menu: @Composable (() -> Unit)) {
-    Surface() {
+    Box(
+        modifier = Modifier
+            .paint(
+                painter = rememberAsyncPainter(url = "https://img.keaitupian.cn/uploads/2020/12/08/38d0befdc3c89348d6eeaed90c9b7660.jpg"),
+                contentScale = ContentScale.Crop
+            )
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(top = 30.dp),
+        contentAlignment = Alignment.TopEnd
+    ) {
         Box(
             modifier = Modifier
-                .paint(
-                    painter = rememberAsyncPainter(url = "https://img.keaitupian.cn/uploads/2020/12/08/38d0befdc3c89348d6eeaed90c9b7660.jpg"),
-                    contentScale = ContentScale.Crop
-                )
-                .fillMaxWidth()
-                .height(100.dp)
-                .padding(top = 30.dp),
-            contentAlignment = Alignment.TopEnd
+                .padding(top = 10.dp, end = 10.dp)
+                .height(200.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 10.dp, end = 10.dp)
-                    .height(100.dp)
-            ) {
-                menu.invoke();
-            }
+            menu.invoke();
         }
     }
 }
@@ -463,6 +461,7 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
 @Composable
 fun ProfileDetail(
     viewModel: ProfileViewModel,
+    navHostController: NavHostController,
     nickname: String,
     atAccount: String,
     introduction: String,
@@ -483,7 +482,7 @@ fun ProfileDetail(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Avatar(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
 
                 Column(
                     modifier = Modifier
@@ -505,7 +504,15 @@ fun ProfileDetail(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         UserInfo(nickname, atAccount, introduction)
-                        SocialData(likes, follows, fans)
+                        SocialData(likes, follows, fans, tapLike = {
+
+                        }, tapFollows = {
+                            viewModel.getMyFollows()
+                            navHostController.navigate(NavigationItem.Follows.route)
+                        }, tapFans = {
+                            viewModel.getMyFans()
+                            navHostController.navigate(NavigationItem.Fans.route)
+                        })
 //                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
                     }
                 }
@@ -616,58 +623,6 @@ fun AlbumItem() {
     }
 }
 
-@Composable
-fun Avatar(url: String, modifier: Modifier = Modifier) {
-    Surface(
-        shape = CircleShape,
-        modifier = Modifier
-            .padding(start = 15.dp, top = 15.dp)
-            .shadow(elevation = 5.dp, shape = CircleShape)
-    ) {
-        Box(
-            modifier = modifier
-                .size(76.dp)
-                .border(width = 38.dp, color = Color.Transparent, shape = CircleShape)
-                .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
-        ) {
-
-        }
-    }
-}
-
-@Composable
-fun SocialData(likes: Int, follows: Int, fans: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 5.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        SocialDataItem(likes, "获赞")
-        VerticalDivider(
-            modifier = Modifier
-                .height(40.dp)
-                .padding(vertical = 10.dp), color = Color(0xffeeeeee)
-        )
-        SocialDataItem(fans, "粉丝")
-        VerticalDivider(
-            modifier = Modifier
-                .height(40.dp)
-                .padding(top = 10.dp), color = Color(0xffeeeeee)
-        )
-        SocialDataItem(follows, "关注")
-    }
-}
-
-@Composable
-fun SocialDataItem(amount: Int, title: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(text = amount.toAmountUnit(1), fontSize = 20.sp, fontWeight = FontWeight(600))
-        Text(title, fontSize = 14.sp, color = Color.Gray)
-    }
-}
 
 @Composable
 fun UserInfo(nickname: String, atAccount: String, introduction: String) {
@@ -687,62 +642,6 @@ fun UserInfo(nickname: String, atAccount: String, introduction: String) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ProfileTabView(
-    options: List<String>,
-    pagerState: PagerState,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    content: @Composable PagerScope.(Int) -> Unit
-) { //    Column {
-    //        ProfileTabBar(pagerState, options)
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.Top
-    ) { index ->
-        when (index) {
-            0 -> Box {}
-            1 -> Box {}
-            2 -> CollectionTab(navHostController, viewModelProvider = viewModelProvider)
-            3 -> Box {}
-        }
-    } //    }
-}
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ProfileTabBar(pagerState: PagerState, options: List<String>) {
-    val coroutineScope = rememberCoroutineScope()
-
-    ScrollableTabRow(selectedTabIndex = pagerState.currentPage,
-        edgePadding = 0.dp,
-        indicator = { tabPositions ->
-            TabRowDefaults.SecondaryIndicator(
-                modifier = Modifier
-                    .tabIndicatorOffset(tabPositions[pagerState.currentPage])
-                    .width(10.dp), height = 2.5.dp, color = MaterialTheme.colorScheme.primary
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        divider = {}) {
-        options.forEachIndexed { index, item ->
-            val selected = index == pagerState.currentPage
-            Text(text = item, color = if (selected) {
-                Color.Black
-            } else {
-                Color.Gray
-            }, fontSize = 17.sp, modifier = Modifier
-                .clickableWithoutRipple {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
-                }
-                .fillMaxWidth()
-                .padding(vertical = 16.dp), textAlign = TextAlign.Center)
-        }
-    }
-}
 
 
