@@ -3,6 +3,10 @@ package com.bitat.ui.theme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.lightColorScheme
@@ -14,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 
 private val LightColorPalette = WeComposeColors(
@@ -200,8 +205,27 @@ fun BitComposeTheme(
         MaterialTheme(
             colorScheme = colorsSch,
             shapes = shapes,
-            content = content,
+            content = {
+                CompositionLocalProvider(LocalIndication provides NoIndication) {
+                    content()
+                }
+            },
             typography = Typography
         )
     }
+}
+
+object NoIndication: Indication {
+    private object NoIndicationInstance: IndicationInstance {
+        override fun ContentDrawScope.drawIndication() {
+            drawContent()
+        }
+
+    }
+
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        return NoIndicationInstance
+    }
+
 }

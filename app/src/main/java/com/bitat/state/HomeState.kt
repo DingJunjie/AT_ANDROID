@@ -16,5 +16,5 @@ data class HomeState(
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
         HomeTabCfg.Mine
-    ), val selectedIndex: Int = 0,val bottomSize:Dp=0.dp
+    ), val selectedIndex: Int = 0,val bottomHeight:Dp=0.dp
 )

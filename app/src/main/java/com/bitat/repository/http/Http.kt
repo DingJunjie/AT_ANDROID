@@ -2,6 +2,7 @@ package  com.bitat.repository.http
 
 import com.bitat.repository.common.CuRes
 import com.bitat.repository.common.INNER_ERROR
+import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.common.OK_CODE
 import com.bitat.repository.store.TokenStore
 import com.bitat.utils.JsonUtils
@@ -50,7 +51,12 @@ object Http {
 
         HttpClient.newCall(req).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                cd.complete(CuRes.err(INNER_ERROR, e.message ?: "Inner error"))
+                if (e is java.net.SocketTimeoutException) {
+                    cd.complete(CuRes.err(INNER_TIMEOUT, e.message ?: "Inner error"))
+                } else {
+                    cd.complete(CuRes.err(INNER_ERROR, e.message ?: "Inner error"))
+                }
+
             }
 
             override fun onResponse(call: Call, response: Response) {

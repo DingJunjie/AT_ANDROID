@@ -1,6 +1,7 @@
 package com.bitat.ui.reel
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -143,6 +144,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         onDispose { // 页面离开时可以执行一些清理操作
             vm.reset()
         }
+    }
+
+    BackHandler {
+        AtNavigation(navController).navigateToHome()
     }
 
 

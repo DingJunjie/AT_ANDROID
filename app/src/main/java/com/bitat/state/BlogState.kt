@@ -25,6 +25,10 @@ enum class BlogOperation {
     Comment, At, Like, Collect, None
 }
 
+enum class BlogLoad {
+    Success, Fail, NoData, TimeOut,Default
+}
+
 // TODO 认识 SnapShotStateList
 data class BlogState(
     val blogList: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
@@ -34,7 +38,10 @@ data class BlogState(
     val currentBlog: BlogBaseDto? = null,
     val topBarShow: Boolean = true,
     val flag: Int = 0,
-    val isFirst: Boolean = true
+    val isFirst: Boolean = true,
+    val isLoadMore: Boolean = false,
+    val loadResp: BlogLoad = BlogLoad.Default,
+    val currentListIndex:Int=0
 )
 
 

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -41,7 +42,8 @@ val MainCo = MainScope()
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        super.onCreate(savedInstanceState)
+        //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         //        window.setDecorFitsSystemWindows(false)
         CuLog.debug(CuTag.Login,"MainActivity----- onCreate")
         //设置全屏显示
@@ -51,6 +53,8 @@ class MainActivity : ComponentActivity() {
             BaseStore.init(LocalContext.current) //
             // SqlDB.init(this)
             ScreenUtils.init(LocalConfiguration.current) ////         DisposableEffect(Unit) {
+
+            WindowCompat.setDecorFitsSystemWindows(window, false)
 
             // 初始化状态栏高度
             val statusBarTop = with(LocalDensity.current) {

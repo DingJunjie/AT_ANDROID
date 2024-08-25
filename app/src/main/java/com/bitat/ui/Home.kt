@@ -1,39 +1,34 @@
 package com.bitat.ui
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.asIntState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import com.bitat.R
 import com.bitat.config.HomeTabCfg
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
@@ -95,23 +90,27 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        BottomAppBarBar(selectIndex = state.selectedIndex) {
+        BottomAppBarBar(selectIndex = state.selectedIndex, vm = vm) {
             if (it == 2) { //                                AtNavigation(navController).navigateToPublishDetail()
                 AtNavigation(navController).navigateToPublish()
             } else {
                 vm.setIndex(it)
             }
         }
-    }, content = { _ -> //        if (!isBack){
+    }, content = { _ ->
+
         when (state.selectedIndex) {
             0 -> {
 
-                BlogPage(navController,
-                    viewModelProvider = viewModelProvider) //                AtNavigation(navController).navigateToBlog()
+                BlogPage(
+                    navController,
+                    viewModelProvider = viewModelProvider
+                ) //                AtNavigation(navController).navigateToBlog()
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)
-            2 -> { //                PublishTextPage(navController)
+            2 -> {
+                //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
                 //                    viewModelProvider = viewModelProvider
@@ -128,36 +127,65 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 }
 
 @Composable
-fun BottomAppBarBar(selectIndex: Int, onTabChange: (Int) -> Unit) {
-    val tabList = listOf(HomeTabCfg.Home,
+fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> Unit) {
+    val tabList = listOf(
+        HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine)
+        HomeTabCfg.Mine
+    )
 
-    var bottomBarHeight = 0
-    BottomNavigation(modifier = Modifier //        .padding(bottom = 60.cdp)
-        .onGloballyPositioned { coordinates -> // 获取高度
-            val heightPx =
-                coordinates.size.height //            bottomBarHeight = with(LocalDensity.current){ heightPx.toDp() }
-        }, //            .height(dimensionResource(R.dimen.home_tab_height)),
-        backgroundColor = Color.White) {
+    val ctx = LocalDensity.current
+
+    BottomNavigation(
+        modifier = Modifier
+            .onGloballyPositioned { coordinates -> // 获取高度
+                val heightPx =
+                    coordinates.size.height
+                with(ctx) {
+                    vm.setBottom(heightPx.toDp())
+                }
+            }
+            .windowInsetsPadding(
+                WindowInsets.navigationBars // 处理状态栏和导航栏
+            ),
+        //            .height(dimensionResource(R.dimen.home_tab_height)),
+        backgroundColor = Color.White
+    ) {
         tabList.forEachIndexed { index, tab ->
-            BottomNavigationItem(icon = {
-                Icon(painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                    id = tab.iconUnselect),
-                    contentDescription = "tabIcon",
-                    modifier = Modifier.size(when (index) {
-                        2 -> 100.cdp
-                        1 -> 40.cdp
-                        else -> 40.cdp
-                    }),
-                    tint = Color.Unspecified)
-            }, selected = selectIndex == index, onClick = {
-
-                onTabChange(index)
-            })
+            BottomNavigationItem(
+                modifier = Modifier.selectable(
+                    selected = selectIndex == index,
+                    onClick = { onTabChange(index) },
+                    enabled = true,
+                    role = Role.Tab,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ),
+                icon = {
+                    Icon(
+                        painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                            id = tab.iconUnselect
+                        ),
+                        contentDescription = "tabIcon",
+                        modifier = Modifier.size(
+                            when (index) {
+                                2 -> 100.cdp
+                                1 -> 40.cdp
+                                else -> 40.cdp
+                            }
+                        ),
+                        tint = Color.Unspecified
+                    )
+                },
+                selected = selectIndex == index,
+                onClick = { onTabChange(index) })
         }
     }
+
+
 }
+
+
 

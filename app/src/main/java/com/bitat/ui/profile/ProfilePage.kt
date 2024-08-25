@@ -18,14 +18,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
@@ -82,16 +88,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.ext.toAmountUnit
+import com.bitat.ext.toPx
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.router.NavigationItem
@@ -198,11 +207,15 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
             DrawerContainer(scope, drawerState)
         }, content = {
+
             Box(
                 modifier = Modifier
+//                    .imePadding()
                     .verticalScroll(state = scrollState)
                     .background(Color.White)
-                    .padding(bottom = 40.dp)
+//                    .padding(bottom = 40.dp)
+//                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
+//                    .windowInsetsPadding( WindowInsets.navigationBars)
 //                    .height((ScreenUtils.screenHeight * 2).dp)
             ) {
                 Box(
@@ -309,6 +322,9 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 //                ) {
 //                    AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
 //                }
+//                Spacer(modifier = Modifier.windowInsetsBottomHeight(
+//                    WindowInsets.navigationBars
+//                ).align(alignment = Alignment.BottomEnd))
 
             }
 
