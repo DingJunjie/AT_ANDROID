@@ -35,14 +35,22 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProfileTabView(options: List<String>, pagerState: PagerState, navHostController: NavHostController, viewModelProvider: ViewModelProvider, content: @Composable PagerScope.(Int) -> Unit) { //    Column {
+fun ProfileTabView(
+    options: List<String>,
+    pagerState: PagerState,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider,
+    content: @Composable PagerScope.(Int) -> Unit
+) { //    Column {
     //        ProfileTabBar(pagerState, options)
 
     val vm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
     val state by vm.uiState.collectAsState()
-    HorizontalPager(state = pagerState,
+    HorizontalPager(
+        state = pagerState,
         modifier = Modifier.fillMaxSize(),
-        verticalAlignment = Alignment.Top) { index ->
+        verticalAlignment = Alignment.Top
+    ) { index ->
 
         when (index) {
             0 -> Box {}
@@ -59,23 +67,31 @@ fun ProfileTabBar(pagerState: PagerState, options: List<String>, onSelect: (Int)
     val coroutineScope = rememberCoroutineScope()
 
     ScrollableTabRow(selectedTabIndex = pagerState.currentPage,
-
+        edgePadding = 0.dp,
         indicator = { tabPositions ->
-            TabRowDefaults.SecondaryIndicator(modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage])
-                .width(10.dp), height = 2.5.dp, color = MaterialTheme.colorScheme.primary)
-        }, modifier = Modifier.fillMaxWidth(), divider = {}) {
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier
+                    .tabIndicatorOffset(tabPositions[pagerState.currentPage])
+                    .width(10.dp), height = 2.5.dp, color = MaterialTheme.colorScheme.primary
+            )
+        },
+        modifier = Modifier.fillMaxWidth(), divider = {}) {
         options.forEachIndexed { index, item ->
             val selected = index == pagerState.currentPage
             Text(text = item, color = if (selected) {
                 Color.Black
             } else {
                 Color.Gray
-            }, fontSize = 17.sp, modifier = Modifier.clickableWithoutRipple {
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(index)
-                    onSelect(index)
+            }, fontSize = 17.sp, modifier = Modifier
+                .clickableWithoutRipple {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(index)
+                        onSelect(index)
+                    }
                 }
-            }.fillMaxWidth().padding(vertical = 16.dp), textAlign = TextAlign.Center)
+                .fillMaxWidth()
+                .padding(vertical = 16.dp), textAlign = TextAlign.Center
+            )
         }
     }
 }

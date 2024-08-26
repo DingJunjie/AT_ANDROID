@@ -236,104 +236,104 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 //                    .windowInsetsPadding( WindowInsets.navigationBars)
 //                    .height((ScreenUtils.screenHeight * 2).dp)
                 ) {
-                    Box(
-                        modifier = Modifier.draggable(
-                            orientation = Orientation.Vertical, state = draggableState
-                        )
-                    ) {
-                        ProfileBg(tapBG = {
-                            showBGPopup.value = true
-                        }, menu = {
-                            Menu(menuFun = {
-                                scope.launch {
+//                    Box(
+//                        modifier = Modifier.draggable(
+//                            orientation = Orientation.Vertical, state = draggableState
+//                        )
+//                    ) {
+                    ProfileBg(tapBG = {
+                        showBGPopup.value = true
+                    }, menu = {
+                        Menu(menuFun = {
+                            scope.launch {
 //                                    drawerState.open()
-                                    showDrawer.value = true
-                                }
-                            })
+                                showDrawer.value = true
+                            }
                         })
+                    })
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LottieBox(
-                                lottieRes = R.raw.like_ani,
-                                isRepeat = true,
-                                modifier = Modifier.size(200.dp)
-                            )
-                        }
-                    }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight()
-                        //            .height(500.dp)
-                        //            .verticalScroll(state = scrollState)
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.Top, modifier = Modifier.padding(0.dp)
+                        LottieBox(
+                            lottieRes = R.raw.like_ani,
+                            isRepeat = true,
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                    //            .height(500.dp)
+                    //            .verticalScroll(state = scrollState)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Top, modifier = Modifier.padding(0.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(160.dp)
+                                .fillMaxWidth()
+                        )
+                        ProfileDetail(
+                            vm,
+                            navController,
+                            nickname = userInfo.nickname,
+                            atAccount = userInfo.account,
+                            introduction = userInfo.introduce,
+                            likes = userInfo.agrees,
+                            follows = userInfo.follows,
+                            fans = fans
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .height(160.dp)
-                                    .fillMaxWidth()
-                            )
-                            ProfileDetail(
-                                vm,
-                                navController,
-                                nickname = userInfo.nickname,
-                                atAccount = userInfo.account,
-                                introduction = userInfo.introduce,
-                                likes = userInfo.agrees,
-                                follows = userInfo.follows,
-                                fans = fans
-                            )
-                            Box(
-                                modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
-                            ) {
-                                Column( // 获取tab bar的全局位置
-                                    modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                                        if (positionTopBar == 0) positionTopBar =
-                                            coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
-                                    }) {
-                                    if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
-                                    } else Box(
-                                        modifier = Modifier
-                                            .height(50.dp)
+                            Column( // 获取tab bar的全局位置
+                                modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
+                                    if (positionTopBar == 0) positionTopBar =
+                                        coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                                }) {
+                                if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
+                                    ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
+                                } else Box(
+                                    modifier = Modifier
+                                        .height(50.dp)
+                                        .fillMaxWidth()
+                                        .background(Color.White)
+                                )
+                                ProfileTabView(
+                                    options = PROFILE_TAB_OPTIONS,
+                                    pagerState,
+                                    navController,
+                                    viewModelProvider = viewModelProvider,
+                                ) { index ->
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) { //                        Text(
+                                        //                            text = (index + 1).toString(),
+                                        //                            color = MaterialTheme.colorScheme.onPrimary,
+                                        //                            fontSize = 60.sp
+                                        //                        )
+                                        Box(modifier = Modifier
+                                            .fillMaxHeight()
+                                            .background(Color.Cyan)
                                             .fillMaxWidth()
-                                            .background(Color.White)
-                                    )
-                                    ProfileTabView(
-                                        options = PROFILE_TAB_OPTIONS,
-                                        pagerState,
-                                        navController,
-                                        viewModelProvider = viewModelProvider,
-                                    ) { index ->
-                                        Box(
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentAlignment = Alignment.Center
-                                        ) { //                        Text(
-                                            //                            text = (index + 1).toString(),
-                                            //                            color = MaterialTheme.colorScheme.onPrimary,
-                                            //                            fontSize = 60.sp
-                                            //                        )
-                                            Box(modifier = Modifier
-                                                .fillMaxHeight()
-                                                .background(Color.Cyan)
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    UserStore.updateFans(100)
-                                                }) {
+                                            .clickable {
+                                                UserStore.updateFans(100)
+                                            }) {
 
-                                            }
                                         }
                                     }
                                 }
                             }
                         }
+//                        }
                     }
 
                 } //                Box(
@@ -645,9 +645,11 @@ fun ProfileDetail(
 
 @Composable
 fun GoCreate() {
-    Column(modifier = Modifier
-        .padding(vertical = 15.dp)
-        .fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 15.dp)
+            .fillMaxWidth()
+    ) {
         Text(
             "进入创作页 》",
             style = Typography.bodySmall.copy(fontWeight = FontWeight.Bold),
@@ -669,9 +671,11 @@ fun Creation() {
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(start = 15.dp, end = 5.dp)
     ) {
-        Box(modifier = Modifier
-            .size(140.dp)
-            .background(Color.Cyan)) {}
+        Box(
+            modifier = Modifier
+                .size(140.dp)
+                .background(Color.Cyan)
+        ) {}
     }
 }
 
@@ -715,10 +719,12 @@ fun AlbumList() {
 @Composable
 fun AlbumItem() {
     Surface(shape = RoundedCornerShape(10.dp), modifier = Modifier.padding(horizontal = 10.dp)) {
-        Box(modifier = Modifier
-            .width(80.dp)
-            .height(80.dp)
-            .background(Color.Yellow)) {
+        Box(
+            modifier = Modifier
+                .width(80.dp)
+                .height(80.dp)
+                .background(Color.Yellow)
+        ) {
 
         }
     }
