@@ -22,7 +22,7 @@ class HomeViewModel : ViewModel() {
 
     fun setBottom(height: Dp) {
         _homeState.update {
-            it.copy(bottomSize = height)
+            it.copy(bottomHeight = height)
         }
     }
 }

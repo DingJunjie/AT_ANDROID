@@ -5,11 +5,14 @@ import com.bitat.MainCo
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
+import com.bitat.ui.common.LoadMoreState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,7 +29,10 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend, isRefresh: Boolean = false) { // TODO
+    fun initBlogList(
+        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
+        isRefresh: Boolean = false
+    ) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -51,8 +57,10 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(
+                            CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
 
@@ -107,8 +115,6 @@ class BlogViewModel : ViewModel() {
 
             if (blogListIndex > 0) blogState.update {
                 it.blogList[blogListIndex] = currentBlog
-                CuLog.debug(CuTag.Blog,
-                    "111 blog列表更新成功: ${it.blogList[blogListIndex].hasPraise}")
                 it
             }
 
@@ -138,10 +144,13 @@ class BlogViewModel : ViewModel() {
         if (blogState.value.updating) {
             return
         }
+        loadState(BlogLoad.Default)
+
         MainCo.launch {
             blogState.update {
                 it.copy(updating = true)
             }
+            isLoadMore(true)
             BlogReq.recommendBlogs().await().map { data ->
                 blogState.update {
                     it.blogList.addAll(data)
@@ -150,8 +159,23 @@ class BlogViewModel : ViewModel() {
                 blogState.update {
                     it.copy(updating = false)
                 }
+
+                if (data.isNotEmpty()) {
+                    isLoadMore(false)
+                    loadState(BlogLoad.Success)
+                } else {
+                    loadState(BlogLoad.NoData)
+                }
             }.errMap {
                 CuLog.debug(CuTag.Blog, "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                blogState.update { tt ->
+                    tt.copy(updating = false)
+                }
+                when (it.code) {
+                    INNER_TIMEOUT -> loadState(BlogLoad.TimeOut)
+                    else -> loadState(BlogLoad.Fail)
+                }
+
             }
         }
     }
@@ -169,7 +193,25 @@ class BlogViewModel : ViewModel() {
     }
 
     fun commentClick(blog: BlogBaseDto) {
-        blog.comments =  blog.comments + 1u
+        blog.comments += 1u
         refreshCurrent(blog)
+    }
+
+    fun isLoadMore(loadMore: Boolean) {
+        blogState.update {
+            it.copy(isLoadMore = loadMore)
+        }
+    }
+
+    fun loadState(state: BlogLoad) {
+        blogState.update {
+            it.copy(loadResp = state)
+        }
+    }
+
+    fun listCurrent(index: Int) {
+        blogState.update {
+            it.copy(currentListIndex = index)
+        }
     }
 }

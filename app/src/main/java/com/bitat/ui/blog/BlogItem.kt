@@ -3,6 +3,7 @@ package com.bitat.ui.blog
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -152,7 +153,7 @@ fun BlogItem(
                 if (blog.content.isNotEmpty()) {
                     Surface(modifier = Modifier
                         .padding(bottom = 10.dp)
-                        .clickable { contentClick(blog) }) { //                        BlogText(blog.content)
+                        .clickable(indication = null,interactionSource = remember { MutableInteractionSource() }) { contentClick(blog) }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
                 }

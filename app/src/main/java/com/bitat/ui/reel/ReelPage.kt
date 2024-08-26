@@ -1,6 +1,7 @@
 package com.bitat.ui.reel
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -145,6 +146,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         }
     }
 
+    BackHandler {
+        AtNavigation(navController).navigateToHome()
+    }
+
 
     val isPlay = mutableStateOf(true)
     val horpagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
@@ -163,9 +168,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
-                                    CuExoPlayer(data = currentDto.resource.video,
                                     othersVm.initUserId(currentDto.userId)
-                                    CuExoPlayer(data = currentDto.resource.video,
+                                    CuExoPlayer(
+                                        data = currentDto.resource.video,
                                         modifier = Modifier.fillMaxSize(),
                                         cover = currentDto.cover,
                                         isFixHeight = true
@@ -177,35 +182,43 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 ImageBanner(currentDto.resource.images.toList(), true)
                             }
                         } // 用户信息部分
-                        Column(modifier = Modifier.align(Alignment.BottomStart)
-                            .padding(start = 30.cdp, bottom = 30.cdp),
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 30.cdp, bottom = 30.cdp),
                             horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.Bottom) {
-                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
-                                UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Column(modifier = Modifier
+                                .height(130.cdp)
+                                .padding(end = 50.dp)) {
+                                UserInfoWithAvatar(
+                                    modifier = Modifier.fillMaxSize(),
                                     currentDto.nickname,
                                     currentDto.profile,
-                                    textStyle = Typography.bodyLarge.copy(fontSize = 14.sp,
+                                    textStyle = Typography.bodyLarge.copy(
+                                        fontSize = 14.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Left),
+                                        textAlign = TextAlign.Left
+                                    ),
                                     isShowMore = false,
-                                    avatarSize = 40)
+                                    avatarSize = 40
+                                )
                             }
-                            CollapseText(value = currentDto.content,
+                            CollapseText(
+                                value = currentDto.content,
                                 maxLines = 1,
-                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
-                                textStyle = Typography.bodyLarge.copy(color = Color.White,
-                                    lineHeight = 26.sp),
-                                maxLength = 17)
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(end = 50.dp),
                                 textStyle = Typography.bodyLarge.copy(
-                                    color = Color.White, lineHeight = 26.sp
+                                    color = Color.White,
+                                    lineHeight = 26.sp
                                 ),
                                 maxLength = 17
                             )
+
                             if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
                                 iconPath = "svg/location_line.svg",
                                 selected = false,
@@ -216,12 +229,17 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         }
 
                         // 点赞、收藏 部分
-                        Column(modifier = Modifier.padding(end = 30.cdp, bottom = 30.cdp)
-                            .align(Alignment.BottomEnd)) {
-                            LikeButton(currentDto.id,
+                        Column(
+                            modifier = Modifier
+                                .padding(end = 30.cdp, bottom = 30.cdp)
+                                .align(Alignment.BottomEnd)
+                        ) {
+                            LikeButton(
+                                currentDto.id,
                                 currentDto.agrees.toInt(),
                                 isLiked = currentDto.hasPraise,
-                                tintColor = Color.White) {
+                                tintColor = Color.White
+                            ) {
                                 CuLog.debug(CuTag.Blog, "LikeButton 1111 ${currentDto.agrees}")
 
                                 //刷新页面、列表状态
@@ -234,8 +252,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            CommentButton(count = currentDto.comments.toInt(),
-                                tintColor = Color.White) {
+                            CommentButton(
+                                count = currentDto.comments.toInt(),
+                                tintColor = Color.White
+                            ) {
 
                                 coroutineScope.launch {
                                     commentVm.updateBlogId(currentDto.id)
@@ -246,10 +266,12 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             Spacer(modifier = Modifier.height(70.cdp))
                             CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier.size(30.dp).onGloballyPositioned {
-                                    collectTipY = it.positionInWindow().y.toInt()
-                                    CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
-                                }) {
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .onGloballyPositioned {
+                                        collectTipY = it.positionInWindow().y.toInt()
+                                        CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
+                                    }) {
 
                                 collectVm.updateBlog(blog = currentDto)
 
