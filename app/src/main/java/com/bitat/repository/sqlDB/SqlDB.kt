@@ -47,10 +47,13 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             DB = SqlDB(context)
         }
 
+        fun exec(sql: String, vararg bindings: Any) =
+            DB?.readableDatabase?.execSQL(sql, bindings.map(Any::toString).toTypedArray())
+
         fun query(sql: String, vararg bindings: Any) =
             DB?.readableDatabase?.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
 
-        fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
+        fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
             query(sql, bindings)?.run { if (moveToFirst()) toFn(this) else null }
 
         inline fun <reified T> queryBatch(

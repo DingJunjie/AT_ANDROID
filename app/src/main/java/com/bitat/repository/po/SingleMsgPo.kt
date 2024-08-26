@@ -2,11 +2,11 @@ package com.bitat.repository.po
 
 import android.database.Cursor
 
-public class SingleMsgPo {
+class SingleMsgPo {
     var selfId: Long = 0
     var otherId: Long =0
-    var status: Short =0
     var time: Long =0
+    var status: Short =0
     var kind: Short =0
     var content: String =""
 
