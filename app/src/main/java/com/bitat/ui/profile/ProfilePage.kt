@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -82,6 +83,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.store.UserStore
@@ -92,7 +94,6 @@ import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.ui.common.rememberDialogState
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
-import com.bitat.utils.ScreenUtils
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.ui.common.LottieBox
@@ -117,14 +118,18 @@ fun Menu(menuFun: () -> Unit) {
 
 @Composable
 fun MenuItem(path: String, desc: String = "", tapFun: () -> Unit) {
-    TextButton(content = { SvgIcon(path, contentDescription = desc) },
+    TextButton(
+        content = { SvgIcon(path, contentDescription = desc) },
         onClick = tapFun,
         shape = RoundedCornerShape(size = 40.dp),
         modifier = Modifier.size(40.dp),
-        colors = ButtonColors(contentColor = Color.White,
+        colors = ButtonColors(
+            contentColor = Color.White,
             containerColor = Color(red = 33, green = 33, blue = 33, alpha = 100),
             disabledContentColor = Color.White,
-            disabledContainerColor = Color.Gray))
+            disabledContainerColor = Color.Gray
+        )
+    )
 }
 
 
@@ -342,22 +347,22 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 //                    WindowInsets.navigationBars
                 //                ).align(alignment = Alignment.BottomEnd))
 
-                }
+            }
 
-                if (state.isTabbarTop) Column {
-                    Box(
-                        modifier = Modifier
-                            .height(padding.calculateTopPadding())
-                            .fillMaxWidth()
-                            .background(Color.White)
-                    ) {}
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
-                    }
+            if (state.isTabbarTop) Column {
+                Box(
+                    modifier = Modifier
+                        .height(padding.calculateTopPadding())
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {}
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
                 }
+            }
 
 //            Box(modifier = Modifier
 //                .fillMaxWidth()
@@ -376,10 +381,10 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 //                //                ProfileDrawer(viewModel, drawerState, scope)
 //                //            }
 //            }
-            }
-
         }
     }
+
+
 
     if (showDrawer.value) Box(
         modifier = Modifier
@@ -419,7 +424,9 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
-    Scaffold(modifier = Modifier.width((ScreenUtils.screenWidth * 0.7).dp).padding(start = 0.dp),
+    Scaffold(modifier = Modifier
+        .width((ScreenUtils.screenWidth * 0.7).dp)
+        .padding(start = 0.dp),
         topBar = {
             TopAppBar(title = { Text("Drawer Example") }, navigationIcon = {
                 IconButton(onClick = {
@@ -436,15 +443,22 @@ fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
             })
         },
         content = {
-            Box(modifier = Modifier.fillMaxSize().padding(it),
-                contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                contentAlignment = Alignment.Center
+            ) {
                 Text("Main Content")
             }
         })
 }
 
 @Composable
-fun ReadDataFromDatabase(context: Context, viewModel: ProfileViewModel) { //    val data = viewModel.uiState.collectAsState()
+fun ReadDataFromDatabase(
+    context: Context,
+    viewModel: ProfileViewModel
+) { //    val data = viewModel.uiState.collectAsState()
     val data by remember {
         mutableStateOf(viewModel.uiState.value)
     }
@@ -538,8 +552,12 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
                 }
             })
         }, content = {
-            Box(modifier = Modifier.fillMaxSize().padding(it),
-                contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                contentAlignment = Alignment.Center
+            ) {
                 Text("Main Content")
             }
         }) //        ModalDrawerSheet {
@@ -552,7 +570,16 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostController, nickname: String, atAccount: String, introduction: String, fans: Int, follows: Int, likes: Int) {
+fun ProfileDetail(
+    viewModel: ProfileViewModel,
+    navHostController: NavHostController,
+    nickname: String,
+    atAccount: String,
+    introduction: String,
+    fans: Int,
+    follows: Int,
+    likes: Int
+) {
     val options = remember {
         List(4) { "Tab ${it + 1}" }
     }
@@ -568,15 +595,22 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
             ) {
                 AvatarWithShadow(url = UserStore.userInfo.profile)
 
-                Column(modifier = Modifier.padding(top = 15.dp),
-                    verticalArrangement = Arrangement.SpaceBetween) {
+                Column(
+                    modifier = Modifier.padding(top = 15.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
                         TagLabel("28")
                         TagLabel("贵阳")
                     }
-                    Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 10.dp)
+                            .height(55.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically) {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         UserInfo(nickname, atAccount, introduction)
                         SocialData(likes, follows, fans, tapLike = {
 
@@ -611,10 +645,14 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
 
 @Composable
 fun GoCreate() {
-    Column(modifier = Modifier.padding(vertical = 15.dp).fillMaxWidth()) {
-        Text("进入创作页 》",
+    Column(modifier = Modifier
+        .padding(vertical = 15.dp)
+        .fillMaxWidth()) {
+        Text(
+            "进入创作页 》",
             style = Typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(start = 20.dp))
+            modifier = Modifier.padding(start = 20.dp)
+        )
         Spacer(modifier = Modifier.height(10.dp))
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(3) {
@@ -627,9 +665,13 @@ fun GoCreate() {
 
 @Composable
 fun Creation() {
-    Surface(shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(start = 15.dp, end = 5.dp)) {
-        Box(modifier = Modifier.size(140.dp).background(Color.Cyan)) {}
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.padding(start = 15.dp, end = 5.dp)
+    ) {
+        Box(modifier = Modifier
+            .size(140.dp)
+            .background(Color.Cyan)) {}
     }
 }
 
@@ -637,13 +679,17 @@ fun Creation() {
 @Composable
 fun TagLabel(content: String) {
     Chip(onClick = { /*TODO*/ },
-        modifier = Modifier.height(20.dp).padding(horizontal = 3.dp),
+        modifier = Modifier
+            .height(20.dp)
+            .padding(horizontal = 3.dp),
         colors = ChipDefaults.chipColors(backgroundColor = Color.Black),
         leadingIcon = {
-            Icon(Icons.Filled.CheckCircle,
+            Icon(
+                Icons.Filled.CheckCircle,
                 contentDescription = "",
                 Modifier.size(12.dp),
-                tint = Color.White)
+                tint = Color.White
+            )
         }) {
         Text(
             content,
@@ -654,8 +700,12 @@ fun TagLabel(content: String) {
 
 @Composable
 fun AlbumList() {
-    LazyRow(modifier = Modifier.fillMaxWidth().padding(top = 15.dp),
-        contentPadding = PaddingValues(start = 20.dp)) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 15.dp),
+        contentPadding = PaddingValues(start = 20.dp)
+    ) {
         items(5) { _ ->
             AlbumItem()
         }
@@ -665,7 +715,10 @@ fun AlbumList() {
 @Composable
 fun AlbumItem() {
     Surface(shape = RoundedCornerShape(10.dp), modifier = Modifier.padding(horizontal = 10.dp)) {
-        Box(modifier = Modifier.width(80.dp).height(80.dp).background(Color.Yellow)) {
+        Box(modifier = Modifier
+            .width(80.dp)
+            .height(80.dp)
+            .background(Color.Yellow)) {
 
         }
     }
@@ -674,13 +727,19 @@ fun AlbumItem() {
 
 @Composable
 fun UserInfo(nickname: String, atAccount: String, introduction: String) {
-    Column(modifier = Modifier.padding(start = 10.dp, top = 5.dp).height(55.dp),
-        verticalArrangement = Arrangement.SpaceBetween) {
+    Column(
+        modifier = Modifier
+            .padding(start = 10.dp, top = 5.dp)
+            .height(55.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
         Text(nickname, fontSize = 16.sp, fontWeight = FontWeight(600))
-        Text("艾特号：$atAccount",
+        Text(
+            "艾特号：$atAccount",
             fontSize = 12.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 3.dp))
+            modifier = Modifier.padding(vertical = 3.dp)
+        )
     }
 }
 

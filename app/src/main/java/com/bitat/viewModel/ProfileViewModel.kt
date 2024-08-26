@@ -10,10 +10,6 @@ import com.bitat.repository.dto.req.BlogOpsAgreeHistoryDto
 import com.bitat.repository.dto.req.FindPrivateDto
 import com.bitat.repository.dto.req.PhotoBlogListDto
 import com.bitat.repository.http.service.BlogOpsReq
-import com.bitat.repository.http.service.UserReq
-import com.bitat.repository.store.UserStore
-import com.bitat.state.ProfileUiState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import com.bitat.repository.dto.req.UpdateNicknameDto
 import com.bitat.repository.http.service.BlogReq

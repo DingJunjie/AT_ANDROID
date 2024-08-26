@@ -252,16 +252,12 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             state = listState,
                             modifier = Modifier
                                 .fillMaxSize()
-<<<<<<< HEAD
-                                .padding(bottom = homeState.bottomHeight, start = 30.cdp, end = 30.cdp)
-=======
 //                                .padding(bottom = homeState.bottomHeight)
                                 .padding(
                                     bottom = WindowInsets.navigationBars
                                         .getBottom(LocalDensity.current)
                                         .times(0.5).dp
                                 )
->>>>>>> 92e582c (profile edit)
                         ) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
                                 Surface(modifier = Modifier.fillMaxWidth()) {
