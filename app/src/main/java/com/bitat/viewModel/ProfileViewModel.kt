@@ -15,6 +15,19 @@ import com.bitat.repository.store.UserStore
 import com.bitat.state.ProfileUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import com.bitat.repository.dto.req.UpdateNicknameDto
+import com.bitat.repository.http.service.BlogReq
+import com.bitat.state.ProfileUiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
+import com.bitat.repository.http.service.SearchReq
+import com.bitat.repository.http.service.UserExtraReq
+import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.store.UserStore
+import com.bitat.state.GENDER
 import kotlinx.coroutines.launch
 
 

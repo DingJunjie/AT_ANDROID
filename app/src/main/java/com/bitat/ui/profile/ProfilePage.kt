@@ -2,6 +2,11 @@ package com.bitat.ui.profile
 
 import android.content.Context
 import android.view.WindowInsets
+import android.graphics.drawable.Icon
+import android.net.Uri
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -85,11 +90,19 @@ import com.bitat.state.PROFILE_TAB_OPTIONS
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.ui.common.rememberDialogState
+import com.bitat.ui.common.ImagePicker
+import com.bitat.ui.common.ImagePickerOption
+import com.bitat.utils.ScreenUtils
+import com.bitat.ui.common.SvgIcon
+import com.bitat.ui.common.rememberAsyncPainter
+import com.bitat.ui.common.LottieBox
+import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -157,13 +170,13 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
     // top tab bar 开始出现位置
     var positionTopBar by remember {
-        mutableStateOf(Offset.Zero)
+        mutableStateOf(0)
     }
 
     // scroll 的触发
-    if (scrollState.value > positionTopBar.y && !state.isTabbarTop) {
+    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
         vm.switchTabbar(true)
-    } else if (scrollState.value < positionTopBar.y && state.isTabbarTop) {
+    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
         vm.switchTabbar(false)
     }
 
@@ -175,7 +188,6 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         offsetY += delta
     }
 
-
     // 监听滚动状态
     LaunchedEffect(scrollState.value) {
         val maxScroll = scrollState.maxValue
@@ -183,79 +195,135 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     }
 
 
-    ModalNavigationDrawer(drawerState = drawerState, //        modifier = Modifier.width(100.dp),
-        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
-            DrawerContainer(scope, drawerState)
-        }, content = {
+    val showBGPopup = remember {
+        mutableStateOf(false)
+    }
 
-            Box(modifier = Modifier.verticalScroll(state = scrollState).background(Color.White).padding(bottom = 80.dp)) {
-                Box(modifier = Modifier.draggable(orientation = Orientation.Vertical,
-                    state = draggableState)) {
-                    ProfileBg(menu = {
-                        Menu(menuFun = {
-                            scope.launch {
-                                drawerState.open()
-                            }
-                        })
-                    })
+    val showDrawer = remember {
+        mutableStateOf(false)
+    }
 
-                    //                    Box(
-                    //                        modifier = Modifier
-                    //                            .fillMaxWidth()
-                    //                            .height(200.dp),
-                    //                        contentAlignment = Alignment.Center
-                    //                    ) {
-                    //                        LottieBox(
-                    //                            lottieRes = R.raw.like_ani,
-                    //                            isRepeat = true,
-                    //                            modifier = Modifier.size(200.dp)
-                    //                        )
-                    //                    }
-                }
-                Box(modifier = Modifier.fillMaxWidth().fillMaxHeight() //            .height(500.dp)
-                    //            .verticalScroll(state = scrollState)
+    val drawerOffset =
+        animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
+
+//    ModalNavigationDrawer(drawerState = drawerState,
+////        modifier = Modifier.width(100.dp),
+//        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
+//            DrawerContainer(scope, drawerState)
+//        }, content = {
+    Scaffold { padding ->
+        Box(
+//            modifier = Modifier
+//                .horizontalScroll(drawerScrollState)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                Box(
+                    modifier = Modifier
+//                    .imePadding()
+                        .verticalScroll(state = scrollState)
+                        .background(Color.White)
+//                    .padding(bottom = 40.dp)
+//                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
+//                    .windowInsetsPadding( WindowInsets.navigationBars)
+//                    .height((ScreenUtils.screenHeight * 2).dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.Top,
-                        modifier = Modifier.padding(0.dp)) {
-                        Box(modifier = Modifier.height(160.dp).fillMaxWidth())
-                        ProfileDetail(vm,
-                            navController,
-                            nickname = userInfo.nickname,
-                            atAccount = userInfo.account,
-                            introduction = userInfo.introduce,
-                            likes = userInfo.agrees,
-                            follows = userInfo.follows,
-                            fans = fans)
-                        Box(modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
-                        ) {
-                            Column( // 获取tab bar的全局位置
-                                modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                                    if (positionTopBar.y.toInt() == 0) positionTopBar =
-                                        coordinate.positionInRoot()
-                                }) {
-                                if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                                    ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
-                                        vm.tabType(index)
-                                    }
-                                } else Box(modifier = Modifier.height(50.dp).fillMaxWidth()
-                                    .background(Color.White))
-                                ProfileTabView(
-                                    options = PROFILE_TAB_OPTIONS,
-                                    pagerState,
-                                    navController,
-                                    viewModelProvider = viewModelProvider,
-                                ) { index ->
-                                    Box(modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center) { //                        Text(
-                                        //                            text = (index + 1).toString(),
-                                        //                            color = MaterialTheme.colorScheme.onPrimary,
-                                        //                            fontSize = 60.sp
-                                        //                        )
-                                        Box(modifier = Modifier.fillMaxHeight()
-                                            .background(Color.Cyan).fillMaxWidth().clickable {
-                                                UserStore.updateFans(100)
-                                            }) {
+                    Box(
+                        modifier = Modifier.draggable(
+                            orientation = Orientation.Vertical, state = draggableState
+                        )
+                    ) {
+                        ProfileBg(tapBG = {
+                            showBGPopup.value = true
+                        }, menu = {
+                            Menu(menuFun = {
+                                scope.launch {
+//                                    drawerState.open()
+                                    showDrawer.value = true
+                                }
+                            })
+                        })
 
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LottieBox(
+                                lottieRes = R.raw.like_ani,
+                                isRepeat = true,
+                                modifier = Modifier.size(200.dp)
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                        //            .height(500.dp)
+                        //            .verticalScroll(state = scrollState)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Top, modifier = Modifier.padding(0.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .height(160.dp)
+                                    .fillMaxWidth()
+                            )
+                            ProfileDetail(
+                                vm,
+                                navController,
+                                nickname = userInfo.nickname,
+                                atAccount = userInfo.account,
+                                introduction = userInfo.introduce,
+                                likes = userInfo.agrees,
+                                follows = userInfo.follows,
+                                fans = fans
+                            )
+                            Box(
+                                modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
+                            ) {
+                                Column( // 获取tab bar的全局位置
+                                    modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
+                                        if (positionTopBar == 0) positionTopBar =
+                                            coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                                    }) {
+                                    if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
+                                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
+                                    } else Box(
+                                        modifier = Modifier
+                                            .height(50.dp)
+                                            .fillMaxWidth()
+                                            .background(Color.White)
+                                    )
+                                    ProfileTabView(
+                                        options = PROFILE_TAB_OPTIONS,
+                                        pagerState,
+                                        navController,
+                                        viewModelProvider = viewModelProvider,
+                                    ) { index ->
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) { //                        Text(
+                                            //                            text = (index + 1).toString(),
+                                            //                            color = MaterialTheme.colorScheme.onPrimary,
+                                            //                            fontSize = 60.sp
+                                            //                        )
+                                            Box(modifier = Modifier
+                                                .fillMaxHeight()
+                                                .background(Color.Cyan)
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    UserStore.updateFans(100)
+                                                }) {
+
+                                            }
                                         }
                                     }
                                 }
@@ -274,33 +342,77 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 //                    WindowInsets.navigationBars
                 //                ).align(alignment = Alignment.BottomEnd))
 
-            }
-
-            if (state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
-                    vm.tabType(index)
                 }
-            }
 
-            Box(modifier = Modifier.fillMaxWidth().background(Color(0x45333333)).clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }) {
-                scope.launch {
-                    drawerState.close()
+                if (state.isTabbarTop) Column {
+                    Box(
+                        modifier = Modifier
+                            .height(padding.calculateTopPadding())
+                            .fillMaxWidth()
+                            .background(Color.White)
+                    ) {}
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
+                    }
                 }
-            }) { //            Box(
-                //                modifier = Modifier
-                //                    .fillMaxWidth(0.7f)
-                //                    .align(Alignment.TopEnd)
-                //            ) {
-                //                ProfileDrawer(viewModel, drawerState, scope)
-                //            }
+
+//            Box(modifier = Modifier
+//                .fillMaxWidth()
+//                .background(Color(0x45333333))
+//                .clickable(
+//                    indication = null,
+//                    interactionSource = remember { MutableInteractionSource() }) {
+//                    scope.launch {
+//                        drawerState.close()
+//                    }
+//                }) { //            Box(
+//                //                modifier = Modifier
+//                //                    .fillMaxWidth(0.7f)
+//                //                    .align(Alignment.TopEnd)
+//                //            ) {
+//                //                ProfileDrawer(viewModel, drawerState, scope)
+//                //            }
+//            }
             }
 
+        }
+    }
 
-        })
+    if (showDrawer.value) Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .clickable {
+                    showDrawer.value = false
+                }
+                .background(Color(0x33333333))
+        ) {}
+        Box(
+//            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .fillMaxHeight()
+                .offset(
+                    x = drawerOffset.value.dp
+                )
+                .clickable { }
+                .background(Color.White),
+        ) {
+            Text("Main Content")
+        }
+    }
 
-
+    BackgroundPopup(visible = showBGPopup.value, { showBGPopup.value = false }, {
+        UserStore.updateCover(it)
+    })
 }
 
 
@@ -347,11 +459,50 @@ fun ReadDataFromDatabase(context: Context, viewModel: ProfileViewModel) { //    
 }
 
 @Composable
-fun ProfileBg(menu: @Composable (() -> Unit)) {
-    Box(modifier = Modifier.paint(painter = rememberAsyncPainter(url = "https://img.keaitupian.cn/uploads/2020/12/08/38d0befdc3c89348d6eeaed90c9b7660.jpg"),
-        contentScale = ContentScale.Crop).fillMaxWidth().height(200.dp).padding(top = 30.dp),
-        contentAlignment = Alignment.TopEnd) {
-        Box(modifier = Modifier.padding(top = 10.dp, end = 10.dp).height(200.dp)) {
+fun BackgroundPopup(
+    visible: Boolean,
+    onClose: () -> Unit, changeFn: (uri: Uri) -> Unit
+) {
+    Popup(visible = visible, onClose = { onClose() }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {
+                changeFn(it.first())
+            }) {
+                Text(text = "更换背景")
+            }
+        }
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .clickable { onClose() }) {
+            Text(text = "取消")
+        }
+    }
+}
+
+@Composable
+fun ProfileBg(tapBG: () -> Unit = {}, menu: @Composable (() -> Unit)) {
+    Box(
+        modifier = Modifier
+            .paint(
+                painter = rememberAsyncPainter(url = UserStore.userInfo.cover),
+                contentScale = ContentScale.Crop
+            )
+            .fillMaxWidth()
+            .height(200.dp)
+            .clickable { tapBG() }
+            .padding(top = 30.dp),
+        contentAlignment = Alignment.TopEnd
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 10.dp, end = 10.dp)
+                .height(200.dp)
+        ) {
             menu.invoke();
         }
     }
@@ -410,8 +561,12 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
         shape = RoundedCornerShape(40.dp),
     ) {
         Column(verticalArrangement = Arrangement.Top) {
-            Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-                AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                AvatarWithShadow(url = UserStore.userInfo.profile)
 
                 Column(modifier = Modifier.padding(top = 15.dp),
                     verticalArrangement = Arrangement.SpaceBetween) {
@@ -442,8 +597,14 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 15.dp, top = 15.dp))
-            GoCreate() //            AlbumList()
+                modifier = Modifier
+                    .padding(start = 15.dp, top = 15.dp)
+                    .clickable {
+                        navHostController.navigate(NavigationItem.ProfileEdit.route)
+                    }
+            )
+            GoCreate()
+//            AlbumList()
         }
     }
 }

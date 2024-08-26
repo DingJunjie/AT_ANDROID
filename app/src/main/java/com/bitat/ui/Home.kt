@@ -1,7 +1,9 @@
 package com.bitat.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
@@ -133,12 +135,20 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
 
     val ctx = LocalDensity.current
 
-    BottomNavigation(modifier = Modifier.onGloballyPositioned { coordinates -> // 获取高度
-            val heightPx = coordinates.size.height
-            with(ctx) {
-                vm.setBottom(heightPx.toDp())
+
+    BottomNavigation(
+        modifier = Modifier
+            .onGloballyPositioned { coordinates -> // 获取高度
+                val heightPx =
+                    coordinates.size.height
+                with(ctx) {
+                    vm.setBottom(heightPx.toDp())
+                }
             }
-        }.windowInsetsPadding(WindowInsets.navigationBars),
+            .windowInsetsPadding(
+                WindowInsets.navigationBars // 处理状态栏和导航栏
+            )
+        ,
         //            .height(dimensionResource(R.dimen.home_tab_height)),
         backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->

@@ -29,10 +29,10 @@ class UserInfoDto(
 
 @Serializable
 class UpdateUserInfoDto(
-    var gender: Byte, // 性别
-    var birthday: Long, //生日,毫秒时间戳
-    var address: String, //城市
-    var extraInfo: String //其他信息
+    var gender: Byte = 0, // 性别
+    var birthday: Long = 0, //生日,毫秒时间戳
+    var address: String = "", //城市
+    var extraInfo: String = "" //其他信息
 )
 
 @Serializable

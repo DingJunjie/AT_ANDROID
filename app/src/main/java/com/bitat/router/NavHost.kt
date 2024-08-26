@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.amap.api.services.route.Navi
 import com.bitat.MainCo
 import com.bitat.repository.store.TokenStore
 import com.bitat.ui.Home
@@ -26,6 +27,7 @@ import com.bitat.ui.profile.CollectionDetail
 import com.bitat.ui.profile.FansPage
 import com.bitat.ui.profile.FollowsPage
 import com.bitat.ui.profile.OthersPage
+import com.bitat.ui.profile.ProfileEditPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
@@ -36,7 +38,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, PROFILE_EDIT
 }
 
 sealed class NavigationItem(val route: String) {
@@ -66,6 +68,7 @@ sealed class NavigationItem(val route: String) {
     data object Others : NavigationItem(Screen.OTHERS.name)
     data object Fans : NavigationItem(Screen.FANS.name)
     data object Follows : NavigationItem(Screen.FOLLOWS.name)
+    data object ProfileEdit : NavigationItem(Screen.PROFILE_EDIT.name)
 }
 
 
@@ -180,6 +183,13 @@ fun AppNavHost(
 
         composable(NavigationItem.Follows.route) {
             FollowsPage(navHostController = navController, viewModelProvider = viewModelProvider)
+        }
+
+        composable(NavigationItem.ProfileEdit.route) {
+            ProfileEditPage(
+                navHostController = navController,
+                viewModelProvider = viewModelProvider
+            )
         }
     }
 }
