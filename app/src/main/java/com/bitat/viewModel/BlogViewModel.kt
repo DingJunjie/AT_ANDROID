@@ -29,10 +29,7 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun initBlogList(
-        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
-        isRefresh: Boolean = false
-    ) { // TODO
+    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend, isRefresh: Boolean = false) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -57,10 +54,11 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
-                        CuLog.debug(
-                            CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
-                        )
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
+                        CuLog.debug(CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -75,6 +73,9 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
                         CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
@@ -93,6 +94,9 @@ class BlogViewModel : ViewModel() {
                             it.copy(updating = false)
                         }
                     }.errMap {
+                        blogState.update {
+                            it.copy(updating = false)
+                        }
                         CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
 
                     }
@@ -131,7 +135,7 @@ class BlogViewModel : ViewModel() {
         }
 
         initBlogList(blogState.value.currentMenu, isRefresh = true)
-        CuLog.debug(CuTag.Blog, "加载数据，${blogState.value.currentMenu}")
+        CuLog.debug(CuTag.Blog, "加载数据1111，${blogState.value.currentMenu}")
     }
 
     fun topBarState(isShow: Boolean) {

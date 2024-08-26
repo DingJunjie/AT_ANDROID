@@ -105,6 +105,7 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
             }
         }
 
+
         when (state.currentTab) {
             CollectionTabs.Works -> MediaGrid(mediaList = state.currentCollectionItems)
             CollectionTabs.Custom -> CustomCollections(myCustomCollections = state.collections, {
