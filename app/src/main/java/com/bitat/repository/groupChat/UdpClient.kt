@@ -1,7 +1,9 @@
 package com.bitat.repository.groupChat
 
 import androidx.collection.MutableLongObjectMap
+import androidx.compose.runtime.currentCompositionLocalContext
 import com.bitat.MainCo
+import com.bitat.ext.flowbus.postEventValue
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.common.KeySecret
@@ -34,7 +36,7 @@ object UdpClient {
     private var reading: Job? = null
 
     fun start() {
-        clear()
+        close()
         timing = MainCo.launch(IO) {
             while (!KeySecret.isValid()) delay(1000)
             conn = DatagramChannel.open().apply {
@@ -57,23 +59,11 @@ object UdpClient {
         }
     }
 
-    private suspend fun auth(owner: UdpOwner): Boolean {
-        val token = TokenStore.fetchToken()
-        if (token != null) {
-            while (!KeySecret.isValid()) delay(1000)
-            val body = token.toByteArray()
-            val key = KeySecret.currentKey()
-            val head = UdpMsgHead(key, UdpMsgEvent.AUTH).toBytes()
-            val data = KeySecret.encryptByKey(key, body, head)
-            if (data != null) {
-                write(owner, data)
-            }
-            return true
-        }
-        return false
-    }
+    private suspend fun auth(owner: UdpOwner) = authCommon { write(owner, it) }
 
-    private suspend fun authAll(): Boolean {
+    private suspend fun authAll() = authCommon(::writeAll)
+
+    private suspend fun authCommon(writeFn: (ByteArray) -> Unit): Boolean {
         val token = TokenStore.fetchToken()
         if (token != null) {
             while (!KeySecret.isValid()) delay(1000)
@@ -82,14 +72,10 @@ object UdpClient {
             val head = UdpMsgHead(key, UdpMsgEvent.AUTH).toBytes()
             val data = KeySecret.encryptByKey(key, body, head)
             if (data != null) {
-                val byteBuf = ByteBuffer.wrap(data)
-                ownerDict.forEachValue {
-                    conn?.send(byteBuf, it.addr)
-                }
-                byteBuf.clear()
-            }
-            return true
-        }
+                writeFn(data)
+                return true
+            } else CuLog.error(CuTag.GroupChat, "Bad encrypt")
+        } else CuLog.error(CuTag.GroupChat, "Bad token")
         return false
     }
 
@@ -102,7 +88,10 @@ object UdpClient {
                     byteBuf.flip()
                     val remaining = byteBuf.remaining()
                     val newBuf = ByteArray(remaining)
-                    if (remaining > 0) byteBuf.get(newBuf, 0, remaining)
+                    if (remaining > 0 && addr is InetSocketAddress) {
+                        byteBuf.get(newBuf, 0, remaining)
+
+                    }
                 }
                 //37ms的延迟，监听线程得到短暂释放
                 else delay(37)
@@ -144,9 +133,17 @@ object UdpClient {
         byteBuf.clear()
     }
 
+    private fun writeAll(bytes: ByteArray) {
+        val byteBuf = ByteBuffer.wrap(bytes)
+        ownerDict.forEachValue {
+            conn?.send(byteBuf, it.addr)
+        }
+        byteBuf.clear()
+    }
+
     private fun isReady() = conn?.isOpen ?: false
 
-    private fun clear() {
+    fun close() {
         timing?.cancel()
         timing = null
         reading?.cancel()
@@ -154,10 +151,6 @@ object UdpClient {
         conn?.close()
         conn = null
         ownerDict.clear()
-    }
-
-    fun close() {
-        clear()
     }
 }
 
