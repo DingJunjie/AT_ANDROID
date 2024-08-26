@@ -26,4 +26,29 @@ data class ProfileUiState(
 
 val PROFILE_TAB_OPTIONS = listOf("作品", "相册", "收藏", "赞过")
 
-data class ProfileModel(var name: String, var age: Int)
+data class ProfileModel(
+    var name: String,
+    var age: Int
+)
+
+enum class GENDER {
+    Male, Female, Unknown;
+
+    fun toUIContent(): String {
+        return when (this) {
+            Male -> "男性"
+            Female -> "女性"
+            Unknown -> "未知"
+        }
+    }
+
+    companion object {
+        fun toCode(g: GENDER): Int {
+            return when (g) {
+                Male -> 1
+                Female -> 0
+                Unknown -> -1
+            }
+        }
+    }
+}

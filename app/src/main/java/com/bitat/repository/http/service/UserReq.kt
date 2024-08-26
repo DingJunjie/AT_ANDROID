@@ -9,11 +9,11 @@ import com.bitat.repository.http.Http
 object UserReq {
     //修改头像
     suspend inline fun updateProfile(dto: UpdateProfileDto) =
-        Http.post<_, Unit>("${Http.HOST}/service/user/updateProfile", dto)
+        Http.post<_, String>("${Http.HOST}/service/user/updateProfile", dto)
 
     //修改封面
     suspend inline fun updateCover(dto: UpdateCoverDto) =
-        Http.post<_, Unit>("${Http.HOST}/service/user/updateCover", dto)
+        Http.post<_, String>("${Http.HOST}/service/user/updateCover", dto)
 
     //修改昵称
     suspend inline fun updateNickname(dto: UpdateNicknameDto) =

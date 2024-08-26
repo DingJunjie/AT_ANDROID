@@ -17,7 +17,7 @@ class UserDto {
     var account: String = "" //账号
     var gender: Int = 0 //性别
     var verified: Int = 0 //是否官方认证
-    var status: Int = 0 //用户状态
+//    var status: Int = 0 //用户状态
     var score: Int = 0 //用户评分
     var friends: Int = 0 //朋友数量
     var fans: Int = 0 //粉丝数
