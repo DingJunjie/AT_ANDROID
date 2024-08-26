@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-//import com.bitat.core.ui.components.videoplayer.WeVideoPlayer
+import com.bitat.ext.cdp //import com.bitat.core.ui.components.videoplayer.WeVideoPlayer
 //import com.bitat.core.ui.components.videoplayer.rememberVideoPlayerState
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.consts.BLOG_AUDIO_IMAGE
@@ -46,6 +46,7 @@ import com.bitat.style.FontStyle
 import com.bitat.ui.component.BlogImages
 import com.bitat.ui.component.BlogVideo
 import com.bitat.ui.theme.grey5
+import com.bitat.utils.ScreenUtils
 
 
 /****
@@ -83,7 +84,7 @@ fun BlogContent(
 ) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)
-        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(
+        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp),
             mBlogBaseDto,
             maxHeight,
             isPlaying,
@@ -351,8 +352,8 @@ private fun VideoItem(videoUrl: String) {
 
 
 @Composable
-fun TotalIndexShow(index: String, size: String) {
-    Row {
+fun TotalIndexShow(modifier: Modifier=Modifier,index: String, size: String) {
+    Row(modifier) {
         Text(
             text = index, color = Color.White
         )

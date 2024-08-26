@@ -52,12 +52,17 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.bitat.R
 import com.bitat.ext.timestampFormat
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.resp.CollectPartDto
 import com.bitat.router.NavigationItem
 import com.bitat.state.CollectionTabs
+import com.bitat.ui.common.ListFootView
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.CollectViewModel
+import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.Dispatchers
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -65,14 +70,24 @@ import java.util.Date
 
 @Composable
 fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
-
-
     val vm: CollectViewModel = viewModelProvider[CollectViewModel::class]
     val state by vm.collectState.collectAsState()
+
+    val profileVm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
+    val profileState by profileVm.uiState.collectAsState()
 
     LaunchedEffect(Dispatchers.Default) {
         vm.initMyCollections()
         vm.getDefaultCollection()
+    }
+
+    LaunchedEffect(profileState.isAtBottom) {
+        if ( profileState.profileType == 2) {
+            if (state.currentCollectionItems.isNotEmpty()) {
+                val lastTime =state.currentCollectionItems.last().createTime
+                vm.getDefaultCollection(lastId = lastTime)
+            }
+        }
     }
 
     Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxWidth()) {
@@ -92,58 +107,49 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
 
         when (state.currentTab) {
             CollectionTabs.Works -> MediaGrid(mediaList = state.currentCollectionItems)
-            CollectionTabs.Custom -> CustomCollections(
-                myCustomCollections = state.collections, {
-                    vm.selectCollection(it)
-                }, {
-                    vm.createCollection(it)
-                    vm.initMyCollections()
-                }, navHostController
-            )
+            CollectionTabs.Custom -> CustomCollections(myCustomCollections = state.collections, {
+                vm.selectCollection(it)
+            }, {
+                vm.createCollection(it)
+                vm.initMyCollections()
+            }, navHostController)
 
             CollectionTabs.Music -> Box {}
+        }
+
+        ListFootView(state.footShow,state.httpState){
+            if (state.currentCollectionItems.isNotEmpty()) {
+                val lastTime =state.currentCollectionItems.last().createTime
+                vm.getDefaultCollection(lastId = lastTime)
+            }
         }
 
     }
 }
 
 @Composable
-fun CustomCollections(
-    myCustomCollections: List<CollectPartDto>,
-    tapCollection: (CollectPartDto) -> Unit,
-    createCollection: (String) -> Unit,
-    navHostController: NavHostController
-) {
+fun CustomCollections(myCustomCollections: List<CollectPartDto>, tapCollection: (CollectPartDto) -> Unit, createCollection: (String) -> Unit, navHostController: NavHostController) {
     val isCreating = remember {
         mutableStateOf(false)
     }
 
-    val bg by animateColorAsState(
-        targetValue = if (isCreating.value) Color.Black else Color.LightGray,
-        label = ""
-    )
+    val bg by animateColorAsState(targetValue = if (isCreating.value) Color.Black else Color.LightGray,
+        label = "")
 
     val newCollectionName = remember {
         mutableStateOf("")
     }
 
     Column(verticalArrangement = Arrangement.Top) {
-        Surface(
-            color = bg,
+        Surface(color = bg,
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .padding(horizontal = 20.dp)
-        ) {
+            modifier = Modifier.fillMaxWidth().height(80.dp).padding(horizontal = 20.dp)) {
             if (isCreating.value) BasicTextField(
                 value = newCollectionName.value,
                 {
                     newCollectionName.value = it
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(35.dp)
+                modifier = Modifier.fillMaxWidth().height(35.dp)
                     .padding(top = 5.dp, bottom = 5.dp, start = 30.dp, end = 30.dp),
                 textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
                 keyboardActions = KeyboardActions(onDone = { // 完成按键被点击时的回调
@@ -153,22 +159,15 @@ fun CustomCollections(
                 }),
                 singleLine = true,
                 cursorBrush = SolidColor(Color.White),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done),
             ) { innerTextField ->
-                Box(
-                    Modifier
-                        .border(1.dp, Color.Transparent, RoundedCornerShape(10.dp))
-                        .padding(vertical = 2.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    if (newCollectionName.value.isEmpty()) Text(
-                        "创建新的收藏夹",
+                Box(Modifier.border(1.dp, Color.Transparent, RoundedCornerShape(10.dp))
+                    .padding(vertical = 2.dp), contentAlignment = Alignment.CenterStart) {
+                    if (newCollectionName.value.isEmpty()) Text("创建新的收藏夹",
                         color = Color.LightGray,
                         fontSize = 16.sp,
-                        lineHeight = 24.sp
-                    )
+                        lineHeight = 24.sp)
 
                     innerTextField()  // 显示实际的文本输入框
                 }
@@ -186,29 +185,18 @@ fun CustomCollections(
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun CollectionItem(
-    collection: CollectPartDto,
-    tapCollection: (CollectPartDto) -> Unit,
-    navHostController: NavHostController
-) {
-    Row(
-        modifier = Modifier
-            .padding(vertical = 5.dp, horizontal = 20.dp)
-            .fillMaxWidth()
-            .height(80.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+fun CollectionItem(collection: CollectPartDto, tapCollection: (CollectPartDto) -> Unit, navHostController: NavHostController) {
+    Row(modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp).fillMaxWidth()
+        .height(80.dp), verticalAlignment = Alignment.CenterVertically) {
         Surface(shape = RoundedCornerShape(20.dp), modifier = Modifier.padding(end = 10.dp)) {
 
-            Box(modifier = Modifier
-                .fillMaxWidth(0.5f)
-                .fillMaxHeight()
+            Box(modifier = Modifier.fillMaxWidth(0.5f).fillMaxHeight()
 
-//            .paint(
-//                painter = rememberAsyncImagePainter(
-//                    model = collection.cover
-//                )
-//            )
+                //            .paint(
+                //                painter = rememberAsyncImagePainter(
+                //                    model = collection.cover
+                //                )
+                //            )
                 .clickable {
                     tapCollection(collection)
                     navHostController.navigate(NavigationItem.CollectionDetail.route)
@@ -216,11 +204,9 @@ fun CollectionItem(
                 if (collection.cover.isEmpty()) {
                     Icon(Icons.Filled.AccountCircle, contentDescription = "")
                 } else {
-                    AsyncImage(
-                        model = collection.cover,
+                    AsyncImage(model = collection.cover,
                         contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
+                        contentScale = ContentScale.Crop)
                 }
             }
 

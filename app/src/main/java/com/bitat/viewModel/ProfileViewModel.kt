@@ -1,25 +1,20 @@
 package com.bitat.viewModel
 
 import androidx.compose.material3.DrawerValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.HttpLoadState
+import com.bitat.repository.dto.req.BlogOpsAgreeHistoryDto
 import com.bitat.repository.dto.req.FindPrivateDto
 import com.bitat.repository.dto.req.PhotoBlogListDto
-import com.bitat.repository.http.service.BlogReq
-import com.bitat.state.ProfileUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
-import com.bitat.repository.http.service.SearchReq
-import com.bitat.repository.http.service.UserExtraReq
+import com.bitat.repository.http.service.BlogOpsReq
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.store.UserStore
+import com.bitat.state.ProfileUiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
@@ -46,11 +41,9 @@ class ProfileViewModel : ViewModel() {
 
     fun getMyWorks(lastTime: Long = 0, pageSize: Int = 20) {
         MainCo.launch {
-            UserReq.photoBlogList(
-                PhotoBlogListDto(
-                    userId = UserStore.userInfo.id, pageSize = pageSize, lastTime = lastTime
-                )
-            ).await().map { res ->
+            UserReq.photoBlogList(PhotoBlogListDto(userId = UserStore.userInfo.id,
+                pageSize = pageSize,
+                lastTime = lastTime)).await().map { res ->
                 CuLog.info(CuTag.Profile, "get my works, size is ${res.size}")
                 uiState.update {
                     if (lastTime == 0L) {
@@ -95,4 +88,63 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun getMyPraise(lastTime: Long = 0, pageSize: Int = 20) {
+        if (uiState.value.isReq) return
+        MainCo.launch {
+            isFootShow(true)
+            httpResp(true)
+
+            BlogOpsReq.agreeHistory(BlogOpsAgreeHistoryDto(pageSize, lastTime)).await().map { res ->
+                CuLog.info(CuTag.Profile, "get my Praise, size is ${res.size}")
+                httpResp(false)
+                uiState.update {
+                    if (lastTime == 0L) {
+                        it.myPraise.clear()
+                    }
+                    it.myPraise.addAll(res)
+                    it
+                }
+                if (res.isEmpty()) {
+                   httpState(HttpLoadState.NoData)
+                } else {
+                    isFootShow(false)
+                    httpState(HttpLoadState.Default)
+                }
+            }.errMap {
+                httpResp(false)
+                httpState(HttpLoadState.Fail)
+                CuLog.error(CuTag.Profile, "has not get my Praise, ${it.msg}")
+            }
+        }
+    }
+
+    fun atBottom(isBottom: Boolean) {
+        uiState.update {
+            it.copy(isAtBottom = isBottom)
+        }
+    }
+
+    fun tabType(index: Int) {
+        uiState.update {
+            it.copy(profileType = index)
+        }
+    }
+
+    fun httpResp(result: Boolean) {
+        uiState.update {
+            it.copy(isReq = result)
+        }
+    }
+
+    fun isFootShow(show: Boolean) {
+        uiState.update {
+            it.copy(isFootShow = show)
+        }
+    }
+
+    fun httpState(state: HttpLoadState) {
+        uiState.update {
+            it.copy(httpState = state)
+        }
+    }
 }

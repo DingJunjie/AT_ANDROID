@@ -42,11 +42,9 @@ val MainCo = MainScope()
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        super.onCreate(savedInstanceState) //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         //        window.setDecorFitsSystemWindows(false)
-        CuLog.debug(CuTag.Login,"MainActivity----- onCreate")
-        //设置全屏显示
+        CuLog.debug(CuTag.Login, "MainActivity----- onCreate") //设置全屏显示
         enableEdgeToEdge()
         setContent {
             CuLog.level = CuLog.DEBUG
@@ -93,24 +91,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        CuLog.debug(CuTag.Login,"MainActivity----- onStart")
+        CuLog.debug(CuTag.Login, "MainActivity----- onStart")
     }
 
     override fun onPause() {
         super.onPause()
-        CuLog.debug(CuTag.Login,"MainActivity----- onPause")
+        CuLog.debug(CuTag.Login, "MainActivity----- onPause")
     }
-
 
 
     override fun onResume() {
         super.onResume()
 
-        CuLog.debug(CuTag.Login,"MainActivity----- onResume")
-//        MainCo= MainScope()
+        CuLog.debug(CuTag.Login, "MainActivity----- onResume") //        MainCo= MainScope()
     }
-
-
 
 
     fun getAvailableMemory(): ActivityManager.MemoryInfo {

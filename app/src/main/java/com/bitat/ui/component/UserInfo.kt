@@ -1,6 +1,5 @@
 package com.bitat.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,19 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bitat.ext.cdp
 import com.bitat.style.FontStyle
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
+import com.bitat.ui.theme.hintTextColor
 import com.bitat.ui.theme.subTextColor
 import com.bitat.utils.TimeUtils
 
@@ -58,26 +57,26 @@ fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
         Text(text = username,
-            style = Typography.bodyLarge.copy(fontSize = 14.sp, //                fontWeight = FontWeight.Bold,
-                color = Color.Blue, letterSpacing = 1.sp, textAlign = TextAlign.Left))
+            style = Typography.bodyMedium.copy(fontSize = 14.sp, //                fontWeight = FontWeight.Bold,
+                 letterSpacing = 1.sp, textAlign = TextAlign.Left))
 
         Row(modifier = Modifier.fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
+            .padding(start = 5.dp, top = 5.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically  // 垂直居中
         ) {
             if (isShowTime) Text(text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
                 //                            fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
-                color = Color.Black,
+                color = hintTextColor,
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
                 fontSize = FontStyle.contentLargeSize)
 
-            SvgIcon(path = "svg/verticalline.svg",
+            SvgIcon(path = "svg/more.svg",
                 tint = Color.Black,
                 contentDescription = "",
-                modifier = Modifier.size(20.dp).clickable {
+                modifier = Modifier.size(30.cdp).clickable {
                     moreClick()
                 })
         }

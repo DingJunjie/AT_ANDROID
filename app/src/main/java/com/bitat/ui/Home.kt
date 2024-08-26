@@ -102,15 +102,12 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
         when (state.selectedIndex) {
             0 -> {
 
-                BlogPage(
-                    navController,
-                    viewModelProvider = viewModelProvider
-                ) //                AtNavigation(navController).navigateToBlog()
+                BlogPage(navController,
+                    viewModelProvider = viewModelProvider) //                AtNavigation(navController).navigateToBlog()
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)
-            2 -> {
-                //                PublishTextPage(navController)
+            2 -> { //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
                 //                    viewModelProvider = viewModelProvider
@@ -128,63 +125,42 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
 @Composable
 fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> Unit) {
-    val tabList = listOf(
-        HomeTabCfg.Home,
+    val tabList = listOf(HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine
-    )
+        HomeTabCfg.Mine)
 
     val ctx = LocalDensity.current
 
-    BottomNavigation(
-        modifier = Modifier
-            .onGloballyPositioned { coordinates -> // 获取高度
-                val heightPx =
-                    coordinates.size.height
-                with(ctx) {
-                    vm.setBottom(heightPx.toDp())
-                }
+    BottomNavigation(modifier = Modifier.onGloballyPositioned { coordinates -> // 获取高度
+            val heightPx = coordinates.size.height
+            with(ctx) {
+                vm.setBottom(heightPx.toDp())
             }
-            .windowInsetsPadding(
-                WindowInsets.navigationBars // 处理状态栏和导航栏
-            ),
+        }.windowInsetsPadding(WindowInsets.navigationBars),
         //            .height(dimensionResource(R.dimen.home_tab_height)),
-        backgroundColor = Color.White
-    ) {
+        backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->
-            BottomNavigationItem(
-                modifier = Modifier.selectable(
-                    selected = selectIndex == index,
-                    onClick = { onTabChange(index) },
-                    enabled = true,
-                    role = Role.Tab,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ),
-                icon = {
-                    Icon(
-                        painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                            id = tab.iconUnselect
-                        ),
-                        contentDescription = "tabIcon",
-                        modifier = Modifier.size(
-                            when (index) {
-                                2 -> 100.cdp
-                                1 -> 40.cdp
-                                else -> 40.cdp
-                            }
-                        ),
-                        tint = Color.Unspecified
-                    )
-                },
-                selected = selectIndex == index,
-                onClick = { onTabChange(index) })
+            BottomNavigationItem(modifier = Modifier.selectable(selected = selectIndex == index,
+                onClick = { onTabChange(index) },
+                enabled = true,
+                role = Role.Tab,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null), icon = {
+                Icon(painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                    id = tab.iconUnselect),
+                    contentDescription = "tabIcon",
+                    modifier = Modifier.size(when (index) {
+                        2 -> 100.cdp
+                        1 -> 40.cdp
+                        else -> 40.cdp
+                    }),
+                    tint = Color.Unspecified)
+            }, selected = selectIndex == index, onClick = { onTabChange(index) })
         }
+
     }
-
-
 }
 
 

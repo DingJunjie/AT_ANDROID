@@ -5,6 +5,7 @@ import com.bitat.MainCo
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.req.BlogOpsAddCollectDto
 import com.bitat.repository.dto.req.BlogOpsRemoveCollectDto
 import com.bitat.repository.dto.req.CollectNextListDto
@@ -56,21 +57,30 @@ class CollectViewModel : ViewModel() {
     }
 
     fun getDefaultCollection(isReload: Boolean = false, lastId: Long = 0) {
+        if (_collectState.value.isReq) return
         MainCo.launch {
-            UserExtraReq.findCollectOpus(
-                FindCollectOpusDto(
-                    pageSize = 20,
-                    lastTime = lastId
-                )
-            ).await().map { res ->
-                _collectState.update {
-                    it.currentCollectionItems.clear()
-                    it.currentCollectionItems.addAll(res)
-                    it
+            reqState(true)
+            footShow(true)
+            UserExtraReq.findCollectOpus(FindCollectOpusDto(pageSize = 20, lastTime = lastId))
+                .await().map { res ->
+                    _collectState.update {
+                        if (lastId == 0L) it.currentCollectionItems.clear()
+                        it.currentCollectionItems.addAll(res)
+                        it
+                    }
+
+                    if (res.isEmpty()) {
+                        httpState(HttpLoadState.NoData)
+                    } else {
+                        footShow(false)
+                    }
+                    reqState(false)
+                }.errMap {
+                    _collectState
+                    println("there is an error ${it.msg}")
+                    httpState(HttpLoadState.Fail)
+                    reqState(false)
                 }
-            }.errMap {
-                println("there is an error ${it.msg}")
-            }
         }
     }
 
@@ -90,12 +100,8 @@ class CollectViewModel : ViewModel() {
     fun collectBlog(collectionKey: Int, completeFn: () -> Unit = {}) {
         MainCo.launch {
             if (collectState.value.currentBlog != null) {
-                BlogOpsReq.addCollect(
-                    BlogOpsAddCollectDto(
-                        blogId = collectState.value.currentBlog!!.id,
-                        key = collectionKey
-                    )
-                ).await().map {
+                BlogOpsReq.addCollect(BlogOpsAddCollectDto(blogId = collectState.value.currentBlog!!.id,
+                    key = collectionKey)).await().map {
                     completeFn()
                 }
             }
@@ -120,6 +126,24 @@ class CollectViewModel : ViewModel() {
                 CuLog.error(CuTag.Blog, "collect ${it.msg}")
             }
 
+        }
+    }
+
+    fun httpState(state: HttpLoadState) {
+        _collectState.update {
+            it.copy(httpState = state)
+        }
+    }
+
+    fun reqState(state: Boolean) {
+        _collectState.update {
+            it.copy(isReq = state)
+        }
+    }
+
+    fun footShow(state: Boolean) {
+        _collectState.update {
+            it.copy(footShow = state)
         }
     }
 }

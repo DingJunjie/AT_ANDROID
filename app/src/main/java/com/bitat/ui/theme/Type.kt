@@ -23,7 +23,7 @@ val Typography = Typography(
         fontSize = 26.csp,
         lineHeight = 30.sp,
         letterSpacing = 0.5.sp,
-        color = text
+        color = textColor
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,

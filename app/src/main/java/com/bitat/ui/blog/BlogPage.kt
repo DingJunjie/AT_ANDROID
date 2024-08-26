@@ -46,6 +46,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.ext.Density
+import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
@@ -249,7 +250,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             state = listState,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(bottom = homeState.bottomHeight)
+                                .padding(bottom = homeState.bottomHeight, start = 30.cdp, end = 30.cdp)
                         ) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
                                 Surface(modifier = Modifier.fillMaxWidth()) {

@@ -95,8 +95,8 @@ fun BlogItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(88.cdp)
-                .padding(start = 5.dp),
+                .height(88.cdp),
+//                .padding(start = 5.dp),
             horizontalArrangement = Arrangement.Start
         ) {
             Avatar(blog.profile, size = 35) {
@@ -104,7 +104,9 @@ fun BlogItem(
                 navHostController.navigate(NavigationItem.Others.route)
             }
 
-            Surface(modifier = Modifier.padding(start = 14.dp)) {
+            Surface(modifier = Modifier
+//                .padding(start = 14.dp)
+            ) {
                 UserInfo(blog.nickname) {
                     isMoreVisible.value = true
                     moreClick()
@@ -125,22 +127,18 @@ fun BlogItem(
         ) {
             Column(
                 modifier = Modifier
-                    .width(ScreenUtils.screenWidth.times(0.12).dp)
+                    .width(ScreenUtils.screenWidth.times(0.05).dp)
+//                    .background(Color.Blue)
                     .fillMaxHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally //                    .background(red1)
-            ) { //                Box(
-                //                    modifier = Modifier
-                //                        .height(lineHeight.intValue.dp)
-                //                        .width(2.dp)
-                //                        .background(Color.Red)
-                //                )
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
                 Line(lineHeight.intValue)
                 LottieBox(
                     lottieRes = R.raw.follow_ani,
                     isRepeat = true,
                     modifier = Modifier.size(40.cdp)
                 )
-
             }
 
             Column(
@@ -148,11 +146,10 @@ fun BlogItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent)
-                    .padding(start = ScreenUtils.screenWidth.times(0.11).dp)
             ) {
                 if (blog.content.isNotEmpty()) {
                     Surface(modifier = Modifier
-                        .padding(bottom = 10.dp)
+                        .padding(start = ScreenUtils.screenWidth.times(0.05).dp, bottom = 30.cdp)
                         .clickable(indication = null,interactionSource = remember { MutableInteractionSource() }) { contentClick(blog) }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
@@ -162,7 +159,7 @@ fun BlogItem(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(end = 10.dp)
+//                        .padding(start = 20.cdp)
                         .background(Color.Transparent)
                 ) {
                     BlogContent(
@@ -177,7 +174,7 @@ fun BlogItem(
                     )
                 }
 
-                Surface(modifier = Modifier.padding()) {
+                Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp, top = 25.cdp)) {
                     BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
                 if (state.flag < 0) {
@@ -211,9 +208,10 @@ fun BlogItem(
 fun Line(lineHeight: Int) {
     Row(
         modifier = Modifier
-            .width(50.dp)
+            .width(10.dp)
             .height(lineHeight.dp)
-            .padding(5.dp),
+//            .padding(5.dp)
+        ,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {

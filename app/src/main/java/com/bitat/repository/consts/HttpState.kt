@@ -10,3 +10,7 @@ package com.bitat.repository.consts
 const val HTTP_DEFAULT = 0
 const val HTTP_SUCCESS = 1
 const val HTTP_FAIL = 2
+
+enum class HttpLoadState {
+    Success, Fail, NoData, TimeOut,Default
+}
