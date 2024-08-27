@@ -36,6 +36,12 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun updateTabIndex(index: Int) {
+        uiState.update {
+            it.copy(currentTabIndex = index)
+        }
+    }
+
     fun switchTabbar(isTop: Boolean) {
         uiState.update {
             it.copy(isTabbarTop = isTop)
@@ -50,9 +56,13 @@ class ProfileViewModel : ViewModel() {
 
     fun getMyWorks(lastTime: Long = 0, pageSize: Int = 20) {
         MainCo.launch {
-            UserReq.photoBlogList(PhotoBlogListDto(userId = UserStore.userInfo.id,
-                pageSize = pageSize,
-                lastTime = lastTime)).await().map { res ->
+            UserReq.photoBlogList(
+                PhotoBlogListDto(
+                    userId = UserStore.userInfo.id,
+                    pageSize = pageSize,
+                    lastTime = lastTime
+                )
+            ).await().map { res ->
                 CuLog.info(CuTag.Profile, "get my works, size is ${res.size}")
                 uiState.update {
                     if (lastTime == 0L) {
@@ -114,7 +124,7 @@ class ProfileViewModel : ViewModel() {
                     it
                 }
                 if (res.isEmpty()) {
-                   httpState(HttpLoadState.NoData)
+                    httpState(HttpLoadState.NoData)
                 } else {
                     isFootShow(false)
                     httpState(HttpLoadState.Default)

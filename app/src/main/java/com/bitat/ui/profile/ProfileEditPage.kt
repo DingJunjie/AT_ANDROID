@@ -98,7 +98,8 @@ fun ProfileEditPage(
                     start = ScreenUtils.screenWidth.times(0.05).dp,
                     top = ScreenUtils.screenHeight.times(0.2).dp
                 )
-                .background(Color.White), contentAlignment = Alignment.Center
+                .background(Color.White),
+            contentAlignment = Alignment.TopCenter
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -106,15 +107,15 @@ fun ProfileEditPage(
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
-                Box(modifier = Modifier.offset(y = (-40).dp)) {
-                    Avatar(
-                        url = UserStore.userInfo.profile, size = 80.dp
-                    ) {
-                        isShowAvatarOpt.value = true
-                    }
-                }
+//                Box(modifier = Modifier.offset(y = (-60).dp)) {
+//                    AvatarWithShadow(
+//                        url = UserStore.userInfo.profile, size = 100
+//                    ) {
+//                        isShowAvatarOpt.value = true
+//                    }
+//                }
 
-                Text("修改形象")
+                Text("修改形象", modifier = Modifier.padding(top = 60.dp))
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -188,7 +189,9 @@ fun ProfileEditPage(
                         BasicTextField(
                             value = addressTextValue.value, onValueChange = {
                                 addressTextValue.value = it
-                            }, modifier = Modifier.weight(1f)
+                            }, keyboardActions = KeyboardActions(onDone = {
+                                UserStore.updateAddress(addressTextValue.value)
+                            }), modifier = Modifier.weight(1f)
                         )
                     }
 
@@ -202,6 +205,14 @@ fun ProfileEditPage(
                             value = "我的名字", onValueChange = {}, modifier = Modifier.weight(1f)
                         )
                     }
+                }
+            }
+
+            Box(modifier = Modifier.offset(y = (-50).dp)) {
+                AvatarWithShadow(
+                    url = UserStore.userInfo.profile, size = 80
+                ) {
+                    isShowAvatarOpt.value = true
                 }
             }
         }

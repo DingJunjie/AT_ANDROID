@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import com.bitat.repository.dto.req.GetUserInfoDto
+import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.http.service.UserReq
@@ -28,7 +29,7 @@ fun Splash(navHostController: NavHostController) {
                 navHostController.navigate(NavigationItem.Login.route)
             } else {
                 UserStore.initUserInfo(user)
-                UserReq.getUserInfo(GetUserInfoDto(userId = user.id)).await().map {
+                UserReq.userInfo(UserInfoDto(userId = user.id)).await().map {
                     UserStore.updateByUserInfo(it)
                     navHostController.navigate(NavigationItem.Home.route)
                 }.errMap {
