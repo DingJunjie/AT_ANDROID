@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -32,13 +33,13 @@ fun MediaGrid(mediaList: List<BlogPartDto>) {
         mediaList.forEach {
             Box(modifier = Modifier.width(width.dp).height(height.dp).padding(1.dp)) {
                 if (it.cover.isNotEmpty()) {
-                    AsyncImage(model = it.cover.ifEmpty {
+                    AsyncImage(modifier = Modifier.fillMaxSize(), model = it.cover.ifEmpty {
                         if (it.resource.images.isNotEmpty()) {
                             it.resource.images.first()
                         }
                     }, contentDescription = "", contentScale = ContentScale.Crop)
                 } else {
-                    AsyncImage(model = "https://file.bitebei.com/i_u_126&t_1720077862743&x_1280&y_1920?imageView2/2/w/900/&e=1724682138&token=Cb1TU1t1vOR7LDfWtMkBlAMbb7AjXe4HYXALbHO4:ZwcbYIEynxB1MBSk7XBbNdnvnfQ=",
+                    AsyncImage(modifier = Modifier.fillMaxSize(),model = "https://file.bitebei.com/i_u_126&t_1720077862743&x_1280&y_1920?imageView2/2/w/900/&e=1724682138&token=Cb1TU1t1vOR7LDfWtMkBlAMbb7AjXe4HYXALbHO4:ZwcbYIEynxB1MBSk7XBbNdnvnfQ=",
                         contentDescription = "",
                         contentScale = ContentScale.Crop)
                 }

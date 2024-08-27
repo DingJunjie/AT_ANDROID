@@ -3,6 +3,8 @@ package com.bitat.state
 import android.app.appsearch.SearchResults
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 
 enum class SearchType {
@@ -29,4 +31,5 @@ data class SearchState(
     val searchBlogResult: SnapshotStateList<SearchResults> = mutableStateListOf(),
     val searchType: SearchType = SearchType.BLOG,
     val searchUserResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
+    val rankingList: SnapshotStateList<BlogPartDto> = mutableStateListOf()
 )

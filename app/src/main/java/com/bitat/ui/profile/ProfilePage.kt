@@ -225,11 +225,12 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
+                    .verticalScroll(state = scrollState)
             ) {
                 Box(
                     modifier = Modifier
 //                    .imePadding()
-                        .verticalScroll(state = scrollState)
+
                         .background(Color.White)
 //                    .padding(bottom = 40.dp)
 //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
