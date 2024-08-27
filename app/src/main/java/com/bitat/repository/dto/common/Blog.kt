@@ -9,7 +9,7 @@ class TagsDto {
 }
 
 @Serializable
-class UserAlbumDto(
-    var albumId: Int,
+class TopBlogsDto(
+    var blogId: Long,
     var cover: String
 )

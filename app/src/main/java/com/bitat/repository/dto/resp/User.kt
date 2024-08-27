@@ -1,6 +1,6 @@
 package  com.bitat.repository.dto.resp
 
-import com.bitat.repository.dto.common.UserAlbumDto
+import com.bitat.repository.dto.common.TopBlogsDto
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,7 +27,7 @@ class UserDto {
     var collects: Int = 0 //收藏数
     var agrees: Int = 0 //获赞数
     var ats: Int = 0 //被at数
-    var albums: Array<UserAlbumDto> = emptyArray() //专辑置顶
+    var topBlogs: Array<TopBlogsDto> = emptyArray() //专辑置顶
     var inviterId: Long = 0  //邀请者id
     var birthday: Long = 0 //生日
     var loginTime: Long = 0 //上次登录时间
@@ -91,7 +91,7 @@ class UserPartDto {
     var follows: Int = 0
     var blogs: Int = 0
     var photos: Int = 0
-    var albums: Array<UserAlbumDto> = emptyArray()
+    var topBlogs: Array<TopBlogsDto> = emptyArray() //专辑置顶
     var collects: Int = 0
     var agrees: Int = 0
     var birthday: Long = 0
