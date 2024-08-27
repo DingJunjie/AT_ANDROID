@@ -2,8 +2,13 @@ package com.bitat.utils
 
 import android.net.Uri
 import com.bitat.Local
+import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.UPLOAD_OPS_BLOG
+import com.bitat.repository.consts.UPLOAD_OPS_PUB
+import com.bitat.repository.dto.req.UploadTokenDto
+import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.store.UserStore
 import com.qiniu.android.common.AutoZone
 import com.qiniu.android.storage.Configuration
@@ -14,10 +19,23 @@ import com.qiniu.android.storage.UploadManager
 import com.qiniu.android.storage.UploadOptions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Collections.emptyMap
 import java.util.concurrent.atomic.AtomicBoolean
 
+enum class UPLOAD_OPS {
+    Blog, Pub;
+
+    companion object {
+        fun toCode(ops: UPLOAD_OPS): Byte {
+            return when (ops) {
+                Blog -> UPLOAD_OPS_BLOG
+                Pub -> UPLOAD_OPS_PUB
+            }
+        }
+    }
+}
 
 enum class FileType(val str: String) {
     Image("image"), Video("video"), Text("text"), Audio("audio")
@@ -75,6 +93,48 @@ object QiNiuUtil {
             FileType.Video -> "v_$body&x_${x}&y_${y}d_${d}"
             FileType.Audio -> "a_$body&d_${d}"
             FileType.Text -> "t_$body"
+        }
+    }
+
+    fun uploadSingleFile(
+        uri: Uri,
+        ops: UPLOAD_OPS,
+        fileType: FileType,
+        completeFn: (String) -> Unit
+    ) {
+        MainCo.launch {
+            LoginReq.uploadToken(UploadTokenDto(UPLOAD_OPS.toCode(ops))).await().map { token ->
+                var key = ""
+                if (fileType == FileType.Image) {
+                    val size = ImageUtils.getParams(uri)
+                    key = genKey(
+                        type = FileType.Image,
+                        ownerId = UserStore.userInfo.id,
+                        number = 1,
+                        x = size.width,
+                        y = size.height,
+                    )
+                } else if (fileType == FileType.Video) {
+                    val params = VideoUtils.getParams(uri)
+                    key = genKey(
+                        type = FileType.Image,
+                        ownerId = UserStore.userInfo.id,
+                        number = 1,
+                        x = params.width,
+                        y = params.height,
+                        d = params.duration
+                    )
+                }
+
+                uploadFile(
+                    uri,
+                    token = token,
+                    fileType = FileType.Image,
+                    upKey = key,
+                ).await()
+
+                completeFn(key)
+            }
         }
     }
 

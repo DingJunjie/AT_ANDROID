@@ -25,7 +25,7 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
 
 @Composable
-fun BlogVideo(
+fun BlogVideo(modifier: Modifier=Modifier,
     dto: BlogBaseDto,
     height: Int,
     isPlaying: Boolean = false,
@@ -38,7 +38,7 @@ fun BlogVideo(
     val detailsVm = viewModelProvider[ReelViewModel::class]
 
     Surface(shape = RoundedCornerShape(if (needRoundedCorner) 20.cdp else 0.cdp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(height.dp)
             .clickable {

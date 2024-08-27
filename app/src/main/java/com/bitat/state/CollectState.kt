@@ -2,6 +2,7 @@ package com.bitat.state
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.resp.CollectPartDto
@@ -24,4 +25,7 @@ data class CollectState(
     val currentCollection: CollectPartDto? = null,
     val currentBlog: BlogBaseDto? = null,
     val currentTab: CollectionTabs = CollectionTabs.Works,
+    val httpState: HttpLoadState = HttpLoadState.Default,
+    val isReq: Boolean=false, //是否正在请求
+    val footShow:Boolean=false
 )

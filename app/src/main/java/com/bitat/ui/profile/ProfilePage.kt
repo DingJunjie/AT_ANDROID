@@ -1,16 +1,20 @@
 package com.bitat.ui.profile
 
-import com.bitat.repository.store.UserStore
 import android.content.Context
+import android.view.WindowInsets
 import android.graphics.drawable.Icon
+import android.net.Uri
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,55 +22,42 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -81,39 +72,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
-import com.bitat.ext.clickableWithoutRipple
-import com.bitat.ext.toAmountUnit
-import com.bitat.ext.toPx
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
-import com.bitat.ui.common.rememberDialogState
 import com.bitat.state.PROFILE_TAB_OPTIONS
-import com.bitat.utils.ScreenUtils
+import com.bitat.ui.common.SvgIcon
+import com.bitat.ui.common.rememberAsyncPainter
+import com.bitat.ui.common.rememberDialogState
+import com.bitat.ui.common.ImagePicker
+import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.ui.common.LottieBox
+import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.Typography
+import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -170,8 +162,14 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     }
 
     // tab bar 的state
-    val pagerState: PagerState = rememberPagerState {
+    val pagerState: PagerState = rememberPagerState(initialPage = state.currentTabIndex) {
         PROFILE_TAB_OPTIONS.size
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage != state.currentTabIndex) {
+            vm.updateTabIndex(pagerState.currentPage)
+        }
     }
 
     // 整体 scroll 的state
@@ -182,15 +180,16 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
+
     // top tab bar 开始出现位置
     var positionTopBar by remember {
-        mutableStateOf(Offset.Zero)
+        mutableStateOf(0)
     }
 
     // scroll 的触发
-    if (scrollState.value > positionTopBar.y && !state.isTabbarTop) {
+    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
         vm.switchTabbar(true)
-    } else if (scrollState.value < positionTopBar.y && state.isTabbarTop) {
+    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
         vm.switchTabbar(false)
     }
 
@@ -202,31 +201,67 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         offsetY += delta
     }
 
-    ModalNavigationDrawer(drawerState = drawerState,
-//        modifier = Modifier.width(100.dp),
-        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
-            DrawerContainer(scope, drawerState)
-        }, content = {
+    // 监听滚动状态
+    LaunchedEffect(scrollState.value) {
+        val maxScroll = scrollState.maxValue
+        vm.atBottom(scrollState.value == maxScroll)
+    }
 
+
+    val showBGPopup = remember {
+        mutableStateOf(false)
+    }
+
+    val showDrawer = remember {
+        mutableStateOf(false)
+    }
+
+    val drawerOffset =
+        animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
+
+//    ModalNavigationDrawer(drawerState = drawerState,
+////        modifier = Modifier.width(100.dp),
+//        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
+//            DrawerContainer(scope, drawerState)
+//        }, content = {
+    Scaffold { padding ->
+        Box(
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
+//                .horizontalScroll(drawerScrollState)
+        ) {
             Box(
                 modifier = Modifier
-//                    .imePadding()
+                    .fillMaxWidth()
                     .verticalScroll(state = scrollState)
-                    .background(Color.White)
+                    .padding(
+                        bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
+                            LocalDensity.current
+                        ).dp
+                    )
+                    .padding(bottom = padding.calculateBottomPadding())
+                    .fillMaxHeight()
+            ) {
+                Box(
+                    modifier = Modifier
+//                    .imePadding()
+                        .background(Color.White)
 //                    .padding(bottom = 40.dp)
 //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
 //                    .windowInsetsPadding( WindowInsets.navigationBars)
 //                    .height((ScreenUtils.screenHeight * 2).dp)
-            ) {
-                Box(
-                    modifier = Modifier.draggable(
-                        orientation = Orientation.Vertical, state = draggableState
-                    )
                 ) {
-                    ProfileBg(menu = {
+//                    Box(
+//                        modifier = Modifier.draggable(
+//                            orientation = Orientation.Vertical, state = draggableState
+//                        )
+//                    ) {
+                    ProfileBg(tapBG = {
+                        showBGPopup.value = true
+                    }, menu = {
                         Menu(menuFun = {
                             scope.launch {
-                                drawerState.open()
+//                                    drawerState.open()
+                                showDrawer.value = true
                             }
                         })
                     })
@@ -274,8 +309,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                         ) {
                             Column( // 获取tab bar的全局位置
                                 modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                                    if (positionTopBar.y.toInt() == 0) positionTopBar =
-                                        coordinate.positionInRoot()
+                                    if (positionTopBar == 0) positionTopBar =
+                                        coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
                                 }) {
                                 if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
                                     ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
@@ -312,48 +347,91 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                                 }
                             }
                         }
+//                        }
                     }
 
+                } //                Box(
+                //                    modifier = Modifier
+                //                        .padding(start = 20.dp)
+                //                        .padding(top = 180.dp)
+                //                ) {
+                //                    AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                //                }
+                //                Spacer(modifier = Modifier.windowInsetsBottomHeight(
+                //                    WindowInsets.navigationBars
+                //                ).align(alignment = Alignment.BottomEnd))
+
+            }
+
+            if (state.isTabbarTop) Column {
+                Box(
+                    modifier = Modifier
+                        .height(padding.calculateTopPadding())
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {}
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
                 }
-//                Box(
-//                    modifier = Modifier
-//                        .padding(start = 20.dp)
-//                        .padding(top = 180.dp)
-//                ) {
-//                    AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
-//                }
-//                Spacer(modifier = Modifier.windowInsetsBottomHeight(
-//                    WindowInsets.navigationBars
-//                ).align(alignment = Alignment.BottomEnd))
-
             }
 
-            if (state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
-            }
+//            Box(modifier = Modifier
+//                .fillMaxWidth()
+//                .background(Color(0x45333333))
+//                .clickable(
+//                    indication = null,
+//                    interactionSource = remember { MutableInteractionSource() }) {
+//                    scope.launch {
+//                        drawerState.close()
+//                    }
+//                }) { //            Box(
+//                //                modifier = Modifier
+//                //                    .fillMaxWidth(0.7f)
+//                //                    .align(Alignment.TopEnd)
+//                //            ) {
+//                //                ProfileDrawer(viewModel, drawerState, scope)
+//                //            }
+//            }
+        }
+    }
 
-            Box(modifier = Modifier
+
+
+    if (showDrawer.value) Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        Box(
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0x45333333))
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }) {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }) { //            Box(
-                //                modifier = Modifier
-                //                    .fillMaxWidth(0.7f)
-                //                    .align(Alignment.TopEnd)
-                //            ) {
-                //                ProfileDrawer(viewModel, drawerState, scope)
-                //            }
-            }
+                .fillMaxHeight()
+                .clickable {
+                    showDrawer.value = false
+                }
+                .background(Color(0x33333333))
+        ) {}
+        Box(
+//            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .fillMaxHeight()
+                .offset(
+                    x = drawerOffset.value.dp
+                )
+                .clickable { }
+                .background(Color.White),
+        ) {
+            Text("Main Content")
+        }
+    }
 
-
-        })
-
-
+    BackgroundPopup(visible = showBGPopup.value, { showBGPopup.value = false }, {
+        UserStore.updateCover(it)
+    })
 }
 
 
@@ -362,34 +440,38 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 fun DrawerContainer(scope: CoroutineScope, drawerState: DrawerState) {
     Scaffold(modifier = Modifier
         .width((ScreenUtils.screenWidth * 0.7).dp)
-        .padding(start = 0.dp), topBar = {
-        TopAppBar(title = { Text("Drawer Example") }, navigationIcon = {
-            IconButton(onClick = {
-                scope.launch {
-                    if (drawerState.isClosed) {
-                        drawerState.open()
-                    } else {
-                        drawerState.close()
+        .padding(start = 0.dp),
+        topBar = {
+            TopAppBar(title = { Text("Drawer Example") }, navigationIcon = {
+                IconButton(onClick = {
+                    scope.launch {
+                        if (drawerState.isClosed) {
+                            drawerState.open()
+                        } else {
+                            drawerState.close()
+                        }
                     }
+                }) {
+                    Icon(Icons.Filled.Menu, contentDescription = null)
                 }
-            }) {
-                Icon(Icons.Filled.Menu, contentDescription = null)
+            })
+        },
+        content = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Main Content")
             }
         })
-    }, content = {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it), contentAlignment = Alignment.Center
-        ) {
-            Text("Main Content")
-        }
-    })
 }
 
 @Composable
 fun ReadDataFromDatabase(
-    context: Context, viewModel: ProfileViewModel
+    context: Context,
+    viewModel: ProfileViewModel
 ) { //    val data = viewModel.uiState.collectAsState()
     val data by remember {
         mutableStateOf(viewModel.uiState.value)
@@ -405,15 +487,42 @@ fun ReadDataFromDatabase(
 }
 
 @Composable
-fun ProfileBg(menu: @Composable (() -> Unit)) {
+fun BackgroundPopup(
+    visible: Boolean,
+    onClose: () -> Unit, changeFn: (uri: Uri) -> Unit
+) {
+    Popup(visible = visible, onClose = { onClose() }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {
+                changeFn(it.first())
+            }) {
+                Text(text = "更换背景")
+            }
+        }
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .clickable { onClose() }) {
+            Text(text = "取消")
+        }
+    }
+}
+
+@Composable
+fun ProfileBg(tapBG: () -> Unit = {}, menu: @Composable (() -> Unit)) {
     Box(
         modifier = Modifier
             .paint(
-                painter = rememberAsyncPainter(url = "https://img.keaitupian.cn/uploads/2020/12/08/38d0befdc3c89348d6eeaed90c9b7660.jpg"),
+                painter = rememberAsyncPainter(url = UserStore.userInfo.cover),
                 contentScale = ContentScale.Crop
             )
             .fillMaxWidth()
             .height(200.dp)
+            .clickable { tapBG() }
             .padding(top = 30.dp),
         contentAlignment = Alignment.TopEnd
     ) {
@@ -431,8 +540,7 @@ fun ProfileBg(menu: @Composable (() -> Unit)) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: CoroutineScope) {
-    ModalNavigationDrawer(
-        drawerState = drawerState,
+    ModalNavigationDrawer(drawerState = drawerState,
         drawerContent = { /*TODO*/ //            Column {
             //                Text("hello")
             //                Text("world")
@@ -461,7 +569,8 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it), contentAlignment = Alignment.Center
+                    .padding(it),
+                contentAlignment = Alignment.Center
             ) {
                 Text("Main Content")
             }
@@ -498,18 +607,15 @@ fun ProfileDetail(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                AvatarWithShadow(url = UserStore.userInfo.profile)
 
                 Column(
-                    modifier = Modifier
-                        .padding(top = 15.dp),
+                    modifier = Modifier.padding(top = 15.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
                         TagLabel("28")
-                        TagLabel(
-                            "贵阳"
-                        )
+                        TagLabel("贵阳")
                     }
                     Row(
                         modifier = Modifier
@@ -528,21 +634,22 @@ fun ProfileDetail(
                         }, tapFans = {
                             viewModel.getMyFans()
                             navHostController.navigate(NavigationItem.Fans.route)
-                        })
-//                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
+                        }) //                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
                     }
                 }
 
-            }
-//            Box(modifier = Modifier.padding(start = 30.dp)) {
-//                UserInfo(nickname, atAccount, introduction)
-//            }
-            Text(
-                introduction,
+            } //            Box(modifier = Modifier.padding(start = 30.dp)) {
+            //                UserInfo(nickname, atAccount, introduction)
+            //            }
+            Text(introduction,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+                modifier = Modifier
+                    .padding(start = 15.dp, top = 15.dp)
+                    .clickable {
+                        navHostController.navigate(NavigationItem.ProfileEdit.route)
+                    }
             )
             GoCreate()
 //            AlbumList()
@@ -582,16 +689,14 @@ fun Creation() {
             modifier = Modifier
                 .size(140.dp)
                 .background(Color.Cyan)
-        ) {
-        }
+        ) {}
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TagLabel(content: String) {
-    Chip(
-        onClick = { /*TODO*/ },
+    Chip(onClick = { /*TODO*/ },
         modifier = Modifier
             .height(20.dp)
             .padding(horizontal = 3.dp),

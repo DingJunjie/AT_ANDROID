@@ -1,11 +1,11 @@
 package com.bitat.ui.component
 
-import android.util.Size
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,29 +30,21 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import com.bitat.R
-import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.blog.TotalIndexShow
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ImagePreviewViewModel
 
 @Composable
-fun BlogImages(
-    dto: BlogBaseDto,
-    maxHeight: Int,
-    needRoundedCorner: Boolean = true,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun BlogImages(dto: BlogBaseDto, maxHeight: Int, needRoundedCorner: Boolean = true, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[ImagePreviewViewModel::class]
     val context = LocalContext.current
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent),
+        modifier = Modifier.fillMaxWidth()
+            .fillMaxHeight(), //            .background(Color.Transparent)
         horizontalAlignment = Alignment.Start,
     ) {
         ImageBox(dto, needRoundedCorner, maxHeight, navHostController) { //            Toast
@@ -70,13 +62,7 @@ fun BlogImages(
  * 横向列表LazyRow
  */
 @Composable
-fun ImageBox(
-    blog: BlogBaseDto,
-    needRoundedCorner: Boolean = true,
-    maxHeight: Int,
-    navHostController: NavHostController,
-    onClic: (Int) -> Unit
-) {
+fun ImageBox(blog: BlogBaseDto, needRoundedCorner: Boolean = true, maxHeight: Int, navHostController: NavHostController, onClic: (Int) -> Unit) {
 
     val dataList = blog.resource.images
 
@@ -86,13 +72,12 @@ fun ImageBox(
     ) {
         itemsIndexed(dataList) { index, data ->
             Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .clickable {
-                        onClic(index)
-                    }
-                    .padding(3.dp)
-                    .background(Color.Transparent),
+                modifier = Modifier.fillMaxHeight().clickable {
+                    onClic(index)
+                } //                if (index==0)  else 3.dp
+                    .padding(if (index == 0) {
+                        PaddingValues(start = ScreenUtils.screenWidth.times(0.05).dp, end = 3.dp)
+                    } else PaddingValues(all = 3.dp)).background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
 
@@ -101,10 +86,8 @@ fun ImageBox(
 
                     Box {
                         AsyncImage(model = data,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
-                                .width(wrapperWidth.dp)
-                                .height(maxHeight.dp)
+                            modifier = Modifier.clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
+                                .width(wrapperWidth.dp).height(maxHeight.dp)
                                 .background(Color.Transparent),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
@@ -113,33 +96,25 @@ fun ImageBox(
                                     val width = state.painter.intrinsicSize.width
                                     val height =
                                         state.painter.intrinsicSize.height //                                    imageSize = Size(width.toInt(), height.toInt())
-                                    CuLog.debug(
-                                        CuTag.Blog,
-                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}"
-                                    )
+                                    CuLog.debug(CuTag.Blog,
+                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}")
                                 }
                             })
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = (wrapperWidth - 30).dp, top = 5.dp),
-                            contentAlignment = Alignment.TopEnd
-                        ) {
+                        Box(modifier = Modifier.fillMaxWidth()
+                            .padding( top = 10.dp, end = 10.dp).align(Alignment.TopEnd)) {
                             if (dataList.size > 1) {
-                                TotalIndexShow((index + 1).toString(), dataList.size.toString())
+                                TotalIndexShow(modifier = Modifier.align(
+                                    Alignment.TopEnd),(index + 1).toString(), dataList.size.toString())
                             }
 
                         }
                     }
                 } else {
-                    Image(
-                        painterResource(R.drawable.logo),
+                    Image(painterResource(R.drawable.logo),
                         contentDescription = "默认图片",
                         modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
-                            .clip(CircleShape)
-                            .size(50.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                            .clip(CircleShape).size(50.dp),
+                        contentScale = ContentScale.Crop)
                 }
             }
         }

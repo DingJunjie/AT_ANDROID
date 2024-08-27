@@ -1,7 +1,9 @@
 package com.bitat.ui
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
@@ -102,15 +104,12 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
         when (state.selectedIndex) {
             0 -> {
 
-                BlogPage(
-                    navController,
-                    viewModelProvider = viewModelProvider
-                ) //                AtNavigation(navController).navigateToBlog()
+                BlogPage(navController,
+                    viewModelProvider = viewModelProvider) //                AtNavigation(navController).navigateToBlog()
             }
 
             1 -> DiscoveryPage(navController, viewModelProvider)
-            2 -> {
-                //                PublishTextPage(navController)
+            2 -> { //                PublishTextPage(navController)
                 //                PublishPage(
                 //                    navHostController = navController,
                 //                    viewModelProvider = viewModelProvider
@@ -128,15 +127,14 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
 @Composable
 fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> Unit) {
-    val tabList = listOf(
-        HomeTabCfg.Home,
+    val tabList = listOf(HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine
-    )
+        HomeTabCfg.Mine)
 
     val ctx = LocalDensity.current
+
 
     BottomNavigation(
         modifier = Modifier
@@ -149,42 +147,30 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
             }
             .windowInsetsPadding(
                 WindowInsets.navigationBars // 处理状态栏和导航栏
-            ),
+            )
+        ,
         //            .height(dimensionResource(R.dimen.home_tab_height)),
-        backgroundColor = Color.White
-    ) {
+        backgroundColor = Color.White) {
         tabList.forEachIndexed { index, tab ->
-            BottomNavigationItem(
-                modifier = Modifier.selectable(
-                    selected = selectIndex == index,
-                    onClick = { onTabChange(index) },
-                    enabled = true,
-                    role = Role.Tab,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ),
-                icon = {
-                    Icon(
-                        painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                            id = tab.iconUnselect
-                        ),
-                        contentDescription = "tabIcon",
-                        modifier = Modifier.size(
-                            when (index) {
-                                2 -> 100.cdp
-                                1 -> 40.cdp
-                                else -> 40.cdp
-                            }
-                        ),
-                        tint = Color.Unspecified
-                    )
-                },
-                selected = selectIndex == index,
-                onClick = { onTabChange(index) })
+            BottomNavigationItem(modifier = Modifier.selectable(selected = selectIndex == index,
+                onClick = { onTabChange(index) },
+                enabled = true,
+                role = Role.Tab,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null), icon = {
+                Icon(painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                    id = tab.iconUnselect),
+                    contentDescription = "tabIcon",
+                    modifier = Modifier.size(when (index) {
+                        2 -> 100.cdp
+                        1 -> 40.cdp
+                        else -> 40.cdp
+                    }),
+                    tint = Color.Unspecified)
+            }, selected = selectIndex == index, onClick = { onTabChange(index) })
         }
+
     }
-
-
 }
 
 

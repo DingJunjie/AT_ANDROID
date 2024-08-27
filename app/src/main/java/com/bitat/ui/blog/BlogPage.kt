@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,12 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.ext.Density
+import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
@@ -104,8 +108,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     }
 
 
-
-
     var currentOperation by remember {
         mutableStateOf(BlogOperation.None)
     }
@@ -132,15 +134,16 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     val playingIndex = remember {
         mutableStateOf(0)
     }
-    val  listIndex = remember {
-        mutableStateOf(0)}
+    val listIndex = remember {
+        mutableStateOf(0)
+    }
 
     LaunchedEffect(state.currentMenu) {
         if (state.isFirst) {
             vm.initBlogList(state.currentMenu, isRefresh = true)
             vm.firstFetchFinish()
-        }else{
-            if (state.currentListIndex>0){
+        } else {
+            if (state.currentListIndex > 0) {
                 listState.scrollToItem(state.currentListIndex)
             }
         }
@@ -176,7 +179,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                 vm.topBarState(true)
             }
             previousIndex = listState.firstVisibleItemIndex
-           vm.listCurrent(listState.firstVisibleItemIndex)
+            vm.listCurrent(listState.firstVisibleItemIndex)
         }
     }
 
@@ -249,7 +252,12 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             state = listState,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(bottom = homeState.bottomHeight)
+//                                .padding(bottom = homeState.bottomHeight)
+                                .padding(
+                                    bottom = WindowInsets.navigationBars
+                                        .getBottom(LocalDensity.current)
+                                        .times(0.5).dp
+                                )
                         ) {
                             itemsIndexed(state.blogList) { index, item -> //Text(item.content)
                                 Surface(modifier = Modifier.fillMaxWidth()) {
@@ -365,7 +373,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         }
     }
 
-
     CollectTips(collectTipVisible, y = collectTipY, closeTip = {
         collectTipVisible = false
     }, openPopup = {
@@ -401,8 +408,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         },
         commentState = commentState,
         onClose = { isCommentVisible.value = false })
-
-
 }
 
 
@@ -431,7 +436,8 @@ fun BlogTopBar(
                 .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
                 .clickable(onClick = {
                     navController.navigate(NavigationItem.Search.route)
-                }, indication = null,interactionSource = remember { MutableInteractionSource() }) , horizontalArrangement = Arrangement.End
+                }, indication = null, interactionSource = remember { MutableInteractionSource() }),
+            horizontalArrangement = Arrangement.End
         ) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
