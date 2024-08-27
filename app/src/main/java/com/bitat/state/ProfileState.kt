@@ -18,10 +18,11 @@ data class ProfileUiState(
     val followsList: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val myPraise: SnapshotStateList<BlogPartDto> = mutableStateListOf(),
     val isAtBottom: Boolean = false,
-    val profileType:Int=0,
-    val httpState: HttpLoadState=HttpLoadState.Default,
-    val isReq: Boolean=false, //是否正在请求
-    val isFootShow: Boolean=false,
+    val profileType: Int = 0,
+    val httpState: HttpLoadState = HttpLoadState.Default,
+    val isReq: Boolean = false, //是否正在请求
+    val isFootShow: Boolean = false,
+    val currentTabIndex: Int = 0
 )
 
 val PROFILE_TAB_OPTIONS = listOf("作品", "相册", "收藏", "赞过")
@@ -43,7 +44,7 @@ enum class GENDER {
     }
 
     companion object {
-        fun toCode(g: GENDER): Int {
+        fun toCode(g: GENDER): Byte {
             return when (g) {
                 Male -> 1
                 Female -> 0

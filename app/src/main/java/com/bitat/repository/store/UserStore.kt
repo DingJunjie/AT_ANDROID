@@ -10,8 +10,10 @@ import com.bitat.repository.dto.req.UpdateNicknameDto
 import com.bitat.repository.dto.req.UpdateProfileDto
 import com.bitat.repository.dto.req.UpdateUserInfoDto
 import com.bitat.repository.dto.req.UploadTokenDto
+import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserDto
+import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.http.service.UserReq
 import com.bitat.state.GENDER
@@ -32,7 +34,7 @@ object UserStore {
 
     fun refreshUser() {
         MainCo.launch {
-            UserReq.getUserInfo(GetUserInfoDto(userId = userInfo.id)).await().map {
+            UserReq.userInfo(UserInfoDto(userId = userInfo.id)).await().map {
                 updateByUserInfo(it)
             }
         }
@@ -45,13 +47,14 @@ object UserStore {
         }
     }
 
-    fun updateByUserInfo(user: UserBase1Dto) {
+    fun updateByUserInfo(user: UserPartDto) {
         userInfo.fans = user.fans
         userInfo.address = user.address
-        userInfo.agrees = user.agrees.toInt()
-        userInfo.blogs = user.blogs.toInt()
+        userInfo.agrees = user.agrees
+        userInfo.blogs = user.blogs
         userInfo.follows = user.follows
         userInfo.profile = user.profile
+        userInfo.cover = user.cover
         MainCo.launch {
             userFlow.emit(userInfo)
         }
@@ -73,12 +76,21 @@ object UserStore {
         }
     }
 
-    fun updateGender(gender: GENDER) {
-        userInfo.gender = GENDER.toCode(gender)
+    fun updateAddress(address: String) {
         MainCo.launch {
-//            UserReq.updateInfo(UpdateUserInfoDto(gender = GENDER.toCode(gender))).await().map {
-//            }
-            userFlow.emit(userInfo)
+            UserReq.updateInfo(UpdateUserInfoDto(address = address)).await().map {
+                userInfo.address = address
+                userFlow.emit(userInfo)
+            }
+        }
+    }
+
+    fun updateGender(gender: GENDER) {
+        MainCo.launch {
+            UserReq.updateInfo(UpdateUserInfoDto(gender = GENDER.toCode(gender))).await().map {
+                userInfo.gender = GENDER.toCode(gender).toInt()
+                userFlow.emit(userInfo)
+            }
         }
     }
 
@@ -92,7 +104,10 @@ object UserStore {
     fun updateBirthday(birthday: Long) {
         userInfo.birthday = birthday
         MainCo.launch {
-            userFlow.emit(userInfo)
+            UserReq.updateInfo(UpdateUserInfoDto(birthday = birthday)).await().map {
+                userInfo.birthday = birthday
+                userFlow.emit(userInfo)
+            }
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -77,6 +78,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -160,8 +162,14 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     }
 
     // tab bar 的state
-    val pagerState: PagerState = rememberPagerState {
+    val pagerState: PagerState = rememberPagerState(initialPage = state.currentTabIndex) {
         PROFILE_TAB_OPTIONS.size
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage != state.currentTabIndex) {
+            vm.updateTabIndex(pagerState.currentPage)
+        }
     }
 
     // 整体 scroll 的state
@@ -218,19 +226,24 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 //        }, content = {
     Scaffold { padding ->
         Box(
-//            modifier = Modifier
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
 //                .horizontalScroll(drawerScrollState)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
                     .verticalScroll(state = scrollState)
+                    .padding(
+                        bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
+                            LocalDensity.current
+                        ).dp
+                    )
+                    .padding(bottom = padding.calculateBottomPadding())
+                    .fillMaxHeight()
             ) {
                 Box(
                     modifier = Modifier
 //                    .imePadding()
-
                         .background(Color.White)
 //                    .padding(bottom = 40.dp)
 //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
