@@ -37,3 +37,12 @@ class BlogOpsRemoveCollectDto(
 class BlogOpsNotInterestedDto(
     var labelIds: IntArray //博文label数组
 )
+@Serializable
+class TopBlogDto(
+    var BlogId: Long,
+    var Cover : String
+)
+
+class DelTopBlogDto(
+    var BlogId: Long
+)

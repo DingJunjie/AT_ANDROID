@@ -218,4 +218,10 @@ class BlogViewModel : ViewModel() {
             it.copy(currentListIndex = index)
         }
     }
+
+    fun listOffSet(offset: Int) {
+        blogState.update {
+            it.copy(listOffset = offset)
+        }
+    }
 }

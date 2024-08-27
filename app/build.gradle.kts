@@ -160,12 +160,11 @@ dependencies {
 
     implementation(libs.commons.io)
 
-    implementation("com.arthenica:ffmpeg-kit-full-gpl:4.5.LTS")
-
-    implementation (libs.androidx.emoji2)
-    implementation (libs.androidx.emoji2.bundled)
+    implementation(libs.androidx.emoji2)
+    implementation(libs.androidx.emoji2.bundled)
 
 
+    implementation("network.chaintech:compose-multiplatform-media-player:1.0.11")
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
 

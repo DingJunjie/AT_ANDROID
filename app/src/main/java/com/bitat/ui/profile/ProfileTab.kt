@@ -54,7 +54,7 @@ fun ProfileTabView(
     ) { index ->
 
         when (index) {
-            0 -> Box {}
+            0 -> TimeLinePage()
             1 -> ProfileWorks(navHostController, viewModelProvider)
             2 -> CollectionTab(navHostController, viewModelProvider = viewModelProvider)
             3 -> PraiseHistory(navHostController, viewModelProvider = viewModelProvider)

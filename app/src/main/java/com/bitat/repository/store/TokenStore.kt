@@ -69,6 +69,10 @@ object TokenStore {
         } else Json.decodeFromString(user)
     }
 
+    fun hasAuthority(authority: Int):Boolean{
+        return getAuths()?.any { !it.isExpired() && it.v0 == authority } ?:false
+    }
+
     // 获取授权信息，如果过期则从 Keychain 中读取
     private fun getAuths(): Array<AuthDto>? {
         if (tempExpired()) locker.readLock().withLock {

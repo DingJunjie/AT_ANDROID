@@ -34,4 +34,12 @@ object BlogOpsReq {
     //不感兴趣
     suspend inline fun notInterested(dto: BlogOpsNotInterestedDto) =
         Http.post<_, Unit>("${Http.HOST}/service/blogOps/notInterested", dto)
+
+    //新增博文置顶
+    suspend inline fun topBlog(dto: TopBlogDto) =
+        Http.post<_, Unit>("${Http.HOST}/service/blogOps/topBlog", dto)
+
+    //删除置顶
+    suspend inline fun delTopBlog(dto: DelTopBlogDto) =
+        Http.post<_, Unit>("${Http.HOST}/service/blogOps/delTopBlog", dto)
 }

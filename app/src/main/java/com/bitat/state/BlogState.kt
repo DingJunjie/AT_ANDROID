@@ -41,7 +41,8 @@ data class BlogState(
     val isFirst: Boolean = true,
     val isLoadMore: Boolean = false,
     val loadResp: BlogLoad = BlogLoad.Default,
-    val currentListIndex:Int=0
+    val currentListIndex:Int=0,
+    val listOffset:Int=0 //列表当前位置
 )
 
 

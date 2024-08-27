@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+ # 友盟-混淆配置
+-keep class com.umeng.** {*;}
+
+-keep class org.repackage.** {*;}
+
+-keep class com.uyumao.** { *; }
+
+-keepclassmembers class * {
+   public <init> (org.json.JSONObject);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

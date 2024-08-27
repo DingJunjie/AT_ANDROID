@@ -48,6 +48,8 @@
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+
+
     <application
         android:name=".BitApplication"
         android:allowBackup="true"
@@ -75,6 +77,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="um.66cd4e00cac2a664de9a9172" />
             </intent-filter>
         </activity>
 

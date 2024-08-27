@@ -2,8 +2,6 @@ package com.bitat.ui.profile
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +22,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,14 +31,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -49,23 +43,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import com.bitat.R
 import com.bitat.ext.timestampFormat
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
-import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.resp.CollectPartDto
 import com.bitat.router.NavigationItem
 import com.bitat.state.CollectionTabs
 import com.bitat.ui.common.ListFootView
 import com.bitat.ui.component.MediaGrid
-import com.bitat.utils.TimeUtils
+import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.Dispatchers
-import java.text.SimpleDateFormat
-import java.util.Date
 
 
 @Composable
@@ -90,7 +77,8 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
         }
     }
 
-    Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxWidth()) {
+    Column(verticalArrangement = Arrangement.Top,modifier = Modifier.fillMaxWidth().height(
+        ScreenUtils.screenHeight.dp)) {
         Row(verticalAlignment = Alignment.Top) {
             TextButton(onClick = { vm.setTab(CollectionTabs.Works) }) {
                 Text("作品")

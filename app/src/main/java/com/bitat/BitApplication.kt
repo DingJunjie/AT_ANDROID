@@ -10,6 +10,7 @@ import coil.memory.MemoryCache
 import com.bitat.ext.flowbus.FlowBusInitializer
 import kotlinx.coroutines.Dispatchers
 
+
 class BitApplication : Application(), ImageLoaderFactory {
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this).crossfade(true) //指定内存缓存策略
@@ -43,5 +44,6 @@ class BitApplication : Application(), ImageLoaderFactory {
         val config: EmojiCompat.Config = BundledEmojiCompatConfig(this)
         EmojiCompat.init(config)
     }
+
 
 }
