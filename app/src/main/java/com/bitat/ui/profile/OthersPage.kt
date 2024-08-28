@@ -137,7 +137,9 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                     nickname = state.userInfo!!.value.nickname,
                     atAccount = state.userInfo!!.value.account,
                     introduction = state.userInfo!!.value.nickname,
-                    likes = state.userInfo!!.value.agrees.toInt(),
+                    avatar = state.userInfo!!.value.profile,
+                    cover = state.userInfo!!.value.cover,
+                    likes = state.userInfo!!.value.agrees,
                     follows = state.userInfo!!.value.follows,
                     fans = state.userInfo!!.value.fans
                 )
@@ -196,6 +198,8 @@ fun OthersDetail(
     nickname: String,
     atAccount: String,
     introduction: String,
+    avatar: String,
+    cover: String,
     fans: Int,
     follows: Int,
     likes: Int
@@ -205,7 +209,7 @@ fun OthersDetail(
     }
 
     Surface(
-        shape = RoundedCornerShape(40.dp),
+        shape = RoundedCornerShape(40.dp, 40.dp, 0.dp, 0.dp),
     ) {
         Column(verticalArrangement = Arrangement.Top) {
             Row(
@@ -213,7 +217,7 @@ fun OthersDetail(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                AvatarWithShadow(url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                AvatarWithShadow(url = avatar)
 
                 Column(
                     modifier = Modifier

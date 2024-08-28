@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.repository.dto.req.GetUserInfoDto
+import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.state.OthersState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,7 @@ class OthersViewModel : ViewModel() {
 
     fun getUserInfo() {
         MainCo.launch {
-            UserReq.getUserInfo(GetUserInfoDto(userId = othersState.value.userId.toLong())).await()
+            UserReq.userInfo(UserInfoDto(userId = othersState.value.userId.toLong())).await()
                 .map { res ->
                     _othersState.update {
                         it.copy(userInfo = mutableStateOf(res))
