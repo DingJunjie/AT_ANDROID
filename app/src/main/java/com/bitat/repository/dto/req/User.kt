@@ -74,7 +74,11 @@ class FindPhoneListDto(
 )
 
 @Serializable
-class GetUserInfoDto(
+class FindUserDto(
+    var userIds: LongArray //用户id
+)
+
+class GetRelation(
     var userId: Long //用户id
 )
 

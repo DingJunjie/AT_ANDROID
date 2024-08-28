@@ -78,15 +78,15 @@ object UserReq {
         Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/user/phoneList", dto)
 
     //用户id查询用户信息
-    suspend inline fun getUserInfo(dto: GetUserInfoDto) =
-        Http.post<_, UserBase1Dto>("${Http.HOST}/service/user/getUserInfo", dto)
+    suspend inline fun findUser(dto: FindUserDto) =
+        Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/user/findUser", dto)
 
     //查询我的私密博文
     suspend inline fun findPrivate(dto: FindPrivateDto) =
         Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/user/findPrivate", dto)
 
     //获取双向关系
-    suspend inline fun getRelation(dto: GetUserInfoDto) = Http.post<_, FriendRelDto>(
+    suspend inline fun getRelation(dto: GetRelation) = Http.post<_, FriendRelDto>(
         "${Http.HOST}/service/user/getRelation", dto
     )
 
