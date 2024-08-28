@@ -31,7 +31,7 @@ object SingleMsgDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SINGLE_MSG)
 
     //获取我对于某个用户的多条消息
-    fun findMsg(selfId: Long, otherId: Long,pageNo:Int = 0, pageSize: Int = 30) =
+    fun findMsg(selfId: Long, otherId: Long, pageNo: Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
             "select * from single_msg where self_id = ? and other_id = ?  order by time desc limit ? offset ?",
