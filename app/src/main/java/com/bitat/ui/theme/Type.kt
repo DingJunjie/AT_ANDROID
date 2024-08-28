@@ -13,15 +13,23 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 30.csp,
+        fontSize = 34.csp,
         lineHeight = 34.csp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
+        fontSize = 30.csp,
+        lineHeight = 25.sp,
+        letterSpacing = 0.5.sp,
+        color = textColor
+    ),
+    bodySmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
         fontSize = 26.csp,
-        lineHeight = 30.sp,
+        lineHeight = 25.csp,
         letterSpacing = 0.5.sp,
         color = textColor
     ),
@@ -32,13 +40,7 @@ val Typography = Typography(
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
-    bodySmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 26.csp,
-        lineHeight = 26.csp,
-        letterSpacing = 0.5.sp
-    )
+
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,

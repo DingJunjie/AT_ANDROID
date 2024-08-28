@@ -72,11 +72,13 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
+
+                        CuLog.debug(CuTag.Blog, "Latest 返回数据：${data.size}")
                     }.errMap {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(CuTag.Blog, "Latest----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -97,7 +99,7 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.debug(CuTag.Blog, "Blogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.debug(CuTag.Blog, "调用Followed----errMap: code=${it.code},msg=${it.msg}")
 
                     }
                 }

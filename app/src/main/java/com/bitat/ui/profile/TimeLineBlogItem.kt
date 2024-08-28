@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -59,12 +63,15 @@ import kotlinx.serialization.json.Json
  * blog item 组件L
  */
 @Composable
-fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit) {
+fun TimeLineBlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
-    val height = getHeight(blog) //    val height = 500
+    val height = getHeight(blog)
     val lineHeight = remember {
         mutableIntStateOf(0)
     }
+
+    val unfoldHeight= remember {  mutableIntStateOf(0) }
+    val isCollapse= remember { mutableStateOf(false) }
     val isMoreVisible = remember {
         mutableStateOf(false)
     }
@@ -75,50 +82,76 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
 
     val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
 
-    Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
-        .onSizeChanged { size ->
-            if (lineHeight.intValue == 0) {
-                lineHeight.intValue = (size.height / Density).toInt()
+    Column(modifier = Modifier //        .onSizeChanged { size ->
+        //            if (lineHeight.intValue == 0) {
+        //                CuLog.debug(CuTag.Profile, "item size change $size")
+        //                lineHeight.intValue = (size.height / Density).toInt()
+        //            }
+        //
+        //        }
+        .fillMaxWidth()) { //头像 和用户 和发布时间
+        Column(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+            Spacer(modifier = Modifier.height(30.cdp))
+            if (TimeUtils.isThisYear(blog.createTime)) {
+                Text(text = TimeUtils.getYearFromString(blog.createTime),
+                    style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(5.dp))
             }
-        }.fillMaxWidth().fillMaxHeight()) { //头像 和用户 和发布时间
-        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
-            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.05).dp) //                    .background(Color.Blue)
-                .fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(TimeUtils.timeToText(blog.createTime))
-                Line(lineHeight.intValue)
-            }
-            Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
-                if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp,
-                        bottom = 30.cdp).clickable(indication = null,
-                        interactionSource = remember { MutableInteractionSource() }) {
-                        contentClick(blog)
-                    }) { //                        BlogText(blog.content)
-                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
+
+            Text(text = TimeUtils.timeToMD(blog.createTime),
+                style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(modifier = Modifier.background(Color.Yellow)
+                .onSizeChanged { size ->
+                    if (lineHeight.intValue!=0 && isCollapse.value){
+                        unfoldHeight.intValue=(size.height / Density).toInt()
                     }
+                lineHeight.intValue = (size.height / Density).toInt()
+                }) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.05f) //                    .background(Color.Blue)
+                        .fillMaxHeight(1f)
+                        .background(Color.Green), //                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Line(lineHeight.intValue)
                 }
+                Column(horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth(0.95f).background(Color.Gray)) {
+                    if (blog.content.isNotEmpty()) {
+                        Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(
+                            0.05).dp, bottom = 30.cdp).clickable(indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
+                            contentClick(blog)
+                        }) { //                        BlogText(blog.content)
+                            CollapseText(value = blog.content,
+                                2,
+                                modifier = Modifier.fillMaxWidth()){ res->
+                                isCollapse.value=res
+                            }
+                        }
+                    }
 
-                //博文类型
-                Box(modifier = Modifier.fillMaxSize() //                        .padding(start = 20.cdp)
-                    .background(Color.Transparent)) {
-                    BlogContent(blog.kind.toInt(),
-                        blog,
-                        height,
-                        true,
-                        isPlaying,
-                        coverIsFull = true,
-                        navHostController,
-                        viewModelProvider)
-                }
+                    //博文类型
+                    Box(modifier = Modifier.fillMaxSize() //                        .padding(start = 20.cdp)
+                        .background(Color.Transparent)) {
+                        BlogContent(blog.kind.toInt(),
+                            blog,
+                            height,
+                            true,
+                            isPlaying,
+                            coverIsFull = true,
+                            navHostController,
+                            viewModelProvider)
+                    }
 
-                Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp,
-                    top = 25.cdp)) {
-                    BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
-                }
-                if (state.flag < 0) {
-                    Text("")
+                    Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp,
+                        top = 25.cdp)) {
+                        BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
+                    }
+                    if (state.flag < 0) {
+                        Text("")
 
+                    }
                 }
             }
         }
@@ -146,7 +179,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
 @Composable
 fun Line(lineHeight: Int) {
     Row(
-        modifier = Modifier.width(10.dp).height(lineHeight.dp), //            .padding(5.dp)
+        modifier = Modifier.width(10.dp).fillMaxHeight().height(lineHeight.dp), //            .padding(5.dp)
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {

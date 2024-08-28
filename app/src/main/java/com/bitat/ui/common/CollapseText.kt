@@ -24,8 +24,8 @@ import com.bitat.R
 import com.bitat.ui.theme.Typography
 
 @Composable
-fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = Typography.bodyLarge.copy(
-    lineHeight = 26.sp), maxLength: Int = 24) {
+fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
+    ), maxLength: Int = 24,onCollapse:(Boolean) ->Unit ={}) {
     var expanded by remember { mutableStateOf(false) }
     Column {
         Text(
@@ -37,11 +37,11 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, te
         )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier.background(Color.Transparent) // Background color
+            Box(modifier = Modifier.background(Color.Transparent) .padding(top = 5.dp)// Background color
                 .clickable { expanded = !expanded }) {
 
                 Text(text = if (!expanded) "展开" else "收起",
-                    style = TextStyle(fontSize = 14.sp,
+                    style = textStyle.copy(
                         color = colorResource(id = R.color.search_border)))
             }
         }
