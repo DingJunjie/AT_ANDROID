@@ -18,8 +18,8 @@ CREATE TABLE IF NOT  EXISTS "single_room" (
 object SingleRoomDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SINGLE_ROOM)
 
-    //通过我的id查询聊天室
-    fun findRoom(selfId: Long) = SqlDB.queryBatch(
+    //获取消息和聊天室信息
+    fun getMagAndRoom(selfId: Long) = SqlDB.queryBatch(
         SingleRoomPo::of, """SELECT
 	            sm.*,sr.unreads,sr.top
                 FROM
@@ -32,7 +32,15 @@ object SingleRoomDB {
                 ORDER BY sm.time""", selfId, selfId
     )
 
-    //新增
+    //获取聊天室详情信息
+    fun getRoom(selfId: Long, otherId: Long) = SqlDB.queryOne(
+        SingleRoomPo::of,
+        "select * from single_room where self_id = ? and other_id = ?",
+        selfId,
+        otherId
+    )
+
+    //新增聊天室存在则修改
     fun insertOrUpdate(
         selfId: Long, otherId: Long, unreads: Int, top: Int, cfg: String
     ) = SqlDB.exec(
@@ -45,21 +53,26 @@ object SingleRoomDB {
         cfg,
         unreads,
     )
+
+    //修改配置
     fun updateCfg(cfg: String, selfId: Long, otherId: Long,) = SqlDB.exec(
         "update single_room set cfg = ? where self_id = ? and other_id = ?",
         cfg,
         selfId,
         otherId
     )
+    //修改置顶
     fun updateTop(top: Int, selfId: Long, otherId: Long) = SqlDB.exec(
         "update single_room set top = ? where self_id = ? and other_id = ?",
         top,
         selfId,
         otherId
     )
+    //删除聊天室
     fun delete(selfId: Long, otherId: Long, ) = SqlDB.exec(
         "delete from single_room where self_id = ? and other_id = ?",
         selfId,
         otherId,
     )
+
 }

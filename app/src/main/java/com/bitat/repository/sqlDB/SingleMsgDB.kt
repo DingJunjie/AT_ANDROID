@@ -30,6 +30,7 @@ ON "single_msg" (
 object SingleMsgDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SINGLE_MSG)
 
+    //获取我对于某个用户的多条消息
     fun findMsg(selfId: Long, otherId: Long, pageSize: Int) = SqlDB.queryBatch(
         SingleMsgPo::of,
         "select * from single_msg where self_id = ? and other_id = ? order by time desc limit ?",
@@ -37,7 +38,7 @@ object SingleMsgDB {
         otherId,
         pageSize
     )
-
+    //获取我对于某个用户的一条消息
     fun getMsg(selfId: Long, otherId: Long) = SqlDB.queryOne(
         SingleMsgPo::of,
         "select * from single_msg where self_id = ? and other_id = ? order by time desc limit 1",
@@ -45,6 +46,7 @@ object SingleMsgDB {
         otherId
     )
 
+    //插入一条消息
     fun insertOne(
         selfId: Long, otherId: Long, status: Short, time: Long, kind: Short, content: String
     ) = SqlDB.exec(
@@ -57,6 +59,7 @@ object SingleMsgDB {
         content
     )
 
+    //修改消息状态
     fun updateStatus(status: Short, selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
         "update single_msg set status = ? where self_id = ? and other_id = ? and time = ?",
         status,
@@ -65,6 +68,7 @@ object SingleMsgDB {
         time
     )
 
+    //删除一条消息
     fun delete(selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
         "delete from single_msg where self_id = ? and other_id = ?  and time = ?",
         selfId,
