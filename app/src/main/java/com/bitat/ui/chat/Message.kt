@@ -24,10 +24,10 @@ fun SenderMessage(message: String) {
             color = Color.Black,
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
-                .padding(vertical = 15.dp, horizontal = 20.dp)
+                .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(0.6f)
 //                .background(Color.Black)
-                .height(100.dp),
+//                .height(100.dp),
         ) {
             Text(
                 text = message,

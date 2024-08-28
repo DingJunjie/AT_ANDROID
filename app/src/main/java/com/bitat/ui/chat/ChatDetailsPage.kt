@@ -3,6 +3,7 @@ package com.bitat.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +14,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
@@ -41,7 +51,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,11 +61,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.bitat.ext.Density
 import com.bitat.ui.common.CarmeraOpen
+import com.bitat.ui.common.ImagePicker
+import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BackButton
+import com.bitat.ui.component.EmojiTable
 import com.bitat.ui.discovery.CardView
 import com.bitat.ui.theme.Typography
+import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 
 /**
@@ -69,27 +86,45 @@ fun ChatDetailsPage(navHostController: NavHostController) {
     val state by vm.state.collectAsState()
 
     val chatInput = remember { mutableStateOf("") }
+    val showMsgOpt = remember {
+        mutableStateOf(false)
+    }
 
-    Scaffold(
-        topBar = {
-            ChatDetailTopBar(
-                name = "hello",
-                avatar = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg",
-                backButton = { navHostController.popBackStack() },
-                goProfile = { /*TODO*/ }) {
-            }
-        },
-        bottomBar = {
-            ChatBottomContainer(message = chatInput.value) {
-                chatInput.value = it
-            }
-        }) { padding ->
+    val currentPointerOffset = remember {
+        mutableStateOf(Offset(0f, 0f))
+    }
+
+    Scaffold(topBar = {
+        ChatDetailTopBar(name = "hello",
+            avatar = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg",
+            backButton = { navHostController.popBackStack() },
+            goProfile = { /*TODO*/ }) {}
+    }, bottomBar = {
+        ChatBottomContainer(message = chatInput.value) {
+            chatInput.value = it
+
+        }
+    }) { padding ->
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
+                .clickable {
+
+                }
         ) {
-            items(10) {
-                MessageList()
+            items(1) {
+                TimeMessage(timestamp = 1231891839)
+                Box(modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
+                }) {
+                    MessageList()
+                } 
+                RecallMessage(nickname = "hello")
+                SenderReplyMessage("haha")
+                SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
             }
         }
 
@@ -100,13 +135,22 @@ fun ChatDetailsPage(navHostController: NavHostController) {
 //            goProfile = { /*TODO*/ }) {
 //        }
     }
+
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier.offset(
+            currentPointerOffset.value.x.div(Density).toInt().dp,
+            currentPointerOffset.value.y.dp
+//                .div(Density).toInt().dp
+        )
+    ) {
+        ChatMessageOpt()
+    }
 }
 
 @Composable
 fun MessageList() {
-    Surface(shape = RoundedCornerShape(30.dp)) {
-        SenderMessage(message = "hello world")
-    }
+    SenderMessage(message = "hello world")
 }
 
 @Composable
@@ -115,21 +159,46 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
         mutableStateOf(false)
     }
 
+    val emojiShow = remember {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 20.dp)
     ) {
-        ChatInputField(message, msgChange)
-        ChatOperations()
+        ChatInputField(message, msgChange, toggleEmoji = {
+            optShow.value = false
+            emojiShow.value = !emojiShow.value
+        }, toggleOperation = {
+            emojiShow.value = false
+            optShow.value = !optShow.value
+        })
+        if (emojiShow.value) EmojiTable(onTextAdded = {
+            msgChange(message + it)
+        })
+        if (optShow.value) ChatOperations()
     }
 }
 
 @Composable
-fun ChatInputField(message: String, msgChange: (String) -> Unit) {
+fun ChatInputField(
+    message: String,
+    msgChange: (String) -> Unit,
+    toggleEmoji: () -> Unit,
+    toggleOperation: () -> Unit
+) {
+    val isText = remember {
+        mutableStateOf(true)
+    }
+
     Row(modifier = Modifier.fillMaxWidth()) {
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(Icons.Filled.Info, contentDescription = "")
+        IconButton(onClick = { isText.value = !isText.value }) {
+            Icon(
+                if (isText.value) Icons.Filled.Info else Icons.Filled.Create,
+                contentDescription = ""
+            )
         }
 
         Row(
@@ -138,16 +207,21 @@ fun ChatInputField(message: String, msgChange: (String) -> Unit) {
                 .background(Color.LightGray),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(modifier = Modifier.weight(1f)) {
+            if (!isText.value) Box(
+                modifier = Modifier.weight(1f), contentAlignment = Alignment.Center
+            ) {
+                Text("按住说话")
+            }
+            if (isText.value) Box(modifier = Modifier.weight(1f)) {
                 ChatTextField(message, msgChange)
             }
-            IconButton(onClick = { msgChange("") }) {
+            if (isText.value && message.isNotEmpty()) IconButton(onClick = { msgChange("") }) {
                 Icon(Icons.Filled.Close, contentDescription = "")
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { toggleEmoji() }) {
                 Icon(Icons.Filled.ThumbUp, contentDescription = "")
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { toggleOperation() }) {
                 Icon(Icons.Filled.AddCircle, contentDescription = "")
             }
             IconButton(onClick = { /*TODO*/ }) {
@@ -159,14 +233,14 @@ fun ChatInputField(message: String, msgChange: (String) -> Unit) {
 
 @Composable
 fun ChatTextField(message: String, msgChange: (String) -> Unit) {
-    BasicTextField(
-        value = message,
+    BasicTextField(value = message,
         onValueChange = msgChange,
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         textStyle = TextStyle(
-            fontSize = 16.sp, lineHeight = 36.sp
+            fontSize = 16.sp, lineHeight = 20.sp
         ),
+        minLines = 1,
+        maxLines = 3,
         decorationBox = { innerTextField ->
             Box(
                 Modifier
@@ -175,40 +249,51 @@ fun ChatTextField(message: String, msgChange: (String) -> Unit) {
             ) {
                 if (message.isEmpty()) {
                     Text(
-                        "说点什么",
-                        color = Color.Gray,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp
+                        "说点什么", color = Color.Gray, fontSize = 16.sp, lineHeight = 24.sp
                     )
                 }
                 innerTextField()  // 显示实际的文本输入框
             }
-        }
-    )
+        })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatOperations() {
     FlowRow {
-        OperationItem()
-        OperationItem()
-        OperationItem()
-        OperationItem()
-        OperationItem()
+        OperationItem(title = "照片") {
+            ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {}) {
+                Icon(Icons.Filled.AccountBox, contentDescription = "")
+            }
+        }
+        OperationItem(title = "语音通话") {
+            Icon(Icons.Filled.Call, contentDescription = "")
+        }
+        OperationItem(title = "视频通话") {
+            Icon(Icons.Filled.Home, contentDescription = "")
+        }
+        OperationItem(title = "位置") {
+            Icon(Icons.Filled.LocationOn, contentDescription = "")
+        }
+        OperationItem(title = "录制视频") {
+            Icon(Icons.Filled.PlayArrow, contentDescription = "")
+        }
     }
 }
 
 @Composable
-fun OperationItem() {
-    Box(
+fun OperationItem(title: String, content: @Composable () -> Unit = {}) {
+    Column(
         modifier = Modifier
             .fillMaxWidth(0.25f)
-            .padding(vertical = 20.dp)
+            .padding(vertical = 20.dp),
+//        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(Icons.Filled.Info, contentDescription = "")
+        Box(modifier = Modifier.size(80.dp), contentAlignment = Alignment.Center) {
+            content()
         }
+        Text(title)
     }
 }
 
@@ -225,8 +310,7 @@ fun ChatDetailTopBar(
             .fillMaxWidth()
             .height(80.dp)
             .background(Color.White)
-            .padding(top = statusBarHeight),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(top = statusBarHeight), verticalAlignment = Alignment.CenterVertically
     ) {
         BackButton {
             backButton()
@@ -235,7 +319,8 @@ fun ChatDetailTopBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .weight(1f)
-                .clickable { goProfile() }, horizontalArrangement = Arrangement.Center
+                .clickable { goProfile() },
+            horizontalArrangement = Arrangement.Center
         ) {
             Avatar(url = avatar, size = 30.dp)
             Spacer(modifier = Modifier.width(10.dp))
