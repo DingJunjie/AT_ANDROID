@@ -40,7 +40,7 @@ object SingleMsgDB {
 
     fun getMsg(selfId: Long, otherId: Long) = SqlDB.queryOne(
         SingleMsgPo::of,
-        "select * from single_msg where self_id = ? and other_id = ? order by time desc  limit 1",
+        "select * from single_msg where self_id = ? and other_id = ? order by time desc limit 1",
         selfId,
         otherId
     )
