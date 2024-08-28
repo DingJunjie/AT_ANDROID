@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -77,7 +78,7 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
         }
     }
 
-    Column(verticalArrangement = Arrangement.Top,modifier = Modifier.fillMaxWidth().height(
+    Column(verticalArrangement = Arrangement.Top,modifier = Modifier.fillMaxWidth().heightIn(min=
         ScreenUtils.screenHeight.dp)) {
         Row(verticalAlignment = Alignment.Top) {
             TextButton(onClick = { vm.setTab(CollectionTabs.Works) }) {

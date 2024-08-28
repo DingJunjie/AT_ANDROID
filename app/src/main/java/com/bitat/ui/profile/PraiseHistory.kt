@@ -3,6 +3,7 @@ package com.bitat.ui.profile
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,7 +45,8 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
             }
         }
     }
-    Column(modifier = Modifier.fillMaxWidth().height(ScreenUtils.screenHeight.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().heightIn(min=
+    ScreenUtils.screenHeight.dp)) {
         MediaGrid(mediaList = state.myPraise)
         ListFootView(state.isFootShow, state.httpState) {
             if (state.myPraise.isNotEmpty()) {

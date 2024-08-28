@@ -3,7 +3,6 @@ package com.bitat.viewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
-import com.bitat.repository.dto.req.GetUserInfoDto
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.state.OthersState

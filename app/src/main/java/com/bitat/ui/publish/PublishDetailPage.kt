@@ -249,7 +249,9 @@ fun PublishDetailPage(navHostController: NavHostController, viewModelProvider: V
             })
         } else if (option == PublishTextOption.Pick) {
             PickOptions(imgFn = {
-                vm.addPicture(it)
+                if (it.isNotEmpty()){
+                    vm.addPicture(it)
+                }
                 option = PublishTextOption.None
                 showOptDialog = false
             }, videoFn = {
