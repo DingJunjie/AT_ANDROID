@@ -31,14 +31,14 @@ object SingleMsgDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SINGLE_MSG)
 
     //获取我对于某个用户的多条消息
-    fun findMsg(selfId: Long, otherId: Long, pageSize: Int, lastTime: Long = Long.MAX_VALUE) =
+    fun findMsg(selfId: Long, otherId: Long,pageNo:Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
-            "select * from single_msg where self_id = ? and other_id = ? and time < ? order by time desc limit ?",
+            "select * from single_msg where self_id = ? and other_id = ?  order by time desc limit ? offset ?",
             selfId,
             otherId,
-            lastTime,
-            pageSize
+            pageSize,
+            pageNo
         )
 
     //获取我对于某个用户的一条消息
