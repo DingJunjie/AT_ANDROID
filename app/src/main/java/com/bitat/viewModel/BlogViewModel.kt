@@ -8,7 +8,9 @@ import com.bitat.log.CuTag
 import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
+import com.bitat.repository.dto.req.TimeLineDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.store.UserStore
 import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
@@ -226,4 +228,24 @@ class BlogViewModel : ViewModel() {
             it.copy(listOffset = offset)
         }
     }
+
+    fun timeLineInit(lastTime: Long = 0L) {
+        MainCo.launch {
+            BlogReq.timeLine(TimeLineDto(20, UserStore.userInfo.id)).await().map { data ->
+                if (lastTime == 0L) blogState.update {
+                    it.blogList.clear()
+                    it
+                }
+
+                blogState.update {
+                    it.timeLineList.addAll(data)
+                    it
+                }
+                CuLog.error(CuTag.Profile, "timeLine success :${data.size}")
+            }.errMap {
+                CuLog.error(CuTag.Profile, "timeLine fail code:${it.code},msg:${it.msg}")
+            }
+        }
+    }
+
 }

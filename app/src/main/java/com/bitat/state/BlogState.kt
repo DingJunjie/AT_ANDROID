@@ -42,7 +42,8 @@ data class BlogState(
     val isLoadMore: Boolean = false,
     val loadResp: BlogLoad = BlogLoad.Default,
     val currentListIndex:Int=0,
-    val listOffset:Int=0 //列表当前位置
+    val listOffset:Int=0 ,//列表当前位置
+    val timeLineList: SnapshotStateList<BlogBaseDto> = mutableStateListOf()
 )
 
 

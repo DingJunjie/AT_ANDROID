@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,12 +39,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.bitat.MainCo
+import com.bitat.R
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.repository.dto.resp.CommentPart1Dto
 import com.bitat.repository.dto.resp.CommentPartDto
@@ -82,33 +87,50 @@ fun CommentList(
     }
 
     LazyColumn(modifier = Modifier
-        .height(if (commentState.comments.size>0)ScreenUtils.screenHeight.times(0.5).dp else 0.dp)
+        .height(ScreenUtils.screenHeight.times(0.5).dp)
         .clickableWithoutRipple {
             tapContentFn(null)
         }) {
-        items(commentState.comments) { item ->
-            CommentItem(
-                comment = item,
-                subComments = commentState.subComments[item.id] ?: listOf(),
-                tapShowSubComment = {
-                    MainCo.launch {
-                        commentViewModel.getSubComment(item.id)
-                    }
-                },
-                tapImage = tapImage,
-                tapSubCommentMore = {
-                    MainCo.launch {
-                        commentViewModel.getSubComment(item.id)
-                    }
-                },
-                removeComment = removeComment,
-                removeSubComment = {
-                    removeSubComment(it, item.blogId, item.id)
-                },
-                subCommentTap = subCommentTap,
-                tapFn = tapContentFn
-            )
-        }
+        if (commentState.comments.size > 0)
+            items(commentState.comments) { item ->
+                CommentItem(
+                    comment = item,
+                    subComments = commentState.subComments[item.id] ?: listOf(),
+                    tapShowSubComment = {
+                        MainCo.launch {
+                            commentViewModel.getSubComment(item.id)
+                        }
+                    },
+                    tapImage = tapImage,
+                    tapSubCommentMore = {
+                        MainCo.launch {
+                            commentViewModel.getSubComment(item.id)
+                        }
+                    },
+                    removeComment = removeComment,
+                    removeSubComment = {
+                        removeSubComment(it, item.blogId, item.id)
+                    },
+                    subCommentTap = subCommentTap,
+                    tapFn = tapContentFn
+                )
+            }
+        else
+            item {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = stringResource(id = R.string.no_data),
+                        style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center
+                    )
+                }
+
+            }
     }
 }
 

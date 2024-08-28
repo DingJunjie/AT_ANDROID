@@ -42,7 +42,7 @@ fun ProfileTabView(
     pagerState: PagerState,
     navHostController: NavHostController,
     viewModelProvider: ViewModelProvider,
-    content: @Composable PagerScope.(Int) -> Unit
+    content: @Composable PagerScope.(Int) -> Unit,
 ) { //    Column {
     //        ProfileTabBar(pagerState, options)
 
@@ -55,7 +55,7 @@ fun ProfileTabView(
     ) { index ->
 
         when (index) {
-            0 -> TimeLinePage(navHostController,viewModelProvider)
+            0 ->  TimeLinePage(navController = navHostController, viewModelProvider =viewModelProvider )
             1 -> ProfileWorks(navHostController, viewModelProvider)
             2 -> CollectionTab(navHostController, viewModelProvider = viewModelProvider)
             3 -> PraiseHistory(navHostController, viewModelProvider = viewModelProvider)
@@ -68,7 +68,7 @@ fun ProfileTabView(
 fun ProfileTabBar(pagerState: PagerState, options: List<String>, onSelect: (Int) -> Unit = {}) {
     val coroutineScope = rememberCoroutineScope()
 
-    ScrollableTabRow(selectedTabIndex = pagerState.currentPage,
+    ScrollableTabRow(selectedTabIndex = pagerState.currentPage,containerColor=Color.White,
         edgePadding = 0.dp,
         indicator = { tabPositions ->
             TabRowDefaults.SecondaryIndicator(
@@ -77,7 +77,7 @@ fun ProfileTabBar(pagerState: PagerState, options: List<String>, onSelect: (Int)
                     .width(10.dp), height = 2.5.dp, color = MaterialTheme.colorScheme.primary
             )
         },
-        modifier = Modifier.fillMaxWidth().height(70.dp), divider = {}) {
+        modifier = Modifier.fillMaxWidth(), divider = {}) {
         options.forEachIndexed { index, item ->
             val selected = index == pagerState.currentPage
             Text(text = item, color = if (selected) {

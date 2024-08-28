@@ -221,7 +221,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                 navController)
             RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
                 .fillMaxHeight().fillMaxWidth(), onRefresh = {
-                CuLog.debug(CuTag.Blog, "onRefresh 回调")
                 vm.initBlogList(state.currentMenu)
             }) {
                 Surface(modifier = Modifier.fillMaxWidth()
