@@ -121,7 +121,7 @@ fun ChatDetailsPage(navHostController: NavHostController) {
                     })
                 }) {
                     MessageList()
-                }
+                } 
                 RecallMessage(nickname = "hello")
                 SenderReplyMessage("haha")
                 SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
