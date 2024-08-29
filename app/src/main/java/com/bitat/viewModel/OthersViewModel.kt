@@ -33,11 +33,23 @@ class OthersViewModel : ViewModel() {
         }
     }
 
-    fun initUserId(userId: Int) {
+    fun initUserId(userId: Long) {
         _othersState.update {
             it.copy(userId = userId)
         }
 
         getUserInfo()
+    }
+
+    fun tabType(index: Int) {
+        _othersState.update {
+            it.copy(profileType = index)
+        }
+    }
+
+    fun atBottom(isBottom: Boolean) {
+        _othersState.update {
+            it.copy(isAtBottom = isBottom)
+        }
     }
 }

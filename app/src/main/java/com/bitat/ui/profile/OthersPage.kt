@@ -4,13 +4,21 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerScope
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -18,43 +26,41 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.bitat.R
-import com.bitat.ext.clickableWithoutRipple
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.state.OTHER_TAB_OPTIONS
-import com.bitat.ui.common.LottieBox
+import com.bitat.ui.common.statusBarHeight
 import com.bitat.viewModel.ChatViewModel
 import com.bitat.viewModel.OthersViewModel
-import com.bitat.viewModel.ProfileViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -66,14 +72,14 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
 
-    val scope = rememberCoroutineScope()
-    // tab bar 的state
+    val scope = rememberCoroutineScope() // tab bar 的state
     val pagerState: PagerState = rememberPagerState {
         OTHER_TAB_OPTIONS.size
     }
 
+    // top tab bar 开始出现位置
     var positionTopBar by remember {
-        mutableStateOf(Offset.Zero)
+        mutableStateOf(0)
     }
 
     var offsetY by remember {
@@ -83,107 +89,99 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
     val draggableState = rememberDraggableState { delta ->
         offsetY += delta
     }
-
+    // 整体 scroll 的state
     val scrollState: ScrollState = rememberScrollState()
-
     // scroll 的触发
-    if (scrollState.value > positionTopBar.y && !state.isTabbarTop) {
+    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
         vm.switchTabbar(true)
-    } else if (scrollState.value < positionTopBar.y && state.isTabbarTop) {
+    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
         vm.switchTabbar(false)
     }
 
-    Box(
-        modifier = Modifier
-            .verticalScroll(state = scrollState)
-            .background(Color.White)
-            .padding(bottom = 40.dp)
-    ) {
-        Box(
-            modifier = Modifier.draggable(
-                orientation = Orientation.Vertical, state = draggableState
-            )
-        ) {
-            ProfileBg(menu = {
-                Menu(menuFun = {
+    // 监听滚动状态
+    LaunchedEffect(scrollState.value) {
+        val maxScroll = scrollState.maxValue
+        vm.atBottom(scrollState.value == maxScroll)
+    }
+    Scaffold { padding ->
 
-                })
-            })
+        Column(modifier = Modifier.background(Color.White)) {
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                LottieBox(
-                    lottieRes = R.raw.like_ani,
-                    isRepeat = true,
-                    modifier = Modifier.size(200.dp)
-                )
-            }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-//            .verticalScroll(state = scrollState)
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Top, modifier = Modifier.padding(0.dp)
-            ) {
-                Box(
+            if (state.isTabbarTop) Column(modifier = Modifier.fillMaxWidth()) {
+                Spacer(
                     modifier = Modifier
-                        .height(160.dp)
                         .fillMaxWidth()
+                        .height(statusBarHeight)
+                        .background(Color.White)
                 )
-                if (state.userInfo != null) OthersDetail(
-                    vm,
-                    navController,
-                    state.userInfo!!.value
-                ) {
-                    chatVm.createRoom(it)
-                    navController.navigate(NavigationItem.ChatDetails.route)
-                }
-                Box(
-                    modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
-                ) {
-                    Column( // 获取tab bar的全局位置
-                        modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                            if (positionTopBar.y.toInt() == 0) positionTopBar =
-                                coordinate.positionInRoot()
-                        }) {
-                        if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                            ProfileTabBar(pagerState, OTHER_TAB_OPTIONS)
-                        } else Box(
-                            modifier = Modifier
-                                .height(50.dp)
-                                .fillMaxWidth()
-                                .background(Color.White)
-                        )
-                        ProfileTabView(
-                            options = OTHER_TAB_OPTIONS,
-                            pagerState,
-                            navController,
-                            viewModelProvider = viewModelProvider,
-                        ) { index ->
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) { //                        Text(
-                                //                            text = (index + 1).toString(),
-                                //                            color = MaterialTheme.colorScheme.onPrimary,
-                                //                            fontSize = 60.sp
-                                //                        )
-                                Box(modifier = Modifier
-                                    .fillMaxHeight()
-                                    .background(Color.Cyan)
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        UserStore.updateFans(100)
-                                    }) {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(5.dp)
+                )
+                Box(modifier = Modifier.fillMaxWidth()) {
 
-                                }
+                    ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
+                }
+            }
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)) {
+                Box {
+                    ProfileBg(menu = {
+                        Menu(menuFun = {
+
+                        })
+                    })
+                    Column(modifier = Modifier.align(Alignment.TopCenter)) {
+                        Box(
+                            modifier = Modifier
+                                .height(160.dp)
+                                .fillMaxWidth()
+                        )
+                        if (state.userInfo != null) OthersDetail(
+                            vm,
+                            navController,
+                            state.userInfo!!.value
+                        ) {
+                            chatVm.createRoom(it)
+                            navController.navigate(NavigationItem.ChatDetails.route)
+                        }
+                    }
+                }
+
+                Column( // 获取tab bar的全局位置
+                    modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
+                        if (positionTopBar == 0) positionTopBar =
+                            coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                    }) {
+                    if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
+                        ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
+                    } else Box(
+                        modifier = Modifier
+                            .height(50.dp)
+                            .fillMaxWidth()
+                            .background(Color.White)
+                    )
+                    ProfileTabView(
+                        type = PROFILE_OTHER, userId = state.userId,
+                        options = OTHER_TAB_OPTIONS,
+                        pagerState,
+                        navController,
+                        viewModelProvider = viewModelProvider,
+                    ) { index ->
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(modifier = Modifier
+                                .fillMaxHeight()
+                                .background(Color.Cyan)
+                                .fillMaxWidth()
+                                .clickable {
+                                    UserStore.updateFans(100)
+                                }) {
+
                             }
                         }
                     }

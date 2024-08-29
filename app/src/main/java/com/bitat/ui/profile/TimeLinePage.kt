@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,8 +31,11 @@ import androidx.navigation.NavHostController
 import com.bitat.ext.Density
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.PROFILE_MINE
+import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.router.AtNavigation
 import com.bitat.state.BlogOperation
+import com.bitat.ui.common.ListFootView
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
@@ -41,6 +45,9 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.bitat.viewModel.OthersViewModel
+import com.bitat.viewModel.ProfileViewModel
+import com.bitat.viewModel.TimeLineViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,19 +59,67 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
-    val vm: BlogViewModel = viewModel()
-    val state = vm.blogState.collectAsState()
+fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+    val vm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
+    val state = vm.state.collectAsState()
+
+    val profileVm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
+    val profileState by profileVm.uiState.collectAsState()
+
+    val otherVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
+    val otherState by otherVm.othersState.collectAsState()
 
     val playingIndex = remember {
         mutableStateOf(0)
     }
     LaunchedEffect(Dispatchers.IO) {
-        if (state.value.isFirst) {
-            vm.timeLineInit()
-            vm.firstFetchFinish()
+        when (type) {
+            PROFILE_MINE ->
+            {
+//                vm.reset()
+                if (state.value.isFirst) {
+                    vm.timeLineInit(userId)
+                    vm.firstFetchFinish()
+                }}
+            PROFILE_OTHER -> {
+//                vm.reset()
+                if (state.value.isFirst) {
+                    vm.timeLineInit(userId)
+                    vm.firstFetchFinish()
+                }
+            }
+
+        }
+
+    }
+
+    fun loadMore() {
+        if (profileState.profileType == 0) {
+            if (state.value.timeLineList.isNotEmpty()) {
+                val lastTime = state.value.timeLineList.last().createTime
+                vm.timeLineInit(userId = userId, lastTime = lastTime)
+            }
         }
     }
+
+    // 加载更多
+    LaunchedEffect(profileState.isAtBottom) {
+        loadMore()
+    }
+
+    // 加载更多
+    LaunchedEffect(otherState.isAtBottom) {
+        CuLog.debug(CuTag.Profile,"timeLine滑动到底部")
+        loadMore()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { //重置页面参数
+            vm.reset()
+        }
+    }
+
+
 
     val coroutineScope = rememberCoroutineScope()
     val commentVm: CommentViewModel = viewModel()
@@ -91,12 +146,8 @@ fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelP
     }
     val toast = rememberToastState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .heightIn(min = ScreenUtils.screenHeight.dp)
-            .padding(start = 5.dp, end = 5.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp)
+        .padding(start = 5.dp, end = 5.dp)) {
 
         state.value.timeLineList.forEachIndexed { index, item ->
             TimeLineBlogItem(blog = item,
@@ -110,14 +161,14 @@ fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelP
                     }
                     isCommentVisible.value = true
                 },
-                tapAt = {
-                },
+                tapAt = {},
                 tapLike = { //更新列表中 点赞数据
                     vm.likeClick(item)
                 },
                 tapCollect = {
                     collectTipY = it.div(Density).toInt()
                     collectVm.updateBlog(blog = item)
+
                     collectTipVisible = true
 
                     if (item.hasCollect) { // 已收藏，取消
@@ -140,23 +191,9 @@ fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelP
                 })
         }
 
-//        LazyColumn(modifier = Modifier.fillMaxWidth().onGloballyPositioned { layoutCoordinates ->
-//            CuLog.debug(CuTag.Profile, "列表高度 ${layoutCoordinates.size.height},lazyColumnHeight ${lazyColumnHeight.value}")
-//
-//            if (lazyColumnHeight.value != layoutCoordinates.size.height) {
-//                lazyColumnHeight.value = layoutCoordinates.size.height
-////                    with(density) {
-////                    layoutCoordinates.size.height.toDp()
-////                }
-//            }
-//        }, contentPadding = PaddingValues(5.dp),
-//            userScrollEnabled = false
-//        ) {
-//            itemsIndexed(state.value.blogList) { index, item ->
-//
-//            }
-//        }
-
+        ListFootView(state.value.isLoadMore, state.value.loadResp) {
+            loadMore()
+        }
     }
 
     CommentPopup(visible = isCommentVisible.value,
@@ -170,10 +207,8 @@ fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelP
         commentState = commentState,
         onClose = { isCommentVisible.value = false })
 
-    CollectTips(collectTipVisible, y = collectTipY, closeTip = {
-//        collectTipVisible = false
-    }, openPopup = {
-//        collectTipVisible = false
+    CollectTips(collectTipVisible, y = collectTipY, closeTip = { //        collectTipVisible = false
+    }, openPopup = { //        collectTipVisible = false
         collectPopupVisible = true
     })
 
@@ -194,4 +229,5 @@ fun TimeLinePage(navController: NavHostController, viewModelProvider: ViewModelP
         onClose = {
             collectPopupVisible = false
         })
+
 }

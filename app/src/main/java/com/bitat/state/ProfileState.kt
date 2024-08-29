@@ -7,7 +7,9 @@ import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.resp.UserBase1Dto
+import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.dto.resp.UserPartDto
+import com.bitat.repository.store.UserStore
 
 data class ProfileUiState(
     val userList: List<ProfileModel> = mutableStateListOf(),
@@ -22,7 +24,9 @@ data class ProfileUiState(
     val httpState: HttpLoadState = HttpLoadState.Default,
     val isReq: Boolean = false, //是否正在请求
     val isFootShow: Boolean = false,
-    val currentTabIndex: Int = 0
+    val currentTabIndex: Int = 0,
+    val user: UserDto = UserStore.userInfo,
+    val lastIndex:Int=-1
 )
 
 val PROFILE_TAB_OPTIONS = listOf("作品", "相册", "收藏", "赞过")

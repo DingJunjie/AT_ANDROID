@@ -103,6 +103,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.PROFILE_MINE
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.state.PROFILE_TAB_OPTIONS
@@ -119,6 +120,8 @@ import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -203,11 +206,11 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     }
 
     // scroll 的触发
-//    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
-//        vm.switchTabbar(true)
-//    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
-//        vm.switchTabbar(false)
-//    }
+    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
+        vm.switchTabbar(true)
+    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
+        vm.switchTabbar(false)
+    }
 
     var offsetY by remember {
         mutableFloatStateOf(0f)
@@ -234,31 +237,12 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
 
 
-    val listState = rememberLazyListState()
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }.collect { visibleItems ->
-            CuLog.debug(
-                CuTag.Profile,
-                "当前显示 firstVisibleItemIndex ：${visibleItems} 当前显示状态 ${state.isTabbarTop}"
-            )
-            if (visibleItems > 0 && !state.isTabbarTop) vm.switchTabbar(true)
-            else if (visibleItems == 0 && state.isTabbarTop) vm.switchTabbar(
-                false
-            )
-        }
-    }
-
     val drawerOffset =
         animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
 
-    //    ModalNavigationDrawer(drawerState = drawerState,
-    ////        modifier = Modifier.width(100.dp),
-    //        scrimColor = Color(0x33333333), drawerContent = { /*TODO*/
-    //            DrawerContainer(scope, drawerState)
-    //        }, content = {
     Scaffold { padding ->
         Column(
-            modifier = Modifier.padding(bottom = padding.calculateBottomPadding()) //                .horizontalScroll(drawerScrollState)
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
         ) {
 
             if (state.isTabbarTop)
@@ -266,7 +250,6 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-//                    .align(Alignment.TopCenter)
                         .padding(padding.calculateBottomPadding())
                 ) {
                     Spacer(
@@ -275,14 +258,21 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                             .height(statusBarHeight)
                             .background(Color.White)
                     )
-                    Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(5.dp)
+                    )
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
+                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS){ index->
+                            vm.tabType(index)
+                        }
                     }
                 }
 
-            LazyColumn(
-                state = listState, modifier = Modifier
+            Column(
+                modifier = Modifier
+                .verticalScroll(state = scrollState)
                     .padding(
                         if (!state.isTabbarTop) {
                             PaddingValues(top = 0.dp)
@@ -290,115 +280,117 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                     )
 //                    .align(Alignment.TopCenter)
             ) {
-                item {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth() //                        .verticalScroll(state = scrollState)
+                        .padding(
+                            bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
+                                LocalDensity.current
+                            ).dp
+                        )
+                        .padding(bottom = padding.calculateBottomPadding())
+                        .fillMaxHeight()
+                ) {
+                    Box(
+                        modifier = Modifier //                    .imePadding()
+                            .background(Color.White) //                    .padding(bottom = 40.dp)
+                        //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
+                        //                    .windowInsetsPadding( WindowInsets.navigationBars)
+                        //                    .height((ScreenUtils.screenHeight * 2).dp)
+                    ) { //                    Box(
+                        //                        modifier = Modifier.draggable(
+                        //                            orientation = Orientation.Vertical, state = draggableState
+                        //                        )
+                        //                    ) {
+                        ProfileBg(tapBG = {
+                            showBGPopup.value = true
+                        }, menu = {
+                            Menu(menuFun = {
+                                scope.launch { //                                    drawerState.open()
+                                    showDrawer.value = true
+                                }
+                            })
+                        })
+
+                    }
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth() //                        .verticalScroll(state = scrollState)
-                            .padding(
-                                bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
-                                    LocalDensity.current
-                                ).dp
-                            )
-                            .padding(bottom = padding.calculateBottomPadding())
-                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .fillMaxHeight() //            .height(500.dp)
                     ) {
-                        Box(
-                            modifier = Modifier //                    .imePadding()
-                                .background(Color.White) //                    .padding(bottom = 40.dp)
-                            //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
-                            //                    .windowInsetsPadding( WindowInsets.navigationBars)
-                            //                    .height((ScreenUtils.screenHeight * 2).dp)
-                        ) { //                    Box(
-                            //                        modifier = Modifier.draggable(
-                            //                            orientation = Orientation.Vertical, state = draggableState
-                            //                        )
-                            //                    ) {
-                            ProfileBg(tapBG = {
-                                showBGPopup.value = true
-                            }, menu = {
-                                Menu(menuFun = {
-                                    scope.launch { //                                    drawerState.open()
-                                        showDrawer.value = true
-                                    }
-                                })
-                            })
-
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight() //            .height(500.dp)
+                        Column(
+                            verticalArrangement = Arrangement.Top,
+                            modifier = Modifier.padding(0.dp)
                         ) {
-                            Column(
-                                verticalArrangement = Arrangement.Top,
-                                modifier = Modifier.padding(0.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .height(160.dp)
-                                        .fillMaxWidth()
-                                )
-                                ProfileDetail(
-                                    vm,
-                                    navController,
-                                    nickname = userInfo.nickname,
-                                    atAccount = userInfo.account,
-                                    introduction = userInfo.introduce,
-                                    likes = userInfo.agrees,
-                                    follows = userInfo.follows,
-                                    fans = fans
-                                )
-                            }
-
-                        }
-                    }
-                }
-
-                item {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Column( // 获取tab bar的全局位置
-                            modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                                if (positionTopBar == 0) positionTopBar =
-                                    coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
-                            }) {
-                            if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
-                                ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS)
-                            }
-                            else Box(
-                                modifier = Modifier
-                                    .height(50.dp)
-                                    .fillMaxWidth()
-                                    .background(Color.White)
-                            )
-
-                        }
-                    }
-                }
-                item {
-                    ProfileTabView(
-                        options = PROFILE_TAB_OPTIONS,
-                        pagerState,
-                        navController,
-                        viewModelProvider = viewModelProvider,
-                        content = { index ->
                             Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-
-                                Box(modifier = Modifier
-                                    .fillMaxHeight()
-                                    .background(Color.Cyan)
+                                modifier = Modifier
+                                    .height(160.dp)
                                     .fillMaxWidth()
-                                    .clickable {
-                                        UserStore.updateFans(100)
-                                    }) {
+                            )
+                            ProfileDetail(
+                                vm,
+                                navController,
+                                nickname = userInfo.nickname,
+                                atAccount = userInfo.account,
+                                introduction = userInfo.introduce,
+                                likes = userInfo.agrees,
+                                follows = userInfo.follows,
+                                fans = fans
+                            )
+                        }
 
-                                }
+                    }
+                }
+
+
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Column( // 获取tab bar的全局位置
+                        modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
+                            if (positionTopBar == 0) positionTopBar =
+                                coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                        }) {
+                        if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
+                            ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS){ index->
+                                vm.tabType(index)
                             }
                         }
-                    )
+                        else Box(
+                            modifier = Modifier
+                                .height(50.dp)
+                                .fillMaxWidth()
+                                .background(Color.White)
+                        )
+
+                    }
                 }
+
+
+                ProfileTabView(type = PROFILE_MINE, userId = state.user.id,
+                    options = PROFILE_TAB_OPTIONS,
+                    pagerState,
+                    navController,
+                    viewModelProvider = viewModelProvider,
+                    content = { index ->
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Box(modifier = Modifier
+                                .fillMaxHeight()
+                                .background(Color.Cyan)
+                                .fillMaxWidth()
+                                .clickable {
+                                    UserStore.updateFans(100)
+                                }) {
+
+                            }
+                        }
+                    }
+                )
+
             }
         }
     }

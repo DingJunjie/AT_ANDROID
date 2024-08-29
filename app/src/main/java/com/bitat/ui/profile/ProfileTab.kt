@@ -1,21 +1,15 @@
 package com.bitat.ui.profile
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -37,12 +31,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProfileTabView(
-    options: List<String>,
-    pagerState: PagerState,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    content: @Composable PagerScope.(Int) -> Unit,
+fun ProfileTabView(type:Int,userId:Long,
+                   options: List<String>,
+                   pagerState: PagerState,
+                   navHostController: NavHostController,
+                   viewModelProvider: ViewModelProvider,
+                   content: @Composable PagerScope.(Int) -> Unit,
 ) { //    Column {
     //        ProfileTabBar(pagerState, options)
 
@@ -55,8 +49,8 @@ fun ProfileTabView(
     ) { index ->
 
         when (index) {
-            0 ->  TimeLinePage(navController = navHostController, viewModelProvider =viewModelProvider )
-            1 -> ProfileWorks(navHostController, viewModelProvider)
+            0 ->  TimeLinePage(type=type,userId = userId,navController = navHostController, viewModelProvider =viewModelProvider )
+            1 -> ProfileWorks(userId = userId,navHostController, viewModelProvider)
             2 -> CollectionTab(navHostController, viewModelProvider = viewModelProvider)
             3 -> PraiseHistory(navHostController, viewModelProvider = viewModelProvider)
         }

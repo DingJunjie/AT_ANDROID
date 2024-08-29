@@ -10,7 +10,7 @@ import kotlinx.serialization.Transient
 @Serializable
 class BlogBaseDto {
     var id: Long = 0 //博文id
-    var userId: Int = 0//用户id
+    var userId: Long = 0//用户id
     var albumId: Int = 0 //专辑id
     var musicId: Int = 0//音乐id
     var agrees: UInt = 0u //点赞数

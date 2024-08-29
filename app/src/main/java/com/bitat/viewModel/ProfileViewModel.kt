@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.HTTP_PAGESIZE
 import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.req.BlogOpsAgreeHistoryDto
 import com.bitat.repository.dto.req.FindPrivateDto
@@ -54,11 +55,11 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getMyWorks(lastTime: Long = 0, pageSize: Int = 20) {
+    fun getMyWorks(userId:Long,lastTime: Long = 0, pageSize: Int = 20) {
         MainCo.launch {
             UserReq.photoBlogList(
                 PhotoBlogListDto(
-                    userId = UserStore.userInfo.id,
+                    userId = userId,
                     pageSize = pageSize,
                     lastTime = lastTime
                 )
@@ -107,7 +108,7 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getMyPraise(lastTime: Long = 0, pageSize: Int = 20) {
+    fun getMyPraise(lastTime: Long = 0, pageSize: Int = HTTP_PAGESIZE) {
         if (uiState.value.isReq) return
         MainCo.launch {
             isFootShow(true)
@@ -139,6 +140,7 @@ class ProfileViewModel : ViewModel() {
 
     fun atBottom(isBottom: Boolean) {
         uiState.update {
+            CuLog.error(CuTag.Profile, "atBottom $isBottom")
             it.copy(isAtBottom = isBottom)
         }
     }
@@ -149,21 +151,26 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun httpResp(result: Boolean) {
+    private fun httpResp(result: Boolean) {
         uiState.update {
             it.copy(isReq = result)
         }
     }
 
-    fun isFootShow(show: Boolean) {
+    private fun isFootShow(show: Boolean) {
         uiState.update {
             it.copy(isFootShow = show)
         }
     }
 
-    fun httpState(state: HttpLoadState) {
+    private fun httpState(state: HttpLoadState) {
         uiState.update {
             it.copy(httpState = state)
+        }
+    }
+    fun lastIndex(index: Int) {
+        uiState.update {
+            it.copy(lastIndex = index)
         }
     }
 }

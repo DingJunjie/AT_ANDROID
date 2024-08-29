@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -38,15 +40,26 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
     }
 
     LaunchedEffect(state.isAtBottom) {
+        CuLog.debug(CuTag.Blog, "PraiseHistory layoutInfo，滑动到底部")
         if (state.profileType == 3) {
             if (state.myPraise.isNotEmpty()) {
                 val lastTime = state.myPraise.last().createTime
                 vm.getMyPraise(lastTime = lastTime)
             }
         }
+
     }
-    Column(modifier = Modifier.fillMaxWidth().heightIn(min=
-    ScreenUtils.screenHeight.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(
+                min =
+                ScreenUtils.screenHeight.dp
+            )
+    ) {
+        if (state.isAtBottom) {
+            Text(text = "111111111111111111111")
+        }
         MediaGrid(mediaList = state.myPraise)
         ListFootView(state.isFootShow, state.httpState) {
             if (state.myPraise.isNotEmpty()) {
@@ -54,6 +67,7 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
                 vm.getMyPraise(lastTime = lastTime)
             }
         }
+
     }
 
 }
