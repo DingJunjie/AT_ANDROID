@@ -48,7 +48,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         }
 
         fun exec(sql: String, vararg bindings: Any) =
-            DB?.readableDatabase?.execSQL(sql, bindings.map(Any::toString).toTypedArray())
+            DB?.writableDatabase?.execSQL(sql, bindings.map(Any::toString).toTypedArray())
 
         fun query(sql: String, vararg bindings: Any) =
             DB?.readableDatabase?.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
