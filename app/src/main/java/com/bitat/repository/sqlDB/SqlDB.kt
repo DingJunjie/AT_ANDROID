@@ -49,28 +49,31 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             DB = SqlDB(context)
         }
 
-        fun fetchDB() = DB ?: throw Exception("Null SqlDB")
+        fun fetchDB(writable: Boolean = false): SQLiteDatabase =
+            (DB ?: throw Exception("Null SqlDB")).run {
+                if (writable) writableDatabase else readableDatabase
+            }
 
-        fun exec(sql: String, vararg bindings: Any) = fetchDB().writableDatabase?.run {
-            execSQL(sql, bindings.map(Any::toString).toTypedArray())
+        fun exec(sql: String, vararg bindings: Any) = fetchDB(true).run {
+            execSQL(sql, bindings)
             close()
         }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB().readableDatabase?.run {
+            fetchDB().run {
                 val res = rawQuery(
                     sql, bindings.map(Any::toString).toTypedArray()
-                )?.run { if (moveToFirst()) toFn(this) else null }
+                ).run { if (moveToFirst()) toFn(this) else null }
                 close()
                 res
             }
 
         inline fun <reified T> queryBatch(
             toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = fetchDB().readableDatabase?.run {
+        ) = fetchDB().run {
             val res = rawQuery(
                 sql, bindings.map(Any::toString).toTypedArray()
-            )?.run {
+            ).run {
                 listOf(Array(count) {
                     moveToNext()
                     toFn(this)
@@ -78,7 +81,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             }
             close()
             res
-        } ?: emptyArray<T>()
+        }
     }
 
 }
