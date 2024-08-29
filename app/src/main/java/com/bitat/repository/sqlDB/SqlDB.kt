@@ -1,5 +1,6 @@
 package com.bitat.repository.sqlDB
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -47,23 +48,34 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             DB = SqlDB(context)
         }
 
-        fun exec(sql: String, vararg bindings: Any) =
-            DB?.writableDatabase?.execSQL(sql, bindings.map(Any::toString).toTypedArray())
-
-        fun query(sql: String, vararg bindings: Any) =
-            DB?.readableDatabase?.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+        fun exec(sql: String, vararg bindings: Any) = DB?.writableDatabase?.run {
+            execSQL(sql, bindings.map(Any::toString).toTypedArray())
+            close()
+        }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            query(sql, bindings)?.run { if (moveToFirst()) toFn(this) else null }
-
-        inline fun <reified T> queryBatch(
-            toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = query(sql, bindings)?.run {
-            Array(count) {
-                moveToNext()
-                toFn(this)
+            DB?.readableDatabase?.run {
+                val res = rawQuery(
+                    sql, bindings.map(Any::toString).toTypedArray()
+                )?.run { if (moveToFirst()) toFn(this) else null }
+                close()
+                res
             }
-        } ?: arrayOf()
 
+        fun <T> queryBatch(
+            toFn: (Cursor) -> T, sql: String, vararg bindings: Any
+        ) = DB?.readableDatabase?.run {
+            val res = rawQuery(
+                sql, bindings.map(Any::toString).toTypedArray()
+            )?.run {
+                val list = ArrayList<T>(count)
+                moveToNext()
+                list.add(toFn(this))
+                list
+            }
+            close()
+            res
+        } ?: emptyList()
     }
+
 }
