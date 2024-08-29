@@ -16,7 +16,7 @@ CREATE TABLE IF NOT  EXISTS "single_msg" (
   PRIMARY KEY ("self_id", "other_id","time")
 );
 
-CREATE INDEX "single_msg_0"
+CREATE INDEX  "single_msg_0"
 ON "single_msg" (
   "kind" ASC
 );

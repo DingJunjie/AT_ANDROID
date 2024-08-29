@@ -22,12 +22,14 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.common.KeySecret
 import com.bitat.repository.singleChat.TcpClient
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.BaseStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.theme.BitComposeTheme
 import com.bitat.utils.ScreenUtils
+import com.bitat.utils.TimeUtils
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.ToastUI
 import com.wordsfairy.note.ui.widgets.toast.ToastUIState
@@ -70,9 +72,11 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(navController,
+                AppNavHost(
+                    navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider)
+                    viewModelProvider = viewModelProvider
+                )
                 ToastUI(toastState)
             }
 
@@ -87,6 +91,22 @@ class MainActivity : ComponentActivity() {
 
         KeySecret.start()
         TcpClient.start()
+
+        MainCo.launch {
+            SingleMsgDB.insertOne(
+                selfId = 1,
+                otherId = 2,
+                status = 1,
+                time = TimeUtils.getNow(),
+                kind = 1,
+                content = "hello world"
+            )
+
+            SingleMsgDB.getMsg(selfId = 1, otherId = 2).let {
+                println("hello world, $it")
+            }
+        }
+
     }
 
     override fun onStart() {

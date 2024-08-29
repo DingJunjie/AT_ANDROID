@@ -396,4 +396,3 @@ fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boole
 }
 
 
-
