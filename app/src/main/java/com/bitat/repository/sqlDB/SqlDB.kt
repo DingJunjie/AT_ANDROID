@@ -43,7 +43,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
     }
 
     companion object {
-        private var DB: SqlDB? = null
+        var DB: SqlDB? = null
         fun init(context: Context) {
             DB = SqlDB(context)
         }
@@ -62,20 +62,20 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
                 res
             }
 
-        fun <T> queryBatch(
+        inline fun <reified T> queryBatch(
             toFn: (Cursor) -> T, sql: String, vararg bindings: Any
         ) = DB?.readableDatabase?.run {
             val res = rawQuery(
                 sql, bindings.map(Any::toString).toTypedArray()
             )?.run {
-                val list = ArrayList<T>(count)
-                moveToNext()
-                list.add(toFn(this))
-                list
+                listOf(Array(count) {
+                    moveToNext()
+                    toFn(this)
+                })
             }
             close()
             res
-        } ?: emptyList()
+        } ?: emptyArray<T>()
     }
 
 }
