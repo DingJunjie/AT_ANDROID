@@ -1,7 +1,6 @@
 package com.bitat
 
-import com.bitat.repository.common.CuRes
-import kotlinx.coroutines.launch
+import com.bitat.repository.po.SingleRoomPo
 import org.junit.Test
 
 /**
@@ -9,11 +8,17 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitResMsgDto {
+class ExampleUnitTest {
+
     @Test
     fun addition_isCorrect() {
-        println(255.toByte())
-        val deque = ArrayDeque<Int>(0)
+        val list = ArrayList<SingleRoomPo>()
+        val comparator = Comparator<SingleRoomPo> { r, l ->
+            if (r.top == l.top) {
+                (r.time - l.time).toInt()
+            } else r.top - l.top
+        }
+        list.sortWith(comparator)
     }
 
     private val tagDict = HashMap<String, Long>()
@@ -26,5 +31,6 @@ class ExampleUnitResMsgDto {
     private fun tags(str: String): Array<String> {
         return arrayOf("tag")
     }
+
 
 }
