@@ -131,7 +131,7 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ChatDetails.route) {
-            ChatDetailsPage(navController)
+            ChatDetailsPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.GDMap.route) {

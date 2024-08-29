@@ -51,7 +51,7 @@ fun ChatMessageOpt() {
 
 @Composable
 fun OptItem(title: String, tapFn: () -> Unit, button: @Composable () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth(0.25f)) {
+    Column(modifier = Modifier.fillMaxWidth(0.24f)) {
         button()
         Text(title)
     }

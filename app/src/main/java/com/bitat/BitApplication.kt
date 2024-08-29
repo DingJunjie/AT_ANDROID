@@ -8,6 +8,9 @@ import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.bitat.ext.flowbus.FlowBusInitializer
+import com.bitat.repository.sqlDB.SingleMsgDB
+import com.bitat.repository.sqlDB.SingleRoomDB
+import com.bitat.repository.sqlDB.SqlDB
 import kotlinx.coroutines.Dispatchers
 
 
@@ -43,6 +46,10 @@ class BitApplication : Application(), ImageLoaderFactory {
         // emoji 初始化
         val config: EmojiCompat.Config = BundledEmojiCompatConfig(this)
         EmojiCompat.init(config)
+
+        SqlDB.init(this)
+
+
     }
 
 

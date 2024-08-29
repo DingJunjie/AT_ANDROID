@@ -42,9 +42,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.store.UserStore
+import com.bitat.router.NavigationItem
 import com.bitat.state.OTHER_TAB_OPTIONS
 import com.bitat.ui.common.LottieBox
+import com.bitat.viewModel.ChatViewModel
 import com.bitat.viewModel.OthersViewModel
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,6 +62,9 @@ import kotlinx.coroutines.launch
 fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[OthersViewModel::class]
     val state by vm.othersState.collectAsState();
+
+    val chatVm = viewModelProvider[ChatViewModel::class]
+    val chatState by chatVm.state.collectAsState()
 
     val scope = rememberCoroutineScope()
     // tab bar 的state
@@ -134,15 +140,11 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                 if (state.userInfo != null) OthersDetail(
                     vm,
                     navController,
-                    nickname = state.userInfo!!.value.nickname,
-                    atAccount = state.userInfo!!.value.account,
-                    introduction = state.userInfo!!.value.nickname,
-                    avatar = state.userInfo!!.value.profile,
-                    cover = state.userInfo!!.value.cover,
-                    likes = state.userInfo!!.value.agrees,
-                    follows = state.userInfo!!.value.follows,
-                    fans = state.userInfo!!.value.fans
-                )
+                    state.userInfo!!.value
+                ) {
+                    chatVm.createRoom(it)
+                    navController.navigate(NavigationItem.ChatDetails.route)
+                }
                 Box(
                     modifier = Modifier.fillMaxWidth() //                    .height(200.dp)
                 ) {
@@ -195,14 +197,8 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 fun OthersDetail(
     viewModel: OthersViewModel,
     navHostController: NavHostController,
-    nickname: String,
-    atAccount: String,
-    introduction: String,
-    avatar: String,
-    cover: String,
-    fans: Int,
-    follows: Int,
-    likes: Int
+    userInfo: UserPartDto,
+    goChatDetail: (UserPartDto) -> Unit
 ) {
     val options = remember {
         List(4) { "Tab ${it + 1}" }
@@ -217,7 +213,7 @@ fun OthersDetail(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                AvatarWithShadow(url = avatar)
+                AvatarWithShadow(url = userInfo.profile)
 
                 Column(
                     modifier = Modifier
@@ -238,8 +234,8 @@ fun OthersDetail(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        UserInfo(nickname, atAccount, introduction)
-                        SocialData(likes, fans = fans)
+                        UserInfo(userInfo.nickname, userInfo.account, userInfo.introduce)
+                        SocialData(userInfo.agrees, fans = userInfo.fans)
 //                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
                     }
                 }
@@ -249,20 +245,20 @@ fun OthersDetail(
 //                UserInfo(nickname, atAccount, introduction)
 //            }
             Text(
-                introduction,
+                userInfo.introduce,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(start = 15.dp, top = 15.dp)
             )
-            OthersOperationBar()
+            OthersOperationBar(followFn = {}, chatFn = { goChatDetail(userInfo) })
 //            AlbumList()
         }
     }
 }
 
 @Composable
-fun OthersOperationBar() {
+fun OthersOperationBar(followFn: () -> Unit, chatFn: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -298,6 +294,9 @@ fun OthersOperationBar() {
                     .weight(0.5f)
                     .height(40.dp)
                     .padding(horizontal = 10.dp)
+                    .clickable {
+                        chatFn()
+                    }
             ) {
                 Box(
                     modifier = Modifier

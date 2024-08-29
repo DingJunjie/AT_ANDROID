@@ -4,13 +4,21 @@ import android.database.Cursor
 
 class SingleRoomPo {
     var selfId: Long = 0
-    var otherId: Long =0
-    var time: Long =0
-    var status: Short =0
-    var kind: Short =0
-    var content: String =""
-    var unreads :Int = 0
-    var top :Int = 0
+    var otherId: Long = 0
+    var time: Long = 0
+    var status: Short = 0
+    var kind: Short = 0
+    var content: String = ""
+    var unreads: Int = 0
+    var top: Int = 0
+
+    // ----------------
+
+    var nickname: String = ""
+    var alias: String = ""
+    var profile: String = ""
+    var rel: Int = 0
+    var revRel: Int = 0
 
     companion object {
         fun of(cursor: Cursor) = SingleRoomPo().apply {

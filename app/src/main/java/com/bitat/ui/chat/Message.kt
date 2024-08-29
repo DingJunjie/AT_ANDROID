@@ -15,10 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.bitat.repository.po.SingleMsgPo
 
 
 @Composable
-fun SenderMessage(message: String) {
+fun SenderMessage(msg: SingleMsgPo) {
     Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
         Surface(
             color = Color.Black,
@@ -30,7 +31,7 @@ fun SenderMessage(message: String) {
 //                .height(100.dp),
         ) {
             Text(
-                text = message,
+                text = msg.content,
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
             )

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -59,9 +60,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ext.Density
+import com.bitat.repository.consts.CHAT_Text
+import com.bitat.repository.po.SingleMsgPo
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
@@ -72,6 +76,7 @@ import com.bitat.ui.discovery.CardView
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
+import com.bitat.viewModel.ChatViewModel
 
 /**
  *    author : shilu
@@ -80,10 +85,13 @@ import com.bitat.viewModel.ChatDetailsViewModel
  */
 
 @Composable
-fun ChatDetailsPage(navHostController: NavHostController) {
+fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
     val vm: ChatDetailsViewModel = viewModel()
     val state by vm.state.collectAsState()
+
+    val chatVm = viewModelProvider[ChatViewModel::class]
+    val chatState by chatVm.state.collectAsState()
 
     val chatInput = remember { mutableStateOf("") }
     val showMsgOpt = remember {
@@ -95,14 +103,16 @@ fun ChatDetailsPage(navHostController: NavHostController) {
     }
 
     Scaffold(topBar = {
-        ChatDetailTopBar(name = "hello",
-            avatar = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg",
-            backButton = { navHostController.popBackStack() },
+        ChatDetailTopBar(name = chatState.currentUserInfo!!.nickname,
+            avatar = chatState.currentUserInfo!!.profile,
+            backButton = {
+                chatVm.clearRoom()
+                navHostController.popBackStack()
+            },
             goProfile = { /*TODO*/ }) {}
     }, bottomBar = {
         ChatBottomContainer(message = chatInput.value) {
             chatInput.value = it
-
         }
     }) { padding ->
         LazyColumn(
@@ -112,7 +122,8 @@ fun ChatDetailsPage(navHostController: NavHostController) {
 
                 }
         ) {
-            items(1) {
+            items(state.messageList) { item ->
+                ChatSenderMessage(item)
                 TimeMessage(timestamp = 1231891839)
                 Box(modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = {
@@ -120,11 +131,27 @@ fun ChatDetailsPage(navHostController: NavHostController) {
                         showMsgOpt.value = true
                     })
                 }) {
-                    MessageList()
-                } 
+//                    MessageList()
+                }
                 RecallMessage(nickname = "hello")
                 SenderReplyMessage("haha")
                 SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                Box(modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
+                }) {
+//                    MessageList()
+                }
+                Box(modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
+                }) {
+//                    MessageList()
+                }
             }
         }
 
@@ -148,10 +175,10 @@ fun ChatDetailsPage(navHostController: NavHostController) {
     }
 }
 
-@Composable
-fun MessageList() {
-    SenderMessage(message = "hello world")
-}
+//@Composable
+//fun MessageList() {
+//    SenderMessage(message = "hello world")
+//}
 
 @Composable
 fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
@@ -168,6 +195,13 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 20.dp)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+        ) {
+            Text("for reply")
+        }
         ChatInputField(message, msgChange, toggleEmoji = {
             optShow.value = false
             emojiShow.value = !emojiShow.value
@@ -179,6 +213,14 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
             msgChange(message + it)
         })
         if (optShow.value) ChatOperations()
+    }
+}
+
+@Composable
+fun ChatSenderMessage(msg: SingleMsgPo) {
+    when (msg.kind) {
+        CHAT_Text ->
+            SenderMessage(msg)
     }
 }
 
