@@ -52,12 +52,21 @@ object SingleRoomDB {
     )
 
     //修改配置
-    fun updateCfg(cfg: String, selfId: Long, otherId: Long,) = SqlDB.exec(
+    fun updateUnread(unreads: Int, selfId: Long, otherId: Long) = SqlDB.exec(
+        "update single_room set unreads = unreads + ? where self_id = ? and other_id = ?",
+        unreads,
+        selfId,
+        otherId
+    )
+
+    //修改配置
+    fun updateCfg(cfg: String, selfId: Long, otherId: Long) = SqlDB.exec(
         "update single_room set cfg = ? where self_id = ? and other_id = ?",
         cfg,
         selfId,
         otherId
     )
+
     //修改置顶
     fun updateTop(top: Int, selfId: Long, otherId: Long) = SqlDB.exec(
         "update single_room set top = ? where self_id = ? and other_id = ?",
@@ -65,8 +74,9 @@ object SingleRoomDB {
         selfId,
         otherId
     )
+
     //删除聊天室
-    fun delete(selfId: Long, otherId: Long, ) = SqlDB.exec(
+    fun delete(selfId: Long, otherId: Long) = SqlDB.exec(
         "delete from single_room where self_id = ? and other_id = ?",
         selfId,
         otherId,
