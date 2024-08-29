@@ -39,7 +39,7 @@ object SingleRoomDB {
 
     //新增聊天室存在则修改
     fun insertOrUpdate(
-        selfId: Long, otherId: Long, unreads: Int, top: Int, cfg: String
+        selfId: Long, otherId: Long, unreads: Int = 1, top: Int = 0, cfg: String = ""
     ) = SqlDB.exec(
         """insert into single_room (self_id,other_id,unreads,top,cfg) values (?,?,?,?,?) 
            ON CONFLICT(self_id,other_id) DO UPDATE SET unreads = unreads + ?;""",
@@ -49,14 +49,6 @@ object SingleRoomDB {
         top,
         cfg,
         unreads,
-    )
-
-    //修改配置
-    fun updateUnread(unreads: Int, selfId: Long, otherId: Long) = SqlDB.exec(
-        "update single_room set unreads = unreads + ? where self_id = ? and other_id = ?",
-        unreads,
-        selfId,
-        otherId
     )
 
     //修改配置

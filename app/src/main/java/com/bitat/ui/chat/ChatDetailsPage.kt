@@ -59,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ext.Density
@@ -72,6 +73,7 @@ import com.bitat.ui.discovery.CardView
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
+import com.bitat.viewModel.ChatViewModel
 
 /**
  *    author : shilu
@@ -80,10 +82,13 @@ import com.bitat.viewModel.ChatDetailsViewModel
  */
 
 @Composable
-fun ChatDetailsPage(navHostController: NavHostController) {
+fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
     val vm: ChatDetailsViewModel = viewModel()
     val state by vm.state.collectAsState()
+
+    val chatVm = viewModelProvider[ChatViewModel::class]
+    val chatState by chatVm.state.collectAsState()
 
     val chatInput = remember { mutableStateOf("") }
     val showMsgOpt = remember {
@@ -95,14 +100,16 @@ fun ChatDetailsPage(navHostController: NavHostController) {
     }
 
     Scaffold(topBar = {
-        ChatDetailTopBar(name = "hello",
-            avatar = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg",
-            backButton = { navHostController.popBackStack() },
+        ChatDetailTopBar(name = chatState.currentUserInfo!!.nickname,
+            avatar = chatState.currentUserInfo!!.profile,
+            backButton = {
+                chatVm.clearRoom()
+                navHostController.popBackStack()
+            },
             goProfile = { /*TODO*/ }) {}
     }, bottomBar = {
         ChatBottomContainer(message = chatInput.value) {
             chatInput.value = it
-
         }
     }) { padding ->
         LazyColumn(
@@ -121,10 +128,26 @@ fun ChatDetailsPage(navHostController: NavHostController) {
                     })
                 }) {
                     MessageList()
-                } 
+                }
                 RecallMessage(nickname = "hello")
                 SenderReplyMessage("haha")
                 SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+                Box(modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
+                }) {
+                    MessageList()
+                }
+                Box(modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
+                }) {
+                    MessageList()
+                }
             }
         }
 

@@ -41,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,8 +57,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.Local
+import com.bitat.repository.dto.req.UserInfoDto
+import com.bitat.repository.dto.resp.UserPartDto
+import com.bitat.repository.po.SingleRoomPo
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
@@ -68,14 +73,19 @@ import com.bitat.ui.common.WeSwipeAction
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
+import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ChatPage(navHostController: NavHostController) {
+fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val tabPager: PagerState = rememberPagerState(0, pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
+
+    val chatVm = viewModelProvider[ChatViewModel::class]
+    val chatState by chatVm.state.collectAsState()
+
 
     val options = remember {
         listOf(
@@ -142,7 +152,7 @@ fun ChatPage(navHostController: NavHostController) {
                     .background(Color(0xfff5f5f5))
                     .padding(horizontal = 8.dp)
                     .clickable { }) {
-                    ChatList(options, toast) {
+                    ChatList(chatState.chatList, options, toast) {
                         AtNavigation(navHostController).navigateToChatDetailsPage()
                     }
                 }
@@ -233,7 +243,12 @@ fun ChatTabItem(
 }
 
 @Composable
-fun ChatList(options: List<SwipeActionItem>, toast: ToastState, itemClick: (() -> Unit)) {
+fun ChatList(
+    roomList: List<SingleRoomPo>,
+    options: List<SwipeActionItem>,
+    toast: ToastState,
+    itemClick: (() -> Unit)
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -241,9 +256,10 @@ fun ChatList(options: List<SwipeActionItem>, toast: ToastState, itemClick: (() -
             .padding(
                 top = 4.dp,
                 bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
-            )
+            ),
+        reverseLayout = true
     ) {
-        items(11) { item ->
+        items(roomList.size) { item ->
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
