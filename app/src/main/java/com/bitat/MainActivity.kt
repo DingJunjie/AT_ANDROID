@@ -92,20 +92,6 @@ class MainActivity : ComponentActivity() {
         KeySecret.start()
         TcpClient.start()
 
-        MainCo.launch {
-            SingleMsgDB.insertOne(
-                selfId = 1,
-                otherId = 2,
-                status = 1,
-                time = TimeUtils.getNow(),
-                kind = 1,
-                content = "hello world"
-            )
-
-            SingleMsgDB.getMsg(selfId = 1, otherId = 2).let {
-                println("hello world, $it")
-            }
-        }
 
     }
 

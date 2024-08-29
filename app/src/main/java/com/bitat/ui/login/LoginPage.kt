@@ -68,7 +68,9 @@ import com.bitat.style.FontStyle
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.ui.common.rememberAsyncAssetPainter
+import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.LoginViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -490,7 +492,22 @@ fun PolicyAndPolitics(accepted: Boolean = true, toggleAccept: (Boolean) -> Unit)
             modifier = Modifier.align(Alignment.CenterVertically),
             color = Color.Black
         )
-        TextButton(onClick = {}) {
+        TextButton(onClick = {
+            MainCo.launch(IO) {
+                SingleMsgDB.insertOne(
+                    selfId = 5,
+                    otherId = 7,
+                    status = 1,
+                    time = TimeUtils.getNow(),
+                    kind = 3,
+                    content = "hello world wow"
+                )
+
+                SingleMsgDB.getMsg(selfId = 1, otherId = 2).let {
+                    println("hello world, $it")
+                }
+            }
+        }) {
             Text("用户协议")
         }
         Text("和", modifier = Modifier.align(Alignment.CenterVertically), color = Color.Black)
