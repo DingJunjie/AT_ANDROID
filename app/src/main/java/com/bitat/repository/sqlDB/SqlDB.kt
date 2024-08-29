@@ -51,13 +51,13 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         fun fetchDB() = DB ?: throw Exception("Null SqlDB")
 
-        fun exec(sql: String, vararg bindings: Any) = fetchDB().writableDatabase?.run {
+        fun exec(sql: String, vararg bindings: Any) = fetchDB().writableDatabase.run {
             execSQL(sql, bindings.map(Any::toString).toTypedArray())
             close()
         }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB().readableDatabase?.run {
+            fetchDB().readableDatabase.run {
                 val res = rawQuery(
                     sql, bindings.map(Any::toString).toTypedArray()
                 )?.run { if (moveToFirst()) toFn(this) else null }
@@ -67,7 +67,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         inline fun <reified T> queryBatch(
             toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = fetchDB().readableDatabase?.run {
+        ) = fetchDB().readableDatabase.run {
             val res = rawQuery(
                 sql, bindings.map(Any::toString).toTypedArray()
             )?.run {
