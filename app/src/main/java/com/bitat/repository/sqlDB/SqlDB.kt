@@ -51,7 +51,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         fun fetchDB() = DB ?: throw Exception("Null SqlDB")
 
-        fun exec(sql: String, vararg bindings: Any) = DB?.writableDatabase?.run {
+        fun exec(sql: String, vararg bindings: Any) = fetchDB().writableDatabase?.run {
             execSQL(sql, bindings.map(Any::toString).toTypedArray())
             close()
         }
