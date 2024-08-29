@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -63,6 +64,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ext.Density
+import com.bitat.repository.consts.CHAT_Text
+import com.bitat.repository.po.SingleMsgPo
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
@@ -119,7 +122,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
                 }
         ) {
-            items(1) {
+            items(state.messageList) { item ->
+                ChatSenderMessage(item)
                 TimeMessage(timestamp = 1231891839)
                 Box(modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = {
@@ -127,7 +131,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         showMsgOpt.value = true
                     })
                 }) {
-                    MessageList()
+//                    MessageList()
                 }
                 RecallMessage(nickname = "hello")
                 SenderReplyMessage("haha")
@@ -138,7 +142,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         showMsgOpt.value = true
                     })
                 }) {
-                    MessageList()
+//                    MessageList()
                 }
                 Box(modifier = Modifier.pointerInput(Unit) {
                     detectTapGestures(onTap = {
@@ -146,7 +150,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         showMsgOpt.value = true
                     })
                 }) {
-                    MessageList()
+//                    MessageList()
                 }
             }
         }
@@ -171,10 +175,10 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 }
 
-@Composable
-fun MessageList() {
-    SenderMessage(message = "hello world")
-}
+//@Composable
+//fun MessageList() {
+//    SenderMessage(message = "hello world")
+//}
 
 @Composable
 fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
@@ -191,6 +195,13 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 20.dp)
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+        ) {
+            Text("for reply")
+        }
         ChatInputField(message, msgChange, toggleEmoji = {
             optShow.value = false
             emojiShow.value = !emojiShow.value
@@ -202,6 +213,14 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
             msgChange(message + it)
         })
         if (optShow.value) ChatOperations()
+    }
+}
+
+@Composable
+fun ChatSenderMessage(msg: SingleMsgPo) {
+    when (msg.kind) {
+        CHAT_Text ->
+            SenderMessage(msg)
     }
 }
 

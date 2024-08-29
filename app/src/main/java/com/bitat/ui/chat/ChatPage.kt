@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -41,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -85,7 +87,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
-
 
     val options = remember {
         listOf(
@@ -257,9 +258,8 @@ fun ChatList(
                 top = 4.dp,
                 bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
             ),
-        reverseLayout = true
     ) {
-        items(roomList.size) { item ->
+        items(roomList) { item ->
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -278,7 +278,7 @@ fun ChatList(
                     },
                     height = 80.dp,
                 ) {
-                    ChatListItem(itemClick)
+                    ChatListItem(item, itemClick)
                 }
             }
         }
@@ -286,7 +286,7 @@ fun ChatList(
 }
 
 @Composable
-fun ChatListItem(itemClick: (() -> Unit)) {
+fun ChatListItem(info: SingleRoomPo, itemClick: (() -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(horizontal = 10.dp)
     ) {
@@ -303,7 +303,7 @@ fun ChatListItem(itemClick: (() -> Unit)) {
                     .fillMaxWidth()
             ) {
                 Avatar(
-                    url = "https://n.sinaimg.cn/sinacn20111/600/w1920h1080/20190902/dde0-ieaiqii0290448.jpg",
+                    url = info.profile,
                     size = 50.dp
                 )
                 Column(
@@ -317,10 +317,10 @@ fun ChatListItem(itemClick: (() -> Unit)) {
                             .padding(bottom = 5.dp)
                             .fillMaxWidth()
                     ) {
-                        Nickname("This is my name")
+                        Nickname(info.alias.ifEmpty { info.nickname })
                         TimeWidget(sendTime = TimeUtils.getNow() - 10000)
                     }
-                    ChatContent(content = "最新的消息")
+                    ChatContent(content = info.content)
                 }
             }
         }

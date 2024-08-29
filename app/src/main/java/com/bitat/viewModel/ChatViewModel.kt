@@ -2,7 +2,10 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.repository.dto.req.FindBaseByIdsDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserPartDto
+import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -27,11 +30,61 @@ class ChatViewModel : ViewModel() {
         }
 
         _state.update {
-            it.copy(currentRoom = SingleRoomPo().apply {
+            val room = SingleRoomPo().apply {
                 selfId = UserStore.userInfo.id
                 otherId = otherInfo.id
                 unreads = 0
-            }, currentUserInfo = otherInfo)
+                profile = otherInfo.profile
+                alias = otherInfo.alias
+                rel = otherInfo.rel
+                revRel = otherInfo.revRel
+                nickname = otherInfo.nickname
+            }
+            it.chatList.add(room)
+            it.copy(
+                currentRoom = room, currentUserInfo = otherInfo
+            )
+        }
+    }
+
+    init {
+        getRooms()
+    }
+
+    fun getRooms() {
+        val ids = arrayListOf<Long>()
+        val r = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
+        val arr = if (r.isEmpty()) r.first() else arrayOf()
+        if (arr.isNotEmpty()) {
+            _state.update {
+                it.chatList.addAll(arr)
+                it
+            }
+        }
+
+        _state.value.chatList.forEach {
+            ids.add(it.otherId)
+        }
+
+        val tmpMap = mutableMapOf<Long, UserBase1Dto>()
+
+        MainCo.launch {
+            UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await().map { res ->
+                res.forEach {
+                    tmpMap[it.id] = it
+                }
+
+                _state.update {
+                    it.chatList.map { that ->
+                        that.nickname = res[that.otherId.toInt()].nickname
+                        that.profile = res[that.otherId.toInt()].profile
+                        that.rel = res[that.otherId.toInt()].rel
+                        that.revRel = res[that.otherId.toInt()].revRel
+                        that.alias = res[that.otherId.toInt()].alias
+                    }
+                    it
+                }
+            }
         }
     }
 

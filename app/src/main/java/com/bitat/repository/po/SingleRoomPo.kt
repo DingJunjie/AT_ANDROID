@@ -14,9 +14,11 @@ class SingleRoomPo {
 
     // ----------------
 
-    val nickname: String = ""
-    val alias: String = ""
-    val profile: String = ""
+    var nickname: String = ""
+    var alias: String = ""
+    var profile: String = ""
+    var rel: Int = 0
+    var revRel: Int = 0
 
     companion object {
         fun of(cursor: Cursor) = SingleRoomPo().apply {

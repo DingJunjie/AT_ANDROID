@@ -118,7 +118,7 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 AtNavigation(navController).navigateToPublish()
             }
 
-            3 -> ChatPage(navController)
+            3 -> ChatPage(navController, viewModelProvider)
             4 -> ProfilePage(navController, viewModelProvider)
         } //        }
     })
