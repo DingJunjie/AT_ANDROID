@@ -60,7 +60,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             fetchDB().readableDatabase.run {
                 val res = rawQuery(
                     sql, bindings.map(Any::toString).toTypedArray()
-                )?.run { if (moveToFirst()) toFn(this) else null }
+                ).run { if (moveToFirst()) toFn(this) else null }
                 close()
                 res
             }
@@ -70,7 +70,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         ) = fetchDB().readableDatabase.run {
             val res = rawQuery(
                 sql, bindings.map(Any::toString).toTypedArray()
-            )?.run {
+            ).run {
                 listOf(Array(count) {
                     moveToNext()
                     toFn(this)
@@ -78,7 +78,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             }
             close()
             res
-        } ?: emptyArray<T>()
+        }
     }
 
 }
