@@ -9,11 +9,11 @@ private const val CREATE_TABLE_SINGLE_MSG = """
 CREATE TABLE IF NOT  EXISTS "single_msg" (
   "self_id" INTEGER NOT NULL,
   "other_id" INTEGER NOT NULL,
-  "status" integer NOT NULL,
   "time" INTEGER NOT NULL,
+  "status" integer NOT NULL,
   "kind" integer NOT NULL,
   "content" TEXT NOT NULL,
-  PRIMARY KEY ("self_id", "other_id","time")
+  PRIMARY KEY ("self_id","other_id","time","status")
 );
 
 CREATE INDEX  "single_msg_0"
