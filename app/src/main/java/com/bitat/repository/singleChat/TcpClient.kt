@@ -241,8 +241,8 @@ object TcpClient {
 
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
-        val decryptBody = KeySecret.encryptByKey(head.secret, body, null) //        TODO()
-        //        val selfId = UserStore.userInfo.id
+        val decryptBody = KeySecret.encryptByKey(head.secret, body, null)
+        // val selfId = UserStore.userInfo.id
         val selfId = 165L
         try {
             when (head.event) {
