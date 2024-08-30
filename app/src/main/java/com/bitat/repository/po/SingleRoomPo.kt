@@ -3,7 +3,7 @@ package com.bitat.repository.po
 import android.database.Cursor
 
 class SingleRoomPo {
-    var id :Long = 0
+    var id: Long = 0
     var selfId: Long = 0
     var otherId: Long = 0
     var time: Long = 0
@@ -12,7 +12,7 @@ class SingleRoomPo {
     var content: String = ""
     var unreads: Int = 0
     var top: Int = 0
-    var cfg:String = ""
+    var cfg: String = ""
     // ----------------
 
     var nickname: String = ""
@@ -33,6 +33,7 @@ class SingleRoomPo {
             unreads = cursor.getInt(7)
             top = cursor.getInt(8)
         }
+
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
             selfId = cursor.getLong(0)
             otherId = cursor.getLong(1)

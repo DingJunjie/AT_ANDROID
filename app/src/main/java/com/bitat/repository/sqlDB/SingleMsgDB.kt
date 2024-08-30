@@ -58,13 +58,14 @@ object SingleMsgDB {
     //插入一条消息
     fun insertOne(
         selfId: Long, otherId: Long, status: Short, time: Long, kind: Short, content: String
-    ) = SqlDB.queryOne(IdPo::of,
+    ) = SqlDB.queryOne(
+        IdPo::of,
         """insert into single_msg (self_id,other_id,time,status,kind,content)
-                "values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
+                values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
         selfId,
         otherId,
-        status,
         time,
+        status,
         kind,
         content
     )

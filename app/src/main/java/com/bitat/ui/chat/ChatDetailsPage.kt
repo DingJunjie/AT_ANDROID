@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -64,6 +65,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ext.Density
+import com.bitat.ext.clickableWithoutRipple
 import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.ui.common.CarmeraOpen
@@ -77,6 +79,7 @@ import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
+import kotlinx.coroutines.Dispatchers.IO
 
 /**
  *    author : shilu
@@ -102,9 +105,21 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(Offset(0f, 0f))
     }
 
+    LaunchedEffect(IO) {
+        vm.getMessage(chatState.currentRoom!!.otherId)
+    }
+
+    val currentItemCoor = remember {
+        mutableStateOf(0)
+    }
+
+    val canTouch = remember {
+        mutableStateOf(false)
+    }
+
     Scaffold(topBar = {
-        ChatDetailTopBar(name = chatState.currentUserInfo!!.nickname,
-            avatar = chatState.currentUserInfo!!.profile,
+        ChatDetailTopBar(name = chatState.currentUserInfo?.nickname ?: "",
+            avatar = chatState.currentUserInfo?.profile ?: "",
             backButton = {
                 chatVm.clearRoom()
                 navHostController.popBackStack()
@@ -117,42 +132,49 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             vm.sendMessage(chatState.currentRoom!!.otherId, 1, it)
         })
     }) { padding ->
+
         LazyColumn(
+            reverseLayout = true,
             modifier = Modifier
                 .padding(padding)
-                .clickable {
-
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        currentPointerOffset.value = it
+                        showMsgOpt.value = true
+                    })
                 }
         ) {
             items(state.messageList) { item ->
-                ChatSenderMessage(item)
-                TimeMessage(timestamp = 1231891839)
-                Box(modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        currentPointerOffset.value = it
-                        showMsgOpt.value = true
-                    })
-                }) {
-//                    MessageList()
-                }
-                RecallMessage(nickname = "hello")
-                SenderReplyMessage("haha")
-                SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
-                Box(modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        currentPointerOffset.value = it
-                        showMsgOpt.value = true
-                    })
-                }) {
-//                    MessageList()
-                }
-                Box(modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        currentPointerOffset.value = it
-                        showMsgOpt.value = true
-                    })
-                }) {
-//                    MessageList()
+
+
+//                TimeMessage(timestamp = 1231891839)
+//                Box(modifier = Modifier.pointerInput(Unit) {
+//                    detectTapGestures(onTap = {
+//                        currentPointerOffset.value = it
+//                        showMsgOpt.value = true
+//                    })
+//                }) {
+////                    MessageList()
+//                }
+//                RecallMessage(nickname = "hello")
+//                SenderReplyMessage("haha")
+//                SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
+//                Box(modifier = Modifier.pointerInput(Unit) {
+//                    detectTapGestures(onTap = {
+//                        currentPointerOffset.value = it
+//                        showMsgOpt.value = true
+//                    })
+//                }) {
+////                    MessageList()
+//                }
+                Box(modifier = Modifier
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+//                            canTouch.value = true
+                        })
+                    }
+                ) {
+                    ChatSenderMessage(item)
                 }
             }
         }
@@ -165,16 +187,25 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //        }
     }
 
-    if (showMsgOpt.value) Surface(
-        shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.offset(
-            currentPointerOffset.value.x.div(Density).toInt().dp,
-            currentPointerOffset.value.y.dp
+    if (showMsgOpt.value)
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.LightGray)
+            .clickableWithoutRipple {
+                showMsgOpt.value = false
+                canTouch.value = false
+            }) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.offset(
+                    currentPointerOffset.value.x.div(Density).toInt().dp,
+                    currentPointerOffset.value.y.plus(currentItemCoor.value).dp
 //                .div(Density).toInt().dp
-        )
-    ) {
-        ChatMessageOpt()
-    }
+                )
+            ) {
+                ChatMessageOpt()
+            }
+        }
 }
 
 //@Composable

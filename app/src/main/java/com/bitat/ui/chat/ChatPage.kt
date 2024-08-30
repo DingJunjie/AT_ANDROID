@@ -154,6 +154,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     .padding(horizontal = 8.dp)
                     .clickable { }) {
                     ChatList(chatState.chatList, options, toast) {
+                        chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
                     }
                 }
@@ -248,7 +249,7 @@ fun ChatList(
     roomList: List<SingleRoomPo>,
     options: List<SwipeActionItem>,
     toast: ToastState,
-    itemClick: (() -> Unit)
+    itemClick: ((SingleRoomPo) -> Unit)
 ) {
     LazyColumn(
         modifier = Modifier
@@ -286,7 +287,7 @@ fun ChatList(
 }
 
 @Composable
-fun ChatListItem(info: SingleRoomPo, itemClick: (() -> Unit)) {
+fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(horizontal = 10.dp)
     ) {
@@ -294,7 +295,7 @@ fun ChatListItem(info: SingleRoomPo, itemClick: (() -> Unit)) {
             .fillMaxWidth()
             .height(80.dp)
             .background(Color.White)
-            .clickable { itemClick() }) {
+            .clickable { itemClick(info) }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
