@@ -14,6 +14,9 @@ import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ChatState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,7 +81,10 @@ class ChatViewModel : ViewModel() {
     }
 
     init {
-        getRooms()
+        MainCo.launch {
+            delay(300L)
+            getRooms()
+        }
     }
 
     fun chooseRoom(room: SingleRoomPo) {
@@ -112,7 +118,7 @@ class ChatViewModel : ViewModel() {
 
         val tmpMap = mutableMapOf<Long, UserBase1Dto>()
 
-        MainCo.launch {
+        MainCo.launch(Dispatchers.Default) {
             UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await().map { res ->
                 res.forEach {
                     tmpMap[it.id] = it
@@ -133,6 +139,7 @@ class ChatViewModel : ViewModel() {
 //                        that.revRel = tmpMap[that.otherId]!!.revRel
 //                        that.alias = tmpMap[that.otherId]!!.alias
 //                    }
+                    it.chatList.clear()
                     it.chatList.addAll(tmpArr)
                     it
                 }

@@ -9,6 +9,8 @@ import com.bitat.repository.store.UserStore
 import com.bitat.state.ChatDetailsState
 import com.bitat.utils.TimeUtils
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
@@ -18,18 +20,19 @@ import kotlinx.coroutines.flow.update
  *    desc   :
  */
 class ChatDetailsViewModel : ViewModel() {
-    val state = MutableStateFlow(ChatDetailsState())
+    val _state = MutableStateFlow(ChatDetailsState())
+    val state: StateFlow<ChatDetailsState> get() = _state.asStateFlow()
 
     fun getMessage(toId: Long, pageSize: Int = 30, pageNo: Int = 0) {
         val msg = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, pageNo, pageSize)
-        state.update {
+        _state.update {
             it.messageList.addAll(msg.first())
             it
         }
     }
 
     fun getNewMessage(newMsg: SingleMsgPo) {
-        state.update {
+        _state.update {
             it.messageList.add(newMsg)
             it
         }
@@ -45,7 +48,7 @@ class ChatDetailsViewModel : ViewModel() {
         msg.otherId = toId
         SingleMsgDB.insertOne(msg.selfId, msg.otherId, msg.status, msg.time, msg.kind, msg.content)
 
-        state.update {
+        _state.update {
             it.messageList.add(0, msg)
             it
         }
