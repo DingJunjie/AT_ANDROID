@@ -1,5 +1,6 @@
 package com.bitat.viewModel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.repository.dto.req.FindBaseByIdsDto
@@ -51,18 +52,32 @@ class ChatViewModel : ViewModel() {
         getRooms()
     }
 
+    fun chooseRoom(room: SingleRoomPo) {
+        _state.update {
+            it.copy(
+                currentRoom = room,
+            )
+        }
+    }
+
     fun getRooms() {
         val ids = arrayListOf<Long>()
         val r = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
         val arr = if (r.isNotEmpty()) r.first() else arrayOf()
+        val tmpArr = mutableStateListOf<SingleRoomPo>()
         if (arr.isNotEmpty()) {
-            _state.update {
-                it.chatList.addAll(arr)
-                it
-            }
+//            _state.update {
+//                it.chatList.addAll(arr)
+//                it
+//            }
+            tmpArr.addAll(arr)
         }
 
-        _state.value.chatList.forEach {
+//        _state.value.chatList.forEach {
+//            ids.add(it.otherId)
+//        }
+
+        tmpArr.forEach {
             ids.add(it.otherId)
         }
 
@@ -75,13 +90,21 @@ class ChatViewModel : ViewModel() {
                 }
 
                 _state.update {
-                    it.chatList.map { that ->
-                        that.nickname = res[that.otherId.toInt()].nickname
-                        that.profile = res[that.otherId.toInt()].profile
-                        that.rel = res[that.otherId.toInt()].rel
-                        that.revRel = res[that.otherId.toInt()].revRel
-                        that.alias = res[that.otherId.toInt()].alias
+                    tmpArr.forEach { that ->
+                        that.nickname = tmpMap[that.otherId]!!.nickname
+                        that.profile = tmpMap[that.otherId]!!.profile
+                        that.rel = tmpMap[that.otherId]!!.rel
+                        that.revRel = tmpMap[that.otherId]!!.revRel
+                        that.alias = tmpMap[that.otherId]!!.alias
                     }
+//                    it.chatList.map { that ->
+//                        that.nickname = tmpMap[that.otherId]!!.nickname
+//                        that.profile = tmpMap[that.otherId]!!.profile
+//                        that.rel = tmpMap[that.otherId]!!.rel
+//                        that.revRel = tmpMap[that.otherId]!!.revRel
+//                        that.alias = tmpMap[that.otherId]!!.alias
+//                    }
+                    it.chatList.addAll(tmpArr)
                     it
                 }
             }
