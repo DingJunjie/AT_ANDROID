@@ -65,7 +65,7 @@ object SingleMsgDB {
         selfId,
         otherId,
         time,
-        status,
+        status.toInt(),
         kind,
         content
     )

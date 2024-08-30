@@ -2,6 +2,7 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.UserStore
@@ -27,14 +28,20 @@ class ChatDetailsViewModel : ViewModel() {
         }
     }
 
+    fun getNewMessage(newMsg: SingleMsgPo) {
+        state.update {
+            it.messageList.add(newMsg)
+            it
+        }
+    }
 
-    fun sendMessage(toId: Long, kind: Int, content: String) {
+    fun sendMessage(toId: Long, kind: Int, content: String, completeFn: (SingleMsgPo) -> Unit) {
         val msg = SingleMsgPo()
         msg.kind = kind.toShort()
         msg.content = content
         msg.time = TimeUtils.getNow()
         msg.selfId = UserStore.userInfo.id
-        msg.status = 0
+        msg.status = 1
         msg.otherId = toId
         SingleMsgDB.insertOne(msg.selfId, msg.otherId, msg.status, msg.time, msg.kind, msg.content)
 
@@ -44,5 +51,6 @@ class ChatDetailsViewModel : ViewModel() {
         }
 
         TcpClient.chat(toId, kind, content.toByteArray(charset("UTF-8")))
+        completeFn(msg)
     }
 }

@@ -42,3 +42,25 @@ fun SenderMessage(msg: SingleMsgPo) {
         }
     }
 }
+
+@Composable
+fun RecipientMessage(msg: SingleMsgPo) {
+    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
+        Surface(
+            color = Color.Blue,
+            shape = RoundedCornerShape(30.dp),
+            modifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 20.dp)
+//                .fillMaxWidth(0.6f)
+                .widthIn(max = ScreenUtils.screenWidth.times(0.6).dp, min = 10.dp)
+//                .background(Color.Black)
+//                .height(100.dp),
+        ) {
+            Text(
+                text = msg.content,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
+            )
+        }
+    }
+}

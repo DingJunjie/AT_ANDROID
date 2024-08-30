@@ -1,5 +1,7 @@
 package com.bitat.ui.chat
 
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_UP
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,10 +54,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,8 +72,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.repository.singleChat.TcpHandler
+import com.bitat.repository.store.UserStore
+import com.bitat.repository.store.UserStore.userFlow
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
@@ -79,6 +90,7 @@ import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 
 /**
@@ -87,6 +99,7 @@ import kotlinx.coroutines.Dispatchers.IO
  *    desc   : 聊天页
  */
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
@@ -99,6 +112,13 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     val chatInput = remember { mutableStateOf("") }
     val showMsgOpt = remember {
         mutableStateOf(false)
+    }
+
+    LaunchedEffect(Dispatchers.Default) {
+        TcpHandler.chatFlow.collect { value ->
+            vm.getNewMessage(value)
+            CuLog.debug(CuTag.SingleChat, value.content)
+        }
     }
 
     val currentPointerOffset = remember {
@@ -114,7 +134,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     val canTouch = remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
 
     Scaffold(topBar = {
@@ -129,52 +149,39 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         ChatBottomContainer(message = chatInput.value, {
             chatInput.value = it
         }, {
-            vm.sendMessage(chatState.currentRoom!!.otherId, 1, it)
+            vm.sendMessage(chatState.currentRoom!!.otherId, 1, it) { that ->
+                chatVm.updateRoomInfo(that)
+            }
         })
-    }) { padding ->
-
-        LazyColumn(
-            reverseLayout = true,
+    }, modifier = Modifier.imePadding()) { padding ->
+        Box(
             modifier = Modifier
-                .padding(padding)
+                .fillMaxSize()
                 .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
+                    detectTapGestures(onLongPress = {
+//                        if (canTouch.value) {
                         currentPointerOffset.value = it
                         showMsgOpt.value = true
+//                        }
                     })
                 }
         ) {
-            items(state.messageList) { item ->
+            LazyColumn(
+                reverseLayout = true,
+                modifier = Modifier
+                    .padding(padding)
+            ) {
+                items(state.messageList) { item ->
+                    if (item.status.toInt() == 1 || item.status.toInt() == 2) {
+                        when (item.kind) {
+                            CHAT_Text -> ChatSenderMessage(item)
 
-
-//                TimeMessage(timestamp = 1231891839)
-//                Box(modifier = Modifier.pointerInput(Unit) {
-//                    detectTapGestures(onTap = {
-//                        currentPointerOffset.value = it
-//                        showMsgOpt.value = true
-//                    })
-//                }) {
-////                    MessageList()
-//                }
-//                RecallMessage(nickname = "hello")
-//                SenderReplyMessage("haha")
-//                SenderImage("https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg")
-//                Box(modifier = Modifier.pointerInput(Unit) {
-//                    detectTapGestures(onTap = {
-//                        currentPointerOffset.value = it
-//                        showMsgOpt.value = true
-//                    })
-//                }) {
-////                    MessageList()
-//                }
-                Box(modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-//                            canTouch.value = true
-                        })
+                        }
+                    } else if (item.status.toInt() == -1) {
+                        when (item.kind) {
+                            CHAT_Text -> RecipientMessage(item)
+                        }
                     }
-                ) {
-                    ChatSenderMessage(item)
                 }
             }
         }
@@ -190,7 +197,6 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     if (showMsgOpt.value)
         Box(modifier = Modifier
             .fillMaxSize()
-            .background(Color.LightGray)
             .clickableWithoutRipple {
                 showMsgOpt.value = false
                 canTouch.value = false
@@ -199,7 +205,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.offset(
                     currentPointerOffset.value.x.div(Density).toInt().dp,
-                    currentPointerOffset.value.y.plus(currentItemCoor.value).dp
+                    currentPointerOffset.value.y.div(Density).toInt().dp
 //                .div(Density).toInt().dp
                 )
             ) {

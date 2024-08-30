@@ -7,6 +7,7 @@ import com.bitat.repository.dto.req.FindBaseByIdsDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -20,6 +21,31 @@ import kotlinx.coroutines.launch
 class ChatViewModel : ViewModel() {
     private val _state = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> get() = _state.asStateFlow()
+
+    fun updateRoomInfo(msg: SingleMsgPo) {
+        _state.update {
+            val index = it.chatList.indexOfFirst { that ->
+                that.otherId == msg.otherId
+            }
+            it.chatList[index].content = msg.content
+            it.chatList[index].time = msg.time
+            it.chatList[index].kind = msg.kind
+
+            it
+        }
+    }
+
+    fun sortMessage() {
+        val comparator = Comparator<SingleRoomPo> { r, l ->
+            if (r.top == l.top) {
+                (r.time - l.time).toInt()
+            } else r.top - l.top
+        }
+        _state.update {
+            it.chatList.sortWith(comparator)
+            it
+        }
+    }
 
     fun createRoom(otherInfo: UserPartDto) {
         MainCo.launch {
