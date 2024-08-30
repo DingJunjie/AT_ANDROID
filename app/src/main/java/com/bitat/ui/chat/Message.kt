@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.utils.ScreenUtils
 
 
 @Composable
@@ -26,7 +29,8 @@ fun SenderMessage(msg: SingleMsgPo) {
             shape = RoundedCornerShape(30.dp),
             modifier = Modifier
                 .padding(vertical = 10.dp, horizontal = 20.dp)
-                .fillMaxWidth(0.6f)
+//                .fillMaxWidth(0.6f)
+                .widthIn(max = ScreenUtils.screenWidth.times(0.6).dp, min = 10.dp)
 //                .background(Color.Black)
 //                .height(100.dp),
         ) {

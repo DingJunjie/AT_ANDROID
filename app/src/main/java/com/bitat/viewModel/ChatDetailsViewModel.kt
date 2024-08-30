@@ -19,6 +19,15 @@ import kotlinx.coroutines.flow.update
 class ChatDetailsViewModel : ViewModel() {
     val state = MutableStateFlow(ChatDetailsState())
 
+    fun getMessage(toId: Long, pageSize: Int = 30, pageNo: Int = 0) {
+        val msg = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, pageNo, pageSize)
+        state.update {
+            it.messageList.addAll(msg.first())
+            it
+        }
+    }
+
+
     fun sendMessage(toId: Long, kind: Int, content: String) {
         val msg = SingleMsgPo()
         msg.kind = kind.toShort()
@@ -26,10 +35,11 @@ class ChatDetailsViewModel : ViewModel() {
         msg.time = TimeUtils.getNow()
         msg.selfId = UserStore.userInfo.id
         msg.status = 0
+        msg.otherId = toId
         SingleMsgDB.insertOne(msg.selfId, msg.otherId, msg.status, msg.time, msg.kind, msg.content)
 
         state.update {
-            it.messageList.add(msg)
+            it.messageList.add(0, msg)
             it
         }
 
