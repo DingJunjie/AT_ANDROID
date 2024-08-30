@@ -38,6 +38,7 @@ class BitApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        System.loadLibrary("sqliteX")
         //全局ctx初始化
         Local.ctx = this
         //事件发布初始化
@@ -48,7 +49,7 @@ class BitApplication : Application(), ImageLoaderFactory {
         EmojiCompat.init(config)
 
         SqlDB.init(this)
-        System.loadLibrary("sqliteX")
+
 
     }
 

@@ -1,12 +1,10 @@
 package com.bitat.repository.sqlDB
 
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
-import com.bitat.repository.po.UserPo
+import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_SINGLE_MSG = """
  CREATE TABLE IF NOT EXISTS "single_msg" (

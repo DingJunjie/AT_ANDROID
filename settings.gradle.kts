@@ -30,6 +30,7 @@ dependencyResolutionManagement {
         maven { setUrl("https://repo.huaweicloud.com/repository/maven") }
         google()
         mavenCentral()
+
     }
 }
 

@@ -1,6 +1,6 @@
 package com.bitat.repository.sqlDB
 
-import android.database.sqlite.SQLiteDatabase
+import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_MY_ATS = """
 CREATE TABLE IF NOT  EXISTS "my_ats" (

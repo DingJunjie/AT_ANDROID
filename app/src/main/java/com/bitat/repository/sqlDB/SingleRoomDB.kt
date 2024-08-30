@@ -1,8 +1,7 @@
 package com.bitat.repository.sqlDB
 
-import android.database.sqlite.SQLiteDatabase
-import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_SINGLE_ROOM = """
 CREATE TABLE IF NOT  EXISTS "single_room" (

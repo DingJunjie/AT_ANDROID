@@ -1,6 +1,6 @@
 package com.bitat.repository.sqlDB
 
-import android.database.sqlite.SQLiteDatabase
+import org.sqlite.database.sqlite.SQLiteDatabase
 import com.bitat.repository.po.UserPo
 
 

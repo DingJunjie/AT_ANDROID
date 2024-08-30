@@ -73,12 +73,12 @@
             android:name="com.amap.api.v2.apikey"
             android:value="ce95b0dff00440e52f61c6e194912572" />
 
-<!--        <uses-library android:name="org.sqlite.database" android:required="true"-->
-<!--            tools:ignore="WrongManifestParent" />-->
-
-
-        <uses-library android:name="sqlite-android-3460100" android:required="true"
+        <uses-library android:name="org.sqlite.database" android:required="false"
             tools:ignore="WrongManifestParent" />
+
+
+<!--        <uses-library android:name="sqlite-android-3460100" android:required="true"-->
+<!--            tools:ignore="WrongManifestParent" />-->
         <activity
             android:name=".MainActivity"
             android:exported="true">
