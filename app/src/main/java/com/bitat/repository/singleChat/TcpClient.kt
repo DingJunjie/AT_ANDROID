@@ -160,7 +160,6 @@ object TcpClient {
         val byteBuffer = ByteBuffer.allocate(1024)
         readBuf.byteBuffer = byteBuffer
         conn?.read(byteBuffer, readBuf, readHandler)
-
     }
 
     private fun genMsg(event: Short, body: ByteArray): ByteArray? {
