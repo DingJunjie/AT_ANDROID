@@ -24,11 +24,13 @@ class SingleRoomPo {
         fun of(cursor: Cursor) = SingleRoomPo().apply {
             selfId = cursor.getLong(0)
             otherId = cursor.getLong(1)
-            unreads = cursor.getInt(2)
-            top = cursor.getInt(3)
-            time = cursor.getLong(4)
-            kind = cursor.getShort(5)
-            content = cursor.getString(6)
+            status = cursor.getShort(2)
+            time = cursor.getLong(3)
+            kind = cursor.getShort(4)
+            content = cursor.getString(5)
+            unreads = cursor.getInt(6)
+            top = cursor.getInt(7)
+
         }
     }
 }

@@ -54,7 +54,7 @@ class ChatViewModel : ViewModel() {
     fun getRooms() {
         val ids = arrayListOf<Long>()
         val r = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
-        val arr = if (r.isEmpty()) r.first() else arrayOf()
+        val arr = if (r.isNotEmpty()) r.first() else arrayOf()
         if (arr.isNotEmpty()) {
             _state.update {
                 it.chatList.addAll(arr)

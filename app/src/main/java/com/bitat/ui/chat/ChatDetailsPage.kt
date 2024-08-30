@@ -111,9 +111,11 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             },
             goProfile = { /*TODO*/ }) {}
     }, bottomBar = {
-        ChatBottomContainer(message = chatInput.value) {
+        ChatBottomContainer(message = chatInput.value, {
             chatInput.value = it
-        }
+        }, {
+            vm.sendMessage(chatState.currentRoom!!.otherId, 1, it)
+        })
     }) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -163,7 +165,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //        }
     }
 
-    Surface(
+    if (showMsgOpt.value) Surface(
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier.offset(
             currentPointerOffset.value.x.div(Density).toInt().dp,
@@ -181,7 +183,11 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //}
 
 @Composable
-fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
+fun ChatBottomContainer(
+    message: String,
+    msgChange: (String) -> Unit,
+    sendMessage: (String) -> Unit
+) {
     val optShow = remember {
         mutableStateOf(false)
     }
@@ -208,7 +214,7 @@ fun ChatBottomContainer(message: String, msgChange: (String) -> Unit) {
         }, toggleOperation = {
             emojiShow.value = false
             optShow.value = !optShow.value
-        })
+        }, sendMessage)
         if (emojiShow.value) EmojiTable(onTextAdded = {
             msgChange(message + it)
         })
@@ -229,7 +235,8 @@ fun ChatInputField(
     message: String,
     msgChange: (String) -> Unit,
     toggleEmoji: () -> Unit,
-    toggleOperation: () -> Unit
+    toggleOperation: () -> Unit,
+    sendMessage: (String) -> Unit
 ) {
     val isText = remember {
         mutableStateOf(true)
@@ -266,7 +273,7 @@ fun ChatInputField(
             IconButton(onClick = { toggleOperation() }) {
                 Icon(Icons.Filled.AddCircle, contentDescription = "")
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { sendMessage(message) }) {
                 Icon(Icons.Filled.Send, contentDescription = "")
             }
         }
