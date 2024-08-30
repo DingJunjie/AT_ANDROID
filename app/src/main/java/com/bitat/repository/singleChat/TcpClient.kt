@@ -42,7 +42,7 @@ object TcpClient {
 
     private var readBuf = TcpReadBuf()
 
-    private val handler = object : CompletionHandler<Int, TcpReadBuf> {
+    private val readHandler = object : CompletionHandler<Int, TcpReadBuf> {
         override fun completed(result: Int, readBuf: TcpReadBuf) {
             val byteBuf = readBuf.byteBuffer
             byteBuf.flip()
@@ -157,7 +157,7 @@ object TcpClient {
     private fun read() {
         val byteBuffer = ByteBuffer.allocate(1024)
         readBuf.byteBuffer = byteBuffer
-        conn?.read(byteBuffer, readBuf, handler)
+        conn?.read(byteBuffer, readBuf, readHandler)
 
     }
 
