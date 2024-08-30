@@ -173,4 +173,10 @@ class ProfileViewModel : ViewModel() {
             it.copy(lastIndex = index)
         }
     }
+
+    fun undateUser(){
+//        uiState.update {
+//
+//        }
+    }
 }

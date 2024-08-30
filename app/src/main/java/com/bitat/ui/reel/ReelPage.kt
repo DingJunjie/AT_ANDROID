@@ -1,7 +1,6 @@
 package com.bitat.ui.reel
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,10 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import chaintech.videoplayer.model.PlayerConfig
-import chaintech.videoplayer.ui.reel.ReelsPlayerView
-import com.bitat.ext.Density
-import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -51,7 +45,6 @@ import com.bitat.repository.consts.BLOG_IMAGE_TEXT
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
-import com.bitat.state.BlogOperation
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AtButton
@@ -74,7 +67,6 @@ import com.bitat.viewModel.OthersViewModel
 import com.bitat.viewModel.ReelViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

@@ -3,6 +3,7 @@ package com.bitat.repository.po
 import android.database.Cursor
 
 class SingleMsgPo {
+    var id :Long = 0
     var selfId: Long = 0
     var otherId: Long =0
     var time: Long =0
@@ -12,12 +13,13 @@ class SingleMsgPo {
 
     companion object {
         fun of(cursor: Cursor) = SingleMsgPo().apply {
-            selfId = cursor.getLong(0)
-            otherId = cursor.getLong(1)
-            status = cursor.getShort(2)
-            time = cursor.getLong(3)
-            kind = cursor.getShort(4)
-            content = cursor.getString(5)
+            id = cursor.getLong(0)
+            selfId = cursor.getLong(1)
+            otherId = cursor.getLong(2)
+            status = cursor.getShort(3)
+            time = cursor.getLong(4)
+            kind = cursor.getShort(5)
+            content = cursor.getString(6)
         }
     }
 }

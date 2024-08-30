@@ -2,26 +2,32 @@ package com.bitat.repository.sqlDB
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.UserPo
 
 private const val CREATE_TABLE_SINGLE_MSG = """
-CREATE TABLE IF NOT  EXISTS "single_msg" (
-  "self_id" INTEGER NOT NULL,
-  "other_id" INTEGER NOT NULL,
-  "time" INTEGER NOT NULL,
-  "status" integer NOT NULL,
-  "kind" integer NOT NULL,
-  "content" TEXT NOT NULL,
-  PRIMARY KEY ("self_id","other_id","time","status")
-);
+ CREATE TABLE IF NOT EXISTS "single_msg" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "self_id" INTEGER NOT NULL,
+      "other_id" INTEGER NOT NULL,
+      "status" INTEGER NOT NULL,
+      "time" INTEGER NOT NULL,
+      "kind" INTEGER NOT NULL,
+      "content" TEXT NOT NULL
+    );
 
 CREATE INDEX  "single_msg_0"
 ON "single_msg" (
-  "kind" ASC
+  "self_id" ASC
 );
 
-CREATE INDEX "single_msg_1"
+CREATE INDEX  "single_msg_1"
+ON "single_msg" (
+  "other_id" ASC
+);
+
+CREATE INDEX "single_msg_2"
 ON "single_msg" (
   "time" ASC
 );
@@ -52,8 +58,9 @@ object SingleMsgDB {
     //插入一条消息
     fun insertOne(
         selfId: Long, otherId: Long, status: Short, time: Long, kind: Short, content: String
-    ) = SqlDB.exec(
-        "insert into single_msg (self_id,other_id,status,time,kind,content) values (?,?,?,?,?,?);",
+    ) = SqlDB.queryOne(IdPo::of,
+        """insert into single_msg (self_id,other_id,time,status,kind,content)
+                "values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
         selfId,
         otherId,
         status,

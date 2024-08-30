@@ -143,9 +143,6 @@ dependencies {
     implementation(libs.androidx.camera.view) // If you want to additionally add CameraX ML Kit Vision Integration
     implementation(libs.androidx.camera.mlkit.vision) // If you want to additionally use the CameraX Extensions library
     implementation(libs.camera.extensions.v140rc01)
-
-
-
     implementation(libs.accompanist.permissions)
     implementation(libs.ui)
     implementation(libs.com.google.protobuf.protobuf.java)
@@ -163,8 +160,6 @@ dependencies {
     implementation(libs.androidx.emoji2)
     implementation(libs.androidx.emoji2.bundled)
 
-
-    implementation("network.chaintech:compose-multiplatform-media-player:1.0.11")
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
 

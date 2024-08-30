@@ -9,21 +9,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bitat.repository.dto.resp.CollectPartDto
 
 @Composable
-fun CommonTopBar(
-    title: String,
+fun CommonTopBar(modifier: Modifier=Modifier,
+    title: String,tint:Color=Color.Black,
     backFn: () -> Unit,
     endButton: @Composable () -> Unit = { Box(modifier = Modifier.size(30.dp)) {} }
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
-        BackButton {
+        BackButton(tint = tint) {
             backFn()
         }
         Text(title)

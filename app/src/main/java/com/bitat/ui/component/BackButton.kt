@@ -8,16 +8,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bitat.ui.common.SvgIcon
 
 @Composable
-fun BackButton(tapFn: () -> Unit) {
+fun BackButton(tint: Color =Color.Black,tapFn: () -> Unit) {
     IconButton(onClick = tapFn) {
         SvgIcon(
             path = "svg/arrow-left.svg",
             contentDescription = "",
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
+            tint = tint
         )
     }
 }
