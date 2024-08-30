@@ -16,8 +16,8 @@ class SingleMsgPo {
             id = cursor.getLong(0)
             selfId = cursor.getLong(1)
             otherId = cursor.getLong(2)
-            status = cursor.getShort(3)
-            time = cursor.getLong(4)
+            time = cursor.getLong(3)
+            status = cursor.getShort(4)
             kind = cursor.getShort(5)
             content = cursor.getString(6)
         }

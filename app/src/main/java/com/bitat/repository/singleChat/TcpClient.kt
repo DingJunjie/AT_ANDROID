@@ -263,6 +263,7 @@ object TcpClient {
                 TcpMsgEvent.CHAT -> if (decryptBody != null) {
                     val msg = ChatMsg.parseFrom(decryptBody)
                     CuLog.debug(CuTag.SingleChat, "收消息：toId=${msg.toId},selfId=${selfId}")
+                    TcpHandler.handleChat(msg)
                     if (msg.toId == selfId) {
                         chatRec(msg.toId, msg.fromId, 0, msg.fromRouter, msg.time, 1)
                         TcpHandler.chat(msg)
