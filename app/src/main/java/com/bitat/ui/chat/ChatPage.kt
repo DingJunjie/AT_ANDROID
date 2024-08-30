@@ -65,6 +65,8 @@ import com.bitat.Local
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.singleChat.TcpHandler
+import com.bitat.repository.singleChat.TcpHandler.roomFlow
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
@@ -76,6 +78,8 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.viewModel.ChatViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -87,6 +91,13 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
+
+    LaunchedEffect(Dispatchers.Default) {
+        roomFlow.collect {
+            chatVm.getRooms()
+        }
+    }
+
 
     val options = remember {
         listOf(

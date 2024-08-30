@@ -77,6 +77,7 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.singleChat.TcpHandler
+import com.bitat.repository.singleChat.TcpHandler.chatFlow
 import com.bitat.repository.store.UserStore
 import com.bitat.repository.store.UserStore.userFlow
 import com.bitat.ui.common.CarmeraOpen
@@ -114,8 +115,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
-    LaunchedEffect(Dispatchers.Default) {
-        TcpHandler.chatFlow.collect { value ->
+    LaunchedEffect(IO) {
+        chatFlow.collect { value ->
             vm.getNewMessage(value)
             CuLog.debug(CuTag.SingleChat, value.content)
         }

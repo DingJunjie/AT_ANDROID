@@ -7,6 +7,7 @@ import com.bitat.log.CuTag
 import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.UserPo
+
 private const val CREATE_TABLE_SINGLE_MSG = """
  CREATE TABLE IF NOT EXISTS "single_msg" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -67,7 +68,7 @@ object SingleMsgDB {
         selfId,
         otherId,
         time,
-        status.toInt(),
+        status,
         kind,
         content
     )
