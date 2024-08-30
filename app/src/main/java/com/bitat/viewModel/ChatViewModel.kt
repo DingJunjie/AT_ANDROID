@@ -3,6 +3,8 @@ package com.bitat.viewModel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.FindBaseByIdsDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserPartDto
@@ -49,6 +51,7 @@ class ChatViewModel : ViewModel() {
 
     fun createRoom(otherInfo: UserPartDto) {
         MainCo.launch {
+            CuLog.debug(CuTag.SingleChat,"获取数据库版本$SingleRoomDB")
             SingleRoomDB.insertOrUpdate(
                 selfId = UserStore.userInfo.id,
                 otherId = otherInfo.id,

@@ -1,6 +1,7 @@
 package com.bitat.ui.profile
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,7 +45,7 @@ fun ProfileTabView(type:Int,userId:Long,
     val state by vm.uiState.collectAsState()
     HorizontalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(Color.White),
         verticalAlignment = Alignment.Top
     ) { index ->
 

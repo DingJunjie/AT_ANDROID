@@ -34,9 +34,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -245,7 +247,7 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     val drawerOffset =
         animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
 
-    Scaffold { padding ->
+    Scaffold(modifier = Modifier.navigationBarsPadding()) { padding ->
         Column(modifier = Modifier.padding(bottom = padding.calculateBottomPadding())) {
 
             if (state.isTabbarTop) Column(modifier = Modifier.fillMaxWidth()
@@ -478,7 +480,7 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
         List(4) { "Tab ${it + 1}" }
     }
     Surface(
-        shape = RoundedCornerShape(40.dp),
+        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
     ) {
         Column(verticalArrangement = Arrangement.Top) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {

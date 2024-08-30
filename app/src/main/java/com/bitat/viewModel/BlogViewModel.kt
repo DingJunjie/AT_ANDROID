@@ -10,6 +10,7 @@ import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
 import com.bitat.repository.dto.req.TimeLineDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
@@ -36,6 +37,8 @@ class BlogViewModel : ViewModel() {
             return
         }
         MainCo.launch {
+
+            SingleMsgDB.getSqlVersion()
             blogState.update {
                 it.copy(updating = true)
             }

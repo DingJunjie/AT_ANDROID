@@ -5,6 +5,9 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 
 const val DB_NAME = "bit_db"
 const val DB_VERSION = 1
@@ -36,6 +39,8 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         GroupRoomDB.init(db)
         GroupMsgDB.init(db)
         DraftsDB.init(db)
+
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -82,6 +87,15 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             close()
             res
         }
+
+        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? =
+            fetchDB().run {
+                val res = rawQuery(
+                    sql, null
+                ).run { if (moveToFirst()) toFn(this) else null }
+                close()
+                res
+            }
     }
 
 }

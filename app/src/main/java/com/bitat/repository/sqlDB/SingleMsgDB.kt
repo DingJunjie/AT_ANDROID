@@ -2,6 +2,8 @@ package com.bitat.repository.sqlDB
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.UserPo
@@ -69,6 +71,12 @@ object SingleMsgDB {
         kind,
         content
     )
+
+    fun getSqlVersion()=SqlDB.queryVersion(toFn = { cursor ->
+        cursor.moveToFirst()
+        val version = cursor.getString(cursor.getColumnIndexOrThrow("sqlite_version"))
+        CuLog.debug(CuTag.SingleChat,"获取数据库版本${version}")
+    },"SELECT sqlite_version() AS sqlite_version")
 
     //修改消息状态
     fun updateStatus(status: Short, selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
