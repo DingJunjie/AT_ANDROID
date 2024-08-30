@@ -38,6 +38,12 @@ data class ProfileModel(
     var age: Int
 )
 
+const val FEMALE_CODE = 1
+
+const val MAN_CODE = 0
+
+const val UNKNOWN_CODE = -1
+
 enum class GENDER {
     Male, Female, Unknown;
 
@@ -49,12 +55,23 @@ enum class GENDER {
         }
     }
 
+
+
     companion object {
         fun toCode(g: GENDER): Byte {
             return when (g) {
-                Male -> 1
-                Female -> 0
-                Unknown -> -1
+                Male -> MAN_CODE.toByte()
+                Female -> FEMALE_CODE.toByte()
+                Unknown -> UNKNOWN_CODE.toByte()
+            }
+        }
+
+        fun toUIContent(gender:Int): String {
+            return when (gender) {
+                MAN_CODE  -> "男性"
+                FEMALE_CODE-> "女性"
+                UNKNOWN_CODE -> "未知"
+                else -> ""
             }
         }
     }

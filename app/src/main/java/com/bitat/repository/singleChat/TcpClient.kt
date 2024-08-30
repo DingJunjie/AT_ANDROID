@@ -241,8 +241,7 @@ object TcpClient {
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
         val decryptBody = KeySecret.encryptByKey(head.secret, body, null)
-        // val selfId = UserStore.userInfo.id
-        val selfId = 165L
+         val selfId = UserStore.userInfo.id
         try {
             when (head.event) {
                 TcpMsgEvent.AUTH_REC -> CuLog.info(CuTag.SingleChat, "Auth ok")

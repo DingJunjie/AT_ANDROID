@@ -134,9 +134,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Menu(menuFun: () -> Unit) {
-    Row(modifier = Modifier.width(150.dp), horizontalArrangement = Arrangement.SpaceAround) {
-        MenuItem(path = "svg/add.svg", tapFun = {})
-        MenuItem(path = "svg/add-large-line.svg", tapFun = {})
+    Row(modifier = Modifier.width(50.dp), horizontalArrangement = Arrangement.SpaceAround) {
+//        MenuItem(path = "svg/add.svg", tapFun = {})
+//        MenuItem(path = "svg/add-large-line.svg", tapFun = {})
         MenuItem(path = "svg/menu_line.svg", tapFun = menuFun)
     }
 }
@@ -330,7 +330,6 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                     content = { index ->
                         Box(modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center) {
-
                             Box(modifier = Modifier.fillMaxHeight().background(Color.Cyan)
                                 .fillMaxWidth().clickable {
                                     UserStore.updateFans(100)
@@ -363,6 +362,7 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
     BackgroundPopup(visible = showBGPopup.value, { showBGPopup.value = false }, {
         UserStore.updateCover(it)
+        showBGPopup.value = false
     })
 }
 
@@ -487,7 +487,7 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
                 Column(modifier = Modifier.padding(top = 15.dp),
                     verticalArrangement = Arrangement.SpaceBetween) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
-                        TagLabel(TimeUtils.getAgeByBirthday(userInfo.birthday).toString())
+                        TagLabel(if (userInfo.birthday>0L) TimeUtils.getAgeByBirthday(userInfo.birthday).toString() else "未知")
                         TagLabel("贵阳")
                     }
                     Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),

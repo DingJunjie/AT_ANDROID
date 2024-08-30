@@ -6,6 +6,7 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.common.CodeErr
 import com.bitat.repository.dto.req.UpdateCoverDto
+import com.bitat.repository.dto.req.UpdateIntroduceDto
 import com.bitat.repository.dto.req.UpdateNicknameDto
 import com.bitat.repository.dto.req.UpdateProfileDto
 import com.bitat.repository.dto.req.UpdateUserInfoDto
@@ -48,6 +49,10 @@ object UserStore {
         userInfo.follows = user.follows
         userInfo.profile = user.profile
         userInfo.cover = user.cover
+        userInfo.birthday = user.birthday
+        userInfo.gender = user.gender.toInt()
+        userInfo.introduce = user.introduce
+        userInfo.nickname = user.nickname
         MainCo.launch {
             userFlow.emit(userInfo)
         }
@@ -98,7 +103,6 @@ object UserStore {
     }
 
     fun updateBirthday(birthday: Long, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
-        userInfo.birthday = birthday
         MainCo.launch {
             UserReq.updateInfo(UpdateUserInfoDto(birthday = birthday)).await().map {
                 userInfo.birthday = birthday
@@ -110,15 +114,17 @@ object UserStore {
         }
     }
 
-    fun updateAvatar(uri: Uri) {
+    fun updateAvatar(uri: Uri, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
         QiNiuUtil.uploadSingleFile(uri, UPLOAD_OPS.Pub, FileType.Image) { key ->
             CuLog.info(CuTag.Profile, "update avatar file success")
             MainCo.launch(IO) {
                 UserReq.updateProfile(UpdateProfileDto(key)).await().map {
-                    CuLog.info(CuTag.Profile, "update avatar success")
                     userInfo.profile = it
+                    userFlow.emit(userInfo)
+                    onSuccess()
                 }.errMap {
                     CuLog.error(CuTag.Profile, "update avatar failed, ${it.msg}")
+                    onError(it)
                 }
             }
         }
@@ -131,9 +137,22 @@ object UserStore {
                 UserReq.updateCover(UpdateCoverDto(key)).await().map {
                     CuLog.info(CuTag.Profile, "update cover success")
                     userInfo.cover = it
+                    userFlow.emit(userInfo)
                 }.errMap {
                     CuLog.error(CuTag.Profile, "update cover failed, ${it.msg}")
                 }
+            }
+        }
+    }
+
+    fun updateIntroduce(introduce:String, onSuccess: () -> Unit, onError: (CodeErr) -> Unit){
+        MainCo.launch {
+            UserReq.updateIntroduce(UpdateIntroduceDto(introduce = introduce)).await().map {
+                userInfo.introduce = introduce
+                userFlow.emit(userInfo)
+                onSuccess()
+            }.errMap {
+                onError(it)
             }
         }
     }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.DatePicker
@@ -43,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
@@ -76,6 +78,7 @@ import kotlinx.coroutines.launch
 fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[ProfileViewModel::class]
     val state by vm.uiState.collectAsState()
+    var maxLength = 84
 
     val dataPickerState = rememberDatePickerState()
 
@@ -167,27 +170,55 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
                         Row {
                             Text("性别",
                                 modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            Text("nv", modifier = Modifier.weight(1f).clickable {
-                                focusManager.clearFocus()
-                                isShowGender.value = true
-                            })
+                            Text(GENDER.toUIContent(state.user.gender),
+                                modifier = Modifier.weight(1f).clickable {
+                                    focusManager.clearFocus()
+                                    isShowGender.value = true
+                                })
                         }
 
                         Row {
                             Text("破壳日",
                                 modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            Text(TimeUtils.timeToYMD(state.user.birthday), modifier = Modifier.clickable {
-                                focusManager.clearFocus()
-                                isShowPicker.value = true
-                            })
+                            Text(TimeUtils.timeToYMD(state.user.birthday),
+                                modifier = Modifier.clickable {
+                                    focusManager.clearFocus()
+                                    isShowPicker.value = true
+                                })
                         }
 
                         Row {
                             Text("说一说",
                                 modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            BasicTextField(value = introTextValue.value, onValueChange = {
-                                introTextValue.value = it
-                            }, modifier = Modifier.weight(1f))
+                            Box() {
+
+                            }
+                            BasicTextField(value = introTextValue.value,
+                                onValueChange = { //                                if (it.length <= maxLength) {
+                                    //                                    introTextValue.value = it
+                                    //                                }
+                                    introTextValue.value = it
+                                },
+                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                                keyboardActions = KeyboardActions(onDone = {
+                                    UserStore.updateIntroduce(introTextValue.value, onSuccess = {
+                                        vm.showSuccess(true)
+                                        coroutineScope.launch {
+                                            delay(1000)
+                                            vm.showSuccess(false)
+                                        }
+
+                                    }, onError = {
+                                        vm.showFail(true)
+                                        coroutineScope.launch {
+                                            delay(1000)
+                                            vm.showFail(false)
+                                        }
+                                    })
+
+                                    focusManager.clearFocus()
+                                }) { },
+                                modifier = Modifier.weight(1f))
                         }
 
                         //                        Row {
@@ -272,7 +303,22 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     AvatarPopup(isShowAvatarOpt.value, { isShowAvatarOpt.value = false }, galleryFn = {
-        UserStore.updateAvatar(it)
+        UserStore.updateAvatar(it, onSuccess = {
+            vm.showSuccess(true)
+            coroutineScope.launch {
+                delay(1000)
+                vm.showSuccess(true)
+            }
+            isShowAvatarOpt.value = false
+        }, onError = {
+            vm.showFail(false)
+            coroutineScope.launch {
+                delay(1000)
+                vm.showFail(false)
+            }
+            isShowAvatarOpt.value = false
+        })
+
     }) {
 
     }
