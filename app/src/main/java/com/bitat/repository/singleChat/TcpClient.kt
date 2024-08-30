@@ -72,7 +72,9 @@ object TcpClient {
                 }
                 val head = readBuf.head
                 val body = readBuf.body
-                if (head != null && body != null) { // 判断有多少字节可读，如果缓冲区可读字节充足，就将body写满 // 如果缓冲区不充足，那就读完缓冲区，body在下次刷新缓冲区继续写
+                if (head != null && body != null) {
+                    // 判断有多少字节可读，如果缓冲区可读字节充足，就将body写满
+                    // 如果缓冲区不充足，那就读完缓冲区，body在下次刷新缓冲区继续写
                     val readSize =
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
