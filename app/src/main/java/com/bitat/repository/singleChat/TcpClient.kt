@@ -341,7 +341,6 @@ class TcpReadBuf {
     }
 }
 
-
 object TcpMsgEvent {
     const val ACK = 0.toShort()
     const val AUTH = 1.toShort()
