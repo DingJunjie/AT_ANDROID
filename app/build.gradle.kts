@@ -161,6 +161,7 @@ dependencies {
     implementation(libs.androidx.emoji2.bundled)
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(files("libs/sqlite-android-3460100.aar"))
 
 
 }

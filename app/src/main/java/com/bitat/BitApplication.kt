@@ -48,7 +48,7 @@ class BitApplication : Application(), ImageLoaderFactory {
         EmojiCompat.init(config)
 
         SqlDB.init(this)
-
+        System.loadLibrary("sqliteX")
 
     }
 

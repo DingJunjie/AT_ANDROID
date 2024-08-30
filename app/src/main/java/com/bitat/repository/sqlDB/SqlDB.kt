@@ -64,11 +64,20 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             close()
         }
 
+        fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
+            fetchDB(true).run {
+                val res = rawQuery(sql,
+                    bindings.map(Any::toString)
+                        .toTypedArray()).run { if (moveToFirst()) toFn(this) else null }
+                close()
+                res
+            }
+
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
             fetchDB().run {
-                val res = rawQuery(
-                    sql, bindings.map(Any::toString).toTypedArray()
-                ).run { if (moveToFirst()) toFn(this) else null }
+                val res = rawQuery(sql,
+                    bindings.map(Any::toString)
+                        .toTypedArray()).run { if (moveToFirst()) toFn(this) else null }
                 close()
                 res
             }
