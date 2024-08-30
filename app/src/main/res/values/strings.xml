@@ -3,8 +3,10 @@
     <string name="app_name">艾特（测试版）</string>
     <string name="no_data">无数据</string>
     <string name="submit">提交</string>
-    <string name="operation_success">"操作成功!"</string>
-    <string name="operation_failed">"操作失败!"</string>
+    <string name="operation_success">操作成功!</string>
+    <string name="operation_failed">操作失败!</string>
+    <string name="update_success">修改成功!</string>
+    <string name="update_failed">修改失败!</string>
 
     ##### Login
     <string name="count_down">还剩 %1$s 秒</string>

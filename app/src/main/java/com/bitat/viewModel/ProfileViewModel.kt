@@ -13,6 +13,7 @@ import com.bitat.repository.dto.req.PhotoBlogListDto
 import com.bitat.repository.http.service.BlogOpsReq
 import kotlinx.coroutines.flow.update
 import com.bitat.repository.dto.req.UpdateNicknameDto
+import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.http.service.BlogReq
 import com.bitat.state.ProfileUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,15 +56,11 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getMyWorks(userId:Long,lastTime: Long = 0, pageSize: Int = 20) {
+    fun getMyWorks(userId: Long, lastTime: Long = 0, pageSize: Int = 20) {
         MainCo.launch {
-            UserReq.photoBlogList(
-                PhotoBlogListDto(
-                    userId = userId,
-                    pageSize = pageSize,
-                    lastTime = lastTime
-                )
-            ).await().map { res ->
+            UserReq.photoBlogList(PhotoBlogListDto(userId = userId,
+                pageSize = pageSize,
+                lastTime = lastTime)).await().map { res ->
                 CuLog.info(CuTag.Profile, "get my works, size is ${res.size}")
                 uiState.update {
                     if (lastTime == 0L) {
@@ -168,15 +165,19 @@ class ProfileViewModel : ViewModel() {
             it.copy(httpState = state)
         }
     }
-    fun lastIndex(index: Int) {
+
+    fun updateUser(newUser: UserDto) {
         uiState.update {
-            it.copy(lastIndex = index)
+            it.user = newUser
+            it
         }
+        uiState.update { it.copy(updateFlag = uiState.value.updateFlag + 1) }
     }
 
-    fun undateUser(){
-//        uiState.update {
-//
-//        }
+    fun showSuccess(result:Boolean){
+        uiState.update { it.copy(showSuccess = result) }
+    }
+    fun showFail(result:Boolean){
+        uiState.update { it.copy(showFail = result) }
     }
 }

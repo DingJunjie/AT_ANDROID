@@ -22,13 +22,18 @@ object TimeUtils {
         } else if (second < 60 * 60 * 24) {
             "${second / 60 / 60} 小时前"
         } else {
-
-
            val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(time))
 
             return date
         }
+    }
+
+    fun timeToYMD(time: Long):String{
+        val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+            .format(Instant.ofEpochMilli(time))
+
+        return date
     }
 
     /**
@@ -71,6 +76,13 @@ object TimeUtils {
       return  DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.systemDefault())
             .format(Instant.ofEpochMilli(time))
 
+    }
+
+    fun getAgeByBirthday(birthday: Long): Int {
+        val nowYear = getYearFromMillis(System.currentTimeMillis())
+
+        val birthdayYear = getYearFromMillis(birthday)
+        if (nowYear - birthdayYear > 0) return nowYear - birthdayYear else return 0
     }
 }
 

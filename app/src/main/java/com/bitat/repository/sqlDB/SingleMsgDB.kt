@@ -5,14 +5,13 @@ import android.database.sqlite.SQLiteDatabase
 import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.UserPo
-
 private const val CREATE_TABLE_SINGLE_MSG = """
  CREATE TABLE IF NOT EXISTS "single_msg" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       "self_id" INTEGER NOT NULL,
       "other_id" INTEGER NOT NULL,
-      "status" INTEGER NOT NULL,
       "time" INTEGER NOT NULL,
+      "status" INTEGER NOT NULL,
       "kind" INTEGER NOT NULL,
       "content" TEXT NOT NULL
     );
@@ -32,6 +31,7 @@ ON "single_msg" (
   "time" ASC
 );
 """
+
 
 object SingleMsgDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SINGLE_MSG)

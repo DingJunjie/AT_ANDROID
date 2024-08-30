@@ -25,8 +25,10 @@ data class ProfileUiState(
     val isReq: Boolean = false, //是否正在请求
     val isFootShow: Boolean = false,
     val currentTabIndex: Int = 0,
-    val user: UserDto = UserStore.userInfo,
-    val lastIndex:Int=-1
+    var user: UserDto = UserStore.userInfo,
+    val updateFlag:Int=0,
+    val showSuccess:Boolean=false,
+    val showFail:Boolean=false
 )
 
 val PROFILE_TAB_OPTIONS = listOf("作品", "相册", "收藏", "赞过")

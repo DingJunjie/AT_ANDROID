@@ -106,6 +106,7 @@ import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.PROFILE_MINE
+import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.state.PROFILE_TAB_OPTIONS
@@ -121,6 +122,7 @@ import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.Popup
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
+import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.ProfileViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
@@ -233,6 +235,12 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         mutableStateOf(false)
     }
 
+    LaunchedEffect(Unit) {
+        UserStore.userFlow.collect { user -> // 用户信息变更
+            vm.updateUser(user)
+        }
+    }
+
 
     val drawerOffset =
         animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
@@ -240,19 +248,17 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     Scaffold { padding ->
         Column(modifier = Modifier.padding(bottom = padding.calculateBottomPadding())) {
 
-            if (state.isTabbarTop)
-
-                Column(modifier = Modifier.fillMaxWidth()
-                    .padding(padding.calculateBottomPadding())) {
-                    Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight)
-                        .background(Color.White))
-                    Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
-                            vm.tabType(index)
-                        }
+            if (state.isTabbarTop) Column(modifier = Modifier.fillMaxWidth()
+                .padding(padding.calculateBottomPadding())) {
+                Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight)
+                    .background(Color.White))
+                Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
+                        vm.tabType(index)
                     }
                 }
+            }
 
             Column(modifier = Modifier.verticalScroll(state = scrollState)
                 .padding(if (!state.isTabbarTop) {
@@ -264,21 +270,14 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                     .padding(bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
                         LocalDensity.current).dp).padding(bottom = padding.calculateBottomPadding())
                     .fillMaxHeight()) {
-                    Box(modifier = Modifier //                    .imePadding()
-                        .background(Color.White) //                    .padding(bottom = 40.dp)
-                        //                    .windowInsetsBottomHeight(WindowInsets(WindowInsetsCompat.Type.systemBars())) // 设置底部边距
-                        //                    .windowInsetsPadding( WindowInsets.navigationBars)
-                        //                    .height((ScreenUtils.screenHeight * 2).dp)
-                    ) { //                    Box(
-                        //                        modifier = Modifier.draggable(
-                        //                            orientation = Orientation.Vertical, state = draggableState
-                        //                        )
-                        //                    ) {
+                    Box(modifier = Modifier.background(Color.White)
+
+                    ) {
                         ProfileBg(tapBG = {
                             showBGPopup.value = true
                         }, menu = {
                             Menu(menuFun = {
-                                scope.launch { //                                    drawerState.open()
+                                scope.launch {
                                     showDrawer.value = true
                                 }
                             })
@@ -293,7 +292,7 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                             Box(modifier = Modifier.height(160.dp).fillMaxWidth())
                             ProfileDetail(vm,
                                 navController,
-                                nickname = userInfo.nickname,
+                                userInfo = state.user,
                                 atAccount = userInfo.account,
                                 introduction = userInfo.introduce,
                                 likes = userInfo.agrees,
@@ -351,8 +350,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
             Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().clickable {
-                    showDrawer.value = false
-                }.background(Color(0x33333333))) {}
+                showDrawer.value = false
+            }.background(Color(0x33333333))) {}
             Box(
                 //            contentAlignment = Alignment.CenterEnd,
                 modifier = Modifier.fillMaxWidth(0.6f).fillMaxHeight()
@@ -429,10 +428,10 @@ fun BackgroundPopup(visible: Boolean, onClose: () -> Unit, changeFn: (uri: Uri) 
 @Composable
 fun ProfileBg(tapBG: () -> Unit = {}, menu: @Composable (() -> Unit)) {
     Box(modifier = Modifier.paint(painter = rememberAsyncImagePainter(model = ImageRequest.Builder(
-            LocalContext.current).data(UserStore.userInfo.cover)
-            .placeholder(R.mipmap.ic_launcher)  // 加载中的占位图
-            .error(R.mipmap.ic_launcher)  // 加载失败时的默认图片
-            .build()), contentScale = ContentScale.Crop).fillMaxWidth().height(200.dp)
+        LocalContext.current).data(UserStore.userInfo.cover)
+        .placeholder(R.mipmap.ic_launcher)  // 加载中的占位图
+        .error(R.mipmap.ic_launcher)  // 加载失败时的默认图片
+        .build()), contentScale = ContentScale.Crop).fillMaxWidth().height(200.dp)
         .clickable { tapBG() }.padding(top = 30.dp), contentAlignment = Alignment.TopEnd) {
         Box(modifier = Modifier.padding(top = 10.dp, end = 10.dp).height(200.dp)) {
             menu.invoke();
@@ -474,11 +473,10 @@ fun ProfileDrawer(viewModel: ProfileViewModel, drawerState: DrawerState, scope: 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostController, nickname: String, atAccount: String, introduction: String, fans: Int, follows: Int, likes: Int) {
+fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostController, userInfo: UserDto, atAccount: String, introduction: String, fans: Int, follows: Int, likes: Int) {
     val options = remember {
         List(4) { "Tab ${it + 1}" }
     }
-
     Surface(
         shape = RoundedCornerShape(40.dp),
     ) {
@@ -489,13 +487,13 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
                 Column(modifier = Modifier.padding(top = 15.dp),
                     verticalArrangement = Arrangement.SpaceBetween) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
-                        TagLabel("28")
+                        TagLabel(TimeUtils.getAgeByBirthday(userInfo.birthday).toString())
                         TagLabel("贵阳")
                     }
                     Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
-                        UserInfo(nickname, atAccount, introduction)
+                        UserInfo(userInfo.nickname, atAccount, introduction)
                         SocialData(likes, follows, fans, tapLike = {
 
                         }, tapFollows = {
@@ -504,21 +502,19 @@ fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostControl
                         }, tapFans = {
                             viewModel.getMyFans()
                             navHostController.navigate(NavigationItem.Fans.route)
-                        }) //                        ReadDataFromDatabase(context = LocalContext.current, viewModel)
+                        })
                     }
                 }
+            }
 
-            } //            Box(modifier = Modifier.padding(start = 30.dp)) {
-            //                UserInfo(nickname, atAccount, introduction)
-            //            }
             Text(introduction,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(start = 15.dp, top = 15.dp).clickable {
-                        navHostController.navigate(NavigationItem.ProfileEdit.route)
-                    })
-            GoCreate() //            AlbumList()
+                    navHostController.navigate(NavigationItem.ProfileEdit.route)
+                })
+            GoCreate()
         }
     }
 }

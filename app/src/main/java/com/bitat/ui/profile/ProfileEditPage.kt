@@ -31,19 +31,23 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import com.bitat.R
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -60,9 +64,12 @@ import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.Popup
 import com.bitat.utils.FileType
 import com.bitat.utils.ScreenUtils
+import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ProfileViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,21 +103,22 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(UserStore.userInfo.address)
     }
 
-    val toast= rememberToastState()
+    val coroutineScope = rememberCoroutineScope()
+    val toast = rememberToastState()
     val focusManager = LocalFocusManager.current
 
     Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
         Box(modifier = Modifier.fillMaxSize().background(Color.Cyan)) {
             Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight))
-            CommonTopBar(tint = Color.White,
+            CommonTopBar(
+                tint = Color.White,
                 modifier = Modifier.padding(top = statusBarHeight),
                 title = "",
-                backFn = { navHostController.popBackStack() },
-//                endButton = {
-//                    Text(text = "提交",
-//                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
-//                        modifier = Modifier.padding(end = 10.dp).clickable {})
-//                }
+                backFn = { navHostController.popBackStack() }, //                endButton = {
+                //                    Text(text = "提交",
+                //                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+                //                        modifier = Modifier.padding(end = 10.dp).clickable {})
+                //                }
             )
             Box(modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.8f)
                 .padding(start = ScreenUtils.screenWidth.times(0.05).dp, top = 150.dp)
@@ -125,17 +133,30 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Row(modifier = Modifier.fillMaxWidth(0.8f)
-                        .height(50.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.fillMaxWidth(0.8f).height(50.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text("用户名", modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                        BasicTextField(value = state.user.nickname,
+                        BasicTextField(value = nameTextValue.value,
                             singleLine = true,
                             onValueChange = {
                                 nameTextValue.value = it
                             },
                             keyboardActions = KeyboardActions(onDone = {
-                                UserStore.updateNickname(nameTextValue.value)
-                                toast.show("修改成功")
+                                UserStore.updateNickname(nameTextValue.value, onSuccess = {
+                                    vm.showSuccess(true)
+                                    coroutineScope.launch {
+                                        delay(1000)
+                                        vm.showSuccess(false)
+                                    }
+
+                                }, onError = {
+                                    vm.showFail(true)
+                                    coroutineScope.launch {
+                                        delay(1000)
+                                        vm.showFail(false)
+                                    }
+                                })
+
                                 focusManager.clearFocus()
                             }) { },
                             modifier = Modifier.weight(1f))
@@ -146,17 +167,16 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
                         Row {
                             Text("性别",
                                 modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            Text("女",
-                                modifier = Modifier.weight(1f)
-                                    .clickable {
-                                        focusManager.clearFocus()
-                                        isShowGender.value = true })
+                            Text("nv", modifier = Modifier.weight(1f).clickable {
+                                focusManager.clearFocus()
+                                isShowGender.value = true
+                            })
                         }
 
                         Row {
                             Text("破壳日",
                                 modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            Text("2008-08-08", modifier = Modifier.clickable {
+                            Text(TimeUtils.timeToYMD(state.user.birthday), modifier = Modifier.clickable {
                                 focusManager.clearFocus()
                                 isShowPicker.value = true
                             })
@@ -170,23 +190,23 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
                             }, modifier = Modifier.weight(1f))
                         }
 
-                        Row {
-                            Text("地址",
-                                modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            BasicTextField(value = addressTextValue.value, onValueChange = {
-                                addressTextValue.value = it
-                            }, keyboardActions = KeyboardActions(onDone = {
-                                UserStore.updateAddress(addressTextValue.value)
-                            }), modifier = Modifier.weight(1f))
-                        }
+                        //                        Row {
+                        //                            Text("地址",
+                        //                                modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
+                        //                            BasicTextField(value = addressTextValue.value, onValueChange = {
+                        //                                addressTextValue.value = it
+                        //                            }, keyboardActions = KeyboardActions(onDone = {
+                        //                                UserStore.updateAddress(addressTextValue.value)
+                        //                            }), modifier = Modifier.weight(1f))
+                        //                        }
 
-                        Row {
-                            Text("学校",
-                                modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
-                            BasicTextField(value = "我的名字",
-                                onValueChange = {},
-                                modifier = Modifier.weight(1f))
-                        }
+                        //                        Row {
+                        //                            Text("学校",
+                        //                                modifier = Modifier.padding(horizontal = 20.dp).width(70.dp))
+                        //                            BasicTextField(value = "我的名字",
+                        //                                onValueChange = {},
+                        //                                modifier = Modifier.weight(1f))
+                        //                        }
                     }
                 }
             }
@@ -202,16 +222,53 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
             }
 
         }
+        if (state.updateFlag > 0) Text(text = "")
+
+        if (state.showSuccess) toast.show(stringResource(R.string.update_success))
+
+        if (state.showFail) toast.show(stringResource(R.string.update_failed))
 
     }
 
     GenderPopup(isShowGender.value, { isShowGender.value = false }, {
-        UserStore.updateGender(it)
+        UserStore.updateGender(it, onSuccess = {
+            vm.showSuccess(true)
+            coroutineScope.launch {
+                delay(1000)
+                vm.showSuccess(false)
+            }
+            isShowGender.value = false
+        }, onError = {
+            vm.showFail(true)
+            coroutineScope.launch {
+                delay(1000)
+                vm.showFail(false)
+            }
+            isShowGender.value = false
+        })
     })
 
     BirthdayPopup(isShowPicker.value, dataPickerState, { isShowPicker.value = false }) {
         CuLog.info(CuTag.Profile, dataPickerState.selectedDateMillis.toString())
-        isShowPicker.value = false
+        dataPickerState.selectedDateMillis?.let {
+            UserStore.updateBirthday(it, onSuccess = {
+                vm.showSuccess(true)
+                coroutineScope.launch {
+                    delay(1000)
+                    vm.showSuccess(false)
+                }
+                isShowPicker.value = false
+            }, onError = {
+                vm.showFail(true)
+                coroutineScope.launch {
+                    delay(1000)
+                    vm.showFail(true)
+                }
+                isShowPicker.value = false
+            })
+
+        }
+
     }
 
     AvatarPopup(isShowAvatarOpt.value, { isShowAvatarOpt.value = false }, galleryFn = {

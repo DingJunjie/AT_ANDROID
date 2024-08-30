@@ -4,6 +4,7 @@ import android.net.Uri
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.common.CodeErr
 import com.bitat.repository.dto.req.UpdateCoverDto
 import com.bitat.repository.dto.req.UpdateNicknameDto
 import com.bitat.repository.dto.req.UpdateProfileDto
@@ -52,7 +53,7 @@ object UserStore {
         }
     }
 
-    fun updateNickname(name: String) {
+    fun updateNickname(name: String, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
         if (name == userInfo.nickname) {
             return
         }
@@ -61,8 +62,10 @@ object UserStore {
         MainCo.launch {
             UserReq.updateNickname(UpdateNicknameDto(nickname = name)).await().map {
                 CuLog.info(CuTag.Profile, "update nickname success")
+                onSuccess()
             }.errMap {
                 CuLog.error(CuTag.Profile, "update nickname failed ${it.msg}")
+                onError(it)
             }
             userFlow.emit(userInfo)
         }
@@ -77,12 +80,13 @@ object UserStore {
         }
     }
 
-    fun updateGender(gender: GENDER) {
+    fun updateGender(gender: GENDER, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
         MainCo.launch {
             UserReq.updateInfo(UpdateUserInfoDto(gender = GENDER.toCode(gender))).await().map {
                 userInfo.gender = GENDER.toCode(gender).toInt()
                 userFlow.emit(userInfo)
-            }
+                onSuccess()
+            }.errMap { onError(it) }
         }
     }
 
@@ -93,12 +97,15 @@ object UserStore {
         }
     }
 
-    fun updateBirthday(birthday: Long) {
+    fun updateBirthday(birthday: Long, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
         userInfo.birthday = birthday
         MainCo.launch {
             UserReq.updateInfo(UpdateUserInfoDto(birthday = birthday)).await().map {
                 userInfo.birthday = birthday
                 userFlow.emit(userInfo)
+                onSuccess()
+            }.errMap {
+                onError(it)
             }
         }
     }

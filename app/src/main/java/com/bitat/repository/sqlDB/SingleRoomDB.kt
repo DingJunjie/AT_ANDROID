@@ -31,7 +31,7 @@ object SingleRoomDB {
 
     //获取聊天室详情信息
     fun getRoom(selfId: Long, otherId: Long) = SqlDB.queryOne(
-        SingleRoomPo::of,
+        SingleRoomPo::ofRoom,
         "select * from single_room where self_id = ? and other_id = ?",
         selfId,
         otherId
