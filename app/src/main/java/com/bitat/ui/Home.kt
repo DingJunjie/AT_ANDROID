@@ -3,16 +3,25 @@ package com.bitat.ui
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,6 +36,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
@@ -99,78 +109,98 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
                 vm.setIndex(it)
             }
         }
-    }, content = { _ ->
+    }, content = { padding ->
+        Column(modifier = Modifier.padding(bottom = 56.dp)) {
+            when (state.selectedIndex) {
+                0 -> {
+                    BlogPage(
+                        navController,
+                        viewModelProvider = viewModelProvider
+                    ) //                AtNavigation(navController).navigateToBlog()
+                }
 
-        when (state.selectedIndex) {
-            0 -> {
+                1 -> DiscoveryPage(navController, viewModelProvider)
+                2 -> { //                PublishTextPage(navController)
+                    //                PublishPage(
+                    //                    navHostController = navController,
+                    //                    viewModelProvider = viewModelProvider
+                    //                )
+                    //                AtNavigation(navController).navigateToPublishText
+                    AtNavigation(navController).navigateToPublish()
+                }
 
-                BlogPage(navController,
-                    viewModelProvider = viewModelProvider) //                AtNavigation(navController).navigateToBlog()
-            }
-
-            1 -> DiscoveryPage(navController, viewModelProvider)
-            2 -> { //                PublishTextPage(navController)
-                //                PublishPage(
-                //                    navHostController = navController,
-                //                    viewModelProvider = viewModelProvider
-                //                )
-                //                AtNavigation(navController).navigateToPublishText
-                AtNavigation(navController).navigateToPublish()
-            }
-
-            3 -> ChatPage(navController, viewModelProvider)
-            4 -> ProfilePage(navController, viewModelProvider)
-        } //        }
+                3 -> ChatPage(navController, viewModelProvider)
+                4 -> ProfilePage(navController, viewModelProvider)
+            } //        }
+        }
     })
-
 }
 
 @Composable
 fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> Unit) {
-    val tabList = listOf(HomeTabCfg.Home,
+    val tabList = listOf(
+        HomeTabCfg.Home,
         HomeTabCfg.Discovery,
         HomeTabCfg.Add,
         HomeTabCfg.Chat,
-        HomeTabCfg.Mine)
+        HomeTabCfg.Mine
+    )
 
     val ctx = LocalDensity.current
-
-
-    BottomNavigation(
-        modifier = Modifier
-            .onGloballyPositioned { coordinates -> // 获取高度
-                val heightPx =
-                    coordinates.size.height
-                with(ctx) {
-                    vm.setBottom(heightPx.toDp())
-                }
+    Column() {
+        BottomNavigation(
+            modifier = Modifier.height(56.dp)
+//                .windowInsetsPadding(
+//                    WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
+//                )
+                .onGloballyPositioned { coordinates -> // 获取高度
+                    val heightPx =
+                        coordinates.size.height
+                    val bottomHeight = with(ctx) {
+                        vm.setBottom(heightPx.toDp())
+                    }
+                    CuLog.debug(CuTag.Blog, "底部导航栏高度$bottomHeight")
+                },
+            //            .height(dimensionResource(R.dimen.home_tab_height)),
+            backgroundColor = MaterialTheme.colorScheme.background
+        ) {
+            tabList.forEachIndexed { index, tab ->
+                BottomNavigationItem(modifier = Modifier.selectable(
+                    selected = selectIndex == index,
+                    onClick = { onTabChange(index) },
+                    enabled = true,
+                    role = Role.Tab,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ), icon = {
+                    Icon(
+                        painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
+                            id = tab.iconUnselect
+                        ),
+                        contentDescription = "tabIcon",
+                        modifier = Modifier.size(
+                            when (index) {
+                                2 -> 100.cdp
+                                1 -> 40.cdp
+                                else -> 40.cdp
+                            }
+                        ),
+                        tint = Color.Unspecified
+                    )
+                }, selected = selectIndex == index, onClick = { onTabChange(index) })
             }
-            .windowInsetsPadding(
-                WindowInsets.navigationBars // 处理状态栏和导航栏
-            )
-        ,
-        //            .height(dimensionResource(R.dimen.home_tab_height)),
-        backgroundColor = Color.White) {
-        tabList.forEachIndexed { index, tab ->
-            BottomNavigationItem(modifier = Modifier.selectable(selected = selectIndex == index,
-                onClick = { onTabChange(index) },
-                enabled = true,
-                role = Role.Tab,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null), icon = {
-                Icon(painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
-                    id = tab.iconUnselect),
-                    contentDescription = "tabIcon",
-                    modifier = Modifier.size(when (index) {
-                        2 -> 100.cdp
-                        1 -> 40.cdp
-                        else -> 40.cdp
-                    }),
-                    tint = Color.Unspecified)
-            }, selected = selectIndex == index, onClick = { onTabChange(index) })
         }
 
+        val navigationBarHeight =
+            WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(navigationBarHeight)
+                .background(MaterialTheme.colorScheme.background)
+        )
     }
+
 }
 
 

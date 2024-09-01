@@ -41,7 +41,9 @@ private val LightColorPalette = WeComposeColors(
     info = blue,
     error = red2,
     dialogBackground = white,
-    placeholder = white3
+    placeholder = white3,
+    surface = white,
+    onSurface = black
 )
 private val DarkColorPalette = WeComposeColors(
     themeUi = themeColor,
@@ -63,7 +65,9 @@ private val DarkColorPalette = WeComposeColors(
     info = blue,
     error = red2,
     dialogBackground = dialogBackgroundLight,
-    placeholder = white3
+    placeholder = white3,
+    surface = white,
+    onSurface = black
 )
 
 private val LocalWeComposeColors = compositionLocalOf {
@@ -101,8 +105,10 @@ class WeComposeColors(
     error: Color,
     dialogBackground: Color,
     placeholder: Color,
+    surface: Color,
+    onSurface: Color,
 
-) {
+    ) {
     var themeUi: Color by mutableStateOf(themeUi)
         internal set
     var bottomBar: Color by mutableStateOf(bottomBar)
@@ -146,6 +152,12 @@ class WeComposeColors(
         private set
 
 
+    var surface: Color by mutableStateOf(surface)
+        private set
+
+    var onSurface: Color by mutableStateOf(onSurface)
+        private set
+
 }
 
 @Composable
@@ -177,6 +189,8 @@ fun BitComposeTheme(
     val info = animateColorAsState(targetColors.info, TweenSpec(600))
     val error = animateColorAsState(targetColors.error, TweenSpec(600))
     val placeholder = animateColorAsState(targetColors.placeholder, TweenSpec(600))
+    val surface = animateColorAsState(targetColors.surface, TweenSpec(600))
+    val onSurface = animateColorAsState(targetColors.onSurface, TweenSpec(600))
     val colors = WeComposeColors(
         themeUi = themeColor,
         bottomBar = bottomBar.value,
@@ -197,9 +211,18 @@ fun BitComposeTheme(
         info = info.value,
         error = error.value,
         dialogBackground = dialogBackground.value,
-        placeholder = placeholder.value
+        placeholder = placeholder.value,
+        surface = surface.value,
+        onSurface = onSurface.value
     )
-    val colorsSch = lightColorScheme(primary = LightColorPalette.themeUi, onPrimary = Color.White, background= LightColorPalette.background,onBackground = LightColorPalette.onBackground)
+    val colorsSch = lightColorScheme(
+        primary = LightColorPalette.themeUi,
+        onPrimary = Color.White,
+        background = LightColorPalette.background,
+        onBackground = LightColorPalette.onBackground,
+        surface = LightColorPalette.surface,
+        onSurface = LightColorPalette.onSurface
+    )
 
     CompositionLocalProvider(LocalWeComposeColors provides colors) {
         MaterialTheme(
@@ -215,8 +238,8 @@ fun BitComposeTheme(
     }
 }
 
-object NoIndication: Indication {
-    private object NoIndicationInstance: IndicationInstance {
+object NoIndication : Indication {
+    private object NoIndicationInstance : IndicationInstance {
         override fun ContentDrawScope.drawIndication() {
             drawContent()
         }

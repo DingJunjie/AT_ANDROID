@@ -26,6 +26,7 @@ import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.BaseStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
+import com.bitat.ui.Home
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.theme.BitComposeTheme
 import com.bitat.utils.ScreenUtils

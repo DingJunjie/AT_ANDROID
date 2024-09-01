@@ -24,7 +24,7 @@ val hintTextColor=Color(0xFF999999)
 val toolBarIcon70=Color(0xFF707070)
 
 
-val white = Color(0xFFFFFFFF).convert(ColorSpaces.CieXyz)
+val white = Color(0xFFFFFFFF)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)
 val white2 = Color(0xFFEDEDED).convert(ColorSpaces.CieXyz)
 val white4 = Color(0xFFD5D5D5).convert(ColorSpaces.CieXyz)
@@ -57,7 +57,7 @@ val yellow1 = Color(0xFFF6CA23).convert(ColorSpaces.CieXyz)
 
 
 val blue = Color(0xFF51BDFF)
-val dialogBackgroundLight = Color(0xFFFEFEFE)
+val dialogBackgroundLight = Color(0xFFFFFFFF)
 val white3 = Color(0xFFAE5E5E)
 val line =Color(0xFF707070)
 

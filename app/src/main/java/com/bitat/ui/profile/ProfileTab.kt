@@ -63,7 +63,7 @@ fun ProfileTabView(type:Int,userId:Long,
 fun ProfileTabBar(pagerState: PagerState, options: List<String>, onSelect: (Int) -> Unit = {}) {
     val coroutineScope = rememberCoroutineScope()
 
-    ScrollableTabRow(selectedTabIndex = pagerState.currentPage,containerColor=Color.White,
+    ScrollableTabRow(selectedTabIndex = pagerState.currentPage,
         edgePadding = 0.dp,
         indicator = { tabPositions ->
             TabRowDefaults.SecondaryIndicator(

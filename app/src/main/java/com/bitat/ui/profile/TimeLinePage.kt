@@ -146,11 +146,13 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
     }
     val toast = rememberToastState()
 
-    Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp)
+    Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp-56.dp)
         .padding(start = 5.dp, end = 5.dp)) {
 
         state.value.timeLineList.forEachIndexed { index, item ->
             TimeLineBlogItem(blog = item,
+
+
                 isPlaying = false,
                 navHostController = navController,
                 viewModelProvider = viewModelProvider,
