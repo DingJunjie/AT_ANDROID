@@ -24,11 +24,9 @@ object TcpHandler {
 
     fun handleChat(msg: MsgDto.ChatMsg) {
         SingleRoomDB.insertOrUpdate(UserStore.userInfo.id, msg.fromId, unreads = 1)
-
         val room = SingleRoomDB.getRoom(UserStore.userInfo.id, msg.fromId) ?: return
 
         val content = msg.data.toString(Charsets.UTF_8)
-
         val newMsg = SingleMsgDB.insertOne(
             selfId = msg.toId,
             otherId = msg.fromId,

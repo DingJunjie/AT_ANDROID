@@ -62,6 +62,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.Local
+import com.bitat.ext.toChatMessage
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.po.SingleRoomPo
@@ -97,7 +98,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
             chatVm.getRooms()
         }
     }
-
 
     val options = remember {
         listOf(
@@ -330,9 +330,9 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
                             .fillMaxWidth()
                     ) {
                         Nickname(info.alias.ifEmpty { info.nickname })
-                        TimeWidget(sendTime = TimeUtils.getNow() - 10000)
+                        TimeWidget(sendTime = info.time)
                     }
-                    ChatContent(content = info.content)
+                    ChatContent(content = info.content.toChatMessage(info.kind))
                 }
             }
         }

@@ -867,7 +867,7 @@ fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit)
             .height(100.dp)
             .padding(5.dp)
             .clickable { tapFn(videoUri) }) { //        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
-        VideoPlayer(uri = videoUri.toString())
+        VideoPlayer(uri = videoUri)
     }
 }
 

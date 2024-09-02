@@ -54,7 +54,7 @@ class ChatViewModel : ViewModel() {
 
     fun createRoom(otherInfo: UserPartDto) {
         MainCo.launch {
-            CuLog.debug(CuTag.SingleChat,"获取数据库版本$SingleRoomDB")
+            CuLog.debug(CuTag.SingleChat, "获取数据库版本$SingleRoomDB")
             SingleRoomDB.insertOrUpdate(
                 selfId = UserStore.userInfo.id,
                 otherId = otherInfo.id,
@@ -139,6 +139,15 @@ class ChatViewModel : ViewModel() {
 //                        that.revRel = tmpMap[that.otherId]!!.revRel
 //                        that.alias = tmpMap[that.otherId]!!.alias
 //                    }
+
+                    val comparator = Comparator<SingleRoomPo> { l, r ->
+                        if (r.top == l.top) {
+                            (r.time - l.time).toInt()
+                        } else r.top - l.top
+                    }
+                    tmpArr.sortWith(comparator)
+
+
                     it.chatList.clear()
                     it.chatList.addAll(tmpArr)
                     it

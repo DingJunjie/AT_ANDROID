@@ -1,5 +1,6 @@
 package com.bitat.ui.chat
 
+import android.net.Uri
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -53,6 +55,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -74,15 +77,20 @@ import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.CHAT_Picture
 import com.bitat.repository.consts.CHAT_Text
+import com.bitat.repository.consts.CHAT_Video
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.singleChat.TcpHandler
 import com.bitat.repository.singleChat.TcpHandler.chatFlow
 import com.bitat.repository.store.UserStore
 import com.bitat.repository.store.UserStore.userFlow
+import com.bitat.state.VideoMessageParams
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
+import com.bitat.ui.common.SingleFuncCamera
+import com.bitat.ui.common.VideoPreview
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.component.EmojiTable
@@ -93,6 +101,8 @@ import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 /**
  *    author : shilu
@@ -100,7 +110,6 @@ import kotlinx.coroutines.Dispatchers.IO
  *    desc   : 聊天页
  */
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
@@ -117,8 +126,10 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
     LaunchedEffect(IO) {
         chatFlow.collect { value ->
-            vm.getNewMessage(value)
-            CuLog.debug(CuTag.SingleChat, value.content)
+            if (chatState.currentRoom != null && chatState.currentRoom!!.otherId == value.otherId) {
+                vm.getNewMessage(value)
+                CuLog.debug(CuTag.SingleChat, value.content)
+            }
         }
     }
 
@@ -138,6 +149,38 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(true)
     }
 
+    val chatListScrollState = rememberLazyListState()
+    val isLoadingMore = remember {
+        mutableStateOf(false)
+    }
+
+    val isRecording = remember {
+        mutableStateOf(false)
+    }
+
+    val currentVideoUri = remember {
+        mutableStateOf(Uri.EMPTY)
+    }
+
+    val isShowVideo = remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(chatListScrollState) {
+        snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleIndex ->
+                if (isLoadingMore.value) return@collect
+                val isBottom =
+                    lastVisibleIndex == chatListScrollState.layoutInfo.totalItemsCount - 1
+                if (isBottom) {
+                    vm.getMessage(chatState.currentRoom!!.otherId, pageNo = state.currentPage) {
+                        isLoadingMore.value = false
+                    }
+                }
+            }
+    }
+
+
     Scaffold(topBar = {
         ChatDetailTopBar(name = chatState.currentUserInfo?.nickname ?: "",
             avatar = chatState.currentUserInfo?.profile ?: "",
@@ -152,7 +195,15 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         }, {
             vm.sendMessage(chatState.currentRoom!!.otherId, 1, it) { that ->
                 chatVm.updateRoomInfo(that)
+                chatInput.value = ""
             }
+        }, {
+            vm.sendPicture(chatState.currentRoom!!.otherId, it) { that ->
+                chatVm.updateRoomInfo(that)
+                chatInput.value = ""
+            }
+        }, {
+            isRecording.value = true
         })
     }, modifier = Modifier.imePadding()) { padding ->
         Box(
@@ -168,6 +219,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 }
         ) {
             LazyColumn(
+                state = chatListScrollState,
                 reverseLayout = true,
                 modifier = Modifier
                     .padding(padding)
@@ -175,12 +227,21 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 items(state.messageList) { item ->
                     if (item.status.toInt() == 1 || item.status.toInt() == 2) {
                         when (item.kind) {
-                            CHAT_Text -> ChatSenderMessage(item)
-
+                            CHAT_Text -> SenderMessage(item)
+                            CHAT_Picture -> SenderImage(url = item.content)
+                            CHAT_Video -> {
+                                val c = Json.decodeFromString<VideoMessageParams>(item.content)
+                                SenderVideo(c.cover, c.video)
+                            }
                         }
                     } else if (item.status.toInt() == -1) {
                         when (item.kind) {
                             CHAT_Text -> RecipientMessage(item)
+                            CHAT_Picture -> RecipientImage(url = item.content)
+                            CHAT_Video -> {
+                                val c = Json.decodeFromString<VideoMessageParams>(item.content)
+                                RecipientVideo(c.cover, c.video)
+                            }
                         }
                     }
                 }
@@ -213,6 +274,24 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 ChatMessageOpt()
             }
         }
+
+    if (isRecording.value) Box(modifier = Modifier.fillMaxSize()) {
+        SingleFuncCamera(ImagePickerOption.VideoOnly) {
+            currentVideoUri.value = it
+            isShowVideo.value = true
+            isRecording.value = false
+        }
+    }
+
+    if (isShowVideo.value) Box(modifier = Modifier.fillMaxSize()) {
+        VideoPreview(uri = currentVideoUri.value) {
+            isShowVideo.value = false
+            vm.sendVideo(chatState.currentRoom!!.otherId, it) { that ->
+                chatVm.updateRoomInfo(that)
+                chatInput.value = ""
+            }
+        }
+    }
 }
 
 //@Composable
@@ -224,7 +303,9 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 fun ChatBottomContainer(
     message: String,
     msgChange: (String) -> Unit,
-    sendMessage: (String) -> Unit
+    sendMessage: (String) -> Unit,
+    sendPicture: (Uri) -> Unit,
+    sendVideo: () -> Unit
 ) {
     val optShow = remember {
         mutableStateOf(false)
@@ -256,15 +337,13 @@ fun ChatBottomContainer(
         if (emojiShow.value) EmojiTable(onTextAdded = {
             msgChange(message + it)
         })
-        if (optShow.value) ChatOperations()
-    }
-}
-
-@Composable
-fun ChatSenderMessage(msg: SingleMsgPo) {
-    when (msg.kind) {
-        CHAT_Text ->
-            SenderMessage(msg)
+        if (optShow.value) ChatOperations(sendPicture = {
+            sendPicture(it)
+            optShow.value = false
+        }, sendVideo = {
+            sendVideo()
+            optShow.value = false
+        })
     }
 }
 
@@ -346,10 +425,15 @@ fun ChatTextField(message: String, msgChange: (String) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChatOperations() {
+fun ChatOperations(
+    sendPicture: (Uri) -> Unit,
+    sendVideo: () -> Unit
+) {
     FlowRow {
         OperationItem(title = "照片") {
-            ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {}) {
+            ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {
+                sendPicture(it.first())
+            }) {
                 Icon(Icons.Filled.AccountBox, contentDescription = "")
             }
         }
@@ -363,7 +447,12 @@ fun ChatOperations() {
             Icon(Icons.Filled.LocationOn, contentDescription = "")
         }
         OperationItem(title = "录制视频") {
-            Icon(Icons.Filled.PlayArrow, contentDescription = "")
+            IconButton(onClick = sendVideo) {
+                Icon(
+                    Icons.Filled.PlayArrow,
+                    contentDescription = ""
+                )
+            }
         }
     }
 }

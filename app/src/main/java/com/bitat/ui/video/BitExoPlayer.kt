@@ -52,17 +52,17 @@ fun BitExoPlay(uri: Uri) {
 
 @OptIn(UnstableApi::class)
 @Composable
-fun VideoPlayer(modifier: Modifier=Modifier.fillMaxSize(),uri: String) {
+fun VideoPlayer(modifier: Modifier = Modifier.fillMaxSize(), uri: Uri) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var exoPlayer: ExoPlayer? by remember { mutableStateOf(null) }
 
     DisposableEffect(lifecycleOwner) {
         val player = ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(Uri.parse(uri)))
+            setMediaItem(MediaItem.fromUri(uri))
             prepare() //加载资源
             playWhenReady = true
-            stop() //暂停播放
+//            stop() //暂停播放
         }
         exoPlayer = player
 
@@ -88,8 +88,8 @@ fun VideoPlayer(modifier: Modifier=Modifier.fillMaxSize(),uri: String) {
             AndroidView(factory = {
                 PlayerView(context).apply {
                     this.player = player
-                   resizeMode=  AspectRatioFrameLayout.RESIZE_MODE_FIT
-                    useController=false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    useController = false
                 }
             }, modifier = Modifier.fillMaxSize())
         }
