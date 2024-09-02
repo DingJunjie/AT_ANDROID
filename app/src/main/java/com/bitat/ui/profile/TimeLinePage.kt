@@ -183,7 +183,6 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
                         delay(3000)
                         collectTipVisible = false
                     }
-
                 },
                 contentClick = { item ->
                     vm.setCurrentBlog(item)

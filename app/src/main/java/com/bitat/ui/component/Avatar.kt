@@ -3,7 +3,6 @@ package com.bitat.ui.component
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
@@ -17,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.bitat.R
-import com.bitat.ui.common.rememberAsyncPainter
 
 @Composable
 fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40, tapFn: () -> Unit = {}) {

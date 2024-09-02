@@ -23,6 +23,8 @@ val hintTextColor=Color(0xFF999999)
 
 val toolBarIcon70=Color(0xFF707070)
 
+val lineColor=Color(0xFFEAEAEA)
+
 
 val white = Color(0xFFFFFFFF)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)

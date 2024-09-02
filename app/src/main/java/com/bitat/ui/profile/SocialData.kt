@@ -50,7 +50,7 @@ fun SocialData(
                 .height(40.dp)
                 .padding(top = 10.dp), color = Color(0xffeeeeee)
         )
-        if (follows > 0) SocialDataItem(follows, "关注") {
+        if (follows > -1) SocialDataItem(follows, "关注") {
             tapFollows()
         }
     }

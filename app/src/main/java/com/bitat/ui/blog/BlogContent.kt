@@ -84,7 +84,7 @@ fun BlogContent(
 ) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)
-        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp),
+        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.1).dp),
             mBlogBaseDto,
             maxHeight,
             isPlaying,

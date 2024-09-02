@@ -3,6 +3,7 @@ package com.bitat.viewModel
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
+import com.bitat.repository.common.CodeErr
 import com.bitat.repository.dto.req.SocialDto
 import com.bitat.repository.http.service.SocialReq
 import com.bitat.state.BlogState
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 class FollowBtnViewModel : ViewModel() {
     val state = MutableStateFlow(FollowBtnState())
 
-    fun followUser(userId: Long, type: Int) {
+    fun followUser(userId: Long, type: Int,onSuccess:(Int) ->Unit,onError:(CodeErr) -> Unit) {
         MainCo.launch {
             SocialReq.follow(SocialDto(type, userId)).await().map { result ->
 
@@ -31,11 +32,13 @@ class FollowBtnViewModel : ViewModel() {
                     it.copy(rel = result)
                 }
                 initType(result)
+                onSuccess(result)
             }.errMap {
-
+                onError(it)
             }
         }
     }
+
 
     fun initType(rel:Int) {
        val text = RelationUtils.toFollowContent(rel)

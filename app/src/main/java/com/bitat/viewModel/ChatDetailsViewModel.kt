@@ -33,7 +33,7 @@ class ChatDetailsViewModel : ViewModel() {
 
     fun getNewMessage(newMsg: SingleMsgPo) {
         _state.update {
-            it.messageList.add(newMsg)
+            it.messageList.add(0,newMsg)
             it
         }
     }

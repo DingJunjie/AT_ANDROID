@@ -127,7 +127,7 @@ fun BlogItem(
         ) {
             Column(
                 modifier = Modifier
-                    .width(ScreenUtils.screenWidth.times(0.05).dp)
+                    .width(ScreenUtils.screenWidth.times(0.1).dp)
 //                    .background(Color.Blue)
                     .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -149,7 +149,7 @@ fun BlogItem(
             ) {
                 if (blog.content.isNotEmpty()) {
                     Surface(modifier = Modifier
-                        .padding(start = ScreenUtils.screenWidth.times(0.05).dp, bottom = 30.cdp)
+                        .padding(start = ScreenUtils.screenWidth.times(0.1).dp, bottom = 30.cdp)
                         .clickable(indication = null,interactionSource = remember { MutableInteractionSource() }) { contentClick(blog) }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
@@ -174,7 +174,7 @@ fun BlogItem(
                     )
                 }
 
-                Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.05).dp, top = 25.cdp)) {
+                Surface(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.1).dp, top = 25.cdp)) {
                     BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
                 if (state.flag < 0) {

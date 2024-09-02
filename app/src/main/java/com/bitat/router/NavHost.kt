@@ -29,6 +29,7 @@ import com.bitat.ui.profile.FollowsPage
 import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.profile.ProfileEditPage
 import com.bitat.ui.profile.ProfilePage
+import com.bitat.ui.profile.SettingPage
 import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.ui.publish.PublishPage
@@ -38,7 +39,10 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, PROFILE_EDIT
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER,
+    VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY,
+    VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL,
+    OTHERS, FANS, FOLLOWS, PROFILE_EDIT,SETTING
 }
 
 sealed class NavigationItem(val route: String) {
@@ -68,7 +72,8 @@ sealed class NavigationItem(val route: String) {
     data object Others : NavigationItem(Screen.OTHERS.name)
     data object Fans : NavigationItem(Screen.FANS.name)
     data object Follows : NavigationItem(Screen.FOLLOWS.name)
-    data object ProfileEdit : NavigationItem(Screen.PROFILE_EDIT.name)
+    data object ProfileEdit:NavigationItem(Screen.PROFILE_EDIT.name)
+    data object Setting : NavigationItem(Screen.SETTING.name)
 }
 
 
@@ -191,6 +196,13 @@ fun AppNavHost(
                 viewModelProvider = viewModelProvider
             )
         }
+
+        composable(NavigationItem.Setting.route) {
+            SettingPage(
+                navController = navController,
+                viewModelProvider = viewModelProvider
+            )
+        }
     }
 }
 
@@ -263,6 +275,10 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToProfilePage: () -> Unit = {
         navController.navigate(NavigationItem.Profile.route)
+    }
+
+    val navigateToSettingPage: () -> Unit = {
+        navController.navigate(NavigationItem.Setting.route)
     }
 
 

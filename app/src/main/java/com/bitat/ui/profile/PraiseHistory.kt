@@ -65,6 +65,8 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
             if (state.myPraise.isNotEmpty()) {
                 val lastTime = state.myPraise.last().createTime
                 vm.getMyPraise(lastTime = lastTime)
+            }else{
+                vm.getMyPraise()
             }
         }
 

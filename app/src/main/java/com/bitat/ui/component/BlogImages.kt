@@ -55,7 +55,6 @@ fun BlogImages(dto: BlogBaseDto, maxHeight: Int, needRoundedCorner: Boolean = tr
         };
     }
     CuLog.info(CuTag.Blog, "BlogImage--------- ${dto.id}") //        ReelPage()
-
 }
 
 /**
@@ -76,7 +75,7 @@ fun ImageBox(blog: BlogBaseDto, needRoundedCorner: Boolean = true, maxHeight: In
                     onClic(index)
                 } //                if (index==0)  else 3.dp
                     .padding(if (index == 0) {
-                        PaddingValues(start = ScreenUtils.screenWidth.times(0.05).dp, end = 3.dp)
+                        PaddingValues(start = ScreenUtils.screenWidth.times(0.1).dp, end = 3.dp)
                     } else PaddingValues(all = 3.dp)).background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
