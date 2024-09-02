@@ -45,7 +45,7 @@ fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewMo
                     .fillMaxSize()
                     .padding(padding)
                     .align(Alignment.BottomStart),
-                uri = state.localVideo.toString()
+                uri = state.localVideo
             )
 
             Column(

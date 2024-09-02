@@ -49,11 +49,13 @@ object TcpClient {
             var residue = readBuf.buffer.size - readBuf.bufOffset
             if (result > 0) { // 如果缓冲区没有读完，就合并到新缓冲区
                 val newBuf = ByteArray(residue + result)
-                if (residue > 0) System.arraycopy(readBuf.buffer,
+                if (residue > 0) System.arraycopy(
+                    readBuf.buffer,
                     readBuf.bufOffset,
                     newBuf,
                     0,
-                    residue)
+                    residue
+                )
                 byteBuf.get(newBuf, residue, result)
                 readBuf.buffer = newBuf
                 readBuf.bufOffset = 0
@@ -79,11 +81,13 @@ object TcpClient {
                     val readSize =
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
-                        System.arraycopy(readBuf.buffer,
+                        System.arraycopy(
+                            readBuf.buffer,
                             readBuf.bufOffset,
                             body,
                             readBuf.bodyOffset,
-                            readSize)
+                            readSize
+                        )
                         readBuf.bufOffset += readSize
                         readBuf.bodyOffset += readSize // 判断body是否写完，写完就返回head和body
                         if (body.size == head.size) {
@@ -212,8 +216,10 @@ object TcpClient {
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
 
-    private fun chatRec(toId: Long, fromId: Long, toRouter: Int, //
-        fromRouter: Int, time: Long, receive: Int) {
+    private fun chatRec(
+        toId: Long, fromId: Long, toRouter: Int, //
+        fromRouter: Int, time: Long, receive: Int
+    ) {
         val body = ChatRecMsg.newBuilder().also {
             it.toId = toId
             it.fromId = fromId
@@ -245,8 +251,13 @@ object TcpClient {
 
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
-        val decryptBody = KeySecret.encryptByKey(head.secret, body, null)
-        val selfId =UserStore.userInfo.id
+        val decryptBody = KeySecret.encryptByKey(
+            head.secret,
+            body,
+            null
+        )
+        val selfId = UserStore.userInfo.id
+//        val selfId = 159L
         try {
             when (head.event) {
                 TcpMsgEvent.AUTH_REC -> CuLog.info(CuTag.SingleChat, "Auth ok")
@@ -268,10 +279,10 @@ object TcpClient {
                 TcpMsgEvent.CHAT -> if (decryptBody != null) {
                     val msg = ChatMsg.parseFrom(decryptBody)
                     CuLog.debug(CuTag.SingleChat, "收消息：toId=${msg.toId},selfId=${selfId}")
-                    TcpHandler.handleChat(msg)
                     if (msg.toId == selfId) {
                         chatRec(msg.toId, msg.fromId, 0, msg.fromRouter, msg.time, 1)
                         TcpHandler.chat(msg)
+                        TcpHandler.handleChat(msg)
                         CuLog.info(CuTag.SingleChat, "Read chat")
                     }
                 }
