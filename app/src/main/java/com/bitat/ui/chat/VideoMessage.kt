@@ -39,7 +39,9 @@ fun SenderVideo(cover: String, video: String) {
 //                .height(100.dp),
         ) {
             if (isPlaying.value)
-                VideoPlayer(uri = (QINIU_PUB_PREFIX + video).toUri())
+                VideoPlayer(modifier = Modifier.clickable {
+                    isPlaying.value = false
+                }, uri = (QINIU_PUB_PREFIX + video).toUri())
             else AsyncImage(
                 model = QINIU_PUB_PREFIX + cover,
                 contentDescription = "",
@@ -67,7 +69,9 @@ fun RecipientVideo(cover: String, video: String) {
 //                .height(100.dp),
         ) {
             if (isPlaying.value)
-                VideoPlayer(uri = (QINIU_PUB_PREFIX + video).toUri())
+                VideoPlayer(modifier = Modifier.clickable {
+                    isPlaying.value = false
+                }, uri = (QINIU_PUB_PREFIX + video).toUri())
             else AsyncImage(
                 model = QINIU_PUB_PREFIX + cover,
                 contentDescription = "",
