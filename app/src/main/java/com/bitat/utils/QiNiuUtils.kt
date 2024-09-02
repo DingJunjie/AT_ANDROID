@@ -45,7 +45,8 @@ object QiNiuUtil {
 
     const val QINIU_PREFIX = "http://file.bitebei.com/";
     const val QINIU_PUB_PREFIX = "https://bit-pub.bitebei.com/"
-//    const val QINIU_CHAT_PREFIX = "https://bit-chat.bitebei.com"
+
+    //    const val QINIU_CHAT_PREFIX = "https://bit-chat.bitebei.com"
     const val VIDEO_COVER = "?vframe/jpg/offset/0.1/w/ww/h/hh";
 
     private val uploadManager = Configuration.Builder().connectTimeout(90) // 链接超时。默认90秒
@@ -118,7 +119,7 @@ object QiNiuUtil {
                 } else if (fileType == FileType.Video) {
                     val params = VideoUtils.getParams(uri)
                     key = genKey(
-                        type = FileType.Image,
+                        type = FileType.Video,
                         ownerId = UserStore.userInfo.id,
                         number = 1,
                         x = params.width,
@@ -130,7 +131,7 @@ object QiNiuUtil {
                 uploadFile(
                     uri,
                     token = token,
-                    fileType = FileType.Image,
+                    fileType = fileType,
                     upKey = key,
                 ).await()
 
