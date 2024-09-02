@@ -30,15 +30,29 @@ class SettingCfg() {
 
         fun getSettingMenu(): MutableList<SettingMenuPo> {
             val settingMenu = mutableListOf<SettingMenuPo>()
-            settingMenu.add(SettingMenuPo(itemIndex = 1,icon = "svg/account-secure.svg",
+            settingMenu.add(SettingMenuPo(itemIndex = 1,
+                icon = "svg/account-secure.svg",
                 content = "账号与安全"))
-            settingMenu.add(SettingMenuPo(itemIndex = 2,icon = "svg/clear-cache.svg",
+            settingMenu.add(SettingMenuPo(itemIndex = 2,
+                icon = "svg/check-update.svg",
+                content = "检查更新"))
+            settingMenu.add(SettingMenuPo(itemIndex = 3,
+                icon = "svg/clear-cache.svg",
                 content = "清除占用空间"))
-            settingMenu.add(SettingMenuPo(itemIndex = 3,icon = "svg/user-agreement.svg",
+            settingMenu.add(SettingMenuPo(itemIndex = 4,
+                icon = "svg/user-agreement.svg",
                 content = "用户协议"))
-            settingMenu.add(SettingMenuPo(itemIndex = 4,icon = "svg/app-statement.svg",
+            settingMenu.add(SettingMenuPo(itemIndex = 5,
+                icon = "svg/privacy-policy.svg",
+                content = "隐私政策"))
+            settingMenu.add(SettingMenuPo(itemIndex = 6,
+                icon = "svg/app-authority.svg",
+                content = "应用权限"))
+            settingMenu.add(SettingMenuPo(itemIndex = 7,
+                icon = "svg/app-statement.svg",
                 content = "软件申明"))
-            settingMenu.add(SettingMenuPo(itemIndex = 5,icon = "svg/about-at.svg",
+            settingMenu.add(SettingMenuPo(itemIndex = 8,
+                icon = "svg/about-at.svg",
                 content = "关于艾特"))
             return settingMenu
         }

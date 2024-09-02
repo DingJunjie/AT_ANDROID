@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -50,13 +51,13 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
                 .background(MaterialTheme.colorScheme.background)) {
                 LazyColumn {
 
-                    items(SettingCfg.getSettingMenu()) { item ->
+                    itemsIndexed(SettingCfg.getSettingMenu()) { index,item ->
                         SettingItem(item, onClick = { index ->
                             when (index) { //                                1 -> {}
                                 //                                2 -> {}
                             }
-
                         })
+
                     }
                 }
                 Button(modifier = Modifier.fillMaxWidth(0.7f).align(Alignment.BottomCenter).padding(bottom = 68.cdp+WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
