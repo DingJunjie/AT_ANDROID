@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.repository.store.UserStore
+import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
@@ -30,11 +31,13 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
             if (state.myWorks.isNotEmpty()) {
                 val lastTime = state.myWorks.last().createTime
                 vm.getMyWorks(userId = UserStore.userInfo.id, lastTime = lastTime)
+            }else{
+                vm.getMyWorks(userId = UserStore.userInfo.id)
             }
         }
     }
 
-    Column(modifier = Modifier.fillMaxWidth().heightIn(min = ScreenUtils.screenHeight.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().heightIn(min = ScreenUtils.screenHeight.dp-56.dp- statusBarHeight)) {
         MediaGrid(mediaList = state.myWorks)
     }
 }

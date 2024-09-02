@@ -304,19 +304,21 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
 
     AvatarPopup(isShowAvatarOpt.value, { isShowAvatarOpt.value = false }, galleryFn = {
         UserStore.updateAvatar(it, onSuccess = {
+            isShowAvatarOpt.value = false
             vm.showSuccess(true)
             coroutineScope.launch {
                 delay(1000)
                 vm.showSuccess(true)
             }
-            isShowAvatarOpt.value = false
+
         }, onError = {
+            isShowAvatarOpt.value = false
             vm.showFail(false)
             coroutineScope.launch {
                 delay(1000)
                 vm.showFail(false)
             }
-            isShowAvatarOpt.value = false
+
         })
 
     }) {

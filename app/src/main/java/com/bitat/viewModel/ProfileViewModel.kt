@@ -180,4 +180,8 @@ class ProfileViewModel : ViewModel() {
     fun showFail(result:Boolean){
         uiState.update { it.copy(showFail = result) }
     }
+
+    fun clearVm(){
+        onCleared()
+    }
 }

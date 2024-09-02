@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.ui.common.ListFootView
+import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
@@ -38,15 +39,19 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
     LaunchedEffect(Unit) {
         vm.getMyPraise()
     }
-
-    LaunchedEffect(state.isAtBottom) {
-        CuLog.debug(CuTag.Blog, "PraiseHistory layoutInfo，滑动到底部")
+    fun loadMore() {
         if (state.profileType == 3) {
             if (state.myPraise.isNotEmpty()) {
                 val lastTime = state.myPraise.last().createTime
                 vm.getMyPraise(lastTime = lastTime)
+            } else {
+                vm.getMyPraise()
             }
         }
+    }
+
+    LaunchedEffect(state.isAtBottom) {
+        loadMore()
 
     }
     Column(
@@ -54,22 +59,13 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
             .fillMaxWidth()
             .heightIn(
                 min =
-                ScreenUtils.screenHeight.dp
+                ScreenUtils.screenHeight.dp-56.dp- statusBarHeight
             )
     ) {
-        if (state.isAtBottom) {
-            Text(text = "111111111111111111111")
-        }
         MediaGrid(mediaList = state.myPraise)
         ListFootView(state.isFootShow, state.httpState) {
-            if (state.myPraise.isNotEmpty()) {
-                val lastTime = state.myPraise.last().createTime
-                vm.getMyPraise(lastTime = lastTime)
-            }else{
-                vm.getMyPraise()
-            }
+            loadMore()
         }
-
     }
 
 }

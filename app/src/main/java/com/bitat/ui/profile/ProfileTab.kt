@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
@@ -72,7 +73,7 @@ fun ProfileTabBar(pagerState: PagerState, options: List<String>, onSelect: (Int)
                     .width(10.dp), height = 2.5.dp, color = MaterialTheme.colorScheme.primary
             )
         },
-        modifier = Modifier.fillMaxWidth(), divider = {}) {
+        modifier = Modifier.fillMaxWidth().height(56.dp), divider = {}) {
         options.forEachIndexed { index, item ->
             val selected = index == pagerState.currentPage
             Text(text = item, color = if (selected) {

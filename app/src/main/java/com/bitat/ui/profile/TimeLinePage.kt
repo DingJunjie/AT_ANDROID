@@ -59,7 +59,12 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun TimeLinePage(
+    type: Int,
+    userId: Long,
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
     val state = vm.state.collectAsState()
 
@@ -74,13 +79,14 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
     }
     LaunchedEffect(Dispatchers.IO) {
         when (type) {
-            PROFILE_MINE ->
-            {
+            PROFILE_MINE -> {
 //                vm.reset()
                 if (state.value.isFirst) {
                     vm.timeLineInit(userId)
                     vm.firstFetchFinish()
-                }}
+                }
+            }
+
             PROFILE_OTHER -> {
 //                vm.reset()
                 if (state.value.isFirst) {
@@ -98,6 +104,8 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
             if (state.value.timeLineList.isNotEmpty()) {
                 val lastTime = state.value.timeLineList.last().createTime
                 vm.timeLineInit(userId = userId, lastTime = lastTime)
+            } else {
+                vm.timeLineInit(userId = userId)
             }
         }
     }
@@ -109,7 +117,7 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
 
     // 加载更多
     LaunchedEffect(otherState.isAtBottom) {
-        CuLog.debug(CuTag.Profile,"timeLine滑动到底部")
+        CuLog.debug(CuTag.Profile, "timeLine滑动到底部")
         loadMore()
     }
 
@@ -118,7 +126,6 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
             vm.reset()
         }
     }
-
 
 
     val coroutineScope = rememberCoroutineScope()
@@ -146,8 +153,12 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
     }
     val toast = rememberToastState()
 
-    Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp-56.dp)
-        .padding(start = 5.dp, end = 5.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
+            .padding(start = 5.dp, end = 5.dp)
+    ) {
 
         state.value.timeLineList.forEachIndexed { index, item ->
             TimeLineBlogItem(blog = item,

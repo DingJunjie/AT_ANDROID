@@ -64,6 +64,7 @@ import com.bitat.ui.common.RefreshView
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.common.rememberToastState
+import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
@@ -212,18 +213,27 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+    Scaffold(modifier = Modifier
+        .fillMaxHeight()
+        .fillMaxWidth()
+        .background(white)) { padding ->
+        Column(modifier = Modifier
+            .padding()
+            .fillMaxSize()) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight))
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) },
                 navController)
-            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
-                .fillMaxHeight().fillMaxWidth(), onRefresh = {
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .fillMaxHeight()
+                .fillMaxWidth(), onRefresh = {
                 vm.initBlogList(state.currentMenu)
             }) {
-                Surface(modifier = Modifier.fillMaxWidth()
+                Surface(modifier = Modifier
+                    .fillMaxWidth()
                     .fillMaxHeight() //                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
                     //                    contentAlignment = Alignment.Center
                 ) {
@@ -233,10 +243,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                         }
 
                         LazyColumn(state = listState,
-                            modifier = Modifier.fillMaxSize() //                                .padding(bottom = homeState.bottomHeight)
-                                .padding(bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current)
-                                    .times(0.5).dp)) {
-                            itemsIndexed(state.blogList) { index, item -> //Text(item.content)
+                            modifier = Modifier.fillMaxSize() ) {
+                            itemsIndexed(state.blogList) { index, item ->
                                 Surface(modifier = Modifier.fillMaxWidth()) {
                                     BlogItem(blog = item,
                                         isPlaying = playingIndex.value == index, //                                        isPlaying = false,
@@ -297,7 +305,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Row(modifier = Modifier.fillMaxSize()
+                                        Row(modifier = Modifier
+                                            .fillMaxSize()
                                             .padding(top = 10.dp, bottom = 10.dp),
                                             horizontalArrangement = Arrangement.Center,
                                             verticalAlignment = Alignment.CenterVertically
@@ -379,14 +388,19 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
 @Composable
 fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit, navController: NavHostController) {
-    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
+    Row(modifier = Modifier
+        .height(30.dp)
+        .padding(start = 5.dp)
+        .fillMaxWidth(),
         horizontalArrangement = Arrangement.Start) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
 
-        Row(modifier = Modifier.fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).clickable(onClick = {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
+            .clickable(onClick = {
                 navController.navigate(NavigationItem.Search.route)
             }, indication = null, interactionSource = remember { MutableInteractionSource() }),
             horizontalArrangement = Arrangement.End) {

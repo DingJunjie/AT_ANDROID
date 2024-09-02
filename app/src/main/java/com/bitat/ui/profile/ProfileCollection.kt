@@ -74,12 +74,14 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
             if (state.currentCollectionItems.isNotEmpty()) {
                 val lastTime =state.currentCollectionItems.last().createTime
                 vm.getDefaultCollection(lastId = lastTime)
+            }else{
+                vm.getDefaultCollection()
             }
         }
     }
 
     Column(verticalArrangement = Arrangement.Top,modifier = Modifier.fillMaxWidth().heightIn(min=
-        ScreenUtils.screenHeight.dp)) {
+        ScreenUtils.screenHeight.dp-56.dp)) {
         Row(verticalAlignment = Alignment.Top) {
             TextButton(onClick = { vm.setTab(CollectionTabs.Works) }) {
                 Text("作品")

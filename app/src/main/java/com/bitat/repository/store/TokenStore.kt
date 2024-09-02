@@ -94,6 +94,7 @@ object TokenStore {
     fun cleanLogin() { // 删除 Keychain 中的值
         BaseStore.remove(TOKEN_KEY)
         BaseStore.remove(AUTHS_KEY) // 清空内存中的变量
+        BaseStore.remove(USER_KEY)
         token = null
         auths = null
     }

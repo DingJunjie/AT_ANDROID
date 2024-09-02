@@ -50,7 +50,7 @@ class SettingCfg() {
                 content = "应用权限"))
             settingMenu.add(SettingMenuPo(itemIndex = 7,
                 icon = "svg/app-statement.svg",
-                content = "软件申明"))
+                content = "软件声明"))
             settingMenu.add(SettingMenuPo(itemIndex = 8,
                 icon = "svg/about-at.svg",
                 content = "关于艾特"))

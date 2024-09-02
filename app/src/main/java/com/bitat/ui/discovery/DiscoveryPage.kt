@@ -133,7 +133,6 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
             RefreshView(
                 modifier = Modifier
                     .nestedScroll(loadMoreState.nestedScrollConnection)
-                    .padding(bottom = padding.calculateBottomPadding())
                     .fillMaxSize(),
                 onRefresh = {
                     vm.getDiscoveryList(isRefresh = true)

@@ -47,11 +47,11 @@ object LoginReq {
 
 
     //退出登录
-    suspend inline fun logout() = Http.get<Unit>("${Http.HOST}/auth/login/logout", login = false)
+    suspend inline fun logout() = Http.get<Unit>("${Http.HOST}/auth/login/logout")
 
     //注销用户
     suspend inline fun cancel(dto: CancelDto) =
-        Http.post<_, Unit>("${Http.HOST}/auth/login/cancel", dto, login = false)
+        Http.post<_, Unit>("${Http.HOST}/auth/login/cancel", dto)
 
     //获取下载凭证
     suspend inline fun uploadToken(dto: UploadTokenDto) =

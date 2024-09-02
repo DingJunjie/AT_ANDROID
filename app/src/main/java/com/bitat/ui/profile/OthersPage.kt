@@ -128,24 +128,26 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                 .fillMaxSize()
                 .verticalScroll(scrollState)) {
                 Box {
-                    ProfileBg(menu = {
-                        Menu(menuFun = {
+                    state.userInfo?.let {  user ->
+                        ProfileBg(user.value.cover,menu = {
+                            Menu(menuFun = {
 
+                            })
                         })
-                    })
-                    Column(modifier = Modifier.align(Alignment.TopCenter)) {
-                        Box(
-                            modifier = Modifier
-                                .height(160.dp)
-                                .fillMaxWidth()
-                        )
-                        if (state.userInfo != null) OthersDetail(
-                            vm,
-                            navController,
-                            state.userInfo!!.value
-                        ) {
-                            chatVm.createRoom(it)
-                            navController.navigate(NavigationItem.ChatDetails.route)
+                        Column(modifier = Modifier.align(Alignment.TopCenter)) {
+                            Box(
+                                modifier = Modifier
+                                    .height(160.dp)
+                                    .fillMaxWidth()
+                            )
+                         OthersDetail(
+                                vm,
+                                navController,
+                                state.userInfo!!.value
+                            ) {
+                                chatVm.createRoom(it)
+                                navController.navigate(NavigationItem.ChatDetails.route)
+                            }
                         }
                     }
                 }

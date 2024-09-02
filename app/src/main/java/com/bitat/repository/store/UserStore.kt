@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 object UserStore {
     lateinit var userInfo: UserDto
-    val userFlow = MutableSharedFlow<UserDto>()
+    var userFlow = MutableSharedFlow<UserDto>()
 
     fun refreshUser() {
         MainCo.launch {
@@ -53,6 +53,13 @@ object UserStore {
         userInfo.gender = user.gender.toInt()
         userInfo.introduce = user.introduce
         userInfo.nickname = user.nickname
+        MainCo.launch {
+            userFlow.emit(userInfo)
+        }
+    }
+
+    fun clearUser() {
+        userInfo = UserDto()
         MainCo.launch {
             userFlow.emit(userInfo)
         }
@@ -145,7 +152,7 @@ object UserStore {
         }
     }
 
-    fun updateIntroduce(introduce:String, onSuccess: () -> Unit, onError: (CodeErr) -> Unit){
+    fun updateIntroduce(introduce: String, onSuccess: () -> Unit, onError: (CodeErr) -> Unit) {
         MainCo.launch {
             UserReq.updateIntroduce(UpdateIntroduceDto(introduce = introduce)).await().map {
                 userInfo.introduce = introduce
