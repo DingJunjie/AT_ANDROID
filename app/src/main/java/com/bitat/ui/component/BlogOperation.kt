@@ -1,20 +1,28 @@
 package com.bitat.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
+import com.bitat.ext.cdp
 import com.bitat.repository.dto.resp.BlogBaseDto
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun BlogOperation(
@@ -41,27 +49,25 @@ fun BlogOperation(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CommentButton(
-                blog.comments.toInt(),
-                modifier = Modifier.padding(end = 10.dp)
-            ) {
-                tapComment()
-            }
 
-            AtButton(
-                blog.ats.toInt(),
-                modifier = Modifier.padding(end = 10.dp)
+
+            CommentButton(modifier = Modifier.size(20.dp),count = blog.comments.toInt(),
+                tintColor = MaterialTheme.colorScheme.primary) {
+            }
+Spacer(modifier = Modifier.width(20.dp))
+
+            AtButton(modifier = Modifier.size(20.dp), tintColor = MaterialTheme.colorScheme.primary,
+                count = blog.ats.toInt(),
             ) {
                 tapAt()
             }
-
-            LikeButton(
-                blog.id,
-                blog.agrees.toInt(),
+            Spacer(modifier = Modifier.width(20.dp))
+            LikeButton(modifier = Modifier.size(20.dp), id = blog.id,
+                count = blog.agrees.toInt(),
                 isLiked = blog.hasPraise,
-                modifier = Modifier.padding(end = 10.dp)
-            ) {
+                tintColor = Color.Black) { //刷新页面、列表状态
                 tapLike()
+
             }
         }
 

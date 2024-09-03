@@ -1,24 +1,21 @@
 package com.bitat.repository.store
 
-import com.bitat.repository.common.CuRes
 import com.bitat.repository.common.EXPIRED_CREDENTIAL
 import com.bitat.repository.common.INVALID_CREDENTIAL
 import com.bitat.repository.dto.common.TokenDto
 import com.bitat.repository.dto.resp.AuthDto
 import com.bitat.repository.dto.resp.LoginResDto
 import com.bitat.repository.dto.resp.UserDto
-import com.bitat.repository.http.Http
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.utils.JsonUtils
 import com.bitat.utils.TimeUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope as coScope
 import kotlinx.coroutines.delay
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
+import kotlinx.coroutines.coroutineScope as coScope
 
 object TokenStore {
     private const val TOKEN_KEY = "UserToken"

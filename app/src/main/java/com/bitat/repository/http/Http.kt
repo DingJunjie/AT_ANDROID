@@ -28,10 +28,8 @@ object Http {
 
     val HttpClient = OkHttpClient()
 
-    suspend fun <T, R> common(
-        toJsonFn: (T) -> String, fromJsonFn: (String) -> ResDto<R>, //参数
-        method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean
-    ): Deferred<CuRes<R>> {
+    suspend fun <T, R> common(toJsonFn: (T) -> String, fromJsonFn: (String) -> ResDto<R>, //参数
+        method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean): Deferred<CuRes<R>> {
         val headerMap = HashMap<String, String>(2)
         headerMap["content-Type"] = "application/json"
         val cd = CompletableDeferred<CuRes<R>>()
@@ -44,8 +42,7 @@ object Http {
             }
         }
         headerMap.putAll(headers)
-        val reqBody = data?.let(toJsonFn)
-        //CuLog.info(CuTag.Publish, reqBody ?: "")
+        val reqBody = data?.let(toJsonFn) //CuLog.info(CuTag.Publish, reqBody ?: "")
         val req = Request.Builder().url(url).headers(headerMap.toHeaders()) //
             .method(method, reqBody?.toRequestBody()).build()
 
@@ -63,12 +60,10 @@ object Http {
                 val body = response.body
                 if (response.isSuccessful && body != null) {
                     val resDto = fromJsonFn(body.string())
-                    cd.complete(
-                        if (resDto.code == OK_CODE) {
-                            if (resDto.data != null) CuRes.ok(resDto.data)
-                            else CuRes.err(INNER_ERROR, "Data is null")
-                        } else CuRes.err(resDto.code, resDto.msg)
-                    )
+                    cd.complete(if (resDto.code == OK_CODE) {
+                        if (resDto.data != null) CuRes.ok(resDto.data)
+                        else CuRes.err(INNER_ERROR, "Data is null")
+                    } else CuRes.err(resDto.code, resDto.msg))
                 } else cd.complete(CuRes.err(INNER_ERROR, "Http status:${response.code}"))
             }
 
@@ -76,12 +71,10 @@ object Http {
         return cd
     }
 
-    suspend inline fun <reified R> get(
-        url: String, headers: Map<String, String> = emptyMap(), login: Boolean = true
-    ) = common<Unit, R>({ "" }, JsonUtils::fromJson, "GET", url, null, headers, login)
+    suspend inline fun <reified R> get(url: String, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
+        common<Unit, R>({ "" }, JsonUtils::fromJson, "GET", url, null, headers, login)
 
-    suspend inline fun <reified T, reified R> post(
-        url: String, data: T, headers: Map<String, String> = emptyMap(), login: Boolean = true
-    ) = common<T, R>(JsonUtils::toJson, JsonUtils::fromJson, "POST", url, data, headers, login)
+    suspend inline fun <reified T, reified R> post(url: String, data: T, headers: Map<String, String> = emptyMap(), login: Boolean = true) =
+        common<T, R>(JsonUtils::toJson, JsonUtils::fromJson, "POST", url, data, headers, login)
 
 }

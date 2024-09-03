@@ -46,6 +46,7 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.CollapseText
+import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AtButton
 import com.bitat.ui.component.CollectButton
@@ -71,7 +72,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelProvider) {
@@ -145,181 +146,161 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
 
     val isPlay = mutableStateOf(true)
-    val horpagerState = rememberPagerState(initialPage = 0,
-        pageCount = { 2 })
-        HorizontalPager(state = horpagerState) { horPage ->
-            when (horPage) {
-                0 -> {
-                    VerticalPager(state = pagerState) { page -> // Our page content
-                        //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
-                        var currentDto = state.value.resList[page]
-                        CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(color = Color.Black)
-                        ) { // 视频/图片 部分
-                            when (currentDto.kind.toInt()) {
-                                BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
-                                    if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
-                                        othersVm.initUserId(currentDto.userId)
-                                        CuExoPlayer(
-                                            data = currentDto.resource.video,
-                                            modifier = Modifier.fillMaxSize(),
-                                            cover = currentDto.cover,
-                                            isFixHeight = true
-                                        )
-                                    }
-                                }
-
-                                BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
-                                    ImageBanner(currentDto.resource.images.toList(), true)
-                                }
-                            } // 用户信息部分
-                            Column(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(start = 30.cdp, bottom = 30.cdp),
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.Bottom
-                            ) {
-                                Column(modifier = Modifier
-                                    .height(130.cdp)
-                                    .padding(end = 50.dp)) {
-                                    UserInfoWithAvatar(
+    val horpagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    HorizontalPager(state = horpagerState) { horPage ->
+        when (horPage) {
+            0 -> {
+                VerticalPager(state = pagerState) { page -> // Our page content
+                    //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
+                    var currentDto = state.value.resList[page]
+                    CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
+                    Box(modifier = Modifier.fillMaxSize()
+                        .background(color = Color.Black)) { // 视频/图片 部分
+                        when (currentDto.kind.toInt()) {
+                            BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
+                                if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
+                                    othersVm.initUserId(currentDto.userId)
+                                    CuExoPlayer(data = currentDto.resource.video,
                                         modifier = Modifier.fillMaxSize(),
-                                        currentDto.nickname,
-                                        currentDto.profile,
-                                        textStyle = Typography.bodyLarge.copy(
-                                            fontSize = 14.sp,
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Left
-                                        ),
-                                        isShowMore = false,
-                                        avatarSize = 40
-                                    )
+                                        cover = currentDto.cover,
+                                        isFixHeight = true)
                                 }
-                                CollapseText(
-                                    value = currentDto.content,
-                                    maxLines = 1,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = 50.dp),
-                                    textStyle = Typography.bodyLarge.copy(
+                            }
+
+                            BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
+                                ImageBanner(currentDto.resource.images.toList(), true)
+                            }
+                        } // 用户信息部分
+                        Column(modifier = Modifier.align(Alignment.BottomStart)
+                            .padding(start = 30.cdp, bottom = 50.cdp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Bottom) {
+                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
+                                UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
+                                    currentDto.nickname,
+                                    currentDto.profile,
+                                    textStyle = Typography.bodyLarge.copy(fontSize = 14.sp,
                                         color = Color.White,
-                                        lineHeight = 26.sp
-                                    ),
-                                    maxLength = 17
-                                )
-
-                                if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
-                                    iconPath = "svg/location_line.svg",
-                                    selected = false,
-                                    modifier = Modifier.height(30.dp),
-                                    tapFn = {
-
-                                    })
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Left),
+                                    isShowMore = false,
+                                    avatarSize = 40)
                             }
+                            CollapseText(value = currentDto.content,
+                                maxLines = 1,
+                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
+                                textStyle = Typography.bodyLarge.copy(color = Color.White,
+                                    lineHeight = 26.sp),
+                                maxLength = 17)
+                            Spacer(modifier = Modifier.height(5.dp))
 
-                            // 点赞、收藏 部分
-                            Column(
-                                modifier = Modifier
-                                    .padding(end = 30.cdp, bottom = 30.cdp)
-                                    .align(Alignment.BottomEnd)
-                            ) {
-                                LikeButton(
-                                    currentDto.id,
-                                    currentDto.agrees.toInt(),
-                                    isLiked = currentDto.hasPraise,
-                                    tintColor = Color.White
-                                ) {
-                                    CuLog.debug(CuTag.Blog, "LikeButton 1111 ${currentDto.agrees}")
+                            //                                if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
+                            //                                    iconPath = "svg/location_line.svg",
+                            //                                    selected = false,
+                            //                                    modifier = Modifier.height(30.dp),
+                            //                                    tapFn = {
+                            //
+                            //                                    })
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
 
-                                    //刷新页面、列表状态
-                                    vm.likeClick(currentDto)
-                                    blogVm.refreshCurrent(currentDto)
+                        // 点赞、收藏 部分
+                        Column(modifier = Modifier.padding(end = 20.cdp, bottom = 50.cdp)
+                            .align(Alignment.BottomEnd),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center) {
+                            LikeButton(modifier = Modifier.size(25.dp), id = currentDto.id,
+                                count = currentDto.agrees.toInt(),
+                                isLiked = currentDto.hasPraise,
+                                tintColor = Color.White) { //刷新页面、列表状态
+                                vm.likeClick(currentDto)
+                                blogVm.refreshCurrent(currentDto)
 
-                                }
-                                Spacer(modifier = Modifier.height(70.cdp))
-                                AtButton(currentDto.ats.toInt(), tintColor = Color.White) {
-
-                                }
-                                Spacer(modifier = Modifier.height(70.cdp))
-                                CommentButton(
-                                    count = currentDto.comments.toInt(),
-                                    tintColor = Color.White
-                                ) {
-
-                                    coroutineScope.launch {
-                                        commentVm.updateBlogId(currentDto.id)
-                                        delay(1000)
-                                    }
-                                    isCommentVisible.value = true
-                                }
-                                Spacer(modifier = Modifier.height(70.cdp))
-                                CollectButton(currentDto.hasCollect,
-                                    tintColor = Color.White,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .onGloballyPositioned {
-                                            collectTipY = it.positionInWindow().y.toInt()
-                                            CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
-                                        }) {
-
-                                    collectVm.updateBlog(blog = currentDto)
-
-                                    collectTipVisible = true
-                                    if (currentDto.hasCollect) { // 已收藏，取消
-                                        collectVm.cancelCollect()
-                                    } else { // 未收藏，收藏
-                                        collectVm.collectBlog(0)
-                                    }
-                                    vm.collectClick(currentDto)
-                                    coroutineScope.launch {
-                                        delay(3000)
-                                        collectTipVisible = false
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(180.cdp))
                             }
+                            Spacer(modifier = Modifier.height(70.cdp))
+                            AtButton(modifier = Modifier.size(25.dp),
+                                count = currentDto.ats.toInt(), tintColor = Color.White) {
 
-                            CollectTips(collectTipVisible, y = collectTipY, closeTip = {
-                                collectTipVisible = false
-                            }, openPopup = {
-                                collectTipVisible = false
-                                collectPopupVisible = true
-                            })
+                            }
+                            Spacer(modifier = Modifier.height(70.cdp))
+                            CommentButton(modifier = Modifier.size(25.dp),count = currentDto.comments.toInt(),
+                                tintColor = Color.White) {
+                                coroutineScope.launch {
+                                    commentVm.updateBlogId(currentDto.id)
+                                    delay(1000)
+                                }
+                                isCommentVisible.value = true
+                            }
+                            Spacer(modifier = Modifier.height(70.cdp))
+                            CollectButton(currentDto.hasCollect,
+                                tintColor = Color.White,
+                                modifier = Modifier.size(25.dp).onGloballyPositioned {
+                                        collectTipY = it.positionInWindow().y.toInt()
+                                        CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
+                                    }) {
+
+                                collectVm.updateBlog(blog = currentDto)
+
+                                collectTipVisible = true
+                                if (currentDto.hasCollect) { // 已收藏，取消
+                                    collectVm.cancelCollect()
+                                } else { // 未收藏，收藏
+                                    collectVm.collectBlog(0)
+                                }
+                                vm.collectClick(currentDto)
+                                coroutineScope.launch {
+                                    delay(3000)
+                                    collectTipVisible = false
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(160.cdp))
+
+                            SvgIcon(
+                                modifier = Modifier.size(40.dp),
+                                path = "svg/record_music.svg",
+                                tint = Color.Unspecified,
+                                contentDescription = "",
+                            )
+                            Spacer(modifier = Modifier.height(30.dp))
 
                         }
+
+                        CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+                            collectTipVisible = false
+                        }, openPopup = {
+                            collectTipVisible = false
+                            collectPopupVisible = true
+                        })
+
                     }
                 }
-
-                1 -> {
-                    OthersPage(navController = navController, viewModelProvider = viewModelProvider)
-                }
-
             }
-        }
 
-//    Column(modifier = Modifier) { //短视频观看
-//        val urlList = mutableListOf<String>()
-//
-//        state.value.resList.forEachIndexed { index, blogBaseDto ->
-//            urlList.add(blogBaseDto.resource.video)
-//        }
-//
-//        ReelsPlayerView(modifier = Modifier.fillMaxSize(),
-//            urls = urlList,
-//            playerConfig = PlayerConfig(
-//                isSeekBarVisible = false,
-//                isDurationVisible = false,
-//                isAutoHideControlEnabled = false,
-//                isPauseResumeEnabled=true,
-//
-//            )
-//        )
-//    }
+            1 -> {
+                OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+            }
+
+        }
+    }
+
+    //    Column(modifier = Modifier) { //短视频观看
+    //        val urlList = mutableListOf<String>()
+    //
+    //        state.value.resList.forEachIndexed { index, blogBaseDto ->
+    //            urlList.add(blogBaseDto.resource.video)
+    //        }
+    //
+    //        ReelsPlayerView(modifier = Modifier.fillMaxSize(),
+    //            urls = urlList,
+    //            playerConfig = PlayerConfig(
+    //                isSeekBarVisible = false,
+    //                isDurationVisible = false,
+    //                isAutoHideControlEnabled = false,
+    //                isPauseResumeEnabled=true,
+    //
+    //            )
+    //        )
+    //    }
 
     CommentPopup(visible = isCommentVisible.value,
         blogId = commentState.currentBlogId,

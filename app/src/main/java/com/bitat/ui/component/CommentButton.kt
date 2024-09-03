@@ -15,11 +15,11 @@ import com.bitat.ui.theme.Typography
 
 @Composable
 fun CommentButton(count: Int, modifier: Modifier = Modifier,tintColor: Color=Color.Black, tapFn: () -> Unit) {
-    Row(modifier = modifier
+    Row(modifier = Modifier
         .clickable { tapFn() }) {
         SvgIcon(
-            modifier = Modifier.size(20.dp),
-            path = "svg/bottom_msg.svg",
+            modifier = modifier,
+            path = "svg/message-fill.svg",
             tint = tintColor,
             contentDescription = ""
         )

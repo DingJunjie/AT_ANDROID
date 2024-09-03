@@ -37,7 +37,7 @@ fun LikeButton(
     var tmpCount = remember {
         mutableIntStateOf(count)
     }
-    Row(modifier = modifier.clickable {
+    Row(modifier = Modifier.clickable {
         currentLike.value = !currentLike.value
         tmpCount.intValue += if (currentLike.value) 1 else -1
         if (tmpCount.intValue < 0) tmpCount.intValue = 0
@@ -53,7 +53,7 @@ fun LikeButton(
 //        tapFn()
     }) {
         SvgIcon(
-            modifier = Modifier.size(20.dp),
+            modifier = modifier,
             path = if (currentLike.value) "svg/like_fill.svg" else "svg/like_line.svg",
             tint = tintColor,
             contentDescription = "",
