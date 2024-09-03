@@ -138,8 +138,8 @@ object TcpClient {
                 conn = AsynchronousSocketChannel.open().apply {
                     connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
-            } catch (e: Exception) {
-                CuLog.error(CuTag.SingleChat, "Bad conn", e)
+            } catch (exc: Exception) {
+                CuLog.error(CuTag.SingleChat, "Tcp open err", exc)
             }
         }
     }
