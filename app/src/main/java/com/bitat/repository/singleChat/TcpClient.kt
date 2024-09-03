@@ -139,7 +139,7 @@ object TcpClient {
                     connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
             } catch (e: Exception) {
-                CuLog.error(CuTag.SingleChat, e.stackTraceToString())
+                CuLog.error(CuTag.SingleChat, "Bad conn", e)
             }
         }
     }
