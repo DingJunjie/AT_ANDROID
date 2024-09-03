@@ -74,6 +74,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -187,6 +188,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                     vm.getMessage(chatState.currentRoom!!.otherId, pageNo = state.currentPage) {
                         isLoadingMore.value = false
                     }
+                    val diff = state.messageList.size - msgHeight.size
+                    msgHeight.addAll(Array(diff) { Offset(x = 0f, 0f) })
                 }
             }
     }
@@ -303,6 +306,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .offset(
+                        x = ScreenUtils.screenWidth.times(0.05).dp,
 //                        y = currentPointerOffset.value.y
 //                            .div(Density)
 //                            .toInt().dp
