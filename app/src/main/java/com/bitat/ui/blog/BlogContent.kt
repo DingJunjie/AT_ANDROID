@@ -79,12 +79,19 @@ fun BlogContent(
     needRoundedCorner: Boolean = true,
     isPlaying: Boolean = false,
     coverIsFull: Boolean = true,
+    needStartPadding: Boolean = true,
     navHostController: NavHostController,
     viewModelProvider: ViewModelProvider
 ) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)
-        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(modifier = Modifier.padding(start = ScreenUtils.screenWidth.times(0.1).dp),
+        BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> BlogVideo(
+            modifier = Modifier.padding(
+                start = if (needStartPadding) ScreenUtils.screenWidth.times(
+                    0.1
+                ).dp else 0.dp,
+                end = if (needStartPadding) 10.dp else 0.dp
+            ),
             mBlogBaseDto,
             maxHeight,
             isPlaying,
@@ -99,6 +106,7 @@ fun BlogContent(
             mBlogBaseDto,
             maxHeight,
             needRoundedCorner,
+            needStartPadding,
             navHostController,
             viewModelProvider
         )
@@ -352,7 +360,7 @@ private fun VideoItem(videoUrl: String) {
 
 
 @Composable
-fun TotalIndexShow(modifier: Modifier=Modifier,index: String, size: String) {
+fun TotalIndexShow(modifier: Modifier = Modifier, index: String, size: String) {
     Row(modifier) {
         Text(
             text = index, color = Color.White

@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -39,17 +40,23 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ImagePreviewViewModel
 
 @Composable
-fun BlogImages(dto: BlogBaseDto, maxHeight: Int, needRoundedCorner: Boolean = true, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun BlogImages(
+    dto: BlogBaseDto,
+    maxHeight: Int,
+    needRoundedCorner: Boolean = true,
+    needStartPadding: Boolean = true,
+    navHostController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm = viewModelProvider[ImagePreviewViewModel::class]
     val context = LocalContext.current
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .fillMaxHeight(), //            .background(Color.Transparent)
         horizontalAlignment = Alignment.Start,
     ) {
-        ImageBox(dto, needRoundedCorner, maxHeight, navHostController) { //            Toast
-            //                .makeText(context, data, Toast.LENGTH_SHORT)
-            //                .show()
+        ImageBox(dto, needRoundedCorner, needStartPadding, maxHeight, navHostController) {
             vm.setImagePreView(dto.resource.images)
             AtNavigation(navHostController).navigateToImagePreviewPage()
         };
@@ -61,7 +68,14 @@ fun BlogImages(dto: BlogBaseDto, maxHeight: Int, needRoundedCorner: Boolean = tr
  * 横向列表LazyRow
  */
 @Composable
-fun ImageBox(blog: BlogBaseDto, needRoundedCorner: Boolean = true, maxHeight: Int, navHostController: NavHostController, onClic: (Int) -> Unit) {
+fun ImageBox(
+    blog: BlogBaseDto,
+    needRoundedCorner: Boolean = true,
+    needStartPadding: Boolean = true,
+    maxHeight: Int,
+    navHostController: NavHostController,
+    onClick: (Int) -> Unit
+) {
 
     val dataList = blog.resource.images
 
@@ -71,22 +85,37 @@ fun ImageBox(blog: BlogBaseDto, needRoundedCorner: Boolean = true, maxHeight: In
     ) {
         itemsIndexed(dataList) { index, data ->
             Box(
-                modifier = Modifier.fillMaxHeight().clickable {
-                    onClic(index)
-                } //                if (index==0)  else 3.dp
-                    .padding(if (index == 0) {
-                        PaddingValues(start = ScreenUtils.screenWidth.times(0.1).dp, end = 3.dp)
-                    } else PaddingValues(all = 3.dp)).background(Color.Transparent),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clickable {
+                        onClick(index)
+                    }
+                    .padding(
+                        start = if (index == 0 && needStartPadding) ScreenUtils.screenWidth.times(
+                            0.1
+                        ).dp else 0.dp
+                    )
+                    .padding(
+                        PaddingValues(all = 3.dp)
+                    )
+                    .background(Color.Transparent),
             ) {
                 if (data.isNotEmpty()) {
 
                     //获得屏幕的宽度
-                    val wrapperWidth = ScreenUtils.screenWidth * 0.88 - 10
+                    val wrapperWidth =
+                        if (needStartPadding) ScreenUtils.screenWidth
+                            .times(0.88)
+                            .minus(10).dp else ScreenUtils.screenWidth.dp
 
                     Box {
                         AsyncImage(model = data,
-                            modifier = Modifier.clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
-                                .width(wrapperWidth.dp).height(maxHeight.dp)
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
+                                .width(
+                                    wrapperWidth
+                                )
+                                .height(maxHeight.dp)
                                 .background(Color.Transparent),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
@@ -95,25 +124,37 @@ fun ImageBox(blog: BlogBaseDto, needRoundedCorner: Boolean = true, maxHeight: In
                                     val width = state.painter.intrinsicSize.width
                                     val height =
                                         state.painter.intrinsicSize.height //                                    imageSize = Size(width.toInt(), height.toInt())
-                                    CuLog.debug(CuTag.Blog,
-                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}")
+                                    CuLog.debug(
+                                        CuTag.Blog,
+                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}"
+                                    )
                                 }
                             })
-                        Box(modifier = Modifier.fillMaxWidth()
-                            .padding( top = 10.dp, end = 10.dp).align(Alignment.TopEnd)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp, end = 10.dp)
+                                .align(Alignment.TopEnd)
+                        ) {
                             if (dataList.size > 1) {
-                                TotalIndexShow(modifier = Modifier.align(
-                                    Alignment.TopEnd),(index + 1).toString(), dataList.size.toString())
+                                TotalIndexShow(
+                                    modifier = Modifier.align(
+                                        Alignment.TopEnd
+                                    ), (index + 1).toString(), dataList.size.toString()
+                                )
                             }
 
                         }
                     }
                 } else {
-                    Image(painterResource(R.drawable.logo),
+                    Image(
+                        painterResource(R.drawable.logo),
                         contentDescription = "默认图片",
                         modifier = Modifier //            .clip(RoundedCornerShape(8.dp))
-                            .clip(CircleShape).size(50.dp),
-                        contentScale = ContentScale.Crop)
+                            .clip(CircleShape)
+                            .size(50.dp),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }

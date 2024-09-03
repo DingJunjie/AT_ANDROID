@@ -178,7 +178,9 @@ fun DiscoveryItem(
     val calHeight = if (height > maxHeight) maxHeight else height
     // 高度不能超过屏幕高度的70%
     Column() {
-        UserInfoWithAvatar(nickname = item.nickname, avatar = item.profile)
+        Box(modifier = Modifier.padding(horizontal = 10.dp)) {
+            UserInfoWithAvatar(nickname = item.nickname, avatar = item.profile)
+        }
         BlogText(content = item.content)
 //        Box(
 //            modifier = Modifier
@@ -191,10 +193,13 @@ fun DiscoveryItem(
             mBlogBaseDto = item,
             maxHeight = calHeight,
             needRoundedCorner = false,
+            needStartPadding = false,
             navHostController = navHostController,
             viewModelProvider = viewModelProvider
         )
-        BlogOperation(blog = item)
+        Box(modifier = Modifier.padding(start = 10.dp)) {
+            BlogOperation(blog = item)
+        }
     }
 }
 

@@ -107,7 +107,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
             Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
                 .fillMaxHeight().padding(start = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
 
-                Line(lineHeight.intValue)
+                Line(lineHeight.intValue - 10)
                 LottieBox(lottieRes = R.raw.follow_ani,
                     isRepeat = true,
                     modifier = Modifier.size(40.cdp))
@@ -135,6 +135,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                         true,
                         isPlaying,
                         coverIsFull = true,
+                        needStartPadding = true,
                         navHostController,
                         viewModelProvider)
                 }
@@ -156,6 +157,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
         }
         Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
         Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = lineColor)
+        Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
     }
 
 }
