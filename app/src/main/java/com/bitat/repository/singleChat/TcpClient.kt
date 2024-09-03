@@ -50,11 +50,7 @@ object TcpClient {
             if (result > 0) { // 如果缓冲区没有读完，就合并到新缓冲区
                 val newBuf = ByteArray(residue + result)
                 if (residue > 0) System.arraycopy(
-                    readBuf.buffer,
-                    readBuf.bufOffset,
-                    newBuf,
-                    0,
-                    residue
+                    readBuf.buffer, readBuf.bufOffset, newBuf, 0, residue
                 )
                 byteBuf.get(newBuf, residue, result)
                 readBuf.buffer = newBuf
@@ -82,11 +78,7 @@ object TcpClient {
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
                         System.arraycopy(
-                            readBuf.buffer,
-                            readBuf.bufOffset,
-                            body,
-                            readBuf.bodyOffset,
-                            readSize
+                            readBuf.buffer, readBuf.bufOffset, body, readBuf.bodyOffset, readSize
                         )
                         readBuf.bufOffset += readSize
                         readBuf.bodyOffset += readSize // 判断body是否写完，写完就返回head和body
@@ -114,8 +106,8 @@ object TcpClient {
     fun start() {
         close()
         MainCo.launch(IO) {
+            while (!KeySecret.isValid()) delay(1000)
             try {
-                while (!KeySecret.isValid()) delay(1000)
                 conn = AsynchronousSocketChannel.open().apply {
                     connect(InetSocketAddress(HOST, PORT), Unit, //
                         object : CompletionHandler<Void, Unit> {
@@ -146,7 +138,7 @@ object TcpClient {
                         })
                 }
             } catch (e: Exception) {
-                CuLog.debug(CuTag.SingleChat, e.stackTraceToString())
+                CuLog.error(CuTag.SingleChat, e.stackTraceToString())
             }
         }
     }
@@ -252,9 +244,7 @@ object TcpClient {
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
         val decryptBody = KeySecret.encryptByKey(
-            head.secret,
-            body,
-            null
+            head.secret, body, null
         )
         val selfId = UserStore.userInfo.id
 //        val selfId = 159L
