@@ -181,6 +181,7 @@ fun TimeLineBlogItem(
                             true,
                             isPlaying,
                             coverIsFull = true,
+                            needStartPadding = true,
                             navHostController,
                             viewModelProvider
                         )

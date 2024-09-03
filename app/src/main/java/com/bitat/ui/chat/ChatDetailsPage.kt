@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -53,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -64,6 +66,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -166,6 +169,10 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
+    val msgHeight = remember {
+        mutableStateListOf(arrayListOf(0))
+    }
+
     LaunchedEffect(chatListScrollState) {
         snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
@@ -209,14 +216,14 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTapGestures(onLongPress = {
-//                        if (canTouch.value) {
-                        currentPointerOffset.value = it
-                        showMsgOpt.value = true
-//                        }
-                    })
-                }
+//                .pointerInput(Unit) {
+//                    detectTapGestures(onLongPress = {
+////                        if (canTouch.value) {
+//                        currentPointerOffset.value = it
+//                        showMsgOpt.value = true
+////                        }
+//                    })
+//                }
         ) {
             LazyColumn(
                 state = chatListScrollState,
@@ -224,23 +231,37 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 modifier = Modifier
                     .padding(padding)
             ) {
-                items(state.messageList) { item ->
-                    if (item.status.toInt() == 1 || item.status.toInt() == 2) {
-                        when (item.kind) {
-                            CHAT_Text -> SenderMessage(item)
-                            CHAT_Picture -> SenderImage(url = item.content)
-                            CHAT_Video -> {
-                                val c = Json.decodeFromString<VideoMessageParams>(item.content)
-                                SenderVideo(c.cover, c.video)
-                            }
+                itemsIndexed(state.messageList) { index, item ->
+                    Box(modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(onLongPress = {
+//                        if (canTouch.value) {
+                                currentPointerOffset.value = it
+                                showMsgOpt.value = true
+//                        }
+                            })
                         }
-                    } else if (item.status.toInt() == -1) {
-                        when (item.kind) {
-                            CHAT_Text -> RecipientMessage(item)
-                            CHAT_Picture -> RecipientImage(url = item.content)
-                            CHAT_Video -> {
-                                val c = Json.decodeFromString<VideoMessageParams>(item.content)
-                                RecipientVideo(c.cover, c.video)
+                        .onGloballyPositioned { coo ->
+                            val pos = coo.boundsInParent()
+                            println("第$index 个，位置是$pos")
+                        }) {
+                        if (item.status.toInt() == 1 || item.status.toInt() == 2) {
+                            when (item.kind) {
+                                CHAT_Text -> SenderMessage(item)
+                                CHAT_Picture -> SenderImage(url = item.content)
+                                CHAT_Video -> {
+                                    val c = Json.decodeFromString<VideoMessageParams>(item.content)
+                                    SenderVideo(c.cover, c.video)
+                                }
+                            }
+                        } else if (item.status.toInt() == -1) {
+                            when (item.kind) {
+                                CHAT_Text -> RecipientMessage(item)
+                                CHAT_Picture -> RecipientImage(url = item.content)
+                                CHAT_Video -> {
+                                    val c = Json.decodeFromString<VideoMessageParams>(item.content)
+                                    RecipientVideo(c.cover, c.video)
+                                }
                             }
                         }
                     }
@@ -265,11 +286,18 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             }) {
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.offset(
-                    currentPointerOffset.value.x.div(Density).toInt().dp,
-                    currentPointerOffset.value.y.div(Density).toInt().dp
-//                .div(Density).toInt().dp
-                )
+//                modifier = Modifier.offset(
+//                    currentPointerOffset.value.x.div(Density).toInt().dp,
+//                    currentPointerOffset.value.y.div(Density).toInt().dp
+////                .div(Density).toInt().dp
+//                )
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .offset(
+                        y = currentPointerOffset.value.y
+                            .div(Density)
+                            .toInt().dp
+                    )
             ) {
                 ChatMessageOpt()
             }

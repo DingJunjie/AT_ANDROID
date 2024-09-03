@@ -17,9 +17,9 @@ fun saveBitmap(bm: Bitmap, originPath: String): String {
 //    val savePath = Environment.getRootDirectory().absolutePath
 
 
-//    val savePathList = originPath.split("/")
-    val savePath = Local.ctx!!.filesDir.absoluteFile
-//    val savePath = savePathList.subList(0, savePathList.size - 1).joinToString("/")
+    val savePathList = originPath.split("/")
+//    val savePath = Local.ctx!!.filesDir.absoluteFile
+    val savePath = savePathList.subList(0, savePathList.size - 1).joinToString("/")
     val filename = TimeUtils.getNow().toString() + ".jpg"
 
     val fullPath = "$savePath/$filename";
