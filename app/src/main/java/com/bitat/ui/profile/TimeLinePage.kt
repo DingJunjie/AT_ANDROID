@@ -1,5 +1,6 @@
 package com.bitat.ui.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -162,8 +164,6 @@ fun TimeLinePage(
 
         state.value.timeLineList.forEachIndexed { index, item ->
             TimeLineBlogItem(blog = item,
-
-
                 isPlaying = false,
                 navHostController = navController,
                 viewModelProvider = viewModelProvider,

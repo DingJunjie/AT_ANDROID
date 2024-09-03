@@ -154,17 +154,14 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 
                 Column( // 获取tab bar的全局位置
                     modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                        if (positionTopBar == 0) positionTopBar =
-                            coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                        if (positionTopBar == 0 && coordinate.positionInRoot().y.toInt()>0){
+                            positionTopBar =
+                                coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
+                        }
                     }) {
                     if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
                         ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
-                    } else Box(
-                        modifier = Modifier
-                            .height(50.dp)
-                            .fillMaxWidth()
-                            .background(Color.White)
-                    )
+                    }
                     ProfileTabView(
                         type = PROFILE_OTHER, userId = state.userId,
                         options = OTHER_TAB_OPTIONS,

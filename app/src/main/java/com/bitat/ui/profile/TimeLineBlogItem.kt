@@ -122,7 +122,7 @@ fun TimeLineBlogItem(
                 style = MaterialTheme.typography.bodySmall
             )
             Spacer(modifier = Modifier.height(5.dp))
-            Row(modifier = Modifier
+            Row(modifier = Modifier.fillMaxWidth().background(Color.Gray)
                 .onSizeChanged { size ->
                     if (unfoldHeight.intValue == 0 && isCollapse.value) {
                         unfoldHeight.intValue = (size.height / Density).toInt()
@@ -135,7 +135,7 @@ fun TimeLineBlogItem(
                 }) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.05f) //                    .background(Color.Blue)
+                        .fillMaxWidth(0.05f)
                         .fillMaxHeight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -145,7 +145,7 @@ fun TimeLineBlogItem(
                 Column(
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .fillMaxWidth(0.95f)
+                        .fillMaxWidth().background(Color.Cyan)
                 ) {
                     if (blog.content.isNotEmpty()) {
                         Surface(modifier = Modifier

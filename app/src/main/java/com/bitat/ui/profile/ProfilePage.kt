@@ -95,10 +95,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Menu(menuFun: () -> Unit) {
-    Row(
-        modifier = Modifier.width(50.dp),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) { //        MenuItem(path = "svg/add.svg", tapFun = {})
+    Row(modifier = Modifier.width(50.dp),
+        horizontalArrangement = Arrangement.SpaceAround) { //        MenuItem(path = "svg/add.svg", tapFun = {})
         //        MenuItem(path = "svg/add-large-line.svg", tapFun = {})
         MenuItem(path = "svg/menu_line.svg", tapFun = menuFun)
     }
@@ -106,18 +104,14 @@ fun Menu(menuFun: () -> Unit) {
 
 @Composable
 fun MenuItem(path: String, desc: String = "", tapFun: () -> Unit) {
-    TextButton(
-        content = { SvgIcon(path, contentDescription = desc) },
+    TextButton(content = { SvgIcon(path, contentDescription = desc) },
         onClick = tapFun,
         shape = RoundedCornerShape(size = 40.dp),
         modifier = Modifier.size(40.dp),
-        colors = ButtonColors(
-            contentColor = Color.White,
+        colors = ButtonColors(contentColor = Color.White,
             containerColor = Color(red = 33, green = 33, blue = 33, alpha = 100),
             disabledContentColor = Color.White,
-            disabledContainerColor = Color.Gray
-        )
-    )
+            disabledContainerColor = Color.Gray))
 }
 
 
@@ -137,10 +131,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
-    DisposableEffect(Unit) {
-       // 每次显示去UserStore 拿最新的用户信息
-        vm.updateUser(UserStore.userInfo)
-        // onDispose 在页面退出组合时触发
+    DisposableEffect(Unit) { // 每次显示去UserStore 拿最新的用户信息
+        vm.updateUser(UserStore.userInfo) // onDispose 在页面退出组合时触发
         onDispose {
 
         }
@@ -221,11 +213,11 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
-//    LaunchedEffect(Dispatchers.Default) {
-//        UserStore.userFlow.collect { value ->
-//            CuLog.debug(CuTag.Profile, value.nickname)
-//        }
-//    }
+    //    LaunchedEffect(Dispatchers.Default) {
+    //        UserStore.userFlow.collect { value ->
+    //            CuLog.debug(CuTag.Profile, value.nickname)
+    //        }
+    //    }
 
     val localDensity = LocalDensity.current
 
@@ -233,31 +225,20 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
 
     Scaffold() { padding ->
-        Box(
-            modifier = Modifier.padding(
-                bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues()
-                    .calculateBottomPadding()
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(state = scrollState)
-                    .padding(
-                        if (!state.isTabbarTop) {
-                            PaddingValues(top = 0.dp)
-                        } else PaddingValues(top = 5.dp)
-                    )
-            ) {
+        Box(modifier = Modifier.padding(bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues()
+            .calculateBottomPadding())) {
+            Column(modifier = Modifier.verticalScroll(state = scrollState)
+                .padding(if (!state.isTabbarTop) {
+                    PaddingValues(top = 0.dp)
+                } else PaddingValues(top = 5.dp))) {
 
-                Box(
-                    modifier = Modifier.fillMaxWidth() //                    .padding(bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
+                Box(modifier = Modifier.fillMaxWidth() //                    .padding(bottom = androidx.compose.foundation.layout.WindowInsets.navigationBars.getBottom(
                     //                        LocalDensity.current).dp).padding(bottom = padding.calculateBottomPadding())
                 ) {
-                    Box(
-                        modifier = Modifier.background(Color.White)
+                    Box(modifier = Modifier.background(Color.White)
 
                     ) {
-                        ProfileBg(state.user.cover,tapBG = {
+                        ProfileBg(state.user.cover, tapBG = {
                             showBGPopup.value = true
                         }, menu = {
                             Menu(menuFun = {
@@ -268,25 +249,17 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                         })
                     }
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Column(
-                            verticalArrangement = Arrangement.Top,
-                            modifier = Modifier.padding(0.dp)
-                        ) {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(160.dp)
-                            )
-                            ProfileDetail(
-                                vm,
+                        Column(verticalArrangement = Arrangement.Top,
+                            modifier = Modifier.padding(0.dp)) {
+                            Spacer(modifier = Modifier.fillMaxWidth().height(160.dp))
+                            ProfileDetail(vm,
                                 navController,
                                 userInfo = state.user,
                                 atAccount = userInfo.account,
                                 introduction = userInfo.introduce,
                                 likes = userInfo.agrees,
                                 follows = userInfo.follows,
-                                fans = fans
-                            )
+                                fans = fans)
                         }
 
                     }
@@ -295,26 +268,18 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Column( // 获取tab bar的全局位置
                         modifier = Modifier.onGloballyPositioned { coordinate -> // 这个是获取组件的尺寸 coordinate.size
-                            if (positionTopBar == 0) {
+                            if (positionTopBar == 0 && coordinate.positionInRoot().y.toInt() > 0) {
                                 positionTopBar = coordinate.positionInRoot().y.toInt()
-                                    .toInt() //                                - (padding.calculateTopPadding().value)
-                                topBarHeight = with(localDensity) {
-                                    coordinate.size.height
-                                }
+
                             }
                         }) { //                        if (!state.isTabbarTop) {
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(20.dp)
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
+                            Spacer(modifier = Modifier.fillMaxWidth().height(20.dp)
+                                .background(MaterialTheme.colorScheme.background))
                             ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
                                 vm.tabType(index)
                             }
-                        }
-                        //                        }
+                        } //                        }
                         //                        else {
                         //                            Spacer(
                         //                                modifier = Modifier
@@ -334,17 +299,10 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                         navController,
                         viewModelProvider = viewModelProvider,
                         content = { index ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .statusBarsPadding(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Box(modifier = Modifier
-                                    .fillMaxHeight()
-                                    .background(Color.Cyan)
-                                    .fillMaxWidth()
-                                    .clickable {
+                            Box(modifier = Modifier.fillMaxSize().statusBarsPadding(),
+                                contentAlignment = Alignment.Center) {
+                                Box(modifier = Modifier.fillMaxHeight().background(Color.Cyan)
+                                    .fillMaxWidth().clickable {
                                         UserStore.updateFans(100)
                                     }) {
 
@@ -355,12 +313,8 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
             }
 
             if (state.isTabbarTop) Column(modifier = Modifier.fillMaxWidth()) {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(statusBarHeight)
-                        .background(Color.White)
-                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight)
+                    .background(Color.White))
                 Box(modifier = Modifier.fillMaxWidth()) {
                     ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
                         vm.tabType(index)
@@ -368,26 +322,14 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                 }
             }
         }
-        if (showDrawer.value) Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .clickable {
+        if (showDrawer.value) Box(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+            Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().clickable {
                     showDrawer.value = false
-                }
-                .background(Color(0x33333333))) {}
+                }.background(Color(0x33333333))) {}
             Box(
                 //                contentAlignment = Alignment.CenterEnd,
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .fillMaxHeight()
-                    .offset(x = drawerOffset.value.dp)
-                    .clickable { }
-                    .background(Color.White),
+                modifier = Modifier.fillMaxWidth(0.6f).fillMaxHeight()
+                    .offset(x = drawerOffset.value.dp).clickable { }.background(Color.White),
             ) {
                 SystemSetting(viewModelProvider,
                     navController,
@@ -405,101 +347,57 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 @Composable
 fun BackgroundPopup(visible: Boolean, onClose: () -> Unit, changeFn: (uri: Uri) -> Unit) {
     Popup(visible = visible, onClose = { onClose() }) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
+        Row(modifier = Modifier.fillMaxWidth().height(50.dp)) {
             ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {
                 changeFn(it.first())
             }) {
                 Text(text = "更换背景")
             }
         }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .clickable { onClose() }) {
+        Row(modifier = Modifier.fillMaxWidth().height(50.dp).clickable { onClose() }) {
             Text(text = "取消")
         }
     }
 }
 
 @Composable
-fun ProfileBg(url:String,tapBG: () -> Unit = {}, menu: @Composable (() -> Unit)) {
-    Box(modifier = Modifier
-        .height(300.dp)
-        .paint(
-            painter = rememberAsyncImagePainter(
-                model = ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(url)
-                    .placeholder(R.mipmap.ic_launcher)  // 加载中的占位图
-                    .error(R.mipmap.ic_launcher)  // 加载失败时的默认图片
-                    .build()
-            ), contentScale = ContentScale.FillWidth
-        )
-        .fillMaxWidth()
-        .height(200.dp)
-        .clickable { tapBG() }
-        .padding(top = 30.dp), contentAlignment = Alignment.TopEnd
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 10.dp, end = 10.dp)
-                .height(200.dp)
-        ) {
+fun ProfileBg(url: String, tapBG: () -> Unit = {}, menu: @Composable (() -> Unit)) {
+    Box(modifier = Modifier.height(300.dp)
+        .paint(painter = rememberAsyncImagePainter(model = ImageRequest.Builder(LocalContext.current)
+            .data(url).placeholder(R.mipmap.ic_launcher)  // 加载中的占位图
+            .error(R.mipmap.ic_launcher)  // 加载失败时的默认图片
+            .build()), contentScale = ContentScale.FillWidth).fillMaxWidth().height(200.dp)
+        .clickable { tapBG() }.padding(top = 30.dp), contentAlignment = Alignment.TopEnd) {
+        Box(modifier = Modifier.padding(top = 10.dp, end = 10.dp).height(200.dp)) {
             menu.invoke();
         }
     }
 }
 
 @Composable
-fun ProfileDetail(
-    viewModel: ProfileViewModel,
-    navHostController: NavHostController,
-    userInfo: UserDto,
-    atAccount: String,
-    introduction: String,
-    fans: Int,
-    follows: Int,
-    likes: Int
-) {
+fun ProfileDetail(viewModel: ProfileViewModel, navHostController: NavHostController, userInfo: UserDto, atAccount: String, introduction: String, fans: Int, follows: Int, likes: Int) {
     Surface(
-        shape = RoundedCornerShape(
-            topStart = 40.dp,
+        shape = RoundedCornerShape(topStart = 40.dp,
             topEnd = 40.dp,
             bottomStart = 0.dp,
-            bottomEnd = 0.dp
-        ),
+            bottomEnd = 0.dp),
 
         ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
-        ) {
+        Column(verticalArrangement = Arrangement.Top,
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 AvatarWithShadow(url = userInfo.profile)
 
-                Column(
-                    modifier = Modifier.padding(top = 15.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
+                Column(modifier = Modifier.padding(top = 15.dp),
+                    verticalArrangement = Arrangement.SpaceBetween) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
-                        TagLabel(
-                            if (userInfo.birthday > 0L) TimeUtils.getAgeByBirthday(userInfo.birthday)
-                                .toString() else "未知"
-                        )
+                        TagLabel(if (userInfo.birthday > 0L) TimeUtils.getAgeByBirthday(userInfo.birthday)
+                            .toString() else "未知")
                         TagLabel("贵阳")
                     }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 10.dp)
-                            .height(55.dp),
+                    Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         UserInfo(userInfo.nickname, atAccount, introduction)
                         SocialData(likes, follows, fans, tapLike = {
 
@@ -518,9 +416,7 @@ fun ProfileDetail(
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier
-                    .padding(start = 15.dp, top = 15.dp)
-                    .clickable {
+                modifier = Modifier.padding(start = 15.dp, top = 15.dp).clickable {
                         navHostController.navigate(NavigationItem.ProfileEdit.route)
                     })
             GoCreate()
@@ -530,16 +426,10 @@ fun ProfileDetail(
 
 @Composable
 fun GoCreate() {
-    Column(
-        modifier = Modifier
-            .padding(top = 15.dp, start = 15.dp, end = 15.dp)
-            .fillMaxWidth()
-    ) {
-        Text(
-            "进入创作页 》",
+    Column(modifier = Modifier.padding(top = 15.dp, start = 15.dp, end = 15.dp).fillMaxWidth()) {
+        Text("进入创作页 》",
             style = Typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(start = 20.dp)
-        )
+            modifier = Modifier.padding(start = 20.dp))
         Spacer(modifier = Modifier.height(10.dp))
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(3) {
@@ -551,15 +441,9 @@ fun GoCreate() {
 
 @Composable
 fun Creation() {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(start = 15.dp, end = 5.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(140.dp)
-                .background(Color.Cyan)
-        ) {}
+    Surface(shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.padding(start = 15.dp, end = 5.dp)) {
+        Box(modifier = Modifier.size(140.dp).background(Color.Cyan)) {}
     }
 }
 
@@ -567,17 +451,13 @@ fun Creation() {
 @Composable
 fun TagLabel(content: String) {
     Chip(onClick = { /*TODO*/ },
-        modifier = Modifier
-            .height(20.dp)
-            .padding(horizontal = 3.dp),
+        modifier = Modifier.height(20.dp).padding(horizontal = 3.dp),
         colors = ChipDefaults.chipColors(backgroundColor = Color.Black),
         leadingIcon = {
-            Icon(
-                Icons.Filled.CheckCircle,
+            Icon(Icons.Filled.CheckCircle,
                 contentDescription = "",
                 Modifier.size(12.dp),
-                tint = Color.White
-            )
+                tint = Color.White)
         }) {
         Text(
             content,
@@ -588,12 +468,8 @@ fun TagLabel(content: String) {
 
 @Composable
 fun AlbumList() {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 15.dp),
-        contentPadding = PaddingValues(start = 20.dp)
-    ) {
+    LazyRow(modifier = Modifier.fillMaxWidth().padding(top = 15.dp),
+        contentPadding = PaddingValues(start = 20.dp)) {
         items(5) { _ ->
             AlbumItem()
         }
@@ -603,12 +479,7 @@ fun AlbumList() {
 @Composable
 fun AlbumItem() {
     Surface(shape = RoundedCornerShape(10.dp), modifier = Modifier.padding(horizontal = 10.dp)) {
-        Box(
-            modifier = Modifier
-                .width(80.dp)
-                .height(80.dp)
-                .background(Color.Yellow)
-        ) {
+        Box(modifier = Modifier.width(80.dp).height(80.dp).background(Color.Yellow)) {
 
         }
     }
@@ -617,19 +488,13 @@ fun AlbumItem() {
 
 @Composable
 fun UserInfo(nickname: String, atAccount: String, introduction: String) {
-    Column(
-        modifier = Modifier
-            .padding(start = 10.dp, top = 5.dp)
-            .height(55.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
+    Column(modifier = Modifier.padding(start = 10.dp, top = 5.dp).height(55.dp),
+        verticalArrangement = Arrangement.SpaceBetween) {
         Text(nickname, fontSize = 16.sp, fontWeight = FontWeight(600))
-        Text(
-            "艾特号：$atAccount",
+        Text("艾特号：$atAccount",
             fontSize = 12.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 3.dp)
-        )
+            modifier = Modifier.padding(vertical = 3.dp))
     }
 }
 

@@ -11,6 +11,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.ext.csp
 import com.bitat.state.DiscoveryMenuOptions
 import com.bitat.state.MenuOptions
 
@@ -69,9 +71,10 @@ inline fun <reified T> MenuItem(
         .padding(3.dp)
         .clickable { choseMenu() }) {
         Text(
-            menuOptions.getUiContent(),
+            text=menuOptions.getUiContent(),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 32.csp),
             fontWeight = if (menuOptions == currentMenu) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 12.sp
+
         )
     }
 }

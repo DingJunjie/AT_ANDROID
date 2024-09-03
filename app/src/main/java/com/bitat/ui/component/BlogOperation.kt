@@ -33,10 +33,11 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically) {
 
-
             CommentButton(modifier = Modifier.size(20.dp),
                 count = blog.comments.toInt(),
-                tintColor = MaterialTheme.colorScheme.primary) {}
+                tintColor = MaterialTheme.colorScheme.primary) {
+                tapComment()
+            }
             Spacer(modifier = Modifier.width(20.dp))
 
             AtButton(
@@ -63,7 +64,6 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
                 },
         ) {
             tapCollect(collectY.intValue)
-
         }
     }
 

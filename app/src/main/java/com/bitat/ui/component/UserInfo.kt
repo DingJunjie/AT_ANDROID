@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bitat.ext.cdp
+import com.bitat.ext.csp
 import com.bitat.style.FontStyle
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
@@ -59,7 +60,7 @@ fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
         Text(text = username,
-            style = Typography.bodyMedium.copy(fontSize = 14.sp, //                fontWeight = FontWeight.Bold,
+            style = Typography.bodyMedium.copy( fontSize = 32.csp,//                fontWeight = FontWeight.Bold,
                  letterSpacing = 1.sp, textAlign = TextAlign.Left))
 
         Row(modifier = Modifier.fillMaxWidth()

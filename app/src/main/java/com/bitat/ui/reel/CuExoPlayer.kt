@@ -62,6 +62,7 @@ import com.amap.api.maps.MapView
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.ui.common.SvgIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -80,18 +81,7 @@ import kotlinx.coroutines.isActive
  */
 @OptIn(UnstableApi::class)
 @Composable
-fun CuExoPlayer(
-    data: String?,
-    modifier: Modifier = Modifier,
-    isFixHeight: Boolean = false,
-    cover: String,
-    useExoController: Boolean = false,
-    cache: Cache? = null,
-    onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {},
-    onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> },
-    onVideoDispose: () -> Unit = {},
-    onVideoGoBackground: () -> Unit = {}
-) {
+fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boolean = false, cover: String, soundShow: Boolean = false, cache: Cache? = null, onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {}, onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> }, onVideoDispose: () -> Unit = {}, onVideoGoBackground: () -> Unit = {}) {
     val context = LocalContext.current //初始的比例，设置成这么大用来模拟 0 高度
     var ratio by remember { mutableStateOf(1000f) }
 
@@ -124,10 +114,8 @@ fun CuExoPlayer(
                 val cacheSourceFactory = CacheDataSource.Factory().setCache(cache)
                     .setUpstreamDataSourceFactory(defaultDataSource)
                     .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-                setMediaSource(
-                    ProgressiveMediaSource.Factory(cacheSourceFactory)
-                        .createMediaSource(item)
-                )
+                setMediaSource(ProgressiveMediaSource.Factory(cacheSourceFactory)
+                    .createMediaSource(item))
             } else { //不启用缓存则直接 setMediaItem
                 setMediaItem(item)
             } //设置重复播放的模式（这里也不是很搞得懂）
@@ -246,30 +234,25 @@ fun CuExoPlayer(
             Box(modifier = modifier) {
 
 
-                AndroidView(
-                    factory =
-                    {
-                        PlayerView(context).apply {
-                            this.player =
-                                exoPlayer //                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
-                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满
-                            useController = false // 不显示默认控制器
-                            setBackgroundColor(context.resources.getColor(R.color.black))
-                        }
-                    }, modifier = Modifier.fillMaxSize()
-                )
+                AndroidView(factory = {
+                    PlayerView(context).apply {
+                        this.player =
+                            exoPlayer //                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT // 设置视频内容按原分辨率显示，不进行拉升
+                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满
+                        useController = false // 不显示默认控制器
+                        setBackgroundColor(context.resources.getColor(R.color.black))
+                    }
+                }, modifier = Modifier.fillMaxSize())
             }
 
             if (renderImage) Box(modifier = modifier) {
-                AsyncImage(
-                    model = cover,
+                AsyncImage(model = cover,
                     modifier = Modifier //                        .clip(RoundedCornerShape(8.dp))
                         .fillMaxWidth()
                         .align(Alignment.Center) //                        .fillMaxHeight()
                         .background(Color.Transparent),
                     contentDescription = null,
-                    contentScale = ContentScale.FillWidth
-                )
+                    contentScale = ContentScale.FillWidth)
             }
         }
 
@@ -298,24 +281,25 @@ fun CuExoPlayer(
         //         )
         //     }
 
-        //     Box(modifier = Modifier
-        //         .align(Alignment.BottomStart)
-        //         .padding(10.dp)
-        //         .size(30.dp)
-        //         .clip(CircleShape)
-        //         .background(Color.Black.copy(alpha = controllerBgAlpha))
-        //         .clickable {
-        //             if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
-        //             isFirstIn = false
-        //         }
-        //         .padding(6.dp), contentAlignment = Alignment.Center
-        //     ) {
-        //         Icon(
-        //             if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
-        //             contentDescription = "",
-        //             tint = Color.White.copy(alpha = controllerContentAlpha)
-        //         )
-        //     }
+        if (soundShow)
+        Box(modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp).size(30.dp)
+//            .clip(CircleShape).background(Color.Black)
+            .clickable {
+//                if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+//                isFirstIn = false
+                if (exoPlayer.volume>0) exoPlayer.volume=0f
+                else{
+                    exoPlayer.volume=0.5f
+                }
+            }.padding(6.dp),
+            contentAlignment = Alignment.Center) {
+            //            Icon(if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
+            //                contentDescription = "",
+            //                tint = Color.White)
+            //            )
+            //            video-sound.svg
+            SvgIcon(path = "svg/video-sound.svg", tint = Color.White, contentDescription = "")
+        }
 
         // }
     }

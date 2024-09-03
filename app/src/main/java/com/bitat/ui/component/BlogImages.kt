@@ -59,7 +59,7 @@ fun BlogImages(
         ImageBox(dto, needRoundedCorner, needStartPadding, maxHeight, navHostController) {
             vm.setImagePreView(dto.resource.images)
             AtNavigation(navHostController).navigateToImagePreviewPage()
-        };
+        }
     }
     CuLog.info(CuTag.Blog, "BlogImage--------- ${dto.id}") //        ReelPage()
 }

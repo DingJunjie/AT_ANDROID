@@ -83,7 +83,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
         }.fillMaxWidth().fillMaxHeight()) { //头像 和用户 和发布时间
         Row(modifier = Modifier.fillMaxWidth()
             .height(88.cdp), //                .padding(start = 5.dp),
-            horizontalArrangement = Arrangement.Start) {
+            horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
             Spacer(modifier = Modifier.width(5.dp))
             Avatar(blog.profile, size = 35) {
                 othersVm.initUserId(blog.userId)

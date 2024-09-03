@@ -271,9 +271,13 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                             collectTipVisible = true
 
                                             if (item.hasCollect) { // 已收藏，取消
-                                                collectVm.cancelCollect()
+                                                collectVm.cancelCollect() {
+
+                                                }
                                             } else { // 未收藏，收藏
-                                                collectVm.collectBlog(0)
+                                                collectVm.collectBlog(0) {
+
+                                                }
                                             }
                                             vm.collectClick(item)
                                             coroutineScope.launch {
@@ -288,7 +292,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         moreClick = {
                                             vm.setCurrentBlog(item)
                                         })
-
                                 }
                             }
 

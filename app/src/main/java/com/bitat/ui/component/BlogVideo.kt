@@ -42,7 +42,6 @@ fun BlogVideo(modifier: Modifier=Modifier,
             .fillMaxWidth()
             .height(height.dp)
             .clickable {
-
                 vm.setCurrentBlog(dto)
                 detailsVm.setCurrentBlog(dto)
                 AtNavigation(navController).navigateToVideo()
@@ -64,7 +63,7 @@ fun BlogVideo(modifier: Modifier=Modifier,
                 modifier = Modifier.fillMaxWidth(),
                 cover = dto.cover,
                 isFixHeight = true,
-                useExoController = false
+                soundShow = true
             )
         }
         CuLog.info(CuTag.Blog, "BlogVideo--------- ${dto.id}")
