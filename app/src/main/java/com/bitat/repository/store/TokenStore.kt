@@ -35,12 +35,12 @@ object TokenStore {
     private val locker = ReentrantReadWriteLock()
 
     // 检查 token 是否过期
-    private fun tempExpired() = (token?.expire ?: 0) < TimeUtils.getNow()
+    private fun memExpired() = (token?.expire ?: 0) < TimeUtils.getNow()
 
     // 从 Keychain 中获取token
     private fun getToken(): TokenDto? { // 如果没过期，则从store中读取token
-        if (tempExpired()) locker.readLock().withLock {
-            if (tempExpired()) {
+        if (memExpired()) locker.readLock().withLock {
+            if (memExpired()) {
                 token = BaseStore.getStr(TOKEN_KEY)?.let(JsonUtils::fromJson)
             }
         }
@@ -72,8 +72,8 @@ object TokenStore {
 
     // 获取授权信息，如果过期则从 Keychain 中读取
     private fun getAuths(): Array<AuthDto>? {
-        if (tempExpired()) locker.readLock().withLock {
-            if (tempExpired()) {
+        if (memExpired()) locker.readLock().withLock {
+            if (memExpired()) {
                 auths = BaseStore.getStr(AUTHS_KEY)?.let(JsonUtils::fromJson)
             }
         }

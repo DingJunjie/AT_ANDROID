@@ -25,7 +25,6 @@ object VideoUtils {
         try {
             val retriever = MediaMetadataRetriever();
             retriever.setDataSource(path)
-
             val firstFrame = retriever.getFrameAtTime(time)
             retriever.release()
 

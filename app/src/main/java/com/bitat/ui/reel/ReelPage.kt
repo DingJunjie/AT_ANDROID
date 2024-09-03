@@ -209,7 +209,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             .align(Alignment.BottomEnd),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
-                            LikeButton(modifier = Modifier.size(25.dp), id = currentDto.id,
+                            LikeButton(modifier = Modifier.size(26.dp), id = currentDto.id,
                                 count = currentDto.agrees.toInt(),
                                 isLiked = currentDto.hasPraise,
                                 tintColor = Color.White) { //刷新页面、列表状态
@@ -218,7 +218,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            AtButton(modifier = Modifier.size(25.dp),
+                            AtButton(modifier = Modifier.size(28.dp),
                                 count = currentDto.ats.toInt(), tintColor = Color.White) {
 
                             }
@@ -234,7 +234,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             Spacer(modifier = Modifier.height(70.cdp))
                             CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier.size(25.dp).onGloballyPositioned {
+                                modifier = Modifier.size(27.dp).onGloballyPositioned {
                                         collectTipY = it.positionInWindow().y.toInt()
                                         CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
                                     }) {

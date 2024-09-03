@@ -5,6 +5,7 @@ import com.bitat.repository.common.INNER_ERROR
 import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.common.OK_CODE
 import com.bitat.repository.store.TokenStore
+import com.bitat.repository.store.UserStore
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred

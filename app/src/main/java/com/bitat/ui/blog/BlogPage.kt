@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Divider
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -69,6 +70,7 @@ import com.bitat.ui.component.AnimatedMenu
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentPopup
+import com.bitat.ui.theme.lineColor
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogViewModel
@@ -130,7 +132,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = state.currentListIndex,initialFirstVisibleItemScrollOffset = state.listOffset)
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = state.currentListIndex,
+        initialFirstVisibleItemScrollOffset = state.listOffset)
     var previousIndex by remember { mutableStateOf(0) }
 
     val playingIndex = remember {
@@ -213,27 +216,19 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier
-        .fillMaxHeight()
-        .fillMaxWidth()
-        .background(white)) { padding ->
-        Column(modifier = Modifier
-            .padding()
-            .fillMaxSize()) {
+    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
+        Column(modifier = Modifier.padding().fillMaxSize()) {
             Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight))
             if (state.topBarShow) BlogTopBar(state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) },
                 navController)
-            RefreshView(modifier = Modifier
-                .nestedScroll(loadMoreState.nestedScrollConnection)
-                .fillMaxHeight()
-                .fillMaxWidth(), onRefresh = {
+            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
+                .fillMaxHeight().fillMaxWidth(), onRefresh = {
                 vm.initBlogList(state.currentMenu)
             }) {
-                Surface(modifier = Modifier
-                    .fillMaxWidth()
+                Surface(modifier = Modifier.fillMaxWidth()
                     .fillMaxHeight() //                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
                     //                    contentAlignment = Alignment.Center
                 ) {
@@ -242,8 +237,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             currentId = state.blogList.first().id
                         }
 
-                        LazyColumn(state = listState,
-                            modifier = Modifier.fillMaxSize() ) {
+                        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                             itemsIndexed(state.blogList) { index, item ->
                                 Surface(modifier = Modifier.fillMaxWidth()) {
                                     BlogItem(blog = item,
@@ -286,7 +280,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                                 delay(3000)
                                                 collectTipVisible = false
                                             }
-
                                         },
                                         contentClick = { item ->
                                             vm.setCurrentBlog(item)
@@ -295,6 +288,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         moreClick = {
                                             vm.setCurrentBlog(item)
                                         })
+
                                 }
                             }
 
@@ -305,8 +299,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Row(modifier = Modifier
-                                            .fillMaxSize()
+                                        Row(modifier = Modifier.fillMaxSize()
                                             .padding(top = 10.dp, bottom = 10.dp),
                                             horizontalArrangement = Arrangement.Center,
                                             verticalAlignment = Alignment.CenterVertically
@@ -388,19 +381,14 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
 @Composable
 fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit, navController: NavHostController) {
-    Row(modifier = Modifier
-        .height(30.dp)
-        .padding(start = 5.dp)
-        .fillMaxWidth(),
+    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
         horizontalArrangement = Arrangement.Start) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
-            .clickable(onClick = {
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).clickable(onClick = {
                 navController.navigate(NavigationItem.Search.route)
             }, indication = null, interactionSource = remember { MutableInteractionSource() }),
             horizontalArrangement = Arrangement.End) {
