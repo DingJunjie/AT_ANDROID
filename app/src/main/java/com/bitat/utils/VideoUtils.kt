@@ -1,5 +1,6 @@
 package com.bitat.utils
 
+import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.bitat.Local
