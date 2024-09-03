@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
 class PublishViewModel : ViewModel() {
@@ -487,7 +488,7 @@ class PublishViewModel : ViewModel() {
                         "ww".toRegex(), videoParams.width.toString()
                     ).replace("hh", videoParams.height.toString())
                 } else {
-                    val coverParams = ImageUtils.getParams(mediaState.value.localCover)
+                    val coverParams = ImageUtils.getParams(cover)
                     coverKey = QiNiuUtil.genKey(
                         FileType.Image,
                         UserStore.userInfo.id,
@@ -496,7 +497,8 @@ class PublishViewModel : ViewModel() {
                         coverParams.height
                     )
 
-                    QiNiuUtil.uploadFile(mediaState.value.localCover,
+                    QiNiuUtil.uploadFile(
+                        File(cover.path!!),
                         token,
                         FileType.Image,
                         coverKey,

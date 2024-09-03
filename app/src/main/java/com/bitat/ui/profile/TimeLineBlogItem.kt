@@ -122,7 +122,8 @@ fun TimeLineBlogItem(
                 style = MaterialTheme.typography.bodySmall
             )
             Spacer(modifier = Modifier.height(5.dp))
-            Row(modifier = Modifier.fillMaxWidth().background(Color.Gray)
+            Row(modifier = Modifier
+                .fillMaxWidth()
                 .onSizeChanged { size ->
                     if (unfoldHeight.intValue == 0 && isCollapse.value) {
                         unfoldHeight.intValue = (size.height / Density).toInt()
@@ -135,7 +136,7 @@ fun TimeLineBlogItem(
                 }) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.05f)
+                        .width(30.dp) //                    .background(Color.Blue)
                         .fillMaxHeight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -145,15 +146,10 @@ fun TimeLineBlogItem(
                 Column(
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .fillMaxWidth().background(Color.Cyan)
+                        .weight(1f)
                 ) {
                     if (blog.content.isNotEmpty()) {
                         Surface(modifier = Modifier
-                            .padding(
-                                start = ScreenUtils.screenWidth.times(
-                                    0.05
-                                ).dp, bottom = 30.cdp
-                            )
                             .clickable(indication = null,
                                 interactionSource = remember { MutableInteractionSource() }) {
                                 contentClick(blog)
@@ -181,7 +177,7 @@ fun TimeLineBlogItem(
                             true,
                             isPlaying,
                             coverIsFull = true,
-                            needStartPadding = true,
+                            needStartPadding = false,
                             navHostController,
                             viewModelProvider
                         )
