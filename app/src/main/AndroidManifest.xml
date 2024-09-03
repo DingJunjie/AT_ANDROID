@@ -94,6 +94,7 @@
                 <data android:scheme="um.66cd4e00cac2a664de9a9172" />
             </intent-filter>
         </activity>
+        <activity android:name=".LogoutActivity"/>
 
         <!-- FileProvider是一个特殊的ContentProvider，用于安全地共享文件，避免直接使用file://URI，这在Android N及以上版本中是不允许的 -->
         <provider

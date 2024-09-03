@@ -312,7 +312,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         },
         commentState = commentState,
         onClose = { isCommentVisible.value = false },
-        commentSucc = { //评论成功回调
+        commentSuccess = { //评论成功回调
             var currentDto = state.value.resList[state.value.resIndex]
             currentDto.comments = currentDto.comments + 1u
             vm.refreshCurrent(currentDto)

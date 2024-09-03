@@ -132,8 +132,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = state.currentListIndex,
-        initialFirstVisibleItemScrollOffset = state.listOffset)
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = state.currentListIndex,
+        initialFirstVisibleItemScrollOffset = state.listOffset
+    )
     var previousIndex by remember { mutableStateOf(0) }
 
     val playingIndex = remember {
@@ -144,7 +146,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         if (state.isFirst) {
             vm.initBlogList(state.currentMenu, isRefresh = true)
             vm.firstFetchFinish()
-        } else { //            if (state.currentListIndex > 0) {
+        } else {
+            //            if (state.currentListIndex > 0) {
             //                listState.scrollToItem(state.currentListIndex)
             //            }
         }
@@ -158,7 +161,9 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             .collect { _ ->
                 if (listState.layoutInfo.visibleItemsInfo.size > 1) {
                     if (listState.layoutInfo.visibleItemsInfo[1].offset < ScreenUtils.screenHeight.div(
-                            3) && playingIndex.value != listState.firstVisibleItemIndex + 1) {
+                            3
+                        ) && playingIndex.value != listState.firstVisibleItemIndex + 1
+                    ) {
                         playingIndex.value = listState.firstVisibleItemIndex + 1
                     }
                 }
@@ -167,8 +172,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.collect { _ ->
-            CuLog.debug(CuTag.Blog,
-                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}")
+            CuLog.debug(
+                CuTag.Blog,
+                "previousIndex:$previousIndex,firstVisibleItemIndex;${listState.firstVisibleItemIndex}"
+            )
 
             if (previousIndex < listState.firstVisibleItemIndex && state.topBarShow && previousIndex > 0) {
                 vm.topBarState(false)
@@ -216,20 +223,39 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         mutableStateOf(false)
     }
 
-    Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
-        Column(modifier = Modifier.padding().fillMaxSize()) {
-            Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight))
-            if (state.topBarShow) BlogTopBar(state.currentMenu,
+    Scaffold(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .background(white)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding()
+                .fillMaxSize()
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(statusBarHeight)
+            )
+            if (state.topBarShow) BlogTopBar(
+                state.currentMenu,
                 isOpen.value,
                 { isOpen.value = it },
                 switchMenu = { vm.switchBlogMenu(it) },
-                navController)
-            RefreshView(modifier = Modifier.nestedScroll(loadMoreState.nestedScrollConnection)
-                .fillMaxHeight().fillMaxWidth(), onRefresh = {
+                navController
+            )
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .fillMaxHeight()
+                .fillMaxWidth(), onRefresh = {
                 vm.initBlogList(state.currentMenu)
             }) {
-                Surface(modifier = Modifier.fillMaxWidth()
-                    .fillMaxHeight() //                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight() //                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
                     //                    contentAlignment = Alignment.Center
                 ) {
                     if (state.blogList.size > 0) {
@@ -245,6 +271,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         navController,
                                         viewModelProvider = viewModelProvider,
                                         tapComment = {
+                                            vm.setCurrentBlog(item)
                                             coroutineScope.launch {
                                                 commentVm.updateBlogId(item.id)
                                                 delay(1000)
@@ -301,24 +328,29 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Row(modifier = Modifier.fillMaxSize()
-                                            .padding(top = 10.dp, bottom = 10.dp),
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(top = 10.dp, bottom = 10.dp),
                                             horizontalArrangement = Arrangement.Center,
                                             verticalAlignment = Alignment.CenterVertically
 
                                         ) {
                                             if (state.loadResp == BlogLoad.Default) CircularProgressIndicator(
-                                                modifier = Modifier.size(30.dp))
+                                                modifier = Modifier.size(30.dp)
+                                            )
                                             Spacer(modifier = Modifier.width(20.dp))
 
-                                            Text(text = when (state.loadResp) {
-                                                BlogLoad.NoData -> "再试一次"
+                                            Text(
+                                                text = when (state.loadResp) {
+                                                    BlogLoad.NoData -> "再试一次"
 
-                                                BlogLoad.Success -> "加载成功"
-                                                BlogLoad.Fail -> "加载失败，网络错误"
-                                                BlogLoad.TimeOut -> "加载失败，网络超时"
-                                                BlogLoad.Default -> "数据加载中"
-                                            })
+                                                    BlogLoad.Success -> "加载成功"
+                                                    BlogLoad.Fail -> "加载失败，网络错误"
+                                                    BlogLoad.TimeOut -> "加载失败，网络超时"
+                                                    BlogLoad.Default -> "数据加载中"
+                                                }
+                                            )
 
                                         }
                                         TextButton(onClick = { vm.loadMore() { } }) {
@@ -341,14 +373,15 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                 }
             }
         }
+        CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+            collectTipVisible = false
+        }, openPopup = {
+            collectTipVisible = false
+            collectPopupVisible = true
+        })
     }
 
-    CollectTips(collectTipVisible, y = collectTipY, closeTip = {
-        collectTipVisible = false
-    }, openPopup = {
-        collectTipVisible = false
-        collectPopupVisible = true
-    })
+
 
     CollectPopup(visible = collectPopupVisible,
         collectViewModel = collectVm,
@@ -377,23 +410,45 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             AtNavigation(navController).navigateToImagePreviewPage()
         },
         commentState = commentState,
-        onClose = { isCommentVisible.value = false })
+        onClose = { isCommentVisible.value = false }) {
+        state.currentBlog?.let {
+            it.comments += 1u
+            vm.setCurrentBlog(it)
+            vm.refreshCurrent(it)
+        }
+
+    }
 }
 
 
 @Composable
-fun BlogTopBar(currentMenu: BlogMenuOptions, isOpen: Boolean, toggleMenu: (Boolean) -> Unit, switchMenu: (BlogMenuOptions) -> Unit, navController: NavHostController) {
-    Row(modifier = Modifier.height(30.dp).padding(start = 5.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start) {
+fun BlogTopBar(
+    currentMenu: BlogMenuOptions,
+    isOpen: Boolean,
+    toggleMenu: (Boolean) -> Unit,
+    switchMenu: (BlogMenuOptions) -> Unit,
+    navController: NavHostController
+) {
+    Row(
+        modifier = Modifier
+            .height(30.dp)
+            .padding(start = 5.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
         AnimatedMenu<BlogMenuOptions>(currentMenu, isOpen, toggleMenu) {
             switchMenu(it)
         }
 
-        Row(modifier = Modifier.fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).clickable(onClick = {
-                navController.navigate(NavigationItem.Search.route)
-            }, indication = null, interactionSource = remember { MutableInteractionSource() }),
-            horizontalArrangement = Arrangement.End) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
+                .clickable(onClick = {
+                    navController.navigate(NavigationItem.Search.route)
+                }, indication = null, interactionSource = remember { MutableInteractionSource() }),
+            horizontalArrangement = Arrangement.End
+        ) {
             SvgIcon(path = "svg/search.svg", tint = Color.Black, contentDescription = "")
         }
     }

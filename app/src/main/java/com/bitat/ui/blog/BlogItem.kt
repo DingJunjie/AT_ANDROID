@@ -125,7 +125,6 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
                 }
-
                 //博文类型
                 Box(modifier = Modifier.fillMaxSize()
                     .background(Color.Transparent)) {
@@ -141,7 +140,9 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                 }
 
                 Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp)) {
-                    BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
+                    BlogOperation(blog = blog, tapComment = tapComment, tapAt = tapAt, tapLike =  tapLike, tapCollect =  tapCollect,
+                        updateFlag = state.flag
+                    )
                 }
                 if (state.flag < 0) {
                     Text("")

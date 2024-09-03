@@ -100,9 +100,18 @@ class CollectViewModel : ViewModel() {
     fun collectBlog(collectionKey: Int, completeFn: () -> Unit = {}) {
         MainCo.launch {
             if (collectState.value.currentBlog != null) {
-                BlogOpsReq.addCollect(BlogOpsAddCollectDto(blogId = collectState.value.currentBlog!!.id,
-                    key = collectionKey)).await().map {
+                BlogOpsReq.addCollect(
+                    BlogOpsAddCollectDto(
+                        blogId = collectState.value.currentBlog!!.id,
+                        key = collectionKey
+                    )
+                ).await().map {
                     completeFn()
+                }.errMap {
+                    CuLog.error(
+                        CuTag.Profile,
+                        " BlogOpsReq.addCollect fail code:${it.code} msg:${it.msg}"
+                    )
                 }
             }
         }
@@ -113,7 +122,10 @@ class CollectViewModel : ViewModel() {
             BlogOpsReq.removeCollect(BlogOpsRemoveCollectDto(blogId = collectState.value.currentBlog!!.id))
                 .await().map {
                     completeFn()
-                }
+                }.errMap {  CuLog.error(
+                    CuTag.Profile,
+                    " BlogOpsReq.addCollect fail code:${it.code} msg:${it.msg}"
+                ) }
         }
     }
 

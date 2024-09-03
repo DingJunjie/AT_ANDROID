@@ -1,6 +1,7 @@
 package com.bitat.ui.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,6 +38,7 @@ import com.bitat.repository.consts.PROFILE_MINE
 import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.router.AtNavigation
 import com.bitat.state.BlogOperation
+import com.bitat.ui.blog.BlogMorePop
 import com.bitat.ui.common.ListFootView
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.CollectPopup
@@ -155,56 +157,84 @@ fun TimeLinePage(
     }
     val toast = rememberToastState()
 
-    Column(
+    val isMoreVisible = remember {
+        mutableStateOf(false)
+    }
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
-            .padding(start = 5.dp)
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
+                .padding(start = 5.dp)
+        ) {
 
-        state.value.timeLineList.forEachIndexed { index, item ->
-            TimeLineBlogItem(blog = item,
-                isPlaying = false,
-                navHostController = navController,
-                viewModelProvider = viewModelProvider,
-                tapComment = {
-                    coroutineScope.launch {
-                        commentVm.updateBlogId(item.id)
-                        delay(1000)
-                    }
-                    isCommentVisible.value = true
-                },
-                tapAt = {},
-                tapLike = { //更新列表中 点赞数据
-                    vm.likeClick(item)
-                },
-                tapCollect = {
-                    collectTipY = it.div(Density).toInt()
-                    collectVm.updateBlog(blog = item)
+            state.value.timeLineList.forEachIndexed { index, item ->
+                TimeLineBlogItem(blog = item,
+                    isPlaying = false,
+                    navHostController = navController,
+                    viewModelProvider = viewModelProvider,
+                    tapComment = {
+                        coroutineScope.launch {
+                            commentVm.updateBlogId(item.id)
+                            delay(1000)
+                        }
+                        isCommentVisible.value = true
+                    },
+                    tapAt = {},
+                    tapLike = { //更新列表中 点赞数据
+                        vm.likeClick(item)
+                    },
+                    tapCollect = {
+                        collectTipY = it.div(Density).toInt()
+                        collectVm.updateBlog(blog = item)
+                        collectTipVisible = true
+                        if (item.hasCollect) { // 已收藏，取消
+                            collectVm.cancelCollect() {
+                                vm.collectClick(item)
+                            }
 
-                    collectTipVisible = true
+                        } else { // 未收藏，收藏
+                            collectVm.collectBlog(0) { vm.collectClick(item) }
+                        }
 
-                    if (item.hasCollect) { // 已收藏，取消
-                        collectVm.cancelCollect()
-                    } else { // 未收藏，收藏
-                        collectVm.collectBlog(0)
-                    }
-                    vm.collectClick(item)
-                    coroutineScope.launch {
-                        delay(3000)
-                        collectTipVisible = false
-                    }
-                },
-                contentClick = { item ->
-                    vm.setCurrentBlog(item)
-                    AtNavigation(navController).navigateToBlogDetail()
-                },
-                moreClick = { //                        vm.setCurrentBlog(item)
-                })
+                        coroutineScope.launch {
+                            delay(3000)
+                            collectTipVisible = false
+                        }
+                    },
+                    contentClick = { item ->
+                        vm.setCurrentBlog(item)
+                        AtNavigation(navController).navigateToBlogDetail()
+                    },
+                    moreClick = {
+                        vm.setCurrentBlog(item)
+                        isMoreVisible.value = true
+                    })
+            }
+
+            ListFootView(state.value.isLoadMore, state.value.loadResp) {
+                loadMore()
+            }
         }
+        CollectTips(
+            collectTipVisible,
+            y = collectTipY,
+            closeTip = {
+                collectTipVisible = false
+            },
+            openPopup = {
+                collectTipVisible = false
+                collectPopupVisible = true
+            })
+    }
 
-        ListFootView(state.value.isLoadMore, state.value.loadResp) {
-            loadMore()
+
+    state.value.currentBlog?.let {
+        BlogMorePop(isMoreVisible.value, it, navController) {
+            isMoreVisible.value = false
         }
     }
 
@@ -219,10 +249,7 @@ fun TimeLinePage(
         commentState = commentState,
         onClose = { isCommentVisible.value = false })
 
-    CollectTips(collectTipVisible, y = collectTipY, closeTip = { //        collectTipVisible = false
-    }, openPopup = { //        collectTipVisible = false
-        collectPopupVisible = true
-    })
+
 
     CollectPopup(visible = collectPopupVisible,
         collectViewModel = collectVm,

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +51,10 @@ import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.FollowBtn
 import com.bitat.ui.common.SvgIcon
+import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.BlogOperation
+import com.bitat.ui.component.CollectPopup
+import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.component.UserInfoWithAddr
 import com.bitat.ui.theme.Typography
@@ -86,6 +90,18 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
         mutableStateOf(false)
     }
 
+    var collectTipY by remember {
+        mutableIntStateOf(0)
+    }
+
+    var collectTipVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var collectPopupVisible by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(Dispatchers.IO) {
         blogDetail?.let {
             commentVm.updateBlogId(it.id)
@@ -94,6 +110,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
         }
 
     }
+    val toast = rememberToastState()
 
     BackHandler {
         CuLog.debug(CuTag.Blog, "点击系统返回")
@@ -162,23 +179,43 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         viewModelProvider
                     )
                     Spacer(modifier = Modifier.height(40.cdp))
-                    BlogOperation(it, tapComment = {}, tapAt = {}, tapCollect = { index ->
-                        vm.collectClick(it)
+                    BlogOperation(it, tapComment = {
+
+                    }, tapAt = {}, tapCollect = { index ->
+
+
+                        collectTipY = index.div(Density).toInt()
+                        collectVm.updateBlog(blog = it)
+                        collectTipVisible = true
+
+                        if (it.hasCollect) { // 已收藏，取消
+                            collectVm.cancelCollect() {
+                                vm.collectClick(it)
+                            }
+                        } else { // 未收藏，收藏
+                            collectVm.collectBlog(0) {
+                                vm.collectClick(it)
+                            }
+                        }
+                        coroutineScope.launch {
+                            delay(3000)
+                            collectTipVisible = false
+                        }
+
                     }, tapLike = {
                         vm.likeClick(it)
-                    })
+                    }, updateFlag = blogState.value.flag)
                     Spacer(modifier = Modifier.height(60.cdp))
                 }
                 Column(
                     modifier = Modifier
-                        .height(53.cdp)
+                        .height(70.cdp).clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
-                        .padding(start = 5.dp, end = 5.dp)
-                        .clip(CircleShape),
+                        .padding(start = 5.dp, end = 5.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    Text(modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                         text = "全部评论（${it.comments}）",
                         style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary)
                     )
@@ -199,16 +236,41 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         isPop = false
                     ) {
                         it.comments += 1u
+                        vm.setCurrentBlog(it)
                         vm.refreshCurrent(it)
-                    }
-                    if (blogState.value.flag < 0) {
-                        Text(text = "")
                     }
                 }
             }
+            if (blogState.value.flag < 0) {
+                Text(text = "")
+            }
         }
+
+        CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+            collectTipVisible = false
+        }, openPopup = {
+            collectTipVisible = false
+            collectPopupVisible = true
+        })
     }
 
+    CollectPopup(visible = collectPopupVisible,
+        collectViewModel = collectVm,
+        collectState = collectState,
+        createCollection = {
+            collectVm.createCollection(it, completeFn = {
+                collectVm.initMyCollections()
+            })
+        },
+        tapCollect = {
+            collectVm.collectBlog(it.key, completeFn = {
+                toast.show("收藏成功")
+            })
+            collectPopupVisible = false
+        },
+        onClose = {
+            collectPopupVisible = false
+        })
 
 }
 

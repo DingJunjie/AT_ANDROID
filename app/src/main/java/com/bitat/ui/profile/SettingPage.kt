@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.bitat.AppConfig
+import com.bitat.Local
 import com.bitat.config.SettingCfg
 import com.bitat.ext.cdp
 import com.bitat.repository.store.TokenStore
@@ -87,16 +89,14 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
                             .calculateBottomPadding()
                     ),
                     onClick = {
-                        vm.dialogShow(true)
                         vm.loginOut(
                             onSuccess = {
-                                vm.dialogShow(false)
                                 profileVm.clearVm()
                                 TokenStore.cleanLogin()
                                 UserStore.clearUser()
-                                AtNavigation(navController).navigateToLogin()
+                                Local.navigateToLoginPage()
                             },
-                            onError = { vm.dialogShow(false) })
+                            onError = { })
                     }) {
                     Row(
                         modifier = Modifier.padding(5.dp),

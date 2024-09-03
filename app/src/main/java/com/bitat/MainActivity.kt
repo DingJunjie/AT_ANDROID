@@ -2,6 +2,7 @@ package com.bitat
 
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onCreate") //设置全屏显示
         enableEdgeToEdge()
         setContent {
+            Local.mainAct = this
             CuLog.level = CuLog.DEBUG
             BaseStore.init(LocalContext.current) //
             // SqlDB.init(this)
@@ -121,6 +123,7 @@ class MainActivity : ComponentActivity() {
             CuLog.debug(CuTag.Blog, "系统运行内存${memoryInfo.availMem}")
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

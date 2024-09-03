@@ -19,20 +19,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit, blogId: Long, onClose: () -> Unit, isPop: Boolean = true,commentSucc:() ->Unit={}) {
+fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit, blogId: Long, onClose: () -> Unit, isPop: Boolean = true,commentSuccess:() ->Unit={}) {
     if (isPop) {
         Popup(visible = visible, onClose = { onClose() }) {
-            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage)
+            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage,commentSuccess)
         }
     } else {
         Column {
-            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage)
+            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage,commentSuccess)
         }
     }
 }
 
 @Composable
-fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit,commentSucc:() ->Unit={}) {
+fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit,commentSuccess:() ->Unit={}) {
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(commentState.commentInput))
     }
@@ -121,13 +121,15 @@ fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState:
                 if (commentState.replyComment == null) {
                     commentViewModel.createComment {
                         textFieldValue = textFieldValue.copy(text = "")
+                        commentSuccess()
                     }
                 } else {
                     commentViewModel.createSubComment {
                         textFieldValue = textFieldValue.copy(text = "")
+                        commentSuccess()
                     }
                 }
-                commentSucc()
+
             }
         }, placeholder = if (textFieldValue.text.isNotEmpty()) "" else {
             if (commentState.replyComment != null) "回复${commentState.replyComment.nickname}："

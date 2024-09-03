@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -81,7 +82,18 @@ import kotlinx.coroutines.isActive
  */
 @OptIn(UnstableApi::class)
 @Composable
-fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boolean = false, cover: String, soundShow: Boolean = false, cache: Cache? = null, onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {}, onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> }, onVideoDispose: () -> Unit = {}, onVideoGoBackground: () -> Unit = {}) {
+fun CuExoPlayer(
+    data: String?,
+    modifier: Modifier = Modifier,
+    isFixHeight: Boolean = false,
+    cover: String,
+    soundShow: Boolean = false,
+    cache: Cache? = null,
+    onSingleTap: (exoPlayer: ExoPlayer) -> Unit = {},
+    onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit = { _, _ -> },
+    onVideoDispose: () -> Unit = {},
+    onVideoGoBackground: () -> Unit = {}
+) {
     val context = LocalContext.current //初始的比例，设置成这么大用来模拟 0 高度
     var ratio by remember { mutableStateOf(1000f) }
 
@@ -100,6 +112,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
     }
 
 
+
     //标志是否为初次进入，防止 lifecycle 的 onStart 事件导致自动播放
     var isFirstIn by remember { mutableStateOf(true) }
 
@@ -114,8 +127,10 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
                 val cacheSourceFactory = CacheDataSource.Factory().setCache(cache)
                     .setUpstreamDataSourceFactory(defaultDataSource)
                     .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-                setMediaSource(ProgressiveMediaSource.Factory(cacheSourceFactory)
-                    .createMediaSource(item))
+                setMediaSource(
+                    ProgressiveMediaSource.Factory(cacheSourceFactory)
+                        .createMediaSource(item)
+                )
             } else { //不启用缓存则直接 setMediaItem
                 setMediaItem(item)
             } //设置重复播放的模式（这里也不是很搞得懂）
@@ -125,6 +140,10 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
             prepare()
             this.seekTo(0)
         }
+    }
+
+    var videoVolume by remember {
+        mutableFloatStateOf( exoPlayer.volume)
     }
 
     LaunchedEffect(isControllerVisible) {
@@ -232,8 +251,7 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
     Box(modifier = modifier) { //播放器本体
         if (isShow) {
             Box(modifier = modifier) {
-
-
+                exoPlayer.volume = if (VideoConfig.isPlayVolume) videoVolume else 0f
                 AndroidView(factory = {
                     PlayerView(context).apply {
                         this.player =
@@ -246,13 +264,15 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
             }
 
             if (renderImage) Box(modifier = modifier) {
-                AsyncImage(model = cover,
+                AsyncImage(
+                    model = cover,
                     modifier = Modifier //                        .clip(RoundedCornerShape(8.dp))
                         .fillMaxWidth()
                         .align(Alignment.Center) //                        .fillMaxHeight()
                         .background(Color.Transparent),
                     contentDescription = null,
-                    contentScale = ContentScale.FillWidth)
+                    contentScale = ContentScale.FillWidth
+                )
             }
         }
 
@@ -282,27 +302,37 @@ fun CuExoPlayer(data: String?, modifier: Modifier = Modifier, isFixHeight: Boole
         //     }
 
         if (soundShow)
-        Box(modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp).size(30.dp)
+            Box(modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(10.dp)
+                .size(30.dp)
 //            .clip(CircleShape).background(Color.Black)
-            .clickable {
+                .clickable {
 //                if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
 //                isFirstIn = false
-                if (exoPlayer.volume>0) exoPlayer.volume=0f
-                else{
-                    exoPlayer.volume=0.5f
+                    if (exoPlayer.volume > 0) {
+                        videoVolume = exoPlayer.volume
+                        exoPlayer.volume = 0f
+                        VideoConfig.isPlayVolume = false
+                    } else {
+                        exoPlayer.volume = videoVolume
+                        VideoConfig.isPlayVolume = true
+                    }
                 }
-            }.padding(6.dp),
-            contentAlignment = Alignment.Center) {
-            //            Icon(if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
-            //                contentDescription = "",
-            //                tint = Color.White)
-            //            )
-            //            video-sound.svg
-            SvgIcon(path = "svg/video-sound.svg", tint = Color.White, contentDescription = "")
-        }
+                .padding(6.dp),
+                contentAlignment = Alignment.Center) {
+                //            Icon(if (isVideoPlaying) Icons.Filled.Phone else Icons.Filled.PlayArrow,
+                //                contentDescription = "",
+                //                tint = Color.White)
+                //            )
+                //            video-sound.svg
+                SvgIcon(path = "svg/video-sound.svg", tint = Color.White, contentDescription = "")
+            }
 
         // }
     }
 }
+
+
 
 

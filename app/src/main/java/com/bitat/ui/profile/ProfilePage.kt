@@ -131,12 +131,12 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
-    DisposableEffect(Unit) { // 每次显示去UserStore 拿最新的用户信息
-        vm.updateUser(UserStore.userInfo) // onDispose 在页面退出组合时触发
-        onDispose {
-
-        }
-    }
+//    DisposableEffect(Unit) { // 每次显示去UserStore 拿最新的用户信息
+//        vm.updateUser(UserStore.userInfo) // onDispose 在页面退出组合时触发
+//        onDispose {
+//
+//        }
+//    }
 
 
     val userInfo by remember {

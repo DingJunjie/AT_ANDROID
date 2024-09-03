@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -22,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.bitat.repository.dto.resp.BlogBaseDto
 
 @Composable
-fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> Unit = {}, tapLike: () -> Unit = {}, tapCollect: (Int) -> Unit = {}) {
+fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> Unit = {}, tapLike: () -> Unit = {}, tapCollect: (Int) -> Unit = {},updateFlag:Int=0) {
     val collectY = remember {
         mutableIntStateOf(0)
     }
@@ -64,6 +65,9 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
                 },
         ) {
             tapCollect(collectY.intValue)
+        }
+        if (updateFlag<0){
+            Text(text = "")
         }
     }
 

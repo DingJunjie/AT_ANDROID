@@ -50,12 +50,14 @@ import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.UserInfo
+import com.bitat.ui.component.moreIcon
 import com.bitat.ui.theme.line
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.OthersViewModel
+import com.bitat.viewModel.TimeLineViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -83,13 +85,11 @@ fun TimeLineBlogItem(
 
     val unfoldHeight = remember { mutableIntStateOf(0) }
     val isCollapse = remember { mutableStateOf(false) }
-    val isMoreVisible = remember {
-        mutableStateOf(false)
-    }
 
 
-    val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
-    val state by vm.blogState.collectAsState()
+
+    val vm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
+    val state by vm.state.collectAsState()
 
     val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
 
@@ -109,18 +109,28 @@ fun TimeLineBlogItem(
                 .background(Color.Transparent)
         ) {
             Spacer(modifier = Modifier.height(30.cdp))
-            if (!TimeUtils.isThisYear(blog.createTime)) {
-                Text(
-                    text = TimeUtils.getYearFromString(blog.createTime),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier = Modifier.height(5.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.align(Alignment.CenterStart)) {
+                    if (!TimeUtils.isThisYear(blog.createTime)) {
+                        Text(
+                            text = TimeUtils.getYearFromString(blog.createTime),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+
+                    Text(
+                        text = TimeUtils.timeToMD(blog.createTime),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                    moreIcon(onClick = moreClick)
+                }
             }
 
-            Text(
-                text = TimeUtils.timeToMD(blog.createTime),
-                style = MaterialTheme.typography.bodySmall
-            )
+
+
             Spacer(modifier = Modifier.height(5.dp))
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -136,7 +146,7 @@ fun TimeLineBlogItem(
                 }) {
                 Column(
                     modifier = Modifier
-                        .width(30.dp) //                    .background(Color.Blue)
+                        .width(50.dp) //                    .background(Color.Blue)
                         .fillMaxHeight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -189,7 +199,7 @@ fun TimeLineBlogItem(
                             top = 25.cdp
                         )
                     ) {
-                        BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
+                        BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect,state.flag)
                     }
                     if (state.flag < 0) {
                         Text("")
@@ -199,24 +209,8 @@ fun TimeLineBlogItem(
             }
         }
 
-        //        Row(
-        //            modifier = Modifier
-        //                .fillMaxWidth()
-        //                .fillMaxHeight()
-        //                .background(Color.Black),
-        //            horizontalArrangement = Arrangement.Start
-        //        ) {
-        //            //评论
-        //            Common(blog)
-        //        }
 
-        if (isMoreVisible.value) {
-            BlogMorePop(isMoreVisible.value, blog, navHostController) {
-                isMoreVisible.value = false
-            }
-        }
     }
-
 }
 
 @Composable
