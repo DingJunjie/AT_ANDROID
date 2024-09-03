@@ -97,7 +97,7 @@ object TcpClient {
         }
 
         override fun failed(exc: Throwable, readBuf: TcpReadBuf) {
-            CuLog.error(CuTag.SingleChat, "Read bad", exc)
+            CuLog.error(CuTag.SingleChat, "tcp read err", exc)
             readBuf.byteBuffer.clear()
             conn?.close()
         }
@@ -234,7 +234,7 @@ object TcpClient {
             }
 
             override fun failed(exc: Throwable, byteBuf: ByteBuffer) {
-                CuLog.error(CuTag.SingleChat, "Write bad", exc)
+                CuLog.error(CuTag.SingleChat, "Tcp write err", exc)
                 byteBuf.clear()
                 conn?.close()
             }
