@@ -29,6 +29,8 @@ object VideoUtils {
             val firstFrame = retriever.getFrameAtTime(time)
             retriever.release()
 
+            println("i have a frame ${firstFrame?.width ?: "oh no width"}")
+
             val bmPath = saveBitmap(firstFrame!!, path)
             return Uri.parse(bmPath)
         } catch (e: Exception) {

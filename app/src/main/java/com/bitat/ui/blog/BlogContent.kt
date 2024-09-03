@@ -81,7 +81,7 @@ fun BlogContent(
     coverIsFull: Boolean = true,
     needStartPadding: Boolean = true,
     navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider
+    viewModelProvider: ViewModelProvider,
 ) {
     when (kind) {
         BLOG_TEXT_ONLY -> BlogTextOnlyShow(mBlogBaseDto)

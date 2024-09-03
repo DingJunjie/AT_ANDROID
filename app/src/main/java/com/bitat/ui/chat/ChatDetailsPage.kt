@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -140,12 +141,19 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(Offset(0f, 0f))
     }
 
-    LaunchedEffect(IO) {
-        vm.getMessage(chatState.currentRoom!!.otherId)
+    val msgHeight = remember {
+        mutableStateListOf<Offset>()
     }
 
-    val currentItemCoor = remember {
-        mutableStateOf(0)
+    LaunchedEffect(IO) {
+        vm.getMessage(chatState.currentRoom!!.otherId)
+
+        msgHeight.clear()
+        msgHeight.addAll(Array(state.messageList.size) { Offset(x = 0f, 0f) })
+    }
+
+    val currentItemIndex = remember {
+        mutableIntStateOf(0)
     }
 
     val canTouch = remember {
@@ -169,10 +177,6 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
-    val msgHeight = remember {
-        mutableStateListOf(arrayListOf(0))
-    }
-
     LaunchedEffect(chatListScrollState) {
         snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
@@ -186,7 +190,6 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 }
             }
     }
-
 
     Scaffold(topBar = {
         ChatDetailTopBar(name = chatState.currentUserInfo?.nickname ?: "",
@@ -236,14 +239,20 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         .pointerInput(Unit) {
                             detectTapGestures(onLongPress = {
 //                        if (canTouch.value) {
-                                currentPointerOffset.value = it
-                                showMsgOpt.value = true
+//                                currentPointerOffset.value = it
+//                                showMsgOpt.value = true
 //                        }
+                                currentItemIndex.intValue = index
+                                showMsgOpt.value = true
                             })
                         }
                         .onGloballyPositioned { coo ->
                             val pos = coo.boundsInParent()
+                            msgHeight[index] = pos.topLeft
                             println("第$index 个，位置是$pos")
+                            println("第$index 个，位置是${pos.topLeft}")
+
+                            println("当前msg height 数组是${msgHeight}")
                         }) {
                         if (item.status.toInt() == 1 || item.status.toInt() == 2) {
                             when (item.kind) {
@@ -289,17 +298,23 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //                modifier = Modifier.offset(
 //                    currentPointerOffset.value.x.div(Density).toInt().dp,
 //                    currentPointerOffset.value.y.div(Density).toInt().dp
-////                .div(Density).toInt().dp
+//                .div(Density).toInt().dp
 //                )
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .offset(
-                        y = currentPointerOffset.value.y
-                            .div(Density)
-                            .toInt().dp
+//                        y = currentPointerOffset.value.y
+//                            .div(Density)
+//                            .toInt().dp
+                        y = msgHeight[currentItemIndex.intValue].y.div(Density).dp
                     )
             ) {
-                ChatMessageOpt()
+                ChatMessageOpt(
+                    msg = state.messageList[currentItemIndex.intValue],
+                    reply = {},
+                    copy = {
+                        showMsgOpt.value = false
+                    })
             }
         }
 

@@ -95,11 +95,12 @@ class ChatDetailsViewModel : ViewModel() {
                 cover,
                 UPLOAD_OPS.Pub,
                 FileType.Image,
+                isUsingUri = false
             ) { coverKey ->
                 QiNiuUtil.uploadSingleFile(
                     uri,
-                    ops = UPLOAD_OPS.Pub,
-                    fileType = FileType.Video
+                    UPLOAD_OPS.Pub,
+                    FileType.Video
                 ) { key ->
                     val m = VideoMessageParams(cover = coverKey, video = key)
                     val content = Json.encodeToString(VideoMessageParams.serializer(), m)

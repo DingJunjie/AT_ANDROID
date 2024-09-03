@@ -159,7 +159,7 @@ fun TimeLinePage(
         modifier = Modifier
             .fillMaxSize()
             .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
-            .padding(start = 5.dp, end = 5.dp)
+            .padding(start = 5.dp)
     ) {
 
         state.value.timeLineList.forEachIndexed { index, item ->

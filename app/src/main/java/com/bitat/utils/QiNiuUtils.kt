@@ -38,7 +38,7 @@ enum class UPLOAD_OPS {
 }
 
 enum class FileType(val str: String) {
-    Image("image"), Video("video"), Text("text"), Audio("audio")
+    Image("image/jpeg"), Video("video/mp4"), Text("text"), Audio("audio")
 }
 
 object QiNiuUtil {
@@ -99,9 +99,11 @@ object QiNiuUtil {
     }
 
     fun uploadSingleFile(
+//        token: String = "",
         uri: Uri,
         ops: UPLOAD_OPS,
         fileType: FileType,
+        isUsingUri: Boolean = true,
         completeFn: (String) -> Unit
     ) {
         MainCo.launch {
@@ -129,7 +131,7 @@ object QiNiuUtil {
                 }
 
                 uploadFile(
-                    uri,
+                    if (isUsingUri) uri else File(uri.path!!),
                     token = token,
                     fileType = fileType,
                     upKey = key,
