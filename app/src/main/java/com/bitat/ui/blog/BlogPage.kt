@@ -272,14 +272,13 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
                                             if (item.hasCollect) { // 已收藏，取消
                                                 collectVm.cancelCollect() {
-
+                                                    vm.collectClick(item)
                                                 }
                                             } else { // 未收藏，收藏
                                                 collectVm.collectBlog(0) {
-
+                                                    vm.collectClick(item)
                                                 }
                                             }
-                                            vm.collectClick(item)
                                             coroutineScope.launch {
                                                 delay(3000)
                                                 collectTipVisible = false

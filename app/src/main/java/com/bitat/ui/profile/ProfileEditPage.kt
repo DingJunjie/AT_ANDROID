@@ -308,7 +308,7 @@ fun ProfileEditPage(navHostController: NavHostController, viewModelProvider: Vie
             vm.showSuccess(true)
             coroutineScope.launch {
                 delay(1000)
-                vm.showSuccess(true)
+                vm.showSuccess(false)
             }
 
         }, onError = {

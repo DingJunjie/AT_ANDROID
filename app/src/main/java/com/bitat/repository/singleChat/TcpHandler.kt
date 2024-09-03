@@ -25,14 +25,12 @@ object TcpHandler {
         val room = SingleRoomDB.getRoom(UserStore.userInfo.id, msg.fromId) ?: return
 
         val content = msg.data.toString(Charsets.UTF_8)
-        val newMsg = SingleMsgDB.insertOne(
-            selfId = msg.toId,
+        val newMsg = SingleMsgDB.insertOne(selfId = msg.toId,
             otherId = msg.fromId,
             status = -1,
             kind = msg.kind.toShort(),
             content = content,
-            time = msg.time
-        )
+            time = msg.time)
 
         val nm = SingleMsgPo()
         nm.selfId = msg.toId
@@ -48,5 +46,9 @@ object TcpHandler {
                 chatFlow.emit(nm)
             }
         }
+    }
+
+    fun handleNotice(msg: MsgDto.NoticeMsg) {
+        CuLog.debug(CuTag.SingleChat, "收到通知：${msg.data.toString(Charsets.UTF_8)}")
     }
 }

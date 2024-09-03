@@ -127,7 +127,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                 }
 
                 //博文类型
-                Box(modifier = Modifier.fillMaxSize() //                        .padding(start = 20.cdp)
+                Box(modifier = Modifier.fillMaxSize()
                     .background(Color.Transparent)) {
                     BlogContent(blog.kind.toInt(),
                         blog,
@@ -140,7 +140,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                         viewModelProvider)
                 }
 
-                Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp, top = 25.cdp)) {
+                Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp)) {
                     BlogOperation(blog, tapComment, tapAt, tapLike, tapCollect)
                 }
                 if (state.flag < 0) {

@@ -1,5 +1,6 @@
 package com.bitat.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +34,7 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically) {
 
-            CommentButton(modifier = Modifier.size(20.dp),
+            CommentButton(modifier = Modifier.size(21.dp),
                 count = blog.comments.toInt(),
                 tintColor = MaterialTheme.colorScheme.primary) {
                 tapComment()
@@ -41,25 +42,24 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
             Spacer(modifier = Modifier.width(20.dp))
 
             AtButton(
-                modifier = Modifier.size(20.dp), tintColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp), tintColor = MaterialTheme.colorScheme.primary,
                 count = blog.ats.toInt(),
             ) {
                 tapAt()
             }
             Spacer(modifier = Modifier.width(20.dp))
-            LikeButton(modifier = Modifier.size(20.dp),
+            LikeButton(modifier = Modifier.size(22.dp),
                 id = blog.id,
                 count = blog.agrees.toInt(),
                 isLiked = blog.hasPraise,
                 tintColor = Color.Black) { //刷新页面、列表状态
                 tapLike()
-
             }
         }
 
         CollectButton(
             hasCollect = blog.hasCollect,
-            modifier = Modifier.size(20.dp).onGloballyPositioned {
+            modifier = Modifier.size(22.dp).onGloballyPositioned {
                     collectY.intValue = it.positionInWindow().y.toInt()
                 },
         ) {

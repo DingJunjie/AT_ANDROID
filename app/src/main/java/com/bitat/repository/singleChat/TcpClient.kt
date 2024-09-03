@@ -282,6 +282,7 @@ object TcpClient {
                     val msg = NoticeMsg.parseFrom(decryptBody)
                     if (msg.toId == selfId) {
                         ack(msg.toId, msg.fromId, msg.time)
+                        TcpHandler.handleNotice(msg)
                         CuLog.info(CuTag.SingleChat, "Read notice")
                     }
                 }
