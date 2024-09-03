@@ -103,39 +103,40 @@ object TcpClient {
         }
     }
 
+    private val connHandler = object : CompletionHandler<Void, Unit> {
+        override fun completed(result: Void?, attachment: Unit) {
+            CuLog.info(CuTag.SingleChat, "Tcp conn ok")
+            timing = MainCo.launch(IO) {
+                if (auth()) {
+                    read()
+                    delay(1000)
+                    while (isReady()) {
+                        val inactiveMs = inactiveMs()
+                        if (inactiveMs > 0) {
+                            if (inactiveMs < MAX_INACTIVE_MS) ping()
+                            else break
+                        }
+                        delay(1000)
+                    }
+                }
+                CuLog.info(CuTag.SingleChat, "Tcp timing end")
+                delay(1000)
+                start()
+            }
+        }
+
+        override fun failed(exc: Throwable, attachment: Unit) =
+            CuLog.error(CuTag.SingleChat, "Tcp conn err", exc)
+
+    }
+
     fun start() {
         close()
         MainCo.launch(IO) {
             while (!KeySecret.isValid()) delay(1000)
             try {
                 conn = AsynchronousSocketChannel.open().apply {
-                    connect(InetSocketAddress(HOST, PORT), Unit, //
-                        object : CompletionHandler<Void, Unit> {
-                            override fun completed(result: Void?, attachment: Unit) {
-                                CuLog.info(CuTag.SingleChat, "Tcp conn ok")
-                                timing = MainCo.launch(IO) {
-                                    if (auth()) {
-                                        read()
-                                        delay(1000)
-                                        while (isReady()) {
-                                            val inactiveMs = inactiveMs()
-                                            if (inactiveMs > 0) {
-                                                if (inactiveMs < MAX_INACTIVE_MS) ping()
-                                                else break
-                                            }
-                                            delay(1000)
-                                        }
-                                    }
-                                    CuLog.info(CuTag.SingleChat, "Tcp timing end")
-                                    delay(1000)
-                                    start()
-                                }
-                            }
-
-                            override fun failed(exc: Throwable, attachment: Unit) =
-                                CuLog.error(CuTag.SingleChat, "Tcp conn err", exc)
-
-                        })
+                    connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
             } catch (e: Exception) {
                 CuLog.error(CuTag.SingleChat, e.stackTraceToString())
