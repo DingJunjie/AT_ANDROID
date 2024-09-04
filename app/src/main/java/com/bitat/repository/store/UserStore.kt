@@ -26,6 +26,8 @@ object UserStore {
     lateinit var userInfo: UserDto
     var userFlow = MutableSharedFlow<UserDto>()
 
+    fun fetchUserId(): Long = 0L
+
     fun refreshUser() {
         MainCo.launch {
             UserReq.userInfo(UserInfoDto(userId = userInfo.id)).await().map {

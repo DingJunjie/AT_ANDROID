@@ -24,7 +24,6 @@ fun DebouncedButton(onClick: () -> Unit, modifier: Modifier = Modifier, debounce
     content: @Composable RowScope.() -> Unit) {
     var enabled by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
-
     Button(onClick = {
         if (enabled) {
             onClick()

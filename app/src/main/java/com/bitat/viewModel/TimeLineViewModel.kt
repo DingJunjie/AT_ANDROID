@@ -85,7 +85,7 @@ class TimeLineViewModel : ViewModel() {
         refreshCurrent(blog)
     }
 
-    private fun refreshCurrent(currentBlog: BlogBaseDto) {
+     fun refreshCurrent(currentBlog: BlogBaseDto) {
         MainCo.launch {
             val blogListIndex = state.value.timeLineList.indexOf(currentBlog)
 

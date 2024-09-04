@@ -37,6 +37,7 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.PROFILE_MINE
 import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.router.AtNavigation
+import com.bitat.state.BlogDetailsType
 import com.bitat.state.BlogOperation
 import com.bitat.ui.blog.BlogMorePop
 import com.bitat.ui.common.ListFootView
@@ -45,6 +46,7 @@ import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentPopup
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogDetailsViewModel
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
@@ -63,12 +65,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TimeLinePage(
-    type: Int,
-    userId: Long,
-    navController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
     val state = vm.state.collectAsState()
 
@@ -78,21 +75,21 @@ fun TimeLinePage(
     val otherVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
     val otherState by otherVm.othersState.collectAsState()
 
+    val detailsVm: BlogDetailsViewModel = viewModelProvider[BlogDetailsViewModel::class]
+
     val playingIndex = remember {
         mutableStateOf(0)
     }
     LaunchedEffect(Dispatchers.IO) {
         when (type) {
-            PROFILE_MINE -> {
-//                vm.reset()
+            PROFILE_MINE -> { //                vm.reset()
                 if (state.value.isFirst) {
                     vm.timeLineInit(userId)
                     vm.firstFetchFinish()
                 }
             }
 
-            PROFILE_OTHER -> {
-//                vm.reset()
+            PROFILE_OTHER -> { //                vm.reset()
                 if (state.value.isFirst) {
                     vm.timeLineInit(userId)
                     vm.firstFetchFinish()
@@ -160,16 +157,9 @@ fun TimeLinePage(
     val isMoreVisible = remember {
         mutableStateOf(false)
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
-                .padding(start = 5.dp)
-        ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
+            .padding(start = 5.dp)) {
 
             state.value.timeLineList.forEachIndexed { index, item ->
                 TimeLineBlogItem(blog = item,
@@ -206,6 +196,8 @@ fun TimeLinePage(
                         }
                     },
                     contentClick = { item ->
+                        detailsVm.pageType(BlogDetailsType.TimeList)
+                        detailsVm.setCurrentBlog(item)
                         vm.setCurrentBlog(item)
                         AtNavigation(navController).navigateToBlogDetail()
                     },
@@ -219,16 +211,12 @@ fun TimeLinePage(
                 loadMore()
             }
         }
-        CollectTips(
-            collectTipVisible,
-            y = collectTipY,
-            closeTip = {
-                collectTipVisible = false
-            },
-            openPopup = {
-                collectTipVisible = false
-                collectPopupVisible = true
-            })
+        CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+            collectTipVisible = false
+        }, openPopup = {
+            collectTipVisible = false
+            collectPopupVisible = true
+        })
     }
 
 

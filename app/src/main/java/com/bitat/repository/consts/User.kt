@@ -16,3 +16,4 @@ const val USER_APPLY_KIND_WRITER = 1     // 撰稿人
 const val USER_APPLY_KIND_PODCASTS = 2   // 播客人
 const val USER_APPLY_KIND_MUSIC = 3      // 音乐人
 const val USER_APPLY_KIND_RUSTIC = 4     // 美丽乡村
+

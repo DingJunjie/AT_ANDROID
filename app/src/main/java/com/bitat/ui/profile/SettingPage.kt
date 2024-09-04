@@ -34,6 +34,7 @@ import com.bitat.AppConfig
 import com.bitat.Local
 import com.bitat.config.SettingCfg
 import com.bitat.ext.cdp
+import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
@@ -91,6 +92,9 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
                     onClick = {
                         vm.loginOut(
                             onSuccess = {
+                                // 关闭tcp连接
+                                TcpClient.close()
+                                // 清除用户数据
                                 profileVm.clearVm()
                                 TokenStore.cleanLogin()
                                 UserStore.clearUser()

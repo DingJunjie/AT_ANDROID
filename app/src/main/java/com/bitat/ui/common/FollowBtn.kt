@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +21,7 @@ import com.bitat.repository.consts.BLACKLIST
 import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
 import com.bitat.repository.store.UserStore
+import com.bitat.ui.theme.white
 import com.bitat.viewModel.FollowBtnViewModel
 
 /**
@@ -59,7 +61,7 @@ fun FollowBtn(modifier: Modifier = Modifier, rel: Int, userId: Long, clickFn: (I
             }
 
         }) {
-            Text(text = state.value.relContent, style = TextStyle(fontSize = 12.sp))
+            Text(text = state.value.relContent, style = MaterialTheme.typography.bodyMedium.copy(color = white))
         }
     }
 

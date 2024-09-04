@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -69,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.bitat.R
@@ -432,18 +434,34 @@ fun GoCreate() {
             modifier = Modifier.padding(start = 20.dp))
         Spacer(modifier = Modifier.height(10.dp))
         LazyRow(modifier = Modifier.fillMaxWidth()) {
-            items(3) {
-                Creation()
+           val urls=arrayOf("http://gips3.baidu.com/it/u=764883555,2569275522&fm=3028&app=3028&f=JPEG&fmt=auto?w=960&h=1280",
+               "https://ww1.sinaimg.cn/mw690/008plbFagy1ht6u7xukl4j30jg0jgq3x.jpg",
+               "https://gips3.baidu.com/it/u=3732338995,3528391142&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f600_800")
+//            items(3) {
+//                Creation()
+//            }
+            items(urls){ item ->
+                Creation(item)
             }
         } //        Spacer(modifier = Modifier.height(10.dp))
     }
 }
 
 @Composable
-fun Creation() {
+fun Creation(url:String) {
     Surface(shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(start = 15.dp, end = 5.dp)) {
-        Box(modifier = Modifier.size(140.dp).background(Color.Cyan)) {}
+        Box(modifier = Modifier.size(140.dp).background(Color.Cyan)) {
+
+            AsyncImage(
+                model = url,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black),
+                contentDescription = null,
+                contentScale = ContentScale.Crop //宽度撑满
+            )
+        }
     }
 }
 

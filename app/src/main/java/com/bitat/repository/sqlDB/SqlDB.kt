@@ -2,6 +2,8 @@ package com.bitat.repository.sqlDB
 
 import android.content.Context
 import android.database.Cursor
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
 
@@ -36,10 +38,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         GroupRoomDB.init(db)
         GroupMsgDB.init(db)
         DraftsDB.init(db)
-
-
-
-
+        UserTokenDB.init(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -58,52 +57,35 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
                 if (writable) writableDatabase else readableDatabase
             }
 
-        fun exec(sql: String, vararg bindings: Any) = fetchDB(true).run {
-            execSQL(sql, bindings)
-            close()
+        fun exec(sql: String, vararg bindings: Any) = fetchDB(true).use {
+            it.execSQL(sql, bindings)
         }
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB(true).run {
-                val res = rawQuery(sql,
-                    bindings.map(Any::toString)
-                        .toTypedArray()).run { if (moveToFirst()) toFn(this) else null }
-                close()
-                res
+            fetchDB(true).use {
+                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+                    .run { if (moveToFirst()) toFn(this) else null }
             }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB().run {
-                val res = rawQuery(sql,
-                    bindings.map(Any::toString)
-                        .toTypedArray()).run { if (moveToFirst()) toFn(this) else null }
-                close()
-                res
+            fetchDB().use {
+                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+                    .run { if (moveToFirst()) toFn(this) else null }
             }
 
-        inline fun <reified T> queryBatch(
-            toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = fetchDB().run {
-            val res = rawQuery(
-                sql, bindings.map(Any::toString).toTypedArray()
-            ).run {
-                listOf(Array(count) {
-                    moveToNext()
-                    toFn(this)
-                })
+        inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
+            fetchDB().use {
+                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
+                    listOf(Array(count) {
+                        moveToNext()
+                        toFn(this)
+                    })
+                }
             }
-            close()
-            res
+
+        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? = fetchDB().use {
+            it.rawQuery(sql, null).run { if (moveToFirst()) toFn(this) else null }
         }
-
-        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? =
-            fetchDB().run {
-                val res = rawQuery(
-                    sql, null
-                ).run { if (moveToFirst()) toFn(this) else null }
-                close()
-                res
-            }
     }
 
 }

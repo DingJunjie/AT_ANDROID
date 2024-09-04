@@ -38,6 +38,9 @@ import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.router.AtNavigation
+import com.bitat.ui.common.statusBarHeight
+import com.bitat.ui.component.CommonTopBar
 import com.bitat.utils.ReportUtils
 import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.BlogViewModel
@@ -77,9 +80,11 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
     }
 
     Scaffold(topBar = {
-        TopBar(title = stringResource(id = R.string.blog_report)) {
-            navHostController.popBackStack()
-        }
+
+        CommonTopBar(modifier = Modifier.padding(top = statusBarHeight),
+            title = stringResource(id = R.string.blog_report),
+            backFn = { navHostController.popBackStack() })
+
     }) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().background(color = Color.White)
             .padding(innerPadding),

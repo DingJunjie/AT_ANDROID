@@ -62,7 +62,7 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.debug(CuTag.Blog,
+                        CuLog.error(CuTag.Blog,
                             "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
@@ -83,7 +83,7 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.debug(CuTag.Blog, "Latest----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.error(CuTag.Blog, "Latest----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
 
@@ -104,8 +104,7 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.debug(CuTag.Blog, "调用Followed----errMap: code=${it.code},msg=${it.msg}")
-
+                        CuLog.error(CuTag.Blog, "调用Followed----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
             }
@@ -142,7 +141,6 @@ class BlogViewModel : ViewModel() {
         }
 
         initBlogList(blogState.value.currentMenu, isRefresh = true)
-        CuLog.debug(CuTag.Blog, "加载数据1111，${blogState.value.currentMenu}")
     }
 
     fun topBarState(isShow: Boolean) {

@@ -25,6 +25,8 @@ import com.bitat.repository.common.KeySecret
 import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.BaseStore
+import com.bitat.repository.store.TokenStore
+import com.bitat.repository.store.UserStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
 import com.bitat.ui.Home
@@ -53,8 +55,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             Local.mainAct = this
             CuLog.level = CuLog.DEBUG
-            BaseStore.init(LocalContext.current) //
-            // SqlDB.init(this)
+            BaseStore.init(LocalContext.current)
+            // 设置user 到 TokenStore 中
+//            TokenStore.getUser()?.let {
+//                UserStore.initUserInfo(it)
+//            }
             ScreenUtils.init(LocalConfiguration.current) ////         DisposableEffect(Unit) {
 
             WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -75,11 +80,9 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(
-                    navController,
+                AppNavHost(navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
                 ToastUI(toastState)
             }
 
@@ -92,9 +95,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        KeySecret.start()
-        TcpClient.start()
-
+        //        KeySecret.start()
+        //        TcpClient.start()
 
     }
 

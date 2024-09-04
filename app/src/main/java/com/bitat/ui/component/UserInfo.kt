@@ -1,5 +1,6 @@
 package com.bitat.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,43 +55,26 @@ import com.bitat.utils.TimeUtils
  * 用户名的显示 和发布时间的显示
  */
 @Composable
-fun UserInfo(
-    username: String,
-    createTime: Long = 0,
-    isShowTime: Boolean = false,
-    moreClick: () -> Unit = {}
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+fun UserInfo(username: String, createTime: Long = 0, isShowTime: Boolean = false, moreClick: () -> Unit = {}) {
+    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
-        Text(
-            text = username,
-            style = Typography.bodyMedium.copy(
-                fontSize = 32.csp,//                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp, textAlign = TextAlign.Left
-            )
-        )
+        Text(text = username,
+            style = Typography.bodyMedium.copy(fontSize = 32.csp, //                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp, textAlign = TextAlign.Left))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, bottom = 5.dp),
+        Row(modifier = Modifier.fillMaxWidth().padding(start = 5.dp, top = 5.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically  // 垂直居中
         ) {
-            if (isShowTime) Text(
-                text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+            if (isShowTime) Text(text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
                 //                            fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
                 color = hintTextColor,
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
-                fontSize = FontStyle.contentLargeSize
-            )
+                fontSize = FontStyle.contentLargeSize)
 
             moreIcon(onClick = moreClick)
 
@@ -100,121 +84,77 @@ fun UserInfo(
 }
 
 @Composable
-fun UserInfoWithAvatar(
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .padding(vertical = 10.dp),
-    nickname: String,
-    avatar: String,
-    createTime: Long = 0,
-    isShowTime: Boolean = false,
-    textStyle: TextStyle = Typography.bodyLarge.copy(
-        fontSize = 14.sp,
-        color = Color.Black, //                letterSpacing = 1.sp,
-        textAlign = TextAlign.Left
-    ),
-    isShowMore: Boolean = true,
-    avatarSize: Int = 30
-) {
-    Row(
-        modifier = modifier,
+fun UserInfoWithAvatar(modifier: Modifier = Modifier.fillMaxWidth().fillMaxHeight()
+    .padding(vertical = 10.dp), nickname: String, avatar: String, createTime: Long = 0, isShowTime: Boolean = false, textStyle: TextStyle = Typography.bodyLarge.copy(
+    fontSize = 14.sp,
+    color = Color.Black, //                letterSpacing = 1.sp,
+    textAlign = TextAlign.Left), isShowMore: Boolean = true, avatarSize: Int = 30) {
+    Row(modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
         Avatar(url = avatar, size = avatarSize)
-        Text(
-            modifier = Modifier.padding(start = 10.dp),
-            text = nickname,
-            style = textStyle
-        )
+        Text(modifier = Modifier.padding(start = 10.dp), text = nickname, style = textStyle)
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
+        Row(modifier = Modifier.fillMaxWidth()
+            .padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically  // 垂直居中
         ) {
-            if (isShowTime) Text(
-                text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+            if (isShowTime) Text(text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
                 //                            fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Left,
                 modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp, bottom = 5.dp),
-                fontSize = FontStyle.contentLargeSize
-            )
-            if (isShowMore)
-                SvgIcon(
-                    path = "svg/verticalline.svg",
-                    tint = Color.Black,
-                    contentDescription = "",
-                    modifier = Modifier.size(16.dp)
-                )
+                fontSize = FontStyle.contentLargeSize)
+            if (isShowMore) SvgIcon(path = "svg/verticalline.svg",
+                tint = Color.Black,
+                contentDescription = "",
+                modifier = Modifier.size(16.dp))
 
         }
     }
 }
 
 @Composable
-fun UserInfoWithAddr(
-    nickname: String,
-    avatar: String,
-    createTime: Long = 0,
-    address: String,
-    isShowTime: Boolean = false,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
+fun UserInfoWithAddr(nickname: String, avatar: String, createTime: Long = 0, address: String, isShowTime: Boolean = false, modifier: Modifier = Modifier) {
+    Row(modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically  // 垂直居中
     ) {
         Avatar(url = avatar, size = 50)
-        Column(modifier = Modifier, horizontalAlignment = Alignment.Start) {
-            Text(
-                modifier = modifier.padding(start = 10.dp),
+        Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+            Text(modifier = modifier,
                 text = nickname,
-                style = Typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                    color = Color.Black
-                )
-            )
+                style = Typography.bodyLarge)
 
-            Row(
-                modifier = Modifier.padding(start = 5.dp, top = 5.dp, end = 4.dp, bottom = 5.dp),
-                horizontalArrangement = Arrangement.Start,
+            Row(modifier = Modifier.padding( top = 5.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically  // 垂直居中
             ) {
                 if (isShowTime) {
-                    Text(
-                        text = TimeUtils.timeToText(createTime), //                                    +TimeUtils.timestampToString(createTime),
+                    Text(text = TimeUtils.timeToText(createTime,
+                        true), //                                    +TimeUtils.timestampToString(createTime),
                         //                            fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
-                        color = subTextColor,
                         textAlign = TextAlign.Left,
                         modifier = Modifier.padding(
-                            start = 5.dp,
-                            top = 5.dp,
-                            end = 5.dp,
-                            bottom = 5.dp
-                        ), //                        fontSize = MaterialTheme.typography.bodySmall.fontSize
-                    )
+                            end = 5.dp), //                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = subTextColor,
+                            fontSize = 22.csp
+                        ))
                 }
 
-                Text(
-                    text = address,
+                Text(text = "ip:$address",
                     letterSpacing = 1.sp,
-                    color = subTextColor,
                     textAlign = TextAlign.Left,
-                    modifier = Modifier.padding(
-                        start = 5.dp,
-                        top = 5.dp,
-                        end = 5.dp,
-                        bottom = 5.dp
-                    ), //                    fontSize = MaterialTheme.typography.bodySmall.fontSize
-                )
+                    modifier = Modifier,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = subTextColor,
+                        fontSize = 22.csp
+                    ))
             }
         }
     }
@@ -226,9 +166,7 @@ fun moreIcon(onClick: () -> Unit) {
     SvgIcon(path = "svg/more.svg",
         tint = Color.Black,
         contentDescription = "",
-        modifier = Modifier
-            .size(30.cdp)
-            .clickable {
-                onClick()
-            })
+        modifier = Modifier.size(30.cdp).clickable {
+            onClick()
+        })
 }

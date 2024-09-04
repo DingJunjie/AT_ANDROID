@@ -2,6 +2,7 @@ package com.bitat.viewModel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -61,6 +62,7 @@ class ChatViewModel : ViewModel() {
                 unreads = 0
             )
         }
+
 
         _state.update {
             val room = SingleRoomPo().apply {

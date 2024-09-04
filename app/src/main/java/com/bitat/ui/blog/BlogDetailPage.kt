@@ -1,7 +1,6 @@
 package com.bitat.ui.blog
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
@@ -47,22 +44,27 @@ import com.bitat.ext.Density
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
+import com.bitat.state.BlogDetailsType
 import com.bitat.ui.common.FollowBtn
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberToastState
+import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BlogOperation
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentPopup
+import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.UserInfoWithAddr
+import com.bitat.ui.publish.TopBar
 import com.bitat.ui.theme.Typography
-import com.bitat.utils.RelationUtils
+import com.bitat.viewModel.BlogDetailsViewModel
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.bitat.viewModel.TimeLineViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,9 +72,11 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
-    val vm: BlogViewModel = viewModelProvider[BlogViewModel::class]
-    val blogState = vm.blogState.collectAsState()
+    val blogListVm: BlogViewModel = viewModelProvider[BlogViewModel::class]
+    val blogState = blogListVm.blogState.collectAsState()
 
+    val vm: BlogDetailsViewModel = viewModelProvider[BlogDetailsViewModel::class]
+    val state = vm.state.collectAsState()
     val commentVm: CommentViewModel = viewModelProvider[CommentViewModel::class]
     val commentState by commentVm.commentState.collectAsState()
 
@@ -81,10 +85,16 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
     val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
 
+    val timeLineVm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
+
     val coroutineScope = rememberCoroutineScope()
 
-    val blogDetail = blogState.value.currentBlog
-    val heigh = getHeight(blogState.value.currentBlog!!)
+    val blogDetail = state.value.currentBlog
+    var heigh:Int=0
+    state.value.currentBlog?.let {
+         heigh = getHeight(it)
+    }
+
     val scrollState = rememberScrollState()
     var isCommentVisible by remember {
         mutableStateOf(false)
@@ -108,67 +118,48 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
             delay(1000)
             isCommentVisible = true
         }
-
     }
     val toast = rememberToastState()
 
     BackHandler {
-        CuLog.debug(CuTag.Blog, "点击系统返回")
         AtNavigation(navHostController).navigateToHome()
     }
 
-    Scaffold(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(), topBar = {
-        TopBar(title = stringResource(id = R.string.blog_post)) {
-            AtNavigation(navHostController).navigateToHome()
-        }
+    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight(), topBar = {
+        CommonTopBar(modifier = Modifier,
+            title = stringResource(id = R.string.blog_post),
+            backFn = { AtNavigation(navHostController).navigateToHome() }, isBg = true, padingStatus = true)
     }) { padding ->
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(padding),
+        Column(modifier = Modifier.verticalScroll(scrollState).padding(padding),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            blogState.value.currentBlog?.let {
-                Row(
-                    modifier = Modifier
-                        .height(80.dp)
-                        .padding(start = 10.dp, end = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            state.value.currentBlog?.let {
+                Row(modifier = Modifier.height(80.dp).padding(start = 10.dp, end = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
 
                     Box(modifier = Modifier.weight(3f)) {
-                        UserInfoWithAddr(
-                            nickname = it.nickname,
+                        UserInfoWithAddr(nickname = it.nickname,
                             createTime = it.createTime,
                             isShowTime = true,
                             avatar = it.profile,
-                            address = it.ipTerritory
-                        )
+                            address = it.ipTerritory)
                     }
+                    if (it.userId != UserStore.userInfo.id)
 
-                    FollowBtn(modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                        rel = it.rel,
-                        it.userId,
-                        clickFn = { rel ->
-                            it.rel = rel
-                            vm.refreshCurrent(it)
-                        })
+                        FollowBtn(modifier = Modifier.weight(1f).height(40.dp),
+                            rel = it.rel,
+                            it.userId,
+                            clickFn = { rel ->
+                                it.rel = rel // 刷新 blog列表数据
+                                blogListVm.refreshCurrent(it)
+                            })
                 }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)) {
-                    Text(
-                        text = it.content,
+                Column(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)) {
+                    Text(text = it.content,
                         modifier = Modifier.padding(bottom = 10.dp),
-                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight)
-                    )
-                    BlogContent(
-                        it.kind.toInt(),
+                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight))
+                    BlogContent(it.kind.toInt(),
                         it,
                         heigh,
                         needRoundedCorner = true,
@@ -176,14 +167,11 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         coverIsFull = true,
                         needStartPadding = false,
                         navHostController,
-                        viewModelProvider
-                    )
+                        viewModelProvider)
                     Spacer(modifier = Modifier.height(40.cdp))
                     BlogOperation(it, tapComment = {
 
                     }, tapAt = {}, tapCollect = { index ->
-
-
                         collectTipY = index.div(Density).toInt()
                         collectVm.updateBlog(blog = it)
                         collectTipVisible = true
@@ -191,10 +179,20 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         if (it.hasCollect) { // 已收藏，取消
                             collectVm.cancelCollect() {
                                 vm.collectClick(it)
+                                when (state.value.detailsType) {
+                                    BlogDetailsType.BlogList -> blogListVm.collectClick(it)
+                                    BlogDetailsType.TimeList -> timeLineVm.collectClick(it)
+                                    BlogDetailsType.Default -> {}
+                                }
                             }
                         } else { // 未收藏，收藏
                             collectVm.collectBlog(0) {
                                 vm.collectClick(it)
+                                when (state.value.detailsType) {
+                                    BlogDetailsType.BlogList -> blogListVm.collectClick(it)
+                                    BlogDetailsType.TimeList -> timeLineVm.collectClick(it)
+                                    BlogDetailsType.Default -> {}
+                                }
                             }
                         }
                         coroutineScope.launch {
@@ -204,26 +202,26 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
 
                     }, tapLike = {
                         vm.likeClick(it)
-                    }, updateFlag = blogState.value.flag)
+                        when (state.value.detailsType) {
+                            BlogDetailsType.BlogList -> blogListVm.likeClick(it)
+                            BlogDetailsType.TimeList -> timeLineVm.likeClick(it)
+                            BlogDetailsType.Default -> {}
+                        }
+                    }, updateFlag = state.value.flag)
                     Spacer(modifier = Modifier.height(60.cdp))
                 }
-                Column(
-                    modifier = Modifier
-                        .height(70.cdp).clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(start = 5.dp, end = 5.dp),
+                Column(modifier = Modifier.height(70.cdp).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(start = 5.dp, end = 5.dp),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                         text = "全部评论（${it.comments}）",
-                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary)
-                    )
+                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary))
                 }
                 Spacer(modifier = Modifier.height(30.cdp))
                 if (isCommentVisible) {
-                    CommentPopup(
-                        visible = true,
+                    CommentPopup(visible = true,
                         blogId = commentState.currentBlogId,
                         commentViewModel = commentVm,
                         coroutineScope = coroutineScope,
@@ -233,74 +231,53 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         },
                         commentState = commentState,
                         onClose = { },
-                        isPop = false
-                    ) {
+                        isPop = false) {
                         it.comments += 1u
                         vm.setCurrentBlog(it)
-                        vm.refreshCurrent(it)
+                        when (state.value.detailsType) {
+                            BlogDetailsType.BlogList -> {
+                                blogListVm.setCurrentBlog(it)
+                                blogListVm.refreshCurrent(it)
+                            }
+                            BlogDetailsType.TimeList -> {
+                                timeLineVm.setCurrentBlog(it)
+                                timeLineVm.refreshCurrent(it)
+                            }
+                            BlogDetailsType.Default -> {}
+                        }
                     }
                 }
+                if (state.value.flag < 0) {
+                    Text(text = "")
+                }
             }
-            if (blogState.value.flag < 0) {
-                Text(text = "")
-            }
+
+            CollectTips(collectTipVisible, y = collectTipY, closeTip = {
+                collectTipVisible = false
+            }, openPopup = {
+                collectTipVisible = false
+                collectPopupVisible = true
+            })
         }
 
-        CollectTips(collectTipVisible, y = collectTipY, closeTip = {
-            collectTipVisible = false
-        }, openPopup = {
-            collectTipVisible = false
-            collectPopupVisible = true
-        })
-    }
-
-    CollectPopup(visible = collectPopupVisible,
-        collectViewModel = collectVm,
-        collectState = collectState,
-        createCollection = {
-            collectVm.createCollection(it, completeFn = {
-                collectVm.initMyCollections()
+        CollectPopup(visible = collectPopupVisible,
+            collectViewModel = collectVm,
+            collectState = collectState,
+            createCollection = {
+                collectVm.createCollection(it, completeFn = {
+                    collectVm.initMyCollections()
+                })
+            },
+            tapCollect = {
+                collectVm.collectBlog(it.key, completeFn = {
+                    toast.show("收藏成功")
+                })
+                collectPopupVisible = false
+            },
+            onClose = {
+                collectPopupVisible = false
             })
-        },
-        tapCollect = {
-            collectVm.collectBlog(it.key, completeFn = {
-                toast.show("收藏成功")
-            })
-            collectPopupVisible = false
-        },
-        onClose = {
-            collectPopupVisible = false
-        })
 
-}
-
-@Composable
-fun TopBar(title: String, backFn: () -> Unit) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .background(Color.White)) {
-        Spacer(modifier = Modifier
-            .statusBarsPadding()
-            .fillMaxWidth())
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 20.dp)
-        ) {
-
-            IconButton(onClick = {
-                CuLog.debug(CuTag.Blog, "")
-                backFn()
-            }) {
-                SvgIcon(
-                    path = "svg/arrow-left.svg",
-                    contentDescription = "",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Text(text = title)
-        }
     }
 }
 

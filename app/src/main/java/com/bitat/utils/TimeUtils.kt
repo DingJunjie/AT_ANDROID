@@ -13,7 +13,7 @@ object TimeUtils {
      * 时间差
      * 发表时间
      */
-    fun timeToText(time: Long): String {
+    fun timeToText(time: Long,isTime:Boolean=false): String {
         val second = (getNow() - time) / 1000
         return if (second < 60) {
             "刚刚"
@@ -22,10 +22,19 @@ object TimeUtils {
         } else if (second < 60 * 60 * 24) {
             "${second / 60 / 60} 小时前"
         } else {
-           val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-                .format(Instant.ofEpochMilli(time))
 
-            return date
+            if (isTime){
+                val date= DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault())
+                    .format(Instant.ofEpochMilli(time))
+                return date
+            }else{
+                val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                    .format(Instant.ofEpochMilli(time))
+                return date
+            }
+
+
+
         }
     }
 

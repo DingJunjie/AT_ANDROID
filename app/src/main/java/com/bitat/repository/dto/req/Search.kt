@@ -23,7 +23,7 @@ class RecommendSearchDto(
 
 @Serializable
 class RecommendSearchDetailDto(
-    var pageSize:Int = 50,
+    var pageSize:Int = 10,
     var blogId: Long //博文label数组
 )
 

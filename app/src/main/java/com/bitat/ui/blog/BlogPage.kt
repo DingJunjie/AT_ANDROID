@@ -58,6 +58,7 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
 import com.bitat.router.NavigationItem
+import com.bitat.state.BlogDetailsType
 import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogOperation
@@ -73,6 +74,7 @@ import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.theme.lineColor
 import com.bitat.ui.theme.white
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogDetailsViewModel
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
@@ -106,6 +108,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
     val homeVm: HomeViewModel = viewModelProvider[HomeViewModel::class]
     val homeState by homeVm.homeState.collectAsState()
+
+    val detailsVm: BlogDetailsViewModel = viewModelProvider[BlogDetailsViewModel::class]
 
     var currentId by remember {
         mutableLongStateOf(0L)
@@ -312,6 +316,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                             }
                                         },
                                         contentClick = { item ->
+                                            detailsVm.pageType(BlogDetailsType.BlogList)
+                                            detailsVm.setCurrentBlog(item)
                                             vm.setCurrentBlog(item)
                                             AtNavigation(navController).navigateToBlogDetail()
                                         },

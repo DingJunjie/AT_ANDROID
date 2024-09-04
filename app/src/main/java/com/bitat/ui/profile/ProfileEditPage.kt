@@ -26,13 +26,10 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +43,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
@@ -54,22 +50,16 @@ import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.store.UserStore
-import com.bitat.state.CommentState
 import com.bitat.state.GENDER
-import com.bitat.ui.chat.Avatar
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.common.statusBarHeight
-import com.bitat.ui.component.CommonLayout
 import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.Popup
-import com.bitat.utils.FileType
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
-import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ProfileViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

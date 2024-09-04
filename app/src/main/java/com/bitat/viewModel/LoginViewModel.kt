@@ -260,8 +260,8 @@ class LoginViewModel() : ViewModel() {
         MainCo.launch {
             LoginReq.phone(dto).await().map {
                 CuLog.debug(CuTag.Login, "登录成功，用户ID{${it.user.id}}")
-                TokenStore.initLogin(it)
                 UserStore.initUserInfo(it.user)
+                TokenStore.initLogin(it)
                 successFn()
             }.errMap {
                 errorFn(it.msg)
