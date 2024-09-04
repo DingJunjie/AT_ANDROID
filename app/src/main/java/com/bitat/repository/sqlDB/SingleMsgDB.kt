@@ -86,6 +86,15 @@ object SingleMsgDB {
         time
     )
 
+    //修改消息状态
+    fun updateKind(kind: Short, selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
+        "update single_msg set kind = ? where self_id = ? and other_id = ? and time = ?",
+        kind,
+        selfId,
+        otherId,
+        time
+    )
+
     //删除一条消息
     fun delete(selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
         "delete from single_msg where self_id = ? and other_id = ?  and time = ?",

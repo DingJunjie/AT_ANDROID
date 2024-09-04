@@ -14,10 +14,18 @@ data class ChatDetailsState(
     val messageList: SnapshotStateList<SingleMsgPo> = mutableStateListOf(),
     val currentOptMsg: SingleMsgPo? = null,
     val currentPage: Int = 0,
+    val replyMsg: SingleMsgPo? = null
 )
 
 @Serializable
 class VideoMessageParams(
     val cover: String = "",
     val video: String = ""
+)
+
+@Serializable
+class ReplyMessageParams(
+    val time: Long = 0,
+    val replyMsg: String = "",
+    val content: String = ""
 )

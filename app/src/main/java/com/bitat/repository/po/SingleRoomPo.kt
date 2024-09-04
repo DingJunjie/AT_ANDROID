@@ -1,6 +1,15 @@
 package com.bitat.repository.po
 
 import android.database.Cursor
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class RoomCfg(
+    val background: String = "",
+    val muted: Boolean = false
+)
 
 class SingleRoomPo {
     var id: Long = 0
@@ -12,7 +21,7 @@ class SingleRoomPo {
     var content: String = ""
     var unreads: Int = 0
     var top: Int = 0
-    var cfg: String = ""
+    var cfg: String = Json.encodeToString(RoomCfg.serializer(), RoomCfg())
     // ----------------
 
     var nickname: String = ""
@@ -32,6 +41,7 @@ class SingleRoomPo {
             content = cursor.getString(6)
             unreads = cursor.getInt(7)
             top = cursor.getInt(8)
+            cfg = cursor.getString(9)
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {

@@ -52,6 +52,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -67,6 +68,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
@@ -78,18 +80,24 @@ import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.CHAT_Picture
+import com.bitat.repository.consts.CHAT_Recall
+import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.consts.CHAT_Video
+import com.bitat.repository.po.RoomCfg
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.singleChat.TcpHandler
 import com.bitat.repository.singleChat.TcpHandler.chatFlow
 import com.bitat.repository.store.UserStore
 import com.bitat.repository.store.UserStore.userFlow
+import com.bitat.router.NavigationItem
+import com.bitat.state.ReplyMessageParams
 import com.bitat.state.VideoMessageParams
 import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
@@ -101,6 +109,7 @@ import com.bitat.ui.component.BackButton
 import com.bitat.ui.component.EmojiTable
 import com.bitat.ui.discovery.CardView
 import com.bitat.ui.theme.Typography
+import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
@@ -201,23 +210,36 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 chatVm.clearRoom()
                 navHostController.popBackStack()
             },
-            goProfile = { /*TODO*/ }) {}
+            goProfile = { /*TODO*/ }, {
+                navHostController.navigate(NavigationItem.ChatSettings.route)
+            })
     }, bottomBar = {
-        ChatBottomContainer(message = chatInput.value, {
-            chatInput.value = it
-        }, {
-            vm.sendMessage(chatState.currentRoom!!.otherId, 1, it) { that ->
-                chatVm.updateRoomInfo(that)
-                chatInput.value = ""
-            }
-        }, {
-            vm.sendPicture(chatState.currentRoom!!.otherId, it) { that ->
-                chatVm.updateRoomInfo(that)
-                chatInput.value = ""
-            }
-        }, {
-            isRecording.value = true
-        })
+        ChatBottomContainer(
+            message = chatInput.value,
+            replyMsg = state.replyMsg,
+            nickname = chatState.currentRoom?.nickname ?: "",
+            {
+                chatInput.value = it
+            },
+            {
+                if (it.trim().isEmpty()) {
+                    // 为空
+                    return@ChatBottomContainer
+                }
+                vm.sendMessage(chatState.currentRoom!!.otherId, 1, it) { that ->
+                    chatVm.updateRoomInfo(that)
+                    chatInput.value = ""
+                }
+            },
+            {
+                vm.sendPicture(chatState.currentRoom!!.otherId, it) { that ->
+                    chatVm.updateRoomInfo(that)
+                    chatInput.value = ""
+                }
+            },
+            {
+                isRecording.value = true
+            })
     }, modifier = Modifier.imePadding()) { padding ->
         Box(
             modifier = Modifier
@@ -231,6 +253,12 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //                    })
 //                }
         ) {
+            AsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = QiNiuUtil.QINIU_PUB_PREFIX + chatState.currentCfg.background,
+                contentDescription = "",
+                contentScale = ContentScale.Crop
+            )
             LazyColumn(
                 state = chatListScrollState,
                 reverseLayout = true,
@@ -251,6 +279,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         }
                         .onGloballyPositioned { coo ->
                             val pos = coo.boundsInParent()
+                            if (index > msgHeight.size - 1) return@onGloballyPositioned
                             msgHeight[index] = pos.topLeft
                             println("第$index 个，位置是$pos")
                             println("第$index 个，位置是${pos.topLeft}")
@@ -265,6 +294,21 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     val c = Json.decodeFromString<VideoMessageParams>(item.content)
                                     SenderVideo(c.cover, c.video)
                                 }
+
+                                CHAT_Recall -> {
+                                    RecallMessage(nickname = chatState.currentRoom?.nickname ?: "")
+                                }
+
+                                CHAT_Reply -> {
+                                    val msg = Json.decodeFromString(
+                                        ReplyMessageParams.serializer(),
+                                        item.content
+                                    )
+                                    SenderReplyMessage(
+                                        message = msg.content,
+                                        replyContent = msg.replyMsg
+                                    )
+                                }
                             }
                         } else if (item.status.toInt() == -1) {
                             when (item.kind) {
@@ -274,6 +318,22 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     val c = Json.decodeFromString<VideoMessageParams>(item.content)
                                     RecipientVideo(c.cover, c.video)
                                 }
+
+                                CHAT_Recall -> {
+                                    RecallMessage(nickname = chatState.currentRoom?.nickname ?: "")
+                                }
+
+                                CHAT_Reply -> {
+                                    val msg = Json.decodeFromString(
+                                        ReplyMessageParams.serializer(),
+                                        item.content
+                                    )
+                                    RecipientReplyMessage(
+                                        message = msg.content,
+                                        replyContent = msg.replyMsg
+                                    )
+                                }
+
                             }
                         }
                     }
@@ -315,8 +375,18 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             ) {
                 ChatMessageOpt(
                     msg = state.messageList[currentItemIndex.intValue],
-                    reply = {},
+                    reply = {
+                        vm.setReplyMsg(state.messageList[currentItemIndex.intValue])
+                        showMsgOpt.value = false
+                    },
                     copy = {
+                        showMsgOpt.value = false
+                    }, recall = {
+                        vm.recallMessage(state.messageList[currentItemIndex.intValue])
+                        showMsgOpt.value = false
+                    }, delete = {
+                        vm.deleteMessage(state.messageList[currentItemIndex.intValue])
+                        msgHeight.removeAt(currentItemIndex.intValue)
                         showMsgOpt.value = false
                     })
             }
@@ -349,6 +419,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 @Composable
 fun ChatBottomContainer(
     message: String,
+    replyMsg: SingleMsgPo?,
+    nickname: String,
     msgChange: (String) -> Unit,
     sendMessage: (String) -> Unit,
     sendPicture: (Uri) -> Unit,
@@ -365,14 +437,15 @@ fun ChatBottomContainer(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp)
+            .padding(top = 20.dp)
+            .background(Color.White)
     ) {
-        Box(
+        if (replyMsg != null) Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp)
         ) {
-            Text("for reply")
+            Text("回复$nickname:")
         }
         ChatInputField(message, msgChange, toggleEmoji = {
             optShow.value = false
@@ -391,6 +464,7 @@ fun ChatBottomContainer(
             sendVideo()
             optShow.value = false
         })
+        Box(modifier = Modifier.height(20.dp))
     }
 }
 
