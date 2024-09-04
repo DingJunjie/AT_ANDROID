@@ -1,10 +1,14 @@
 package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.state.BlogDetailsState
 import com.bitat.state.BlogDetailsType
+import com.bitat.state.ChatDetailsState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -15,13 +19,16 @@ import kotlinx.coroutines.flow.update
  */
 class BlogDetailsViewModel : ViewModel() {
     val _state = MutableStateFlow(BlogDetailsState())
-    val state = _state.asStateFlow()
+    val state: StateFlow<BlogDetailsState> = _state.asStateFlow()
 
-    fun collectClick(blog: BlogBaseDto) {
+    fun collectClick(blog: BlogBaseDto){
+
         blog.hasCollect = !blog.hasCollect
         blog.collects = if (blog.hasCollect) blog.collects + 1u else blog.collects - 1u
-        setCurrentBlog(blog)
-        updateFlag()
+        _state.update {
+            it.copy(currentBlog = blog, flag = _state.value.flag + 1)
+        }
+        CuLog.error(CuTag.Blog,"collectClick: ${_state.value.currentBlog?.hasCollect }")
     }
 
     fun setCurrentBlog(blog: BlogBaseDto) {
@@ -29,6 +36,7 @@ class BlogDetailsViewModel : ViewModel() {
             it.copy(currentBlog = blog)
         }
         updateFlag()
+        CuLog.error(CuTag.Blog,"setCurrentBlog: ${_state.value.currentBlog?.hasCollect }")
     }
 
     fun pageType(type: BlogDetailsType) {
@@ -39,8 +47,10 @@ class BlogDetailsViewModel : ViewModel() {
 
     fun updateFlag() {
         _state.update {
-            it.copy(flag = state.value.flag + 1)
+            it.copy(flag = _state.value.flag + 1)
         }
+
+        CuLog.error(CuTag.Blog,"updateFlag: ${_state.value.currentBlog?.hasCollect }")
     }
 
     fun likeClick(blog: BlogBaseDto) {

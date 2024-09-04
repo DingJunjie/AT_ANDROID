@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +25,7 @@ fun DebouncedButton(onClick: () -> Unit, modifier: Modifier = Modifier, debounce
     content: @Composable RowScope.() -> Unit) {
     var enabled by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
-    Button(onClick = {
+    Button( modifier = modifier.fillMaxWidth(),onClick = {
         if (enabled) {
             onClick()
             enabled = false
@@ -33,7 +34,7 @@ fun DebouncedButton(onClick: () -> Unit, modifier: Modifier = Modifier, debounce
                 enabled = true
             }
         }
-    }, modifier = modifier.fillMaxWidth(), enabled = enabled) {
+    }, enabled = enabled) {
         content()
     }
 }

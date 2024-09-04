@@ -57,9 +57,9 @@ class MainActivity : ComponentActivity() {
             CuLog.level = CuLog.DEBUG
             BaseStore.init(LocalContext.current)
             // 设置user 到 TokenStore 中
-//            TokenStore.getUser()?.let {
-//                UserStore.initUserInfo(it)
-//            }
+            TokenStore.getUser()?.let {
+                UserStore.initUserInfo(it)
+            }
             ScreenUtils.init(LocalConfiguration.current) ////         DisposableEffect(Unit) {
 
             WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -80,9 +80,11 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(navController,
+                AppNavHost(
+                    navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider)
+                    viewModelProvider = viewModelProvider
+                )
                 ToastUI(toastState)
             }
 
@@ -93,10 +95,10 @@ class MainActivity : ComponentActivity() {
                     toastState.show(data)
                 }
             }
+            KeySecret.start()
+            TcpClient.start()
         }
 
-        //        KeySecret.start()
-        //        TcpClient.start()
 
     }
 

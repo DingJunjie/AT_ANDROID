@@ -43,7 +43,6 @@ object TokenStore {
     private fun getToken(): TokenDto? { // 如果没过期，则从store中读取token
         if (token == null) locker.withLock {
             if (token == null) { //                token = BaseStore.getStr(TOKEN_KEY)?.let(JsonUtils::fromJson)
-//                UserStore.userInfo.id
                 UserTokenDB.getToken(UserStore.userInfo.id)?.let {
                     token = TokenDto().apply {
                         token = it.token
@@ -51,11 +50,7 @@ object TokenStore {
                         expire = it.expire
                     }
                 }
-//                try {
-//
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
+
             }
         }
         return token
