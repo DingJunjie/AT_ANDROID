@@ -12,9 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.bitat.state.ReplyMessageParams
 
 @Composable
-fun SenderReplyMessage(message: String) {
+fun SenderReplyMessage(message: String, replyContent: String) {
     Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
         Surface(
             color = Color.Black,
@@ -42,7 +43,44 @@ fun SenderReplyMessage(message: String) {
 //                .height(100.dp),
         ) {
             Text(
-                text = "回复：$message",
+                text = "回复：${replyContent}",
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun RecipientReplyMessage(message: String, replyContent: String) {
+    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
+        Surface(
+            color = Color.Black,
+            shape = RoundedCornerShape(30.dp, 30.dp, 0.dp, 0.dp),
+            modifier = Modifier
+                .padding(top = 10.dp, end = 20.dp)
+                .fillMaxWidth(0.6f)
+//                .background(Color.Black)
+//                .height(100.dp),
+        ) {
+            Text(
+                text = message,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
+            )
+        }
+
+        Surface(
+            color = Color.Gray,
+            shape = RoundedCornerShape(0.dp, 0.dp, 30.dp, 30.dp),
+            modifier = Modifier
+                .padding(bottom = 10.dp, end = 20.dp)
+                .fillMaxWidth(0.6f)
+//                .background(Color.Black)
+//                .height(100.dp),
+        ) {
+            Text(
+                text = "回复：${replyContent}",
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
             )

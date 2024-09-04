@@ -27,12 +27,18 @@ import com.bitat.repository.po.SingleMsgPo
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChatMessageOpt(msg: SingleMsgPo, reply: () -> Unit = {}, copy: () -> Unit = {}) {
+fun ChatMessageOpt(
+    msg: SingleMsgPo,
+    reply: () -> Unit = {},
+    copy: () -> Unit = {},
+    recall: () -> Unit = {},
+    delete: () -> Unit = {}
+) {
     val current = LocalClipboardManager.current
 
     Surface(modifier = Modifier.fillMaxWidth(0.6f), color = Color(0xcc333333)) {
         FlowRow(modifier = Modifier.padding(10.dp)) {
-            OptItem(title = "回复", tapFn = {}) {
+            OptItem(title = "回复", tapFn = reply) {
                 Icon(Icons.Filled.Star, contentDescription = "")
             }
             OptItem(title = "复制", tapFn = {
@@ -41,13 +47,15 @@ fun ChatMessageOpt(msg: SingleMsgPo, reply: () -> Unit = {}, copy: () -> Unit = 
             }) {
                 Icon(Icons.Filled.AccountCircle, contentDescription = "")
             }
-            OptItem(title = "删除", tapFn = {}) {
+            OptItem(title = "删除", tapFn = delete) {
                 Icon(Icons.Filled.Delete, contentDescription = "")
             }
             OptItem(title = "多选", tapFn = {}) {
                 Icon(Icons.Filled.CheckCircle, contentDescription = "")
             }
-            OptItem(title = "撤回", tapFn = {}) {
+            OptItem(title = "撤回", tapFn = {
+                recall()
+            }) {
                 Icon(Icons.Filled.ArrowBack, contentDescription = "")
             }
             OptItem(title = "艾特", tapFn = {}) {

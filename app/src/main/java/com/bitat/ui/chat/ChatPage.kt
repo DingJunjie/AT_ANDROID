@@ -277,6 +277,7 @@ fun ChatList(
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .fillMaxWidth()
+
             ) {
                 WeSwipeAction(
                     //                    startOptions = options.slice(0..1),
@@ -300,12 +301,14 @@ fun ChatList(
 @Composable
 fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(horizontal = 10.dp)
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+//            .background(if (info.top > 0) Color.LightGray else Color.White)
     ) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(Color.White)
+            .background(if (info.top > 0) Color.LightGray else Color.White)
             .clickable { itemClick(info) }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -360,10 +363,10 @@ fun ChatContent(content: String) {
 }
 
 @Composable
-fun Avatar(url: String, size: Dp = 40.dp, tapFn: () -> Unit = {}) {
+fun Avatar(url: String, modifier: Modifier = Modifier, size: Dp = 40.dp, tapFn: () -> Unit = {}) {
     Surface(shape = CircleShape) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .size(size)
                 .border(width = size / 2, color = Color.Transparent, shape = CircleShape)
                 .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)

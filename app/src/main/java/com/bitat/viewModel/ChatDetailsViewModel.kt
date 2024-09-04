@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.CHAT_Recall
+import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.dto.req.UploadTokenDto
 import com.bitat.repository.http.auth.LoginReq
 import com.bitat.repository.po.SingleMsgPo
@@ -13,6 +15,7 @@ import com.bitat.repository.singleChat.TcpClient
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ChatDetailsState
+import com.bitat.state.ReplyMessageParams
 import com.bitat.state.VideoMessageParams
 import com.bitat.utils.FileType
 import com.bitat.utils.ImageUtils
@@ -60,10 +63,55 @@ class ChatDetailsViewModel : ViewModel() {
         }
     }
 
+    fun setReplyMsg(msg: SingleMsgPo) {
+        _state.update {
+            it.copy(replyMsg = msg)
+        }
+    }
+
+    fun recallMessage(msg: SingleMsgPo) {
+        MainCo.launch(IO) {
+            SingleMsgDB.updateKind(CHAT_Recall, msg.selfId, msg.otherId, msg.time)
+        }
+
+        _state.update {
+
+            val i = it.messageList.indexOf(msg)
+            val oldData = it.messageList.removeAt(i)
+            oldData.kind = CHAT_Recall
+
+            it.messageList.add(i, oldData)
+            it
+        }
+    }
+
+    fun deleteMessage(msg: SingleMsgPo) {
+        _state.update {
+            it.messageList.remove(msg)
+            it
+        }
+
+        MainCo.launch(IO) {
+            SingleMsgDB.delete(msg.selfId, msg.otherId, msg.time)
+        }
+    }
+
     fun sendMessage(toId: Long, kind: Int, content: String, completeFn: (SingleMsgPo) -> Unit) {
+        var c = content
+        var k = 1
+        if (state.value.replyMsg != null) {
+            val replyMsg = ReplyMessageParams(
+                time = state.value.replyMsg!!.time,
+                replyMsg = state.value.replyMsg!!.content,
+                content = content
+            )
+            c = Json.encodeToString(ReplyMessageParams.serializer(), replyMsg)
+            k = CHAT_Reply.toInt()
+        }
+
         val msg = SingleMsgPo()
-        msg.kind = kind.toShort()
-        msg.content = content
+        msg.kind = k.toShort()
+        msg.content = c
         msg.time = TimeUtils.getNow()
         msg.selfId = UserStore.userInfo.id
         msg.status = 1
@@ -72,7 +120,7 @@ class ChatDetailsViewModel : ViewModel() {
 
         _state.update {
             it.messageList.add(0, msg)
-            it
+            it.copy(replyMsg = null)
         }
 
         TcpClient.chat(toId, kind, content.toByteArray(charset("UTF-8")))
@@ -92,15 +140,10 @@ class ChatDetailsViewModel : ViewModel() {
             val cover = VideoUtils.getCover(uri.toString())
 
             QiNiuUtil.uploadSingleFile(
-                cover,
-                UPLOAD_OPS.Pub,
-                FileType.Image,
-                isUsingUri = false
+                cover, UPLOAD_OPS.Pub, FileType.Image, isUsingUri = false
             ) { coverKey ->
                 QiNiuUtil.uploadSingleFile(
-                    uri,
-                    UPLOAD_OPS.Pub,
-                    FileType.Video
+                    uri, UPLOAD_OPS.Pub, FileType.Video
                 ) { key ->
                     val m = VideoMessageParams(cover = coverKey, video = key)
                     val content = Json.encodeToString(VideoMessageParams.serializer(), m)
