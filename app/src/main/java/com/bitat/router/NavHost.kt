@@ -16,6 +16,8 @@ import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
+import com.bitat.ui.chat.ChatSettings
+import com.bitat.ui.chat.ChatSettingsPage
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.component.ImagePreviewPage
 import com.bitat.ui.discovery.DiscoveryDetailPage
@@ -42,7 +44,7 @@ enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER,
     VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY,
     VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL,
-    OTHERS, FANS, FOLLOWS, PROFILE_EDIT,SETTING
+    OTHERS, FANS, FOLLOWS, PROFILE_EDIT, SETTING, CHAT_SETTINGS
 }
 
 sealed class NavigationItem(val route: String) {
@@ -72,8 +74,9 @@ sealed class NavigationItem(val route: String) {
     data object Others : NavigationItem(Screen.OTHERS.name)
     data object Fans : NavigationItem(Screen.FANS.name)
     data object Follows : NavigationItem(Screen.FOLLOWS.name)
-    data object ProfileEdit:NavigationItem(Screen.PROFILE_EDIT.name)
+    data object ProfileEdit : NavigationItem(Screen.PROFILE_EDIT.name)
     data object Setting : NavigationItem(Screen.SETTING.name)
+    data object ChatSettings : NavigationItem(Screen.CHAT_SETTINGS.name)
 }
 
 
@@ -202,6 +205,10 @@ fun AppNavHost(
                 navController = navController,
                 viewModelProvider = viewModelProvider
             )
+        }
+
+        composable(NavigationItem.ChatSettings.route) {
+            ChatSettingsPage(navController, viewModelProvider)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.bitat.viewModel
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
@@ -9,11 +10,15 @@ import com.bitat.repository.dto.req.FindBaseByIdsDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.po.RoomCfg
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ChatState
+import com.bitat.utils.FileType
+import com.bitat.utils.QiNiuUtil
+import com.bitat.utils.UPLOAD_OPS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -22,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 class ChatViewModel : ViewModel() {
     private val _state = MutableStateFlow(ChatState())
@@ -37,6 +43,54 @@ class ChatViewModel : ViewModel() {
             it.chatList[index].kind = msg.kind
 
             it
+        }
+    }
+
+    fun muteRoom(isMuted: Boolean) {
+        _state.update {
+            it.copy(currentCfg = it.currentCfg.copy(muted = isMuted))
+        }
+    }
+
+    fun setTop(isTop: Boolean) {
+        MainCo.launch(IO) {
+            SingleRoomDB.updateTop(
+                if (isTop) 1 else 0,
+                state.value.currentRoom!!.selfId,
+                state.value.currentRoom!!.otherId
+            )
+        }
+
+        _state.update { s ->
+            val i = s.chatList.indexOf(_state.value.currentRoom)
+            s.chatList[i].top = if (isTop) 1 else 0
+
+            val updatedRoom = s.currentRoom.also {
+                it!!.top = if (isTop) 1 else 0
+            }
+            s.copy(currentRoom = updatedRoom)
+        }
+    }
+
+    fun changeBg(background: Uri) {
+
+        MainCo.launch(IO) {
+            QiNiuUtil.uploadSingleFile(
+                background, UPLOAD_OPS.Pub, fileType = FileType.Image, true
+            ) { key ->
+                _state.update {
+                    it.copy(currentCfg = it.currentCfg.copy(background = key))
+                }
+
+                val latestCfg = Json.encodeToString(RoomCfg.serializer(), _state.value.currentCfg)
+
+                val i = _state.value.chatList.indexOf(_state.value.currentRoom)
+                _state.value.chatList[i].cfg = latestCfg
+
+                SingleRoomDB.updateCfg(
+                    latestCfg, _state.value.currentRoom!!.selfId, _state.value.currentRoom!!.otherId
+                )
+            }
         }
     }
 
@@ -56,9 +110,7 @@ class ChatViewModel : ViewModel() {
         MainCo.launch {
             CuLog.debug(CuTag.SingleChat, "获取数据库版本$SingleRoomDB")
             SingleRoomDB.insertOrUpdate(
-                selfId = UserStore.userInfo.id,
-                otherId = otherInfo.id,
-                unreads = 0
+                selfId = UserStore.userInfo.id, otherId = otherInfo.id, unreads = 0
             )
         }
 
@@ -87,10 +139,19 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    fun switchBg(uri: Uri) {
+
+    }
+
     fun chooseRoom(room: SingleRoomPo) {
         _state.update {
+
             it.copy(
                 currentRoom = room,
+                currentCfg = if (room.cfg.isEmpty()) RoomCfg() else Json.decodeFromString(
+                    RoomCfg.serializer(),
+                    room.cfg
+                )
             )
         }
     }
