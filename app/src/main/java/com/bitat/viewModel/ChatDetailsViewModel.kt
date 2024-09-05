@@ -98,11 +98,12 @@ class ChatDetailsViewModel : ViewModel() {
 
     fun sendMessage(toId: Long, kind: Int, content: String, completeFn: (SingleMsgPo) -> Unit) {
         var c = content
-        var k = 1
+        var k = kind
         if (state.value.replyMsg != null) {
             val replyMsg = ReplyMessageParams(
                 time = state.value.replyMsg!!.time,
                 replyMsg = state.value.replyMsg!!.content,
+                kind = state.value.replyMsg!!.kind,
                 content = content
             )
             c = Json.encodeToString(ReplyMessageParams.serializer(), replyMsg)

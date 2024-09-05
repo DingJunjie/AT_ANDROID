@@ -204,14 +204,16 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     Scaffold(topBar = {
-        ChatDetailTopBar(name = chatState.currentUserInfo?.nickname ?: "",
-            avatar = chatState.currentUserInfo?.profile ?: "",
+        ChatDetailTopBar(name = chatState.currentRoom?.nickname ?: "",
+            avatar = chatState.currentRoom?.profile ?: "",
             backButton = {
                 chatVm.clearRoom()
                 navHostController.popBackStack()
             },
             goProfile = { /*TODO*/ }, {
-                navHostController.navigate(NavigationItem.ChatSettings.route)
+                navHostController.navigate(NavigationItem.ChatSettings.route).apply {
+
+                }
             })
     }, bottomBar = {
         ChatBottomContainer(
@@ -306,7 +308,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     )
                                     SenderReplyMessage(
                                         message = msg.content,
-                                        replyContent = msg.replyMsg
+                                        replyContent = msg.replyMsg,
+                                        replyMsgKind = msg.kind
                                     )
                                 }
                             }
@@ -330,7 +333,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     )
                                     RecipientReplyMessage(
                                         message = msg.content,
-                                        replyContent = msg.replyMsg
+                                        replyContent = msg.replyMsg,
+                                        replyMsgKind = msg.kind
                                     )
                                 }
 

@@ -7,8 +7,9 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class RoomCfg(
-    val background: String = "",
-    val muted: Boolean = false
+    var background: String = "",
+    var muted: Boolean = false,
+    var isTop: Boolean = false
 )
 
 class SingleRoomPo {

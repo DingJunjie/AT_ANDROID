@@ -88,11 +88,25 @@ object SingleMsgDB {
         time
     )
 
-    //删除一条消息
     fun delete(id:Long) = SqlDB.exec(
         "delete from single_msg where id = ?",
         id
     )
 
+
+    //删除一条消息
+    fun deleteByTime(selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
+        "delete from single_msg where self_id = ? and other_id = ?  and time = ?",
+        selfId,
+        otherId,
+        time
+    )
+
+    // 清空消息
+    fun clear(selfId: Long, otherId: Long) = SqlDB.exec(
+        "delete from single_msg where self_id = ? and other_id = ? ",
+        selfId,
+        otherId
+    )
 }
 

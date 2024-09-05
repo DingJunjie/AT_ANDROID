@@ -14,6 +14,7 @@ import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.RoomCfg
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ChatState
@@ -47,30 +48,69 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun muteRoom(isMuted: Boolean) {
-        _state.update {
-            it.copy(currentCfg = it.currentCfg.copy(muted = isMuted))
+    fun muteRoom(otherId: Long, isMuted: Boolean) {
+        if (_state.value.currentRoom != null) {
+            _state.update {
+                it.copy(currentCfg = it.currentCfg.copy(muted = isMuted))
+            }
+        }
+        val i = _state.value.chatList.indexOfFirst {
+            it.otherId == otherId
+        }
+        val oldCfg = Json.decodeFromString(RoomCfg.serializer(), _state.value.chatList[i].cfg)
+        oldCfg.muted = isMuted
+
+        SingleRoomDB.updateCfg(
+            Json.encodeToString(RoomCfg.serializer(), oldCfg),
+            UserStore.userInfo.id,
+            otherId
+        )
+
+    }
+
+    fun clearAllMessage(otherId: Long) {
+        MainCo.launch(IO) {
+            SingleMsgDB.clear(UserStore.userInfo.id, otherId)
+        }
+        _state.update { that ->
+            that.chatList.map {
+                if (it.otherId == otherId) {
+                    it.content = ""
+                }
+                it
+            }
+            that
         }
     }
 
-    fun setTop(isTop: Boolean) {
+    fun setTop(otherId: Long, isTop: Boolean) {
         MainCo.launch(IO) {
             SingleRoomDB.updateTop(
                 if (isTop) 1 else 0,
-                state.value.currentRoom!!.selfId,
-                state.value.currentRoom!!.otherId
+                UserStore.userInfo.id,
+                otherId
             )
-        }
 
-        _state.update { s ->
-            val i = s.chatList.indexOf(_state.value.currentRoom)
-            s.chatList[i].top = if (isTop) 1 else 0
+            if (_state.value.currentRoom != null) {
+                _state.update {
+                    it.copy(currentCfg = it.currentCfg.copy(isTop = isTop))
+                }
 
-            val updatedRoom = s.currentRoom.also {
-                it!!.top = if (isTop) 1 else 0
+                _state.update { s ->
+                    val i = s.chatList.indexOfFirst { it.otherId == otherId }
+                    s.chatList[i].top = if (isTop) 1 else 0
+
+                    val updatedRoom = s.currentRoom.also {
+                        it!!.top = if (isTop) 1 else 0
+                    }
+                    s.copy(currentRoom = updatedRoom)
+                }
             }
-            s.copy(currentRoom = updatedRoom)
+
+
         }
+
+
     }
 
     fun changeBg(background: Uri) {
@@ -86,11 +126,15 @@ class ChatViewModel : ViewModel() {
                 val latestCfg = Json.encodeToString(RoomCfg.serializer(), _state.value.currentCfg)
 
                 val i = _state.value.chatList.indexOf(_state.value.currentRoom)
-                _state.value.chatList[i].cfg = latestCfg
+                if (i > 0) {
+                    _state.value.chatList[i].cfg = latestCfg
 
-                SingleRoomDB.updateCfg(
-                    latestCfg, _state.value.currentRoom!!.selfId, _state.value.currentRoom!!.otherId
-                )
+                    SingleRoomDB.updateCfg(
+                        latestCfg,
+                        _state.value.currentRoom!!.selfId,
+                        _state.value.currentRoom!!.otherId
+                    )
+                }
             }
         }
     }
@@ -147,13 +191,19 @@ class ChatViewModel : ViewModel() {
 
     fun chooseRoom(room: SingleRoomPo) {
         _state.update {
-
-            it.copy(
-                currentRoom = room,
-                currentCfg = if (room.cfg.isEmpty()) RoomCfg() else Json.decodeFromString(
+            val cfg: RoomCfg
+            if (room.cfg.isEmpty()) {
+                cfg = RoomCfg(isTop = room.top > 0)
+            } else {
+                cfg = Json.decodeFromString(
                     RoomCfg.serializer(),
                     room.cfg
                 )
+                cfg.isTop = room.top > 0
+            }
+            it.copy(
+                currentRoom = room,
+                currentCfg = cfg
             )
         }
     }
@@ -216,6 +266,25 @@ class ChatViewModel : ViewModel() {
                     it
                 }
             }
+        }
+    }
+
+//    fun updateRoomContent(otherId: Long) {
+//        val room = SingleRoomDB.getRoom(selfId = UserStore.userInfo.id, otherId) ?: return
+//        _state.update {
+//            val i = it.chatList.indexOfFirst { that -> that.otherId == otherId }
+//            it.chatList[i].content = room.content
+//
+//            it
+//        }
+//    }
+
+    fun deleteRoom(otherId: Long) {
+        SingleRoomDB.delete(selfId = UserStore.userInfo.id, otherId)
+
+        _state.update {
+            it.chatList.removeIf { that -> that.otherId == otherId }
+            it
         }
     }
 
