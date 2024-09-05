@@ -19,10 +19,10 @@ android {
 
     defaultConfig {
         applicationId = "com.bitat"
-        minSdk = 28
+        minSdk = 30
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 1001
+        versionName = "1.0.01"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

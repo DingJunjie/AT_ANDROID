@@ -12,12 +12,14 @@ import androidx.compose.ui.unit.dp
 import com.bitat.ext.timestampFormat
 import com.bitat.ext.toAmountUnit
 import com.bitat.ui.theme.Typography
+import com.bitat.utils.TimeUtils
 
 @Composable
 fun TimeMessage(timestamp: Long) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "——————" + timestamp.timestampFormat() + "——————",
+//            text = "——————" + timestamp.timestampFormat() + "——————",
+            text = TimeUtils.timeToMD(timestamp),
             color = Color.Gray,
             style = Typography.bodySmall.copy(),
             modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)

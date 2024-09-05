@@ -11,7 +11,7 @@ import kotlinx.serialization.Transient
 class BlogBaseDto {
     var id: Long = 0 //博文id
     var userId: Long = 0//用户id
-    var albumId: Int = 0 //专辑id
+    var albumId: Long = 0 //专辑id
     var musicId: Int = 0//音乐id
     var agrees: UInt = 0u //点赞数
     var comments: UInt = 0u //评论数
@@ -99,7 +99,7 @@ class BlogPart2Dto {
     var distance: Long = 0 //距离,米表示
     var id: Long = 0 //博文id
     var userId: Int = 0//用户id
-    var albumId: Int = 0 //专辑id
+    var albumId: Long = 0 //专辑id
     var musicId: Int = 0//音乐id
     var agrees: UInt = 0u //点赞数
     var comments: UInt = 0u //评论数
@@ -144,7 +144,7 @@ class BlogPart3Dto {
     var hot: Long = 0 //热度
     var id: Long = 0 //博文id
     var userId: Int = 0//用户id
-    var albumId: Int = 0 //专辑id
+    var albumId: Long = 0 //专辑id
     var musicId: Int = 0//音乐id
     var agrees: UInt = 0u //点赞数
     var comments: UInt = 0u //评论数

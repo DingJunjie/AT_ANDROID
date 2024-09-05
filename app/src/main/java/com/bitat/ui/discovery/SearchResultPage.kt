@@ -35,6 +35,7 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.state.SearchType
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.Avatar
+import com.bitat.ui.component.MediaGrid
 import com.bitat.ui.profile.AvatarWithShadow
 import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.SearchViewModel
@@ -58,6 +59,10 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         }, selectedTabIndex, tapFn = {
             selectedTabIndex = it
             when (selectedTabIndex) {
+                1 -> {
+                    vm.searchVideo(state.keyword)
+                }
+
                 4 -> {
                     vm.searchUser(state.keyword)
                 }
@@ -71,7 +76,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         ) {
             when (selectedTabIndex) {
                 0 -> Text("0")
-                1 -> Text("1")
+                1 -> MediaGrid(mediaList = state.searchVideoResult)
                 2 -> Text("2")
                 3 -> Text("3")
                 4 -> UserResult(state.searchUserResult)

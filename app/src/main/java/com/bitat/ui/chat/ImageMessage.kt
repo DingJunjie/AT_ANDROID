@@ -27,7 +27,7 @@ fun SenderImage(url: String) {
             modifier = Modifier
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(0.6f)
-                .heightIn(min = 200.dp, max = ScreenUtils.screenHeight.times(0.5).dp)
+                .heightIn(min = 120.dp, max = ScreenUtils.screenHeight.times(0.35).dp)
 //                .background(Color.Black)
 //                .height(100.dp),
         ) {
@@ -49,7 +49,7 @@ fun RecipientImage(url: String) {
             modifier = Modifier
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(0.6f)
-                .heightIn(min = 200.dp, max = ScreenUtils.screenHeight.times(0.5).dp)
+                .heightIn(min = 120.dp, max = ScreenUtils.screenHeight.times(0.35).dp)
 //                .background(Color.Black)
 //                .height(100.dp),
         ) {

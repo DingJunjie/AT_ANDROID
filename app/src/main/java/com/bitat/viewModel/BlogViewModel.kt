@@ -37,8 +37,6 @@ class BlogViewModel : ViewModel() {
             return
         }
         MainCo.launch {
-
-            SingleMsgDB.getSqlVersion()
             blogState.update {
                 it.copy(updating = true)
             }

@@ -12,10 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.bitat.ext.toChatMessage
 import com.bitat.state.ReplyMessageParams
 
 @Composable
-fun SenderReplyMessage(message: String, replyContent: String) {
+fun SenderReplyMessage(message: String, replyContent: String, replyMsgKind: Short) {
     Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
         Surface(
             color = Color.Black,
@@ -43,7 +44,7 @@ fun SenderReplyMessage(message: String, replyContent: String) {
 //                .height(100.dp),
         ) {
             Text(
-                text = "回复：${replyContent}",
+                text = "回复：${replyContent.toChatMessage(replyMsgKind)}",
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
             )
@@ -52,7 +53,7 @@ fun SenderReplyMessage(message: String, replyContent: String) {
 }
 
 @Composable
-fun RecipientReplyMessage(message: String, replyContent: String) {
+fun RecipientReplyMessage(message: String, replyContent: String, replyMsgKind: Short) {
     Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
         Surface(
             color = Color.Black,
@@ -80,7 +81,7 @@ fun RecipientReplyMessage(message: String, replyContent: String) {
 //                .height(100.dp),
         ) {
             Text(
-                text = "回复：${replyContent}",
+                text = "回复：${replyContent.toChatMessage(replyMsgKind)}",
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)
             )

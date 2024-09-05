@@ -26,6 +26,7 @@ class VideoMessageParams(
 @Serializable
 class ReplyMessageParams(
     val time: Long = 0,
+    val kind: Short = 1,
     val replyMsg: String = "",
     val content: String = ""
 )

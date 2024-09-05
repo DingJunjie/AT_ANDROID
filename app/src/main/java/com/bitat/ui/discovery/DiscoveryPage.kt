@@ -23,6 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -92,37 +93,31 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
     val isRefreshing = remember {
         mutableStateOf(false)
     }
-    val pullRefreshState =
-        rememberPullRefreshState(refreshing = isRefreshing.value, onRefresh = {
-            vm.getDiscoveryList(isRefresh = true)
-        })
+    val pullRefreshState = rememberPullRefreshState(refreshing = isRefreshing.value, onRefresh = {
+        vm.getDiscoveryList(isRefresh = true)
+    })
 
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(top = statusBarHeight),
+    Scaffold(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight()
+        .padding(top = statusBarHeight),
         topBar = {
-            DiscoveryTopBar(
-                navController,
+            DiscoveryTopBar(navController,
                 state.currentMenu,
                 isOpen = isMenuOpen.value,
                 toggleMenu = { isMenuOpen.value = it },
                 switchMenu = {
                     vm.switchMenu(it)
                 })
-        }
-    ) { padding ->
+        }) { padding ->
 //        Box(
 //            modifier = Modifier
 //                .padding(padding)
 //                .pullRefresh(pullRefreshState)
 //        ) {
         PullRefreshIndicator(
-            refreshing = isRefreshing.value,
-            state = pullRefreshState,
-            scale = true
+            refreshing = isRefreshing.value, state = pullRefreshState, scale = true
         )
         Column(
             Modifier
@@ -130,14 +125,11 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
                 .fillMaxSize()
                 .pullRefresh(pullRefreshState)
         ) {
-            RefreshView(
-                modifier = Modifier
-                    .nestedScroll(loadMoreState.nestedScrollConnection)
-                    .fillMaxSize(),
-                onRefresh = {
-                    vm.getDiscoveryList(isRefresh = true)
-                }
-            ) {
+            RefreshView(modifier = Modifier
+                .nestedScroll(loadMoreState.nestedScrollConnection)
+                .fillMaxSize(), onRefresh = {
+                vm.getDiscoveryList(isRefresh = true)
+            }) {
                 // 竖向瀑布流
                 LazyVerticalStaggeredGrid(state.discoveryList, height, navController)
 
@@ -152,9 +144,7 @@ fun DiscoveryPage(navController: NavHostController, viewModelProvider: ViewModel
 
 @Composable
 fun LazyVerticalStaggeredGrid(
-    items: List<BlogBaseDto>,
-    height: Dp,
-    navController: NavHostController
+    items: List<BlogBaseDto>, height: Dp, navController: NavHostController
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(3),
@@ -186,15 +176,13 @@ data class ListItemData(
 
 @Composable
 fun VerticalRandomColorBox(item: BlogBaseDto, height: Dp, tapFn: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(1.dp)
-            .height(if (item.height == 1) height - 1.dp else height.times(2))
-            .clickable {
-                tapFn()
-            }
-    ) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(1.dp)
+        .height(if (item.height == 1) height - 1.dp else height.times(2))
+        .clickable {
+            tapFn()
+        }) {
         Box {
             AsyncImage(
                 model = item.cover,
@@ -250,11 +238,14 @@ fun DiscoveryTopBar(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AnimatedMenu<DiscoveryMenuOptions>(
-                currentMenu,
-                isOpen,
-                toggleMenu,
-                switchMenu = { switchMenu(it) })
+//            AnimatedMenu<DiscoveryMenuOptions>(
+//                currentMenu,
+//                isOpen,
+//                toggleMenu,
+//                switchMenu = { switchMenu(it) })
+            Box(modifier = Modifier.padding(start = 5.dp, end = 10.dp)) {
+                SvgIcon(path = "svg/discovery-menu.svg", contentDescription = "")
+            }
             Box(modifier = Modifier.weight(1f)) {
                 SearchInputButton(navController)
             }

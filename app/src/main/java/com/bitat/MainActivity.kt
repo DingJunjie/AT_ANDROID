@@ -80,11 +80,9 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(
-                    navController,
+                AppNavHost(navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
                 ToastUI(toastState)
             }
 
@@ -98,8 +96,6 @@ class MainActivity : ComponentActivity() {
             KeySecret.start()
             TcpClient.start()
         }
-
-
     }
 
     override fun onStart() {
@@ -112,6 +108,8 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onPause")
     }
 
+        //        KeySecret.start()
+        //        TcpClient.start()
 
     override fun onResume() {
         super.onResume()
