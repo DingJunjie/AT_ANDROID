@@ -22,6 +22,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
+import java.util.BitSet
 import kotlin.math.min
 
 private val EmptyByteBuf = ByteBuffer.allocate(0)

@@ -1,6 +1,5 @@
 package com.bitat.repository.sqlDB
 
-import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.UserTokenPo
 import org.sqlite.database.sqlite.SQLiteDatabase

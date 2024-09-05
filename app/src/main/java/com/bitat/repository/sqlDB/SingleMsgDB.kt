@@ -2,7 +2,6 @@ package com.bitat.repository.sqlDB
 
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.po.IdPo
 import com.bitat.repository.po.SingleMsgPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 
@@ -60,7 +59,7 @@ object SingleMsgDB {
     fun insertOne(
         selfId: Long, otherId: Long, status: Short, time: Long, kind: Short, content: String
     ) = SqlDB.writeQueryOne(
-        IdPo::of,
+        ::toLong,
         """insert into single_msg (self_id,other_id,time,status,kind,content)
                 values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
         selfId,
@@ -70,12 +69,6 @@ object SingleMsgDB {
         kind,
         content
     )
-
-    fun getSqlVersion() = SqlDB.queryVersion(toFn = { cursor ->
-        cursor.moveToFirst()
-        val version = cursor.getString(cursor.getColumnIndexOrThrow("sqlite_version"))
-        CuLog.debug(CuTag.SingleChat, "获取数据库版本${version}")
-    }, "SELECT sqlite_version() AS sqlite_version")
 
     //修改消息状态
     fun updateStatus(status: Short, selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
@@ -96,11 +89,10 @@ object SingleMsgDB {
     )
 
     //删除一条消息
-    fun delete(selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
-        "delete from single_msg where self_id = ? and other_id = ?  and time = ?",
-        selfId,
-        otherId,
-        time
+    fun delete(id:Long) = SqlDB.exec(
+        "delete from single_msg where id = ?",
+        id
     )
+
 }
 

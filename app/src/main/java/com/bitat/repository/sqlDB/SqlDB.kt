@@ -89,3 +89,11 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
     }
 
 }
+
+fun toLong(cursor: Cursor): Long = cursor.getLong(0)
+
+fun toDouble(cursor: Cursor): Double = cursor.getDouble(0)
+
+fun toBlob(cursor: Cursor): ByteArray = cursor.getBlob(0)
+
+fun toString(cursor: Cursor): String = cursor.getString(0)
