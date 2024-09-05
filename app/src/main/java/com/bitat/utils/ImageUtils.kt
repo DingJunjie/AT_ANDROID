@@ -7,6 +7,7 @@ import android.net.Uri
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 data class ImageParams(val width: Int, val height: Int)
 
@@ -37,28 +38,27 @@ object ImageUtils {
         }
 
         if (x > y) {
-            return if (abs(y / x - 9 / 16) < 0.1 || y / x < 9 / 16) {
+            return if (abs(y / x - 9f / 16f) < 0.1 || y / x < 9 / 16) {
                 CuLog.debug(CuTag.Blog, "getHeight 9:16")
                 (0.75 * fixedWidth).toInt();
-
             } else if (abs(y / x - 0.75) < 0.1) {
                 CuLog.debug(CuTag.Blog, "getHeight 3:4")
                 (0.75 * fixedWidth).toInt();
             } else {
-                fixedWidth;
+                (0.75 * fixedWidth).toInt();
             }
         } else if (x == y) { // 正方形
-            return 4 / 3 * fixedWidth;
+            return 1.25.times(fixedWidth).toInt();
         } else { // 竖图
-            return if (abs(y / x - 16 / 9) < 0.22 || y / x > 16 / 9) {
+            return if (abs(y / x - 16f / 9f) < 0.22 || y / x > 16f / 9f) {
                 CuLog.debug(CuTag.Blog, "getHeight 16:9")
                 (16f / 9f * fixedWidth).toInt();
-            } else if (abs(y / x - 4 / 3) < 0.1) {
+            } else if (abs(y / x - 4f / 3f) < 0.1) {
                 CuLog.debug(CuTag.Blog, "getHeight 4:3")
-                (4 / 3 * fixedWidth);
+                1.25.times(fixedWidth).toInt();
             } else {
                 CuLog.debug(CuTag.Blog, "getHeight 4:3")
-                (4 / 3 * fixedWidth);
+                1.25.times(fixedWidth).toInt();
             }
         }
     }

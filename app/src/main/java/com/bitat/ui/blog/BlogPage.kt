@@ -426,6 +426,11 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     }
 }
 
+@Composable
+fun BlogContainer(){
+    
+}
+
 
 @Composable
 fun BlogTopBar(

@@ -65,7 +65,6 @@ class ChatViewModel : ViewModel() {
             UserStore.userInfo.id,
             otherId
         )
-
     }
 
     fun clearAllMessage(otherId: Long) {

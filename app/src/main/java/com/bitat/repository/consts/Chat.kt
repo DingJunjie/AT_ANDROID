@@ -9,6 +9,7 @@ const val CHAT_File: Short = 6;          // 文件
 const val CHAT_Geo: Short = 7;           // 位置
 const val CHAT_Url: Short = 8;           // 暂无
 const val CHAT_Blog: Short = 9;          // AT的博文
+const val CHAT_Time: Short = 10;
 const val CHAT_Recall: Short = -1;       // 撤回
 const val CHAT_Reply: Short = -2;        // 回复
 const val CHAT_AudioCall: Short = -3;    // 语音通话
