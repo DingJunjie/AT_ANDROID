@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.config.SettingCfg
+import com.bitat.router.AtNavigation
 import com.bitat.ui.component.CommonTopBar
 
 /**
@@ -28,7 +29,11 @@ fun AccountSecurePage(navHostController: NavHostController) {
     }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             SettingCfg.getAccountMenu().forEach {
-                SettingItem(it) {
+                SettingItem(it) { index->
+                    when(index){
+//                        4 ->
+//                            AtNavigation(navHostController).navig
+                     }
 
                 }
             }

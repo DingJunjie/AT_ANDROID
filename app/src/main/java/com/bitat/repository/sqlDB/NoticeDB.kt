@@ -6,7 +6,7 @@ import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_NOTICE = """
 CREATE TABLE IF NOT  EXISTS "notice_msg" (
-  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT
   "user_id" integer NOT NULL,
   "kind" integer NOT NULL,
   "source_id" integer NOT NULL,

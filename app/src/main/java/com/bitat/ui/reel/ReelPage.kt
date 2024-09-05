@@ -37,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import chaintech.videoplayer.model.PlayerConfig
+import chaintech.videoplayer.ui.video.VideoPlayerView
+import com.bitat.R
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -70,7 +73,6 @@ import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @OptIn(ExperimentalFoundationApi::class)
@@ -160,10 +162,27 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
                                     othersVm.initUserId(currentDto.userId)
-                                    CuExoPlayer(data = currentDto.resource.video,
-                                        modifier = Modifier.fillMaxSize(),
-                                        cover = currentDto.cover,
-                                        isFixHeight = true)
+//                                    CuExoPlayer(data = currentDto.resource.video,
+//                                        modifier = Modifier.fillMaxSize(),
+//                                        cover = currentDto.cover,
+//                                        isFixHeight = true)
+                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
+                                        url = currentDto.resource.video,
+                                        playerConfig = PlayerConfig(
+                                            isPauseResumeEnabled = false,
+                                            isSeekBarVisible = false,
+                                            isDurationVisible = false,
+                                            seekBarThumbColor = Color.Red,
+                                            seekBarActiveTrackColor = Color.Red,
+                                            seekBarInactiveTrackColor = Color.White,
+                                            durationTextColor = Color.White,
+                                            seekBarBottomPadding = 10.dp,
+                                            pauseResumeIconSize = 40.dp,
+                                            isAutoHideControlEnabled = true,
+                                            controlHideIntervalSeconds = 0,
+                                            isFastForwardBackwardEnabled = true
+                                        )
+                                    )
                                 }
                             }
 

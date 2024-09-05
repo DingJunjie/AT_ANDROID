@@ -27,7 +27,7 @@ lifecycle-viewmodel-compose = "2.8.4"
 coil-compose = "2.7.0"
 #coil-compose = "2.6.0"
 #coilSvg = "2.7.0"
-exoplayerVersion = "1.4.0"
+exoplayerVersion = "1.4.1"
 material = "1.6.8"
 protobufKotlin = "4.27.3"
 activity-compose = "1.9.1"
@@ -36,6 +36,7 @@ kotlinx-serialization-json = "1.7.1"
 kotlinx-serialization = "2.0.20"
 lifecycle-runtime-compose-android = "2.8.4"
 accompanist-permissions = "0.34.0"
+compose = "1.6.11"
 
 #三方库
 lottieCompose = "6.5.0"
@@ -119,5 +120,6 @@ androidx-compose-foundation = { group = "androidx.wear.compose", name = "compose
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
 
