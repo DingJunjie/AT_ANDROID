@@ -98,8 +98,6 @@ class MainActivity : ComponentActivity() {
             KeySecret.start()
             TcpClient.start()
         }
-
-
     }
 
     override fun onStart() {

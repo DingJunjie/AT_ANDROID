@@ -23,7 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.state.ReplyMessageParams
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -42,7 +45,13 @@ fun ChatMessageOpt(
                 Icon(Icons.Filled.Star, contentDescription = "")
             }
             OptItem(title = "复制", tapFn = {
-                current.setText(AnnotatedString(msg.content))
+                var content = msg.content
+                if (msg.kind == CHAT_Reply) {
+                    val replyMsg =
+                        Json.decodeFromString(ReplyMessageParams.serializer(), msg.content)
+                    content = replyMsg.content
+                }
+                current.setText(AnnotatedString(content))
                 copy()
             }) {
                 Icon(Icons.Filled.AccountCircle, contentDescription = "")

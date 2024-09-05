@@ -32,6 +32,19 @@ class SearchViewModel : ViewModel() {
         }
     }
 
+    fun searchVideo(keyword: String) {
+        MainCo.launch {
+            SearchReq.searchVideo(SearchCommonDto(keyword = keyword, pageNo = 0, pageSize = 20))
+                .await().map { videos ->
+                    _searchState.update {
+                        it.searchVideoResult.clear()
+                        it.searchVideoResult.addAll(videos)
+                        it
+                    }
+                }
+        }
+    }
+
     fun searchUser(keyword: String) {
         MainCo.launch {
             SearchReq.searchUser(SearchCommonDto(keyword = keyword, pageNo = 0, pageSize = 20))

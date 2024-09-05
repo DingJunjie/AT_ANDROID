@@ -71,6 +71,7 @@ import com.bitat.repository.singleChat.TcpHandler.roomFlow
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
+import com.bitat.router.NavigationItem
 import com.bitat.ui.common.SwipeActionItem
 import com.bitat.ui.common.SwipeActionStyle
 import com.bitat.ui.common.SwipeActionType
@@ -130,7 +131,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { navHostController.navigate(NavigationItem.Notification.route) }) {
                     Icon(imageVector = Icons.Outlined.Notifications, contentDescription = null)
                 }
 
@@ -164,7 +165,19 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     .background(Color(0xfff5f5f5))
                     .padding(horizontal = 8.dp)
                     .clickable { }) {
-                    ChatList(chatState.chatList, options, toast) {
+                    ChatList(
+                        chatState.chatList,
+                        options,
+                        toast,
+                        setTop = {
+                            chatVm.setTop(it.otherId, it.top == 0)
+                        },
+                        setMute = {
+//                            chatVm.muteRoom(it.otherId)
+                        },
+                        delete = {
+                            chatVm.deleteRoom(it.otherId)
+                        }) {
                         chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
                     }
@@ -260,6 +273,9 @@ fun ChatList(
     roomList: List<SingleRoomPo>,
     options: List<SwipeActionItem>,
     toast: ToastState,
+    setTop: (SingleRoomPo) -> Unit,
+    setMute: (SingleRoomPo) -> Unit,
+    delete: (SingleRoomPo) -> Unit,
     itemClick: ((SingleRoomPo) -> Unit)
 ) {
     LazyColumn(
@@ -277,16 +293,25 @@ fun ChatList(
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .fillMaxWidth()
-
             ) {
                 WeSwipeAction(
                     //                    startOptions = options.slice(0..1),
                     endOptions = options,
                     style = SwipeActionStyle.ICON,
-                    onStartTap = {
-                        toast.show("你点击了左边的${options[it].label}")
-                    },
+//                    onStartTap = {
+//                        setTop(item)
+//                        toast.show("你点击了左边的${options[it].label}")
+//                    },
                     onEndTap = {
+                        when (it) {
+                            0 -> {
+                                setTop(item)
+                                item.top = item.top
+                            }
+
+                            1 -> setMute(item)
+                            2 -> delete(item)
+                        }
                         toast.show("你点击了右边的${options[it].label}")
                     },
                     height = 80.dp,

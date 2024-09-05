@@ -89,6 +89,7 @@ import com.bitat.repository.consts.CHAT_Picture
 import com.bitat.repository.consts.CHAT_Recall
 import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.consts.CHAT_Text
+import com.bitat.repository.consts.CHAT_Time
 import com.bitat.repository.consts.CHAT_Video
 import com.bitat.repository.po.RoomCfg
 import com.bitat.repository.po.SingleMsgPo
@@ -204,14 +205,16 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     Scaffold(topBar = {
-        ChatDetailTopBar(name = chatState.currentUserInfo?.nickname ?: "",
-            avatar = chatState.currentUserInfo?.profile ?: "",
+        ChatDetailTopBar(name = chatState.currentRoom?.nickname ?: "",
+            avatar = chatState.currentRoom?.profile ?: "",
             backButton = {
                 chatVm.clearRoom()
                 navHostController.popBackStack()
             },
             goProfile = { /*TODO*/ }, {
-                navHostController.navigate(NavigationItem.ChatSettings.route)
+                navHostController.navigate(NavigationItem.ChatSettings.route).apply {
+
+                }
             })
     }, bottomBar = {
         ChatBottomContainer(
@@ -306,8 +309,13 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     )
                                     SenderReplyMessage(
                                         message = msg.content,
-                                        replyContent = msg.replyMsg
+                                        replyContent = msg.replyMsg,
+                                        replyMsgKind = msg.kind
                                     )
+                                }
+
+                                CHAT_Time -> {
+                                    TimeMessage(timestamp = item.time)
                                 }
                             }
                         } else if (item.status.toInt() == -1) {
@@ -330,8 +338,13 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     )
                                     RecipientReplyMessage(
                                         message = msg.content,
-                                        replyContent = msg.replyMsg
+                                        replyContent = msg.replyMsg,
+                                        replyMsgKind = msg.kind
                                     )
+                                }
+
+                                CHAT_Time -> {
+                                    TimeMessage(timestamp = item.time)
                                 }
 
                             }
