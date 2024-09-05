@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 object UserStore {
-    lateinit var userInfo: UserDto
+    var userInfo: UserDto = UserDto()
     var userFlow = MutableSharedFlow<UserDto>()
 
     fun fetchUserId(): Long = 0L

@@ -40,7 +40,8 @@ object TokenStore {
     private val locker = ReentrantLock()
 
     // 从 Keychain 中获取token
-    private fun getToken(): TokenDto? { // 如果没过期，则从store中读取token
+    private fun getToken(): TokenDto? {
+        // 如果没过期，则从store中读取token
         if (token == null) locker.withLock {
             if (token == null) { //                token = BaseStore.getStr(TOKEN_KEY)?.let(JsonUtils::fromJson)
                 UserTokenDB.getToken(UserStore.userInfo.id)?.let {
