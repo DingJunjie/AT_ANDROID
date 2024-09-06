@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -369,7 +371,30 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
                         Nickname(info.alias.ifEmpty { info.nickname })
                         TimeWidget(sendTime = info.time)
                     }
-                    ChatContent(content = info.content.toChatMessage(info.kind))
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .padding(bottom = 5.dp)
+                            .fillMaxWidth()
+                    ) {
+                        ChatContent(content = info.content.toChatMessage(info.kind))
+                        Surface(
+                            modifier = Modifier.size(26.dp),
+                            color = Color.Red,
+                            shape = CircleShape
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    info.unreads.toString(),
+                                    style = TextStyle(fontSize = 12.sp, color = Color.White)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

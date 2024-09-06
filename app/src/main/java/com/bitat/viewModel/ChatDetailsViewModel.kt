@@ -51,9 +51,9 @@ class ChatDetailsViewModel : ViewModel() {
         println(msg.toString())
         val newList = arrayListOf<SingleMsgPo>()
 
-        msg.first().forEachIndexed { i, v ->
+        msg.forEachIndexed { i, v ->
             if (i > 0 && v.kind != CHAT_Time) {
-                if (msg.first()[i - 1].time - v.time > MIN_DIFF_TIMESTAMP) {
+                if (msg[i - 1].time - v.time > MIN_DIFF_TIMESTAMP) {
                     val timeMsg = v
                     timeMsg.kind = CHAT_Time
                     timeMsg.content = TimeUtils.timeToMD(v.time)

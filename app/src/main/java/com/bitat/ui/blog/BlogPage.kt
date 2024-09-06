@@ -259,8 +259,9 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight() //                        .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
-                    //                    contentAlignment = Alignment.Center
+                        .fillMaxHeight()
+                    //          .padding(bottom = dimensionResource(R.dimen.home_tab_height)),
+                    //           contentAlignment = Alignment.Center
                 ) {
                     if (state.blogList.size > 0) {
                         if (state.blogList.first().kind.toInt() == BLOG_VIDEO_ONLY || state.blogList.first().kind.toInt() == BLOG_VIDEO_TEXT) {
@@ -427,8 +428,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 }
 
 @Composable
-fun BlogContainer(){
-    
+fun BlogContainer() {
+
 }
 
 
