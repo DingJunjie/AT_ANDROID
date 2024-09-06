@@ -10,7 +10,7 @@ class NoticeMsgPo {
     var fromId: Long = 0
     var time: Long = 0
     var content: String = ""
-
+    fun getUnique() = NoticeMsgUnique(kind, sourceId,fromId,time)
     companion object {
         fun of(cursor: Cursor) = NoticeMsgPo().apply {
             id = cursor.getLong(0)
@@ -21,5 +21,16 @@ class NoticeMsgPo {
             time = cursor.getLong(5)
             content = cursor.getString(6)
         }
+    }
+}
+
+data class NoticeMsgUnique(
+    val kind: Int,val sourceId: Long,val fromId: Long,val time: Long
+) {
+    companion object {
+        fun of(cursor: Cursor) = NoticeMsgUnique(
+            cursor.getInt(0), cursor.getLong(1),
+            cursor.getLong(2),cursor.getLong(3)
+        )
     }
 }

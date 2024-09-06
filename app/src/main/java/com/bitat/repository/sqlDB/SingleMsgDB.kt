@@ -83,7 +83,7 @@ object SingleMsgDB {
         poArr.filter { contains(it.getUnique()) }.toTypedArray()
     }
 
-    fun insertBatch(
+    fun insertArray(
         poArr: Array<SingleMsgPo>
     ) = SqlDB.execFn {
         for (po in poArr) it.exec(
