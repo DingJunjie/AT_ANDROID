@@ -25,12 +25,6 @@ object TcpHandler {
         val room = SingleRoomDB.getRoom(UserStore.userInfo.id, msg.fromId) ?: return
 
         val content = msg.data.toString(Charsets.UTF_8)
-        val newMsg = SingleMsgDB.insertOne(selfId = msg.toId,
-            otherId = msg.fromId,
-            status = -1,
-            kind = msg.kind.toShort(),
-            content = content,
-            time = msg.time)
 
         val nm = SingleMsgPo()
         nm.selfId = msg.toId
@@ -39,6 +33,10 @@ object TcpHandler {
         nm.kind = msg.kind.toShort()
         nm.content = content
         nm.time = msg.time
+
+        val newMsg = SingleMsgDB.insertOne(
+            nm
+        )
 
         MainCo.launch(IO) {
             roomFlow.emit(room)

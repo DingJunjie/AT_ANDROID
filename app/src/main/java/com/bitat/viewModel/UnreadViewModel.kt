@@ -7,9 +7,11 @@ import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.NoticePo
+import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.sqlDB.NoticeDB
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
+import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,42 +44,53 @@ class UnreadViewModel : ViewModel() {
             val fetchAmount =
                 if (state.value.unreadMsgCount > 30) 30 else state.value.unreadMsgCount
             MainCo.launch(IO) {
-                MsgReq.fetchChat(
-                    FetchChatCommon().apply {
-                        ack = false
-                        fromId = 0
-                        time = _state.value.lastMsgId
-                        limit = fetchAmount.toLong()
-                    }
-                ).await().map { msgRes ->
+                MsgReq.fetchChat(FetchChatCommon().apply {
+                    ack = false
+                    fromId = 0
+                    time = _state.value.lastMsgId
+                    limit = fetchAmount.toLong()
+                }).await().map { msgRes ->
+
+                    val msgPoList = arrayListOf<SingleMsgPo>()
+//                    val msgUnreadGroup = mutableMapOf<Long, Int>()
+
                     msgRes.msgListList.forEach {
-                        CuLog.info(
-                            CuTag.SingleChat,
-                            "get a message, data is $it"
-                        )
-                        SingleMsgDB.insertOne(
-                            selfId = it.toId,
-                            otherId = it.fromId,
-                            time = it.time,
-                            kind = it.kind.toShort(),
-                            content = it.data.toStringUtf8(),
-                            status = -1
-                        )
+                        val msg = SingleMsgPo()
+                        msg.selfId = it.toId
+                        msg.otherId = it.fromId
+                        msg.time = it.time
+                        msg.kind = it.kind.toShort()
+                        msg.content = it.data.toStringUtf8()
+                        msg.status = -1
 
+                        msgPoList.add(msg)
+//                        if (msgUnreadGroup[it.fromId] == null) {
+//                            msgUnreadGroup[it.fromId] = 0
+//                        } else {
+//                            msgUnreadGroup[it.fromId] = msgUnreadGroup[it.fromId]!! + 1
+//                        }
+                    }
+
+                    val unreadCountGroup = msgPoList.groupBy {
+                        it.otherId
+                    }
+
+                    unreadCountGroup.forEach {
                         SingleRoomDB.insertOrUpdate(
-                            selfId = it.toId,
-                            otherId = it.fromId,
-                            unreads = 1
+                            UserStore.userInfo.id,
+                            it.key,
+                            unreads = it.value.size
                         )
+                    }
+                    SingleMsgDB.insertBatch(msgPoList)
 
-                        _state.update { kore ->
-                            kore.copy(lastMsgId = it.time)
-                        }
+                    _state.update { kore ->
+                        kore.copy(
+                            lastMsgId = msgRes.msgListList.first().time,
+                            unreadMsgCount = kore.unreadMsgCount - fetchAmount
+                        )
                     }
 
-                    _state.update {
-                        it.copy(unreadMsgCount = it.unreadMsgCount - fetchAmount)
-                    }
 
                     getUnreadMessage()
                 }

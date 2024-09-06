@@ -136,7 +136,7 @@ class ChatDetailsViewModel : ViewModel() {
         msg.selfId = UserStore.userInfo.id
         msg.status = 1
         msg.otherId = toId
-        SingleMsgDB.insertOne(msg.selfId, msg.otherId, msg.status, msg.time, msg.kind, msg.content)
+        SingleMsgDB.insertOne(msg)
 
         _state.update {
 //            if(it.messageList[0].time )

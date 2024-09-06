@@ -493,8 +493,7 @@ fun PolicyAndPolitics(accepted: Boolean = true, toggleAccept: (Boolean) -> Unit)
             color = Color.Black
         )
         TextButton(onClick = {
-            MainCo.launch(IO) {
-            }
+
         }) {
             Text("用户协议")
         }
