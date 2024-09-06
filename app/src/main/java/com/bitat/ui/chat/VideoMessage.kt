@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.bitat.ui.video.VideoPlayer
-import com.bitat.utils.QiNiuUtil.QINIU_PUB_PREFIX
+import com.bitat.utils.QiNiuUtil.QINIU_CHAT_PREFIX
 import com.bitat.utils.ScreenUtils
 
 @Composable
@@ -41,9 +41,9 @@ fun SenderVideo(cover: String, video: String) {
             if (isPlaying.value)
                 VideoPlayer(modifier = Modifier.clickable {
                     isPlaying.value = false
-                }, uri = (QINIU_PUB_PREFIX + video).toUri())
+                }, uri = (QINIU_CHAT_PREFIX + video).toUri())
             else AsyncImage(
-                model = QINIU_PUB_PREFIX + cover,
+                model = QINIU_CHAT_PREFIX + cover,
                 contentDescription = "",
                 modifier = Modifier.clickable { isPlaying.value = true },
                 contentScale = ContentScale.Crop
@@ -71,9 +71,9 @@ fun RecipientVideo(cover: String, video: String) {
             if (isPlaying.value)
                 VideoPlayer(modifier = Modifier.clickable {
                     isPlaying.value = false
-                }, uri = (QINIU_PUB_PREFIX + video).toUri())
+                }, uri = (QINIU_CHAT_PREFIX + video).toUri())
             else AsyncImage(
-                model = QINIU_PUB_PREFIX + cover,
+                model = QINIU_CHAT_PREFIX + cover,
                 contentDescription = "",
                 modifier = Modifier.clickable { isPlaying.value = true },
                 contentScale = ContentScale.Crop

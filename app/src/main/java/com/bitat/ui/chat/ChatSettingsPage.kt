@@ -145,7 +145,7 @@ fun ChatSettingTopBg(
                         AsyncImage(
                             modifier = Modifier
                                 .fillMaxHeight(),
-                            model = if (background == "") "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg" else QiNiuUtil.QINIU_PUB_PREFIX + background,
+                            model = if (background == "") "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg" else QiNiuUtil.QINIU_CHAT_PREFIX + background,
                             contentDescription = "",
                             contentScale = ContentScale.Crop
                         )

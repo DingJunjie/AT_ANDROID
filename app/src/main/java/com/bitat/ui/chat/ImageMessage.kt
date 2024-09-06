@@ -15,7 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import coil.compose.AsyncImage
-import com.bitat.utils.QiNiuUtil.QINIU_PUB_PREFIX
+import com.bitat.utils.QiNiuUtil.QINIU_CHAT_PREFIX
 import com.bitat.utils.ScreenUtils
 
 @Composable
@@ -32,7 +32,7 @@ fun SenderImage(url: String) {
 //                .height(100.dp),
         ) {
             AsyncImage(
-                model = QINIU_PUB_PREFIX + url,
+                model = QINIU_CHAT_PREFIX + url,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )
@@ -54,7 +54,7 @@ fun RecipientImage(url: String) {
 //                .height(100.dp),
         ) {
             AsyncImage(
-                model = QINIU_PUB_PREFIX + url,
+                model = QINIU_CHAT_PREFIX + url,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )

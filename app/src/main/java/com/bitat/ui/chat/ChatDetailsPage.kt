@@ -259,7 +259,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             if (chatState.currentRoom.background != "") {
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
-                    model = QiNiuUtil.QINIU_PUB_PREFIX + chatState.currentRoom.background,
+                    model = QiNiuUtil.QINIU_CHAT_PREFIX + chatState.currentRoom.background,
                     contentDescription = "",
                     contentScale = ContentScale.Crop
                 )
