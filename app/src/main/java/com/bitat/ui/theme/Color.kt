@@ -27,6 +27,8 @@ val lineColor=Color(0xFFEAEAEA)
 
 val lineColorBlog=Color(0xFFefefef)
 
+val settingColorTitle=Color(0xFF6A6A6A)
+
 
 val white = Color(0xFFFFFFFF)
 val white1 = Color(0xFFF7F7F7).convert(ColorSpaces.CieXyz)

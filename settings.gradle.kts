@@ -7,13 +7,7 @@ pluginManagement {
         maven { setUrl("https://maven.aliyun.com/repository/jcenter") }
         maven { setUrl("https://dl.google.com/dl/android/maven2/") }
         maven { setUrl("https://repo.huaweicloud.com/repository/maven") }
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -30,6 +24,7 @@ dependencyResolutionManagement {
         maven { setUrl("https://repo.huaweicloud.com/repository/maven") }
         google()
         mavenCentral()
+        mavenLocal()
 
     }
 }

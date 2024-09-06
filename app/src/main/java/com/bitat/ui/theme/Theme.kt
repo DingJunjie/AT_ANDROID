@@ -3,10 +3,6 @@ package com.bitat.ui.theme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.lightColorScheme
@@ -170,27 +166,33 @@ fun BitComposeTheme(
         WeComposeTheme.Theme.Dark -> DarkColorPalette
     }
 
-    val bottomBar = animateColorAsState(targetColors.bottomBar, TweenSpec(600))
-    val background = animateColorAsState(targetColors.background, TweenSpec(600))
-    val chatListDivider = animateColorAsState(targetColors.chatListDivider, TweenSpec(600))
-    val chatPage = animateColorAsState(targetColors.chatPage, TweenSpec(600))
-    val textPrimary = animateColorAsState(targetColors.textPrimary, TweenSpec(600))
-    val textPrimaryMe = animateColorAsState(targetColors.textPrimaryMe, TweenSpec(600))
-    val textSecondary = animateColorAsState(targetColors.textSecondary, TweenSpec(600))
-    val onBackground = animateColorAsState(targetColors.onBackground, TweenSpec(600))
-    val dialogBackground = animateColorAsState(targetColors.dialogBackground, TweenSpec(600))
-    val icon = animateColorAsState(targetColors.icon, TweenSpec(600))
-    val iconCurrent = animateColorAsState(targetColors.iconCurrent, TweenSpec(600))
-    val badge = animateColorAsState(targetColors.badge, TweenSpec(600))
-    val bubbleMe = animateColorAsState(targetColors.bubbleMe, TweenSpec(600))
-    val more = animateColorAsState(targetColors.more, TweenSpec(600))
-    val chatPageBgAlpha = animateFloatAsState(targetColors.chatPageBgAlpha, TweenSpec(600))
-    val success = animateColorAsState(targetColors.success, TweenSpec(600))
-    val info = animateColorAsState(targetColors.info, TweenSpec(600))
-    val error = animateColorAsState(targetColors.error, TweenSpec(600))
-    val placeholder = animateColorAsState(targetColors.placeholder, TweenSpec(600))
-    val surface = animateColorAsState(targetColors.surface, TweenSpec(600))
-    val onSurface = animateColorAsState(targetColors.onSurface, TweenSpec(600))
+    val bottomBar = animateColorAsState(targetColors.bottomBar, TweenSpec(200), label = "")
+    val background = animateColorAsState(targetColors.background, TweenSpec(200), label = "")
+    val chatListDivider = animateColorAsState(targetColors.chatListDivider, TweenSpec(600),
+        label = ""
+    )
+    val chatPage = animateColorAsState(targetColors.chatPage, TweenSpec(200), label = "")
+    val textPrimary = animateColorAsState(targetColors.textPrimary, TweenSpec(200), label = "")
+    val textPrimaryMe = animateColorAsState(targetColors.textPrimaryMe, TweenSpec(200), label = "")
+    val textSecondary = animateColorAsState(targetColors.textSecondary, TweenSpec(200), label = "")
+    val onBackground = animateColorAsState(targetColors.onBackground, TweenSpec(200), label = "")
+    val dialogBackground = animateColorAsState(targetColors.dialogBackground, TweenSpec(200),
+        label = ""
+    )
+    val icon = animateColorAsState(targetColors.icon, TweenSpec(200), label = "")
+    val iconCurrent = animateColorAsState(targetColors.iconCurrent, TweenSpec(200), label = "")
+    val badge = animateColorAsState(targetColors.badge, TweenSpec(200), label = "")
+    val bubbleMe = animateColorAsState(targetColors.bubbleMe, TweenSpec(200), label = "")
+    val more = animateColorAsState(targetColors.more, TweenSpec(200), label = "")
+    val chatPageBgAlpha = animateFloatAsState(targetColors.chatPageBgAlpha, TweenSpec(200),
+        label = ""
+    )
+    val success = animateColorAsState(targetColors.success, TweenSpec(200), label = "")
+    val info = animateColorAsState(targetColors.info, TweenSpec(200), label = "")
+    val error = animateColorAsState(targetColors.error, TweenSpec(200), label = "")
+    val placeholder = animateColorAsState(targetColors.placeholder, TweenSpec(200), label = "")
+    val surface = animateColorAsState(targetColors.surface, TweenSpec(200), label = "")
+    val onSurface = animateColorAsState(targetColors.onSurface, TweenSpec(200), label = "")
     val colors = WeComposeColors(
         themeUi = themeColor,
         bottomBar = bottomBar.value,
@@ -229,26 +231,9 @@ fun BitComposeTheme(
             colorScheme = colorsSch,
             shapes = shapes,
             content = {
-                CompositionLocalProvider(LocalIndication provides NoIndication) {
-                    content()
-                }
+                content()
             },
             typography = Typography
         )
     }
-}
-
-object NoIndication : Indication {
-    private object NoIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication() {
-            drawContent()
-        }
-
-    }
-
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        return NoIndicationInstance
-    }
-
 }

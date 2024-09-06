@@ -7,7 +7,7 @@ import com.bitat.repository.http.Http
 
 object LoginReq {
 
-    //smsCaptcha
+    // 发送短信验证码
     suspend inline fun smsCaptcha(dto: SmsCaptchaDto) =
         Http.post<_, Unit>("${Http.HOST}/auth/login/smsCaptcha", dto, login = false)
 

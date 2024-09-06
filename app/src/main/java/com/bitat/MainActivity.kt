@@ -2,7 +2,6 @@ package com.bitat
 
 import android.app.ActivityManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,24 +15,20 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.rememberNavController
 import com.bitat.config.BitEventBus
 import com.bitat.ext.flowbus.observeEvent
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.common.KeySecret
 import com.bitat.repository.singleChat.TcpClient
-import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.store.BaseStore
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
 import com.bitat.router.AppNavHost
 import com.bitat.router.AtNavigation
-import com.bitat.ui.Home
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.theme.BitComposeTheme
 import com.bitat.utils.ScreenUtils
-import com.bitat.utils.TimeUtils
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.ToastUI
 import com.wordsfairy.note.ui.widgets.toast.ToastUIState
@@ -41,6 +36,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+import androidx.navigation.compose.rememberNavController
 
 val MainCo = MainScope()
 
@@ -74,17 +70,16 @@ class MainActivity : ComponentActivity() {
             statusBarHeight = statusBarTop
 
             val navController = rememberNavController()
+
             val navigationActions = remember(navController) {
                 AtNavigation(navController)
             }
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(
-                    navController,
+                AppNavHost(navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
                 ToastUI(toastState)
             }
 
@@ -98,8 +93,6 @@ class MainActivity : ComponentActivity() {
             KeySecret.start()
             TcpClient.start()
         }
-
-
     }
 
     override fun onStart() {
@@ -112,6 +105,8 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onPause")
     }
 
+        //        KeySecret.start()
+        //        TcpClient.start()
 
     override fun onResume() {
         super.onResume()

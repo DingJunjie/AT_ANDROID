@@ -979,8 +979,7 @@ fun OptionDialog(showDialog: Boolean, onDismiss: () -> Unit, content: @Composabl
                     max = ScreenUtils.screenHeight.times(0.6).dp, min = 80.dp
                 ) //                .fillMaxHeight(0.6f)
                 .background(color = Color.White)
-                .clickable(indication = rememberRipple(),
-                    interactionSource = remember { MutableInteractionSource() },
+                .clickable(
                     onClick = {
                         isActiveClose = true
                     }), isActiveClose = isActiveClose, // 请根据自己需要自己配置，自己定制谢谢配合

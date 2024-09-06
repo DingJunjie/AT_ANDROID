@@ -36,7 +36,7 @@ fun RefreshView(
     content: @Composable BoxScope.() -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
-    val refreshingTips = getRefreshingTips(refreshState, refreshState.positionalThreshold)
+//    val refreshingTips = getRefreshingTips(refreshState, refreshState.positionalThreshold)
 
     LaunchedEffect(refreshState) {
         snapshotFlow { refreshState.isRefreshing }.filter { it }.collect {

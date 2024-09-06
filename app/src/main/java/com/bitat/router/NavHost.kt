@@ -18,6 +18,7 @@ import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.chat.ChatSettings
 import com.bitat.ui.chat.ChatSettingsPage
+import com.bitat.ui.chat.NotificationPage
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.component.ImagePreviewPage
 import com.bitat.ui.discovery.DiscoveryDetailPage
@@ -25,6 +26,8 @@ import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
+import com.bitat.ui.profile.AccountSecurePage
+import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
 import com.bitat.ui.profile.FansPage
 import com.bitat.ui.profile.FollowsPage
@@ -44,7 +47,7 @@ enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER,
     VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY,
     VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL,
-    OTHERS, FANS, FOLLOWS, PROFILE_EDIT, SETTING, CHAT_SETTINGS
+    OTHERS, FANS, FOLLOWS, PROFILE_EDIT, SETTING, CHAT_SETTINGS,CACHE,ACCOUNTSECURE, NOTIFICATION
 }
 
 sealed class NavigationItem(val route: String) {
@@ -77,6 +80,9 @@ sealed class NavigationItem(val route: String) {
     data object ProfileEdit : NavigationItem(Screen.PROFILE_EDIT.name)
     data object Setting : NavigationItem(Screen.SETTING.name)
     data object ChatSettings : NavigationItem(Screen.CHAT_SETTINGS.name)
+    data object Cache : NavigationItem(Screen.CACHE.name)
+    data object AccountSecure : NavigationItem(Screen.ACCOUNTSECURE.name)
+    data object Notification : NavigationItem(Screen.NOTIFICATION.name)
 }
 
 
@@ -210,6 +216,19 @@ fun AppNavHost(
         composable(NavigationItem.ChatSettings.route) {
             ChatSettingsPage(navController, viewModelProvider)
         }
+
+        composable(NavigationItem.Cache.route) {
+            ClearCachPage(navController)
+        }
+
+
+        composable(NavigationItem.AccountSecure.route) {
+            AccountSecurePage(navController)
+        }
+
+        composable(NavigationItem.Notification.route) {
+            NotificationPage(navController, viewModelProvider)
+        }
     }
 }
 
@@ -287,6 +306,17 @@ class AtNavigation(navController: NavHostController) {
     val navigateToSettingPage: () -> Unit = {
         navController.navigate(NavigationItem.Setting.route)
     }
+
+    val navigateToCachePage: () -> Unit = {
+        navController.navigate(NavigationItem.Cache.route)
+    }
+
+    val navigateToAccountSecurePage: () -> Unit = {
+        navController.navigate(NavigationItem.AccountSecure.route)
+    }
+
+
+
 
 
 }

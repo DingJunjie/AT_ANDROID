@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
@@ -31,7 +32,10 @@ import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.statusBarHeight
+import com.bitat.ui.theme.hintTextColor
 import com.bitat.ui.theme.lineColor
+import com.bitat.ui.theme.settingColorTitle
+import com.bitat.ui.theme.textColor
 
 /**
  *    author : shilu
@@ -40,46 +44,30 @@ import com.bitat.ui.theme.lineColor
  */
 
 @Composable
-fun SystemSetting(
-    viewModelProvider: ViewModelProvider,
-    navController: NavHostController,
-    onBack: () -> Unit
-) {
+fun SystemSetting(viewModelProvider: ViewModelProvider, navController: NavHostController, onBack: () -> Unit) {
     Column {
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(statusBarHeight))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
+        Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight))
+        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            AvatarWithShadow(
-                modifier = Modifier,
+            horizontalArrangement = Arrangement.Start) {
+            AvatarWithShadow(modifier = Modifier,
                 url = UserStore.userInfo.profile,
                 size = 60,
-                needPadding = true
-            )
+                needPadding = true)
             Spacer(modifier = Modifier.width(20.dp))
-            Column(
-                modifier = Modifier.padding(top = 15.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
+            Column(modifier = Modifier.padding(top = 15.dp),
+                verticalArrangement = Arrangement.Center) {
                 Text(UserStore.userInfo.nickname, style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(UserStore.userInfo.id.toString(), style = MaterialTheme.typography.bodySmall)
             }
         }
-        Divider(
-            modifier = Modifier.height(dimensionResource(R.dimen.line_height)),
-            color = lineColor
-        )
+        Divider(modifier = Modifier.height(dimensionResource(R.dimen.line_height)),
+            color = lineColor)
 
         LazyColumn {
             items(SettingCfg.getProfileMenu()) { item ->
-                SettingItem(item, onClick = { itemIndex ->
+                SettingItem(settingPo = item, onClick = { itemIndex ->
                     when (itemIndex) {
                         1 -> { //观看历史
 
@@ -104,33 +92,31 @@ fun SystemSetting(
 
 @Composable
 fun SettingItem(settingPo: SettingMenuPo, onClick: (Int) -> Unit) {
-    Row(
-        modifier = Modifier
-            .height(100.cdp)
-            .clickable { onClick(settingPo.itemIndex) },
+    Row(modifier = Modifier.height(100.cdp).clickable { onClick(settingPo.itemIndex) },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
+        horizontalArrangement = Arrangement.Center) {
         Spacer(modifier = Modifier.width(20.dp))
-        SvgIcon(path = settingPo.icon, contentDescription = "", modifier = Modifier.size(40.cdp))
-        Spacer(modifier = Modifier.width(20.dp))
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+        if (settingPo.showLeft) {
+            SvgIcon(path = settingPo.icon,
+                contentDescription = "",
+                modifier = Modifier.size(40.cdp))
+            Spacer(modifier = Modifier.width(20.dp))
+        }
+        Text(modifier = Modifier.fillMaxWidth().weight(1f),
             text = settingPo.content,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = Color(0xFF6A6A6A)
-            )
-        )
+            style = MaterialTheme.typography.bodyMedium.copy(color = if (settingPo.showRightText) textColor else settingColorTitle))
+        if (settingPo.showRightText) Text(modifier = Modifier.fillMaxWidth().weight(1f)
+            .padding(end = 5.dp),
+            text = settingPo.rightText,
+            textAlign = TextAlign.End,
+            style = MaterialTheme.typography.bodyMedium.copy(color = hintTextColor))
         if (settingPo.showRight) {
-            SvgIcon(
-                path = "svg/arrow-right.svg",
-                contentDescription = "backicon",
-                modifier = Modifier.size(30.cdp)
-            )
+            SvgIcon(path = "svg/arrow-right.svg",
+                contentDescription = "backIcon",
+                modifier = Modifier.size(30.cdp))
+        } else {
+            Spacer(modifier = Modifier.size(30.cdp))
         }
         Spacer(modifier = Modifier.width(20.dp))
-
     }
 }

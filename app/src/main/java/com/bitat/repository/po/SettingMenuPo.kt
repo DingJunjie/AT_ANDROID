@@ -6,4 +6,4 @@ package com.bitat.repository.po
  *    desc   :
  */
 
-data class SettingMenuPo(val itemIndex:Int=0,val icon:String,val content:String,val showRight:Boolean=true)
+data class SettingMenuPo(val itemIndex: Int = 0, val icon: String="",val showLeft:Boolean=false, val content: String, val showRight: Boolean = true, val rightText: String = "",val showRightText: Boolean = false,)

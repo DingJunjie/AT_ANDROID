@@ -63,6 +63,7 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
             ChatSettingTopBg(
                 modifier = Modifier.padding(padding),
                 background = chatState.currentCfg.background,
+                avatar = chatState.currentRoom!!.profile,
                 backFn = {
                     navHostController.popBackStack()
                 }) {
@@ -71,19 +72,23 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
 
             ChatSettings(
                 isMuted = chatState.currentCfg.muted,
-                isTop = chatState.currentRoom?.top ?: 0,
+                isTop = chatState.currentCfg.isTop,
                 isBlackList = false,
                 switchMuted = {
-                    chatVm.muteRoom(it)
+                    chatVm.muteRoom(chatState.currentRoom!!.otherId, it)
                 },
                 switchTop = {
-                    chatVm.setTop(it)
+                    chatVm.setTop(otherId = chatState.currentRoom!!.otherId, it)
                 },
                 relationChange = {
 
                 },
                 goHistory = {},
                 goDetailSetting = {},
+                clearAllMsg = {
+                    chatVm.clearAllMessage(chatState.currentRoom!!.otherId)
+//                    chatVm.updateRoomContent(chatState.currentRoom!!.otherId)
+                },
                 feedback = {}
             )
         }
@@ -94,6 +99,7 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
 fun ChatSettingTopBg(
     modifier: Modifier = Modifier,
     background: String,
+    avatar: String,
     backFn: () -> Unit,
     switchBg: (Uri) -> Unit
 ) {
@@ -136,7 +142,7 @@ fun ChatSettingTopBg(
                     modifier = Modifier.offset(y = 40.dp)
                 ) {
                     Avatar(
-                        url = "https://pic3.zhimg.com/v2-9041577bc5535d6abd5ddc3932f2a30e_r.jpg",
+                        url = avatar,
                         modifier = Modifier
                             .border(width = 6.dp, color = Color.White, CircleShape)
                             .shadow(elevation = 3.dp, shape = CircleShape),
@@ -157,13 +163,14 @@ fun ChatSettingTopBg(
 @Composable
 fun ChatSettings(
     isMuted: Boolean = false,
-    isTop: Int = 0,
+    isTop: Boolean = false,
     isBlackList: Boolean = false,
     switchMuted: (Boolean) -> Unit,
     switchTop: (Boolean) -> Unit,
     relationChange: (Boolean) -> Unit,
     goHistory: () -> Unit = {},
     goDetailSetting: () -> Unit = {},
+    clearAllMsg: () -> Unit = {},
     feedback: () -> Unit = {}
 ) {
     Column {
@@ -199,7 +206,7 @@ fun ChatSettings(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("置顶聊天")
-            Switch(checked = isTop > 0, onCheckedChange = switchTop)
+            Switch(checked = isTop, onCheckedChange = switchTop)
         }
 
         Row(
@@ -216,7 +223,10 @@ fun ChatSettings(
         Row(
             modifier = Modifier
                 .padding(horizontal = 10.dp, vertical = 13.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable {
+                    clearAllMsg()
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
