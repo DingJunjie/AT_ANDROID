@@ -3,13 +3,15 @@ package com.bitat.repository.po
 import android.database.Cursor
 
 class SingleMsgPo {
-    var id :Long = 0
+    var id: Long = 0
     var selfId: Long = 0
-    var otherId: Long =0
-    var time: Long =0
-    var status: Short =0
-    var kind: Short =0
-    var content: String =""
+    var otherId: Long = 0
+    var time: Long = 0
+    var status: Short = 0
+    var kind: Short = 0
+    var content: String = ""
+
+    fun getUnique() = SingleMsgUnique(otherId, time)
 
     companion object {
         fun of(cursor: Cursor) = SingleMsgPo().apply {
@@ -21,5 +23,16 @@ class SingleMsgPo {
             kind = cursor.getShort(5)
             content = cursor.getString(6)
         }
+
+    }
+}
+
+data class SingleMsgUnique(
+    val otherId: Long, val time: Long
+) {
+    companion object {
+        fun of(cursor: Cursor) = SingleMsgUnique(
+            cursor.getLong(0), cursor.getLong(1)
+        )
     }
 }

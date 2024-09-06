@@ -1,8 +1,7 @@
 package com.bitat.repository.sqlDB
 
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.repository.po.SingleMsgUnique
 import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_SINGLE_MSG = """
@@ -70,12 +69,26 @@ object SingleMsgDB {
         singleMsgPo.content
     )
 
+    private fun queryUnique(
+        selfId: Long, status: Long, poArr: Array<SingleMsgPo>
+    ): Set<SingleMsgUnique> = SqlDB.queryBatch(SingleMsgUnique::of, """
+            select other_id, time from single_msg where self_id = ? and status = ? 
+            and (other_id, time) in (${
+        poArr.joinToString(",") { "(${it.otherId},${it.time})" }
+    })""", selfId, status).toSet()
+
+    fun filterDuplicate(
+        selfId: Long, status: Long, poArr: Array<SingleMsgPo>
+    ): Array<SingleMsgPo> = queryUnique(selfId, status, poArr).run {
+        poArr.filter { contains(it.getUnique()) }.toTypedArray()
+    }
+
     fun insertBatch(
-        poList: List<SingleMsgPo>
+        poArr: Array<SingleMsgPo>
     ) = SqlDB.execFn {
-        for (po in poList) it.exec(
+        for (po in poArr) it.exec(
             """insert into single_msg (self_id,other_id,time,status,kind,content)
-                values (?,?,?,?,?,?)ON CONFLICT(self_id,other_id) DO UPDATE SET self_id = ?;""",
+                values (?,?,?,?,?,?)""",
             po.selfId,
             po.otherId,
             po.time,

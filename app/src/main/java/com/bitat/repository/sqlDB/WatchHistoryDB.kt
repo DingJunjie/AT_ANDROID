@@ -1,6 +1,5 @@
 package com.bitat.repository.sqlDB
 
-import com.bitat.repository.po.NoticePo
 import com.bitat.repository.po.WatchHistoryPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 

@@ -1,7 +1,6 @@
 package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.bitat.repository.sqlDB.NoticeDB
 import com.bitat.state.NotificationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

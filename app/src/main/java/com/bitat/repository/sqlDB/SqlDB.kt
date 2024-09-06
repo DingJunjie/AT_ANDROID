@@ -3,8 +3,6 @@ package com.bitat.repository.sqlDB
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
 
@@ -35,7 +33,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         SingleRoomDB.init(db)
         SingleMsgDB.init(db)
         SearchHistoryDB.init(db)
-        NoticeDB.init(db)
+        NoticeMsgDB.init(db)
         MyAtsDB.init(db)
         GroupRoomDB.init(db)
         GroupMsgDB.init(db)
@@ -100,6 +98,10 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 @JvmInline
 value class SqlExec(val db: SQLiteDatabase) {
     fun exec(sql: String, vararg bindings: Any) = db.execSQL(sql, bindings)
+    fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
+        db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+            .run { if (moveToFirst()) toFn(this) else null }
+
 }
 
 fun toLong(cursor: Cursor): Long = cursor.getLong(0)
