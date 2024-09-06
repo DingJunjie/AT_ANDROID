@@ -16,17 +16,17 @@ private const val CREATE_TABLE_SINGLE_MSG = """
       "content" TEXT NOT NULL
     );
 
-CREATE INDEX  "single_msg_0"
+CREATE INDEX IF NOT EXISTS "single_msg_0"
 ON "single_msg" (
   "self_id" ASC
 );
 
-CREATE INDEX  "single_msg_1"
+CREATE INDEX  IF NOT EXISTS "single_msg_1"
 ON "single_msg" (
   "other_id" ASC
 );
 
-CREATE INDEX "single_msg_2"
+CREATE INDEX  IF NOT EXISTS "single_msg_2"
 ON "single_msg" (
   "time" ASC
 );

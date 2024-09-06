@@ -5,24 +5,24 @@ import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_NOTICE = """
 CREATE TABLE IF NOT  EXISTS "notice_msg" (
-  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "user_id" integer NOT NULL,
   "kind" integer NOT NULL,
   "source_id" integer NOT NULL,
   "from_id" integer NOT NULL,
   "comment" TEXT NOT NULL,
-  "create_time" integer NOT NULL,
+  "create_time" integer NOT NULL
 );
 
-    CREATE INDEX  "notice_msg_0"
+    CREATE INDEX  IF NOT EXISTS  "notice_msg_0"
     ON "notice_msg" (
     "user_id" ASC
     );
-    CREATE INDEX  "notice_msg_1"
+    CREATE INDEX  IF NOT EXISTS "notice_msg_1"
     ON "notice_msg" (
     "kind" ASC
     );
-    CREATE INDEX  "notice_msg_2"
+    CREATE INDEX  IF NOT EXISTS "notice_msg_2"
     ON "notice_msg" (
     "source_id" ASC
     );

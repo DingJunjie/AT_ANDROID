@@ -28,12 +28,13 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
     override fun onCreate(db: SQLiteDatabase) {
         UserDB.init(db)
-//        WatchHistoryDB.init(db)
+        WatchHistoryDB.init(db)
         SocialRelDB.init(db)
+
         SingleRoomDB.init(db)
         SingleMsgDB.init(db)
         SearchHistoryDB.init(db)
-//        NoticeDB.init(db)
+        NoticeDB.init(db)
         MyAtsDB.init(db)
         GroupRoomDB.init(db)
         GroupMsgDB.init(db)
