@@ -57,7 +57,7 @@ object SingleMsgDB {
 
     //插入一条消息
     fun insertOne(
-        singleMsgPo :SingleMsgPo
+        singleMsgPo: SingleMsgPo
     ) = SqlDB.writeQueryOne(
         ::toLong,
         """insert into single_msg (self_id,other_id,time,status,kind,content)
