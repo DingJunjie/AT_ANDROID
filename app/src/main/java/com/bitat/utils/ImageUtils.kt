@@ -37,11 +37,13 @@ object ImageUtils {
             return (ScreenUtils.screenWidth * 0.88 * 1.25).toInt()
         }
 
+        CuLog.info(CuTag.Blog, "current x is $x y is $y, x:y is ${(x / y)}")
+
         if (x > y) {
-            return if (abs(y / x - 9f / 16f) < 0.1 || y / x < 9 / 16) {
+            return if (abs(y.toFloat() / x.toFloat() - 9f / 16f) < 0.1 || y.toFloat() / x.toFloat() < 9 / 16) {
                 CuLog.debug(CuTag.Blog, "getHeight 9:16")
                 (0.75 * fixedWidth).toInt();
-            } else if (abs(y / x - 0.75) < 0.1) {
+            } else if (abs(y.toFloat() / x.toFloat() - 0.75) < 0.1) {
                 CuLog.debug(CuTag.Blog, "getHeight 3:4")
                 (0.75 * fixedWidth).toInt();
             } else {
@@ -50,10 +52,10 @@ object ImageUtils {
         } else if (x == y) { // 正方形
             return 1.25.times(fixedWidth).toInt();
         } else { // 竖图
-            return if (abs(y / x - 16f / 9f) < 0.22 || y / x > 16f / 9f) {
+            return if (abs(y.toFloat() / x.toFloat() - 16f / 9f) < 0.22 || y.toFloat() / x.toFloat() > 16f / 9f) {
                 CuLog.debug(CuTag.Blog, "getHeight 16:9")
                 (16f / 9f * fixedWidth).toInt();
-            } else if (abs(y / x - 4f / 3f) < 0.1) {
+            } else if (abs(y.toFloat() / x.toFloat() - 4f / 3f) < 0.1) {
                 CuLog.debug(CuTag.Blog, "getHeight 4:3")
                 1.25.times(fixedWidth).toInt();
             } else {

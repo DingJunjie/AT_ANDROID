@@ -111,7 +111,7 @@ class ChatDetailsViewModel : ViewModel() {
         }
 
         MainCo.launch(IO) {
-//            SingleMsgDB.delete(msg.selfId, msg.otherId, msg.time)
+            SingleMsgDB.deleteByTime(msg.selfId, msg.otherId, msg.time)
         }
     }
 
