@@ -1,7 +1,7 @@
 package com.bitat.repository.sqlDB
 
 import com.bitat.repository.po.NoticePo
-import com.bitat.repository.po.WatchHistory
+import com.bitat.repository.po.WatchHistoryPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 
 
@@ -51,12 +51,11 @@ object WatchHistoryDB {
     }
     //删除
     fun del(id:Long) = SqlDB.exec(
-        """delete from watch_history where id = ?""",
+        "delete from watch_history where id = ?",
         id
     )
-    //查询通知
     fun find(selfId: Long,pageNo: Int = 0,pageSize:Int = 50) =  SqlDB.queryBatch(
-        WatchHistory::of,
+        WatchHistoryPo::of,
         "select * from watch_history where user_id = ? order by create_time desc limit ? offset ?",
         selfId,
         pageSize,
