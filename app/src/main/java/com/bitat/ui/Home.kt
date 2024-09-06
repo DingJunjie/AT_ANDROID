@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.viewModel.HomeViewModel
+import com.bitat.viewModel.UnreadViewModel
 
 /****
  * 首页的切换
@@ -61,7 +63,11 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
     val vm: HomeViewModel = viewModelProvider[HomeViewModel::class]
     val state by vm.homeState.collectAsState()
 
+    val unreadVm = viewModelProvider[UnreadViewModel::class]
 
+    LaunchedEffect(Unit) {
+        unreadVm.checkUnreadMessage()
+    }
     //    var selectIndex by remember {
     //        mutableIntStateOf(0)
     //    }
@@ -149,7 +155,8 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
     val ctx = LocalDensity.current
     Column() {
         BottomNavigation(
-            modifier = Modifier.height(56.dp)
+            modifier = Modifier
+                .height(56.dp)
 //                .windowInsetsPadding(
 //                    WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
 //                )

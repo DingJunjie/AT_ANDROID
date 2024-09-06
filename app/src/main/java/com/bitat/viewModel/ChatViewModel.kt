@@ -235,23 +235,18 @@ class ChatViewModel : ViewModel() {
             }
             it
         }
+
+        MainCo.launch(IO) {
+            SingleRoomDB.clearUnread(selfId = room.selfId, otherId = room.otherId)
+        }
     }
 
     fun getRooms() {
         val ids = arrayListOf<Long>()
-        val r = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
-        val arr = if (r.isNotEmpty()) r.first() else arrayOf()
+        val arr = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
         val tmpArr = mutableStateListOf<SingleRoomPo>()
-        if (arr.isNotEmpty()) {
-//            _state.update {
-//                it.chatList.addAll(arr)
-//                it
-//            }
-            tmpArr.addAll(arr)
-        }
-
-//        _state.value.chatList.forEach {
-//            ids.add(it.otherId)
+//        if (arr.isNotEmpty()) {
+//            tmpArr.addAll(arr)
 //        }
 
         tmpArr.forEach {

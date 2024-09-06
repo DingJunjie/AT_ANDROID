@@ -15,7 +15,7 @@ CREATE TABLE  IF NOT  EXISTS "search_history" (
 object SearchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SEARCH_HISTORIES)
 
-    fun insertOne(selfId:Long,content:String,time:Long) {
+    fun insertOne(selfId: Long, content: String, time: Long) {
         SqlDB.exec(
             """insert into search_history (user_id,content,time)values (?,?,?)
                 ON CONFLICT(user_id,content) DO UPDATE SET user_id = ?;""",
@@ -26,21 +26,20 @@ object SearchHistoryDB {
         )
         val count = SqlDB.queryOne(
             ::toLong,
-            "select count(*) as count from search_history where user_id = ?"
-            ,selfId
-        )?:0
-        if (count>25){
+            "select count(*) as count from search_history where user_id = ?", selfId
+        ) ?: 0
+        if (count > 25) {
             //删除100条
             SqlDB.exec(
                 """delete from search_history where
-                time in(select time from search_history where user_id = ? order by time asc limit 5)"""
-                ,selfId
+                time in(select time from search_history where user_id = ? order by time asc limit 5)""",
+                selfId
             )
         }
     }
 
     //删除
-    fun delete(selfId: Long,content:String) = SqlDB.exec(
+    fun delete(selfId: Long, content: String) = SqlDB.exec(
         "delete from search_history where user_id = ? and content = ?",
         selfId,
         content,

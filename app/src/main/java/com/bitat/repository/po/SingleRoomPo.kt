@@ -22,8 +22,8 @@ class SingleRoomPo {
     var content: String = ""
     var unreads: Int = 0
     var top: Int = 0
-    var background: String = ""
     var muted: Int = 0
+    var background: String = ""
 
     //    var cfg: String = Json.encodeToString(RoomCfg.serializer(), RoomCfg())
     var cfg: String = ""
@@ -47,8 +47,8 @@ class SingleRoomPo {
             content = cursor.getString(6)
             unreads = cursor.getInt(7)
             top = cursor.getInt(8)
-            background = cursor.getString(9)
-            muted = cursor.getInt(10)
+            muted = cursor.getInt(9)
+            background = cursor.getString(10)
             cfg = cursor.getString(11)
         }
 
