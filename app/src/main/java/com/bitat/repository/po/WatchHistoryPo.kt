@@ -2,7 +2,7 @@ package com.bitat.repository.po
 
 import android.database.Cursor
 
-class WatchHistory {
+class WatchHistoryPo {
     var id :Long = 0
     var userId :Long = 0
     var kind :Int = 0
@@ -10,7 +10,7 @@ class WatchHistory {
     var time:Long = 0
 
     companion object {
-        fun of(cursor: Cursor) = WatchHistory().apply {
+        fun of(cursor: Cursor) = WatchHistoryPo().apply {
             id = cursor.getLong(0)
             userId = cursor.getLong(1)
             kind = cursor.getInt(2)

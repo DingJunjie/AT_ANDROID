@@ -1,7 +1,6 @@
 package com.bitat.repository.sqlDB
 
 import com.bitat.repository.po.NoticePo
-import com.bitat.repository.po.SingleMsgPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_NOTICE = """
