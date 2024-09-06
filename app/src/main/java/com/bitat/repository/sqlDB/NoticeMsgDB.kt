@@ -88,7 +88,7 @@ object NoticeMsgDB {
     fun filterDuplicate(
         selfId: Long, poArr: Array<NoticeMsgPo>
     ): Array<NoticeMsgPo> = queryUnique(selfId, poArr).run {
-        poArr.filter { contains(it.getUnique()) }.toTypedArray()
+        poArr.filter { !contains(it.getUnique()) }.toTypedArray()
     }
 
     //查询通知

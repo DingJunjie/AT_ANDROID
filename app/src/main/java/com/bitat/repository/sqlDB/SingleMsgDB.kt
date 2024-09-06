@@ -80,7 +80,7 @@ object SingleMsgDB {
     fun filterDuplicate(
         selfId: Long, status: Long, poArr: Array<SingleMsgPo>
     ): Array<SingleMsgPo> = queryUnique(selfId, status, poArr).run {
-        poArr.filter { contains(it.getUnique()) }.toTypedArray()
+        poArr.filter { !contains(it.getUnique()) }.toTypedArray()
     }
 
     fun insertArray(
