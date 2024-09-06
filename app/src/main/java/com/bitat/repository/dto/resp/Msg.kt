@@ -14,3 +14,8 @@ class KeySecretDto {
     var next: String = ""
 }
 
+@Serializable
+class CountDto {
+    var chat: Int = 0
+    var notice: Int = 0
+}
