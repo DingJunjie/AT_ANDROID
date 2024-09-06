@@ -1,6 +1,7 @@
 package com.bitat.repository.sqlDB
 
 import com.bitat.repository.po.NoticePo
+import com.bitat.repository.po.SingleMsgPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 
 private const val CREATE_TABLE_NOTICE = """
@@ -30,32 +31,48 @@ CREATE TABLE IF NOT  EXISTS "notice_msg" (
 
 object NoticeDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_NOTICE)
-    fun insertOne(selfId: Long, fromId: Long, kind: Short, blogId: Long, comment: String, createTime: Long) :Long {
+    fun insertOne(po:NoticePo) :Long {
         val id = SqlDB.writeQueryOne(
             ::toLong,
             """insert into notice_msg (user_id,kind,source_id,from_id,comment,create_time)
                 values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
-            selfId,
-            kind,
-            blogId,
-            fromId,
-            comment,
-            createTime
+            po.userId,
+            po.kind,
+            po.blogId,
+            po.fromId,
+            po.comment,
+            po.createTime
         )
         val count = SqlDB.queryOne(
             ::toLong,
             "select count(*) as count from notice_msg where user_id = ?",
-            selfId,
+            po.userId,
         )?:0
        if (count>30100){
            //删除100条
            SqlDB.exec(
                """delete from notice_msg where id in(select id from notice_msg where
                user_id = ? order by create_time asc limit 100)""",
-               selfId
+               po.userId
            )
        }
         return id?:0
+    }
+
+    fun insertBatch(
+        poList: List<NoticePo>
+    ) = SqlDB.execFn {
+        for (po in poList) it.exec(
+            """insert into notice_msg (user_id,kind,source_id,from_id,comment,create_time)
+                values (?,?,?,?,?,?) ON CONFLICT(self_id,other_id) DO UPDATE SET user_id = user_id;""",
+            po.userId,
+            po.kind,
+            po.blogId,
+            po.fromId,
+            po.comment,
+            po.createTime,
+            po.userId
+        )
     }
     //查询通知
     fun find(selfId: Long,pageNo: Int = 0,pageSize:Int = 50) =  SqlDB.queryBatch(

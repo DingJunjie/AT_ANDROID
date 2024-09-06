@@ -1,5 +1,6 @@
 package com.bitat.repository.sqlDB
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import com.bitat.log.CuLog
@@ -47,6 +48,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private var DB: SqlDB? = null
 
         fun init(context: Context) {
@@ -60,6 +62,10 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         fun exec(sql: String, vararg bindings: Any) = fetchDB(true).use {
             it.execSQL(sql, bindings)
+        }
+
+        fun execFn(fn: (SqlExec) -> Unit) = fetchDB(true).use {
+            fn(SqlExec(it))
         }
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
@@ -77,10 +83,10 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
             fetchDB().use {
                 it.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
-                    listOf(Array(count) {
+                    Array(count) {
                         moveToNext()
                         toFn(this)
-                    })
+                    }
                 }
             }
 
@@ -89,6 +95,11 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         }
     }
 
+}
+
+@JvmInline
+value class SqlExec(val db: SQLiteDatabase) {
+    fun exec(sql: String, vararg bindings: Any) = db.execSQL(sql, bindings)
 }
 
 fun toLong(cursor: Cursor): Long = cursor.getLong(0)

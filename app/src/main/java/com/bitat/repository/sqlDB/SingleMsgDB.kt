@@ -57,18 +57,34 @@ object SingleMsgDB {
 
     //插入一条消息
     fun insertOne(
-        selfId: Long, otherId: Long, status: Short, time: Long, kind: Short, content: String
+        singleMsgPo :SingleMsgPo
     ) = SqlDB.writeQueryOne(
         ::toLong,
         """insert into single_msg (self_id,other_id,time,status,kind,content)
                 values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
-        selfId,
-        otherId,
-        time,
-        status,
-        kind,
-        content
+        singleMsgPo.selfId,
+        singleMsgPo.otherId,
+        singleMsgPo.time,
+        singleMsgPo.status,
+        singleMsgPo.kind,
+        singleMsgPo.content
     )
+
+    fun insertBatch(
+        poList: List<SingleMsgPo>
+    ) = SqlDB.execFn {
+        for (po in poList) it.exec(
+            """insert into single_msg (self_id,other_id,time,status,kind,content)
+                values (?,?,?,?,?,?)ON CONFLICT(self_id,other_id) DO UPDATE SET self_id = ?;""",
+            po.selfId,
+            po.otherId,
+            po.time,
+            po.status,
+            po.kind,
+            po.content,
+            po.selfId
+        )
+    }
 
     //修改消息状态
     fun updateStatus(status: Short, selfId: Long, otherId: Long, time: Long) = SqlDB.exec(
@@ -88,9 +104,8 @@ object SingleMsgDB {
         time
     )
 
-    fun delete(id:Long) = SqlDB.exec(
-        "delete from single_msg where id = ?",
-        id
+    fun delete(id: Long) = SqlDB.exec(
+        "delete from single_msg where id = ?", id
     )
 
 
@@ -104,9 +119,7 @@ object SingleMsgDB {
 
     // 清空消息
     fun clear(selfId: Long, otherId: Long) = SqlDB.exec(
-        "delete from single_msg where self_id = ? and other_id = ? ",
-        selfId,
-        otherId
+        "delete from single_msg where self_id = ? and other_id = ? ", selfId, otherId
     )
 }
 
