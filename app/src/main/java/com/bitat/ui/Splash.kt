@@ -9,15 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.store.RoomStore
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.ui.publish.TextToImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun Splash(navHostController: NavHostController) {
@@ -41,8 +46,10 @@ fun Splash(navHostController: NavHostController) {
         }
     }
 
+
     Scaffold { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) { //            TextToImage()
+
         }
     }
 }

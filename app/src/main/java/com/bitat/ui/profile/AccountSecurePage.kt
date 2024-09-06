@@ -31,8 +31,8 @@ fun AccountSecurePage(navHostController: NavHostController) {
             SettingCfg.getAccountMenu().forEach {
                 SettingItem(it) { index->
                     when(index){
-//                        4 ->
-//                            AtNavigation(navHostController).navig
+                        4 ->
+                            AtNavigation(navHostController).navigateToSignoutPage()
                      }
 
                 }

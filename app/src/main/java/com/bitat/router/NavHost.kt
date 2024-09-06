@@ -1,22 +1,15 @@
 package com.bitat.router
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.amap.api.services.route.Navi
-import com.bitat.MainCo
-import com.bitat.repository.store.TokenStore
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
-import com.bitat.ui.chat.ChatSettings
 import com.bitat.ui.chat.ChatSettingsPage
 import com.bitat.ui.chat.NotificationPage
 import com.bitat.ui.common.GDMapPage
@@ -27,6 +20,7 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.AccountSecurePage
+import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
 import com.bitat.ui.profile.FansPage
@@ -35,19 +29,19 @@ import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.profile.ProfileEditPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.profile.SettingPage
+import com.bitat.ui.profile.SignoutPage
 import com.bitat.ui.publish.PictureDisplay
 import com.bitat.ui.publish.PublishDetailPage
 import com.bitat.ui.publish.PublishPage
 import com.bitat.ui.publish.VideoDisplay
 import com.bitat.ui.reel.ReelPageDemo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import kotlinx.coroutines.launch
 
 enum class Screen {
-    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER,
-    VIDEO, BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY,
-    VIDEO_DISPLAY, SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL,
-    OTHERS, FANS, FOLLOWS, PROFILE_EDIT, SETTING, CHAT_SETTINGS,CACHE,ACCOUNTSECURE, NOTIFICATION
+    SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, //
+    BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
+    SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
+    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT
 }
 
 sealed class NavigationItem(val route: String) {
@@ -83,6 +77,9 @@ sealed class NavigationItem(val route: String) {
     data object Cache : NavigationItem(Screen.CACHE.name)
     data object AccountSecure : NavigationItem(Screen.ACCOUNTSECURE.name)
     data object Notification : NavigationItem(Screen.NOTIFICATION.name)
+    data object Signout : NavigationItem(Screen.SIGNOUT.name)
+    data object CancelAgreemet : NavigationItem(Screen.CANCELAGREEMENT.name)
+
 }
 
 
@@ -115,11 +112,11 @@ fun AppNavHost(
             ProfilePage(navController, viewModelProvider)
         }
 
-//        composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
-//            type = NavType.IntType
-//        })) { backStackEntry ->
-//            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
-//        }
+        //        composable(NavigationItem.Profile.route, arguments = listOf(navArgument("id") {
+        //            type = NavType.IntType
+        //        })) { backStackEntry ->
+        //            val id = backStackEntry.arguments?.getInt("id") ?: 1 //            ProfileOtherPage(id)
+        //        }
 
         composable(NavigationItem.Discovery.route) {
             DiscoveryPage(navController, viewModelProvider)
@@ -181,10 +178,8 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.CollectionDetail.route) {
-            CollectionDetail(
-                navHostController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            CollectionDetail(navHostController = navController,
+                viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.Others.route) {
@@ -200,17 +195,12 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ProfileEdit.route) {
-            ProfileEditPage(
-                navHostController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            ProfileEditPage(navHostController = navController,
+                viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.Setting.route) {
-            SettingPage(
-                navController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            SettingPage(navController = navController, viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.ChatSettings.route) {
@@ -229,6 +219,13 @@ fun AppNavHost(
         composable(NavigationItem.Notification.route) {
             NotificationPage(navController, viewModelProvider)
         }
+        composable(NavigationItem.Signout.route) {
+            SignoutPage(navController)
+        }
+
+        composable(NavigationItem.CancelAgreemet.route) {
+            CancelAgreementPage(navController, viewModelProvider)
+        }
     }
 }
 
@@ -241,13 +238,13 @@ class AtNavigation(navController: NavHostController) {
         }
     }
 
-//    val navigateToBlog: () -> Unit = {
-//        navController.navigate(..route) {
-//            popUpTo(0) {
-//                inclusive = true
-//            }
-//        }
-//    }
+    //    val navigateToBlog: () -> Unit = {
+    //        navController.navigate(..route) {
+    //            popUpTo(0) {
+    //                inclusive = true
+    //            }
+    //        }
+    //    }
 
     val navigateToHome: () -> Unit = { // launchSingleTop = true 只保留一个在顶层
         navController.navigate(NavigationItem.Home.route) { //                val homeBaseViewModel=  hiltViewModel<HomeBaseViewModel>()
@@ -315,8 +312,13 @@ class AtNavigation(navController: NavHostController) {
         navController.navigate(NavigationItem.AccountSecure.route)
     }
 
+    val navigateToSignoutPage: () -> Unit = {
+        navController.navigate(NavigationItem.Signout.route)
+    }
 
-
+    val navigateToCancelAgreementPage: () -> Unit = {
+        navController.navigate(NavigationItem.CancelAgreemet.route)
+    }
 
 
 }

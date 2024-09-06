@@ -29,7 +29,7 @@ class BlogAtDto {
     var id: Long = 0 //博文id
     var userId: Int = 0//用户id
     var albumId: Long = 0 //专辑id
-    var musicId: Int = 0//音乐id
+    var musicId: Long = 0//音乐id
     var agrees: UInt = 0u //点赞数
     var comments: UInt = 0u //评论数
     var ats: UInt = 0u //艾特数

@@ -494,18 +494,6 @@ fun PolicyAndPolitics(accepted: Boolean = true, toggleAccept: (Boolean) -> Unit)
         )
         TextButton(onClick = {
             MainCo.launch(IO) {
-                SingleMsgDB.insertOne(
-                    selfId = 5,
-                    otherId = 7,
-                    status = 1,
-                    time = TimeUtils.getNow(),
-                    kind = 3,
-                    content = "hello world wow"
-                )
-
-                SingleMsgDB.findMsg(selfId = 5, otherId = 7).let {
-                    println("hello world, $it")
-                }
             }
         }) {
             Text("用户协议")

@@ -84,7 +84,9 @@
     <string name="setting_browser_history">观看历史</string>
     <string name="setting_clear_cache">清理占用空间</string>
     <string name="setting_account_secure">账号与安全</string>
-    <string name="setting_signout">注销账号</string>
+    <string name="setting_signout_apply">注销申请</string>
+    <string name="setting_signout_auth_hint">请先验证身份</string>
+    <string name="signout_auth_account">注销账号</string>
 
 
 

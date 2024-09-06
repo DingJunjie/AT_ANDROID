@@ -21,6 +21,9 @@ val subTextColor=Color(0xFF666666)
 // 次要级别的文字信息、更多入口、日期、不可点击
 val hintTextColor=Color(0xFF999999)
 
+// 链接字体颜色
+val linkTextColor=Color(0xFF0000FF)
+
 val toolBarIcon70=Color(0xFF707070)
 
 val lineColor=Color(0xFFEAEAEA)
