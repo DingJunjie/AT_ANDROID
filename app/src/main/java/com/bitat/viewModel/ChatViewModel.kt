@@ -119,7 +119,7 @@ class ChatViewModel : ViewModel() {
 
         MainCo.launch(IO) {
             QiNiuUtil.uploadSingleFile(
-                background, UPLOAD_OPS.Pub, fileType = FileType.Image, true
+                background, UPLOAD_OPS.Chat, fileType = FileType.Image, true
             ) { key ->
                 _state.update {
                     it.currentRoom.background = key
@@ -159,8 +159,12 @@ class ChatViewModel : ViewModel() {
     fun createRoom(otherInfo: UserPartDto) {
         MainCo.launch {
             CuLog.debug(CuTag.SingleChat, "获取数据库版本$SingleRoomDB")
+            val u = SingleRoomPo()
+            u.selfId = UserStore.userInfo.id
+            u.otherId = otherInfo.id
+            u.unreads = 0
             SingleRoomDB.insertOrUpdate(
-                selfId = UserStore.userInfo.id, otherId = otherInfo.id, unreads = 0
+                u
             )
 
             var r = SingleRoomDB.getRoom(selfId = UserStore.userInfo.id, otherId = otherInfo.id)
@@ -245,9 +249,9 @@ class ChatViewModel : ViewModel() {
         val ids = arrayListOf<Long>()
         val arr = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
         val tmpArr = mutableStateListOf<SingleRoomPo>()
-//        if (arr.isNotEmpty()) {
-//            tmpArr.addAll(arr)
-//        }
+        if (arr.isNotEmpty()) {
+            tmpArr.addAll(arr)
+        }
 
         tmpArr.forEach {
             ids.add(it.otherId)

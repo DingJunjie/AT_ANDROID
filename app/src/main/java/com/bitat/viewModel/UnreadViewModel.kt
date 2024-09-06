@@ -8,6 +8,7 @@ import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.NoticePo
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.sqlDB.NoticeDB
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
@@ -50,39 +51,33 @@ class UnreadViewModel : ViewModel() {
                     time = _state.value.lastMsgId
                     limit = fetchAmount.toLong()
                 }).await().map { msgRes ->
+                    val msgPoArr = msgRes.msgListList.map {
+                        SingleMsgPo().also { po ->
+                            po.selfId = it.toId
+                            po.otherId = it.fromId
+                            po.time = it.time
+                            po.kind = it.kind.toShort()
+                            po.content = it.data.toStringUtf8()
+                            po.status = -1
+                        }
+                    }.toTypedArray()
 
-                    val msgPoList = arrayListOf<SingleMsgPo>()
-//                    val msgUnreadGroup = mutableMapOf<Long, Int>()
-
-                    msgRes.msgListList.forEach {
-                        val msg = SingleMsgPo()
-                        msg.selfId = it.toId
-                        msg.otherId = it.fromId
-                        msg.time = it.time
-                        msg.kind = it.kind.toShort()
-                        msg.content = it.data.toStringUtf8()
-                        msg.status = -1
-
-                        msgPoList.add(msg)
-//                        if (msgUnreadGroup[it.fromId] == null) {
-//                            msgUnreadGroup[it.fromId] = 0
-//                        } else {
-//                            msgUnreadGroup[it.fromId] = msgUnreadGroup[it.fromId]!! + 1
-//                        }
-                    }
-
-                    val unreadCountGroup = msgPoList.groupBy {
+                    val unreadCountGroup = msgPoArr.groupBy {
                         it.otherId
                     }
 
                     unreadCountGroup.forEach {
+                        val u = SingleRoomPo().apply {
+                            this.selfId = UserStore.userInfo.id
+                            this.otherId = it.key
+                            this.unreads = it.value.size
+                        }
+
                         SingleRoomDB.insertOrUpdate(
-                            UserStore.userInfo.id,
-                            it.key,
-                            unreads = it.value.size
+                            u
                         )
                     }
-                    SingleMsgDB.insertBatch(msgPoList)
+                    SingleMsgDB.insertBatch(msgPoArr)
 
                     _state.update { kore ->
                         kore.copy(

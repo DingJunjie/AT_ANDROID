@@ -150,7 +150,7 @@ class ChatDetailsViewModel : ViewModel() {
 
     fun sendPicture(toId: Long, uri: Uri, completeFn: (SingleMsgPo) -> Unit) {
         MainCo.launch(IO) {
-            QiNiuUtil.uploadSingleFile(uri, ops = UPLOAD_OPS.Pub, fileType = FileType.Image) {
+            QiNiuUtil.uploadSingleFile(uri, ops = UPLOAD_OPS.Chat, fileType = FileType.Image) {
                 sendMessage(toId, 2, content = it, completeFn)
             }
         }
@@ -161,10 +161,10 @@ class ChatDetailsViewModel : ViewModel() {
             val cover = VideoUtils.getCover(uri.toString())
 
             QiNiuUtil.uploadSingleFile(
-                cover, UPLOAD_OPS.Pub, FileType.Image, isUsingUri = false
+                cover, UPLOAD_OPS.Chat, FileType.Image, isUsingUri = false
             ) { coverKey ->
                 QiNiuUtil.uploadSingleFile(
-                    uri, UPLOAD_OPS.Pub, FileType.Video
+                    uri, UPLOAD_OPS.Chat, FileType.Video
                 ) { key ->
                     val m = VideoMessageParams(cover = coverKey, video = key)
                     val content = Json.encodeToString(VideoMessageParams.serializer(), m)

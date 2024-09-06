@@ -10,6 +10,7 @@ import com.bitat.repository.dto.resp.AuthDto
 import com.bitat.repository.dto.resp.LoginResDto
 import com.bitat.repository.dto.resp.UserDto
 import com.bitat.repository.http.auth.LoginReq
+import com.bitat.repository.po.UserTokenPo
 import com.bitat.repository.sqlDB.UserTokenDB
 import com.bitat.utils.JsonUtils
 import com.bitat.utils.TimeUtils
@@ -63,11 +64,13 @@ object TokenStore {
         this.token = dto //        val jsonData = JsonUtils.toJson(token)
         //        BaseStore.setStr(TOKEN_KEY, jsonData)
 
-        UserTokenDB.saveOne(UserStore.userInfo.id,
-            dto.token,
-            dto.label,
-            dto.expire,
-            TimeUtils.getNow())
+        val ut = UserTokenPo()
+        ut.userId = UserStore.userInfo.id
+        ut.token = dto.token
+        ut.label = dto.label
+        ut.expire = dto.expire
+        ut.updateTime = TimeUtils.getNow()
+        UserTokenDB.saveOne(ut)
     }
 
     private fun setUser(userDto: UserDto) {

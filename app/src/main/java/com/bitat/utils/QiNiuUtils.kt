@@ -6,6 +6,8 @@ import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.UPLOAD_OPS_BLOG
+import com.bitat.repository.consts.UPLOAD_OPS_CHAT
+import com.bitat.repository.consts.UPLOAD_OPS_INFO
 import com.bitat.repository.consts.UPLOAD_OPS_PUB
 import com.bitat.repository.dto.req.UploadTokenDto
 import com.bitat.repository.http.auth.LoginReq
@@ -25,12 +27,14 @@ import java.util.Collections.emptyMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 enum class UPLOAD_OPS {
-    Blog, Pub;
+    Blog, Pub, Chat, Info;
 
     companion object {
         fun toCode(ops: UPLOAD_OPS): Byte {
             return when (ops) {
                 Blog -> UPLOAD_OPS_BLOG
+                Chat -> UPLOAD_OPS_CHAT
+                Info -> UPLOAD_OPS_INFO
                 Pub -> UPLOAD_OPS_PUB
             }
         }
@@ -45,8 +49,7 @@ object QiNiuUtil {
 
     const val QINIU_PREFIX = "http://file.bitebei.com/";
     const val QINIU_PUB_PREFIX = "https://bit-pub.bitebei.com/"
-
-    //    const val QINIU_CHAT_PREFIX = "https://bit-chat.bitebei.com"
+    const val QINIU_CHAT_PREFIX = "https://file-chat.bitebei.com/"
     const val VIDEO_COVER = "?vframe/jpg/offset/0.1/w/ww/h/hh";
 
     private val uploadManager = Configuration.Builder().connectTimeout(90) // 链接超时。默认90秒

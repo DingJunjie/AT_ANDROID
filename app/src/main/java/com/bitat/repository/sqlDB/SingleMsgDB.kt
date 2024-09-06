@@ -95,7 +95,6 @@ object SingleMsgDB {
             po.status,
             po.kind,
             po.content,
-            po.selfId
         )
     }
 
