@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -83,6 +84,7 @@ import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -98,6 +100,10 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
         roomFlow.collect {
             chatVm.getRooms()
         }
+    }
+
+    val flag = remember {
+        mutableStateOf(false)
     }
 
     val options = remember {
@@ -150,6 +156,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 .padding(bottom = 10.dp)
                 .fillMaxWidth()
         ) {
+            if (flag.value) Text("") else Box {}
             ChatTab(tabPager, switchFun = {
                 coroutineScope.launch {
                     tabPager.animateScrollToPage(it)
@@ -171,12 +178,15 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                         toast,
                         setTop = {
                             chatVm.setTop(it.otherId, it.top == 0)
+                            flag.value = !flag.value
                         },
                         setMute = {
 //                            chatVm.muteRoom(it.otherId)
+                            flag.value = !flag.value
                         },
                         delete = {
                             chatVm.deleteRoom(it.otherId)
+                            flag.value = !flag.value
                         }) {
                         chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
@@ -306,7 +316,6 @@ fun ChatList(
                         when (it) {
                             0 -> {
                                 setTop(item)
-                                item.top = item.top
                             }
 
                             1 -> setMute(item)
@@ -333,7 +342,7 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(if (info.top > 0) Color.LightGray else Color.White)
+            .background(if (info.top == 1) Color.LightGray else Color.White)
             .clickable { itemClick(info) }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

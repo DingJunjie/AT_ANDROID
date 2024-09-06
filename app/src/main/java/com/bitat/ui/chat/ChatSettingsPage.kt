@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -57,40 +58,54 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
 
+    var flag = remember {
+        mutableStateOf(false)
+    }
 
     Scaffold { padding ->
         Column() {
             ChatSettingTopBg(
                 modifier = Modifier.padding(padding),
-                background = chatState.currentCfg.background,
-                avatar = chatState.currentRoom!!.profile,
+                background = chatState.currentRoom.background,
+                avatar = chatState.currentRoom.profile,
                 backFn = {
                     navHostController.popBackStack()
                 }) {
-                chatVm.changeBg(it)
+                chatVm.changeBg(it) {
+                    flag.value = !flag.value
+                }
             }
 
             ChatSettings(
-                isMuted = chatState.currentCfg.muted,
-                isTop = chatState.currentCfg.isTop,
+                isMuted = chatState.currentRoom.muted,
+                isTop = chatState.currentRoom.top,
                 isBlackList = false,
                 switchMuted = {
-                    chatVm.muteRoom(chatState.currentRoom!!.otherId, it)
+                    chatVm.muteRoom(chatState.currentRoom.otherId, it)
+                    flag.value = !flag.value
+
                 },
                 switchTop = {
-                    chatVm.setTop(otherId = chatState.currentRoom!!.otherId, it)
+                    chatVm.setTop(otherId = chatState.currentRoom.otherId, it)
+                    flag.value = !flag.value
+
                 },
                 relationChange = {
-
+                    flag.value = !flag.value
                 },
                 goHistory = {},
                 goDetailSetting = {},
                 clearAllMsg = {
-                    chatVm.clearAllMessage(chatState.currentRoom!!.otherId)
-//                    chatVm.updateRoomContent(chatState.currentRoom!!.otherId)
+                    chatVm.clearAllMessage(chatState.currentRoom.otherId)
+//                    chatVm.updateRoomContent(cr!!.otherId)
                 },
                 feedback = {}
             )
+            if (flag.value) Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(1.dp)
+            ) else Text("")
         }
     }
 }
@@ -156,14 +171,15 @@ fun ChatSettingTopBg(
             BackButton(tint = Color.White) {
                 backFn()
             }
+
         }
     }
 }
 
 @Composable
 fun ChatSettings(
-    isMuted: Boolean = false,
-    isTop: Boolean = false,
+    isMuted: Int = 0,
+    isTop: Int = 0,
     isBlackList: Boolean = false,
     switchMuted: (Boolean) -> Unit,
     switchTop: (Boolean) -> Unit,
@@ -195,7 +211,7 @@ fun ChatSettings(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("消息免打扰")
-            Switch(checked = isMuted, onCheckedChange = switchMuted)
+            Switch(checked = isMuted == 1, onCheckedChange = switchMuted)
         }
 
         Row(
@@ -206,7 +222,7 @@ fun ChatSettings(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("置顶聊天")
-            Switch(checked = isTop, onCheckedChange = switchTop)
+            Switch(checked = isTop == 1, onCheckedChange = switchTop)
         }
 
         Row(

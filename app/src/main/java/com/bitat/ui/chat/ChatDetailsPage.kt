@@ -91,7 +91,6 @@ import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.consts.CHAT_Time
 import com.bitat.repository.consts.CHAT_Video
-import com.bitat.repository.po.RoomCfg
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.singleChat.TcpHandler
 import com.bitat.repository.singleChat.TcpHandler.chatFlow
@@ -134,6 +133,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
 
+
     val chatInput = remember { mutableStateOf("") }
     val showMsgOpt = remember {
         mutableStateOf(false)
@@ -141,7 +141,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
     LaunchedEffect(IO) {
         chatFlow.collect { value ->
-            if (chatState.currentRoom != null && chatState.currentRoom!!.otherId == value.otherId) {
+            if (chatState.currentRoom.otherId == value.otherId) {
                 vm.getNewMessage(value)
                 CuLog.debug(CuTag.SingleChat, value.content)
             }
@@ -157,7 +157,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     LaunchedEffect(IO) {
-        vm.getMessage(chatState.currentRoom!!.otherId)
+        vm.getMessage(chatState.currentRoom.otherId)
 
         msgHeight.clear()
         msgHeight.addAll(Array(state.messageList.size) { Offset(x = 0f, 0f) })
@@ -195,7 +195,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 val isBottom =
                     lastVisibleIndex == chatListScrollState.layoutInfo.totalItemsCount - 1
                 if (isBottom) {
-                    vm.getMessage(chatState.currentRoom!!.otherId, pageNo = state.currentPage) {
+                    vm.getMessage(chatState.currentRoom.otherId, pageNo = state.currentPage) {
                         isLoadingMore.value = false
                     }
                     val diff = state.messageList.size - msgHeight.size
@@ -205,8 +205,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     Scaffold(topBar = {
-        ChatDetailTopBar(name = chatState.currentRoom?.nickname ?: "",
-            avatar = chatState.currentRoom?.profile ?: "",
+        ChatDetailTopBar(name = if (chatState.currentRoom.nickname == "") "" else chatState.currentRoom.nickname,
+            avatar = if (chatState.currentRoom.profile == "") "" else chatState.currentRoom.profile,
             backButton = {
                 chatVm.clearRoom()
                 navHostController.popBackStack()
@@ -220,7 +220,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         ChatBottomContainer(
             message = chatInput.value,
             replyMsg = state.replyMsg,
-            nickname = chatState.currentRoom?.nickname ?: "",
+            nickname = chatState.currentRoom.nickname,
             {
                 chatInput.value = it
             },
@@ -229,13 +229,13 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                     // 为空
                     return@ChatBottomContainer
                 }
-                vm.sendMessage(chatState.currentRoom!!.otherId, 1, it) { that ->
+                vm.sendMessage(chatState.currentRoom.otherId, 1, it) { that ->
                     chatVm.updateRoomInfo(that)
                     chatInput.value = ""
                 }
             },
             {
-                vm.sendPicture(chatState.currentRoom!!.otherId, it) { that ->
+                vm.sendPicture(chatState.currentRoom.otherId, it) { that ->
                     chatVm.updateRoomInfo(that)
                     chatInput.value = ""
                 }
@@ -256,12 +256,14 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //                    })
 //                }
         ) {
-            AsyncImage(
-                modifier = Modifier.fillMaxSize(),
-                model = QiNiuUtil.QINIU_PUB_PREFIX + chatState.currentCfg.background,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
+            if (chatState.currentRoom.background != "") {
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = QiNiuUtil.QINIU_PUB_PREFIX + chatState.currentRoom.background,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
+                )
+            }
             LazyColumn(
                 state = chatListScrollState,
                 reverseLayout = true,
@@ -299,7 +301,9 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                 }
 
                                 CHAT_Recall -> {
-                                    RecallMessage(nickname = chatState.currentRoom?.nickname ?: "")
+                                    RecallMessage(
+                                        nickname = chatState.currentRoom.nickname
+                                    )
                                 }
 
                                 CHAT_Reply -> {
@@ -328,7 +332,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                 }
 
                                 CHAT_Recall -> {
-                                    RecallMessage(nickname = chatState.currentRoom?.nickname ?: "")
+                                    RecallMessage(nickname = chatState.currentRoom.nickname)
                                 }
 
                                 CHAT_Reply -> {
@@ -416,7 +420,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     if (isShowVideo.value) Box(modifier = Modifier.fillMaxSize()) {
         VideoPreview(uri = currentVideoUri.value) {
             isShowVideo.value = false
-            vm.sendVideo(chatState.currentRoom!!.otherId, it) { that ->
+            vm.sendVideo(chatState.currentRoom.otherId, it) { that ->
                 chatVm.updateRoomInfo(that)
                 chatInput.value = ""
             }
