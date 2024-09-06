@@ -11,13 +11,15 @@ CREATE TABLE IF NOT  EXISTS "watch_history" (
   "user_id" integer NOT NULL,
   "kind" integer NOT NULL,
   "data_id" integer NOT NULL,
-  "time" integer NOT NULL,
+  "time" integer NOT NULL
 );
-CREATE INDEX "watch_history_0"
+
+CREATE INDEX  IF NOT EXISTS "watch_history_0"
 ON "watch_history" (
   "kind" ASC
 );
-CREATE INDEX "watch_history_1"
+
+CREATE INDEX  IF NOT EXISTS "watch_history_1"
 ON "watch_history" (
   "data_id" ASC
 );

@@ -37,9 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import chaintech.videoplayer.model.PlayerConfig
-import chaintech.videoplayer.ui.video.VideoPlayerView
-import com.bitat.R
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -61,7 +58,6 @@ import com.bitat.ui.component.ImageBanner
 import com.bitat.ui.component.LikeButton
 import com.bitat.ui.component.UserInfoWithAvatar
 import com.bitat.ui.profile.OthersPage
-import com.bitat.ui.publish.Options
 import com.bitat.ui.theme.Typography
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
@@ -135,7 +131,6 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     //    }
 
     DisposableEffect(Unit) {
-        CuLog.debug(CuTag.Blog, "1111 init data")
         vm.getList(true) {}
         onDispose { // 页面离开时可以执行一些清理操作
             vm.reset()
@@ -162,27 +157,27 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
                                     othersVm.initUserId(currentDto.userId)
-//                                    CuExoPlayer(data = currentDto.resource.video,
-//                                        modifier = Modifier.fillMaxSize(),
-//                                        cover = currentDto.cover,
-//                                        isFixHeight = true)
-                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
-                                        url = currentDto.resource.video,
-                                        playerConfig = PlayerConfig(
-                                            isPauseResumeEnabled = false,
-                                            isSeekBarVisible = false,
-                                            isDurationVisible = false,
-                                            seekBarThumbColor = Color.Red,
-                                            seekBarActiveTrackColor = Color.Red,
-                                            seekBarInactiveTrackColor = Color.White,
-                                            durationTextColor = Color.White,
-                                            seekBarBottomPadding = 10.dp,
-                                            pauseResumeIconSize = 40.dp,
-                                            isAutoHideControlEnabled = true,
-                                            controlHideIntervalSeconds = 0,
-                                            isFastForwardBackwardEnabled = true
-                                        )
-                                    )
+                                    CuExoPlayer(data = currentDto.resource.video,
+                                        modifier = Modifier.fillMaxSize(),
+                                        cover = currentDto.cover,
+                                        isFixHeight = true)
+//                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
+//                                        url = currentDto.resource.video,
+//                                        playerConfig = PlayerConfig(
+//                                            isPauseResumeEnabled = false,
+//                                            isSeekBarVisible = false,
+//                                            isDurationVisible = false,
+//                                            seekBarThumbColor = Color.Red,
+//                                            seekBarActiveTrackColor = Color.Red,
+//                                            seekBarInactiveTrackColor = Color.White,
+//                                            durationTextColor = Color.White,
+//                                            seekBarBottomPadding = 10.dp,
+//                                            pauseResumeIconSize = 40.dp,
+//                                            isAutoHideControlEnabled = true,
+//                                            controlHideIntervalSeconds = 0,
+//                                            isFastForwardBackwardEnabled = true
+//                                        )
+//                                    )
                                 }
                             }
 
