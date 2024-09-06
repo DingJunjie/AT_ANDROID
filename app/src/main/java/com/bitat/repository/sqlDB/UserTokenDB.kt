@@ -23,19 +23,19 @@ object UserTokenDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_TOKEN)
 
     //插入
-    fun saveOne(userId: Long, token: String, label: String, expire: Long, updateTime: Long) =
+    fun saveOne(po:UserTokenPo) =
         SqlDB.exec(
             """insert into user_token (user_id,token,label,expire,update_time) values (?,?,?,?,?)
              ON CONFLICT(user_id) DO UPDATE SET token = ?,label = ?,expire = ?, update_time = ?;""",
-            userId,
-            token,
-            label,
-            expire,
-            updateTime,
-            token,
-            label,
-            expire,
-            updateTime,
+            po.userId,
+            po.token,
+            po.label,
+            po.expire,
+            po.updateTime,
+            po.token,
+            po.label,
+            po.expire,
+            po.updateTime,
         )
 
     //修改
