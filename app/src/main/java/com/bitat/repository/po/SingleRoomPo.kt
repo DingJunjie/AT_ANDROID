@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.json.Json
 
-@Serializable
-data class RoomCfg(
-    var background: String = "",
-    var muted: Boolean = false,
-    var isTop: Boolean = false
-)
+//@Serializable
+//data class RoomCfg(
+//    var background: String = "",
+//    var muted: Boolean = false,
+//    var isTop: Boolean = false
+//)
 
 class SingleRoomPo {
     var id: Long = 0
@@ -22,8 +22,13 @@ class SingleRoomPo {
     var content: String = ""
     var unreads: Int = 0
     var top: Int = 0
-    var cfg: String = Json.encodeToString(RoomCfg.serializer(), RoomCfg())
+    var background: String = ""
+    var muted: Int = 0
+
+    //    var cfg: String = Json.encodeToString(RoomCfg.serializer(), RoomCfg())
+    var cfg: String = ""
     // ----------------
+
 
     var nickname: String = ""
     var alias: String = ""
@@ -42,7 +47,9 @@ class SingleRoomPo {
             content = cursor.getString(6)
             unreads = cursor.getInt(7)
             top = cursor.getInt(8)
-            cfg = cursor.getString(9)
+            background = cursor.getString(9)
+            muted = cursor.getInt(10)
+            cfg = cursor.getString(11)
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
@@ -50,7 +57,9 @@ class SingleRoomPo {
             otherId = cursor.getLong(1)
             unreads = cursor.getInt(2)
             top = cursor.getInt(3)
-            cfg = cursor.getString(4)
+            background = cursor.getString(4)
+            muted = cursor.getInt(5)
+            cfg = cursor.getString(6)
         }
     }
 }

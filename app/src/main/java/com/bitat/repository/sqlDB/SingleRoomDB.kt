@@ -9,6 +9,8 @@ CREATE TABLE IF NOT  EXISTS "single_room" (
   "other_id" INTEGER NOT NULL,
   "unreads" integer NOT NULL,
   "top" integer NOT NULL,
+  "background" TEXT NOT NULL,
+  "muted" integer NOT NULL,
   "cfg" TEXT NOT NULL,
   PRIMARY KEY ("self_id", "other_id")
 );
@@ -19,7 +21,7 @@ object SingleRoomDB {
 
     //获取消息和聊天室信息
     fun getMagAndRoom(selfId: Long) = SqlDB.queryBatch(
-        SingleRoomPo::of, """SELECT sm.*,sr.unreads,sr.top,sr.cfg
+        SingleRoomPo::of, """SELECT sm.*,sr.unreads,sr.top,sr.background,sr.muted,sr.cfg
                 FROM single_msg sm
 	            LEFT JOIN single_room sr ON sm.self_id = sr.self_id 
 	            AND sm.other_id = sr.other_id 
@@ -38,14 +40,22 @@ object SingleRoomDB {
 
     //新增聊天室存在则修改
     fun insertOrUpdate(
-        selfId: Long, otherId: Long, unreads: Int = 1, top: Int = 0, cfg: String = ""
+        selfId: Long,
+        otherId: Long,
+        unreads: Int = 1,
+        top: Int = 0,
+        background: String = "",
+        muted: Int = 0,
+        cfg: String = ""
     ) = SqlDB.exec(
-        """insert into single_room (self_id,other_id,unreads,top,cfg) values (?,?,?,?,?) 
+        """insert into single_room (self_id,other_id,unreads,top,background,muted,cfg) values (?,?,?,?,?,?,?) 
            ON CONFLICT(self_id,other_id) DO UPDATE SET unreads = unreads + ?;""",
         selfId,
         otherId,
         unreads,
         top,
+        background,
+        muted,
         cfg,
         unreads,
     )
@@ -58,10 +68,24 @@ object SingleRoomDB {
         otherId
     )
 
+    fun updateBg(background: String, selfId: Long, otherId: Long) = SqlDB.exec(
+        "update single_room set background = ? where self_id = ? and other_id = ?",
+        background,
+        selfId,
+        otherId
+    )
+
     //修改置顶
     fun updateTop(top: Int, selfId: Long, otherId: Long) = SqlDB.exec(
         "update single_room set top = ? where self_id = ? and other_id = ?",
         top,
+        selfId,
+        otherId
+    )
+
+    fun updateMuted(muted: Int, selfId: Long, otherId: Long) = SqlDB.exec(
+        "update single_room set muted = ? where self_id = ? and other_id = ?",
+        muted,
         selfId,
         otherId
     )
