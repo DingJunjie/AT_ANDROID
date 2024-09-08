@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
+import chaintech.videoplayer.model.PlayerConfig
+import chaintech.videoplayer.ui.video.VideoPlayerView
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -47,6 +49,7 @@ import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.SvgIcon
+import com.bitat.ui.common.VideoPreview
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AtButton
 import com.bitat.ui.component.CollectButton
@@ -151,33 +154,35 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
                     CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
-                    Box(modifier = Modifier.fillMaxSize()
+                    Box(modifier = Modifier
+                        .fillMaxSize()
                         .background(color = Color.Black)) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
                                     othersVm.initUserId(currentDto.userId)
-                                    CuExoPlayer(data = currentDto.resource.video,
-                                        modifier = Modifier.fillMaxSize(),
-                                        cover = currentDto.cover,
-                                        isFixHeight = true)
-//                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
-//                                        url = currentDto.resource.video,
-//                                        playerConfig = PlayerConfig(
-//                                            isPauseResumeEnabled = false,
-//                                            isSeekBarVisible = false,
-//                                            isDurationVisible = false,
-//                                            seekBarThumbColor = Color.Red,
-//                                            seekBarActiveTrackColor = Color.Red,
-//                                            seekBarInactiveTrackColor = Color.White,
-//                                            durationTextColor = Color.White,
-//                                            seekBarBottomPadding = 10.dp,
-//                                            pauseResumeIconSize = 40.dp,
-//                                            isAutoHideControlEnabled = true,
-//                                            controlHideIntervalSeconds = 0,
-//                                            isFastForwardBackwardEnabled = true
-//                                        )
-//                                    )
+//                                    CuExoPlayer(data = currentDto.resource.video,
+//                                        modifier = Modifier.fillMaxSize(),
+//                                        cover = currentDto.cover,
+//                                        isFixHeight = true)
+                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
+                                        url = currentDto.resource.video,
+                                        playerConfig = PlayerConfig(
+                                            isPauseResumeEnabled = false,
+                                            isSeekBarVisible = false,
+                                            isDurationVisible = false,
+                                            seekBarThumbColor = Color.Red,
+                                            seekBarActiveTrackColor = Color.Red,
+                                            seekBarInactiveTrackColor = Color.White,
+                                            durationTextColor = Color.White,
+                                            seekBarBottomPadding = 10.dp,
+                                            pauseResumeIconSize = 40.dp,
+                                            isAutoHideControlEnabled = true,
+                                            controlHideIntervalSeconds = 0,
+                                            isFastForwardBackwardEnabled = false
+                                        )
+                                    )
+
                                 }
                             }
 
@@ -185,11 +190,14 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 ImageBanner(currentDto.resource.images.toList(), true)
                             }
                         } // 用户信息部分
-                        Column(modifier = Modifier.align(Alignment.BottomStart)
+                        Column(modifier = Modifier
+                            .align(Alignment.BottomStart)
                             .padding(start = 30.cdp, bottom = 50.cdp),
                             horizontalAlignment = Alignment.Start,
                             verticalArrangement = Arrangement.Bottom) {
-                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
+                            Column(modifier = Modifier
+                                .height(130.cdp)
+                                .padding(end = 50.dp)) {
                                 UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
                                     currentDto.nickname,
                                     currentDto.profile,
@@ -202,7 +210,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             }
                             CollapseText(value = currentDto.content,
                                 maxLines = 1,
-                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 50.dp),
                                 textStyle = Typography.bodyLarge.copy(color = Color.White,
                                     lineHeight = 26.sp),
                                 maxLength = 17)
@@ -219,7 +229,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         }
 
                         // 点赞、收藏 部分
-                        Column(modifier = Modifier.padding(end = 20.cdp, bottom = 50.cdp)
+                        Column(modifier = Modifier
+                            .padding(end = 20.cdp, bottom = 50.cdp)
                             .align(Alignment.BottomEnd),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
@@ -248,7 +259,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             Spacer(modifier = Modifier.height(70.cdp))
                             CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier.size(27.dp).onGloballyPositioned {
+                                modifier = Modifier
+                                    .size(27.dp)
+                                    .onGloballyPositioned {
                                         collectTipY = it.positionInWindow().y.toInt()
                                         CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
                                     }) {

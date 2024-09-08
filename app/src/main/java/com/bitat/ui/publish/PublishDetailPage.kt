@@ -805,7 +805,7 @@ fun MediaBox(
     Row(Modifier.fillMaxWidth()) {
         if (coverPath != Uri.EMPTY) Box(
             Modifier.padding(
-                top = 10.dp, bottom = 10.dp, start = 10.dp
+                top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp
             )
         ) {
             VideoBox(videoUri = coverPath, tapFn = {
@@ -815,7 +815,7 @@ fun MediaBox(
         LazyRow(
             Modifier //                .fillMaxWidth()
                 .padding(top = 10.dp, bottom = 10.dp),
-            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp)
+            contentPadding = PaddingValues(start = if (coverPath == Uri.EMPTY) 15.dp else 0.dp),horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(pictureList) { pic ->
                 PictureBox(uri = pic, tapFn = {
@@ -826,7 +826,7 @@ fun MediaBox(
 
         Box(
             Modifier
-                .padding(top = 10.dp)
+                .padding(top = 10.dp, start = 10.dp)
                 .clickable { addPicture() }) {
             AddPictureBox {}
         }
@@ -840,7 +840,6 @@ fun AddPictureBox(tapFn: () -> Unit) {
         modifier = Modifier
             .width(80.dp)
             .height(100.dp)
-            .padding(5.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
     ) {
         Icon(Icons.Filled.Add, contentDescription = "", modifier = Modifier.size(15.dp))
@@ -853,7 +852,6 @@ fun PictureBox(uri: Uri, tapFn: (Uri) -> Unit) {
         modifier = Modifier
             .width(80.dp)
             .height(100.dp)
-            .padding(5.dp)
             .clickable { tapFn(uri) }) {
         AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
     }
@@ -865,7 +863,6 @@ fun VideoBox(modifier: Modifier = Modifier, videoUri: Uri, tapFn: (Uri) -> Unit)
         modifier = modifier
             .width(80.dp)
             .height(100.dp)
-            .padding(5.dp)
             .clickable { tapFn(videoUri) }) { //        AsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.FillBounds)
         VideoPlayer(uri = videoUri)
     }

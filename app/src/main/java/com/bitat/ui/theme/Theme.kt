@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 private val LightColorPalette = WeComposeColors(
     themeUi = themeColor,
-    bottomBar = white1,
+    bottomBar = white,
     background = white,
     divider = white3,
     chatPage = white2,

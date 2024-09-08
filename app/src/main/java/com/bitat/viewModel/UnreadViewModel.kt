@@ -2,15 +2,10 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
-import com.bitat.repository.po.NoticePo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.sqlDB.NoticeDB
-import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
@@ -77,7 +72,7 @@ class UnreadViewModel : ViewModel() {
                             u
                         )
                     }
-                    SingleMsgDB.insertBatch(msgPoArr)
+//                    SingleMsgDB.insertBatch(msgPoArr)
 
                     _state.update { kore ->
                         kore.copy(

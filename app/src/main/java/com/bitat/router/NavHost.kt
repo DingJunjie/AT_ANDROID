@@ -24,6 +24,7 @@ import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
 import com.bitat.ui.profile.FansPage
+import com.bitat.ui.profile.FeedbackPage
 import com.bitat.ui.profile.FollowsPage
 import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.profile.ProfileEditPage
@@ -41,7 +42,8 @@ enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, //
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
-    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT
+    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
+    FEEDBACK
 }
 
 sealed class NavigationItem(val route: String) {
@@ -79,6 +81,7 @@ sealed class NavigationItem(val route: String) {
     data object Notification : NavigationItem(Screen.NOTIFICATION.name)
     data object Signout : NavigationItem(Screen.SIGNOUT.name)
     data object CancelAgreemet : NavigationItem(Screen.CANCELAGREEMENT.name)
+    data object FeedBack : NavigationItem(Screen.FEEDBACK.name)
 
 }
 
@@ -226,6 +229,9 @@ fun AppNavHost(
         composable(NavigationItem.CancelAgreemet.route) {
             CancelAgreementPage(navController, viewModelProvider)
         }
+        composable(NavigationItem.FeedBack.route) {
+            FeedbackPage(navController)
+        }
     }
 }
 
@@ -318,6 +324,10 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToCancelAgreementPage: () -> Unit = {
         navController.navigate(NavigationItem.CancelAgreemet.route)
+    }
+
+    val navigateToFeedBackPage: () -> Unit = {
+        navController.navigate(NavigationItem.FeedBack.route)
     }
 
 

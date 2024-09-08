@@ -87,7 +87,10 @@
     <string name="setting_signout_apply">注销申请</string>
     <string name="setting_signout_auth_hint">请先验证身份</string>
     <string name="signout_auth_account">注销账号</string>
-
-
+    <string name="setting_feedback">问题反馈</string>
+    <string name="setting_feedback_type">反馈类型</string>
+    <string name="setting_feedback_content">反馈内容</string>
+    <string name="setting_feedback_submit">提交反馈</string>
+    <string name="setting_feedback_submit_load">正在提交</string>
 
 </resources>

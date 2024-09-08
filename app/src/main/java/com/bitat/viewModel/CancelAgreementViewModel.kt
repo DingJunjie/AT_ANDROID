@@ -2,6 +2,8 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.CancelDto
 import com.bitat.repository.http.auth.LoginReq
 import kotlinx.coroutines.launch
@@ -13,10 +15,13 @@ import kotlinx.coroutines.launch
  */
 class CancelAgreementViewModel : ViewModel() {
 
-
-    fun cancelAccount(captcha: String, phone: String) {
+    fun cancelAccount(captcha: String, phone: String, onCompleted: () -> Unit) {
         MainCo.launch {
-            LoginReq.cancel(CancelDto(captcha, phone)).await().map { }.errMap { }
+            LoginReq.cancel(CancelDto(captcha, phone)).await().map {
+                onCompleted()
+            }.errMap {
+                CuLog.error(CuTag.Profile, "LoginReq cancel error code:${it.code},msg:${it.msg}")
+            }
         }
     }
 }

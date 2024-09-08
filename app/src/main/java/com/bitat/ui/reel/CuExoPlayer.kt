@@ -276,30 +276,6 @@ fun CuExoPlayer(
             }
         }
 
-        //以下是自定义控制器的 UI，使用 Exoplayer 内置控制器时不显示
-        // if (!useExoController) {
-
-        //     val controllerBgAlpha by animateFloatAsState(targetValue = if (isControllerVisible || isFirstIn) 0.7f else 0f)
-        //     val controllerContentAlpha by animateFloatAsState(targetValue = if (isControllerVisible || isFirstIn) 1f else 0f)
-
-        //     Box(
-        //         modifier = Modifier
-        //             .align(Alignment.BottomEnd)
-        //             .padding(10.dp)
-        //             .height(20.dp)
-        //             .clip(RoundedCornerShape(6.dp))
-        //             .background(Color.Black.copy(alpha = controllerBgAlpha))
-        //             .padding(horizontal = 6.dp),
-        //         contentAlignment = Alignment.Center
-        //     ) {
-        //         val formattedTime =
-        //             "${currentPosition / 60}:${String.format("%02d", (currentPosition % 60))}"
-        //         Text(
-        //             text = formattedTime,
-        //             color = Color.White.copy(alpha = controllerContentAlpha),
-        //             style = MaterialTheme.typography.labelSmall
-        //         )
-        //     }
 
         if (soundShow)
             Box(modifier = Modifier

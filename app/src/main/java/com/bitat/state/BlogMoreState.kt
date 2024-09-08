@@ -3,7 +3,7 @@ package com.bitat.state
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.repository.consts.HTTP_DEFAULT
-import com.bitat.utils.ReportUtils.ReportBean
+import com.bitat.utils.ConstBean
 
 /**
  *    author : shilu
@@ -21,6 +21,6 @@ data class BlogMoreState(
     val dtAuthResp:Int =HTTP_DEFAULT,
     val isAuthShow:Boolean =false,
     val isDtAuthShow:Boolean =false,
-    val reportList: SnapshotStateList<ReportBean> = mutableStateListOf(),
+    val reportList: SnapshotStateList<ConstBean> = mutableStateListOf(),
     val updateIndex: Int = 0,
     val isOther:Boolean= false)

@@ -3,7 +3,7 @@ package com.bitat.ui.reel
 class VideoConfig() {
 
     companion object {
-        var isPlayVolume = true
+        var isPlayVolume = false
 
     }
 }

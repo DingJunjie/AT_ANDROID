@@ -15,17 +15,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.router.AtNavigation
-import com.bitat.ui.reel.CuExoPlayer
+import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.ui.reel.BitVideoPlayer
+import com.bitat.ui.reel.VideoConfig
+import com.bitat.ui.video.CMPPlayer
+import com.bitat.ui.video.PlayerSpeed
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
 
 @Composable
-fun BlogVideo(modifier: Modifier=Modifier,
+fun BlogVideo(
+    modifier: Modifier = Modifier,
     dto: BlogBaseDto,
     height: Int,
     isPlaying: Boolean = false,
@@ -42,9 +45,7 @@ fun BlogVideo(modifier: Modifier=Modifier,
             .fillMaxWidth()
             .height(height.dp)
             .clickable {
-                vm.setCurrentBlog(dto)
-                detailsVm.setCurrentBlog(dto)
-                AtNavigation(navController).navigateToVideo()
+
             }) {
         AsyncImage(
             model = dto.cover,
@@ -58,13 +59,30 @@ fun BlogVideo(modifier: Modifier=Modifier,
         )
 
         if (isPlaying) {
-            CuExoPlayer(
-                data = dto.resource.video,
+//            BitVideoPlayer(
+//                data = dto.resource.video,
+//                modifier = Modifier.fillMaxWidth(),
+//                cover = dto.cover,
+//                isFixHeight = true,
+//                soundShow = true, onSingleTap = {
+//                    vm.setCurrentBlog(dto)
+//                    detailsVm.setCurrentBlog(dto)
+//                    AtNavigation(navController).navigateToVideo()
+//                }
+//            )
+
+            CMPPlayer(
                 modifier = Modifier.fillMaxWidth(),
-                cover = dto.cover,
-                isFixHeight = true,
-                soundShow = true
-            )
+                url = dto.resource.video,
+                isPause = false,
+                isMute = VideoConfig.isPlayVolume,
+                totalTime = {},
+                currentTime = {},
+                isSliding = false,
+                sliderTime = null,
+                speed = PlayerSpeed.X1){
+
+            }
         }
         CuLog.info(CuTag.Blog, "BlogVideo--------- ${dto.id}")
     }

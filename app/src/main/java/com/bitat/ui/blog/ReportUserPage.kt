@@ -33,12 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.router.AtNavigation
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.CommonTopBar
 import com.bitat.utils.ReportUtils
@@ -51,7 +49,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 /**
  *    author : shilu
  *    date   : 2024/8/19  17:43
- *    desc   :
+ *    desc   : 举报页
  */
 
 @Composable

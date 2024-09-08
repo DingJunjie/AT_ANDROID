@@ -30,38 +30,33 @@ import com.bitat.repository.consts.REASON_VIOLATION_LAW
 
 object ReportUtils {
 
-    fun getReportTypeList(): Array<ReportBean> {
-        val list: Array<ReportBean> = arrayOf(
-            ReportBean("诈骗信息", REASON_FRAUD_INFORMATION, false),
-            ReportBean("色情低俗", REASON_PORNOGRAPHIC_VULGAR, false),
-            ReportBean("涉企侵权", REASON_ENTERPRISE_TORT, false),
-            ReportBean("抄袭洗稿", REASON_PLAGIARISM_MANU_WASH, false),
-            ReportBean("未成年不宜观看", REASON_MINORS_NOT_WATCH, false),
+    fun getReportTypeList(): Array<ConstBean> {
+        val list: Array<ConstBean> = arrayOf(
+            ConstBean("诈骗信息", REASON_FRAUD_INFORMATION, false),
+            ConstBean("色情低俗", REASON_PORNOGRAPHIC_VULGAR, false),
+            ConstBean("涉企侵权", REASON_ENTERPRISE_TORT, false),
+            ConstBean("抄袭洗稿", REASON_PLAGIARISM_MANU_WASH, false),
+            ConstBean("未成年不宜观看", REASON_MINORS_NOT_WATCH, false),
 
-            ReportBean("引人不适", REASON_CAUSING_DISCOMFORT, false),
-            ReportBean("时政不实信息", REASON_POLITICS_NOT, false),
-            ReportBean("诱导关注点赞", REASON_INDUCE_FOLLOW_AGREE, false),
-            ReportBean("侵权投诉", REASON_TORT_COMPLAINT, false),
-            ReportBean("疑似其他", REASON_SUSPECT_OTHER, false),
+            ConstBean("引人不适", REASON_CAUSING_DISCOMFORT, false),
+            ConstBean("时政不实信息", REASON_POLITICS_NOT, false),
+            ConstBean("诱导关注点赞", REASON_INDUCE_FOLLOW_AGREE, false),
+            ConstBean("侵权投诉", REASON_TORT_COMPLAINT, false),
+            ConstBean("疑似其他", REASON_SUSPECT_OTHER, false),
 
-            ReportBean("违法违规", REASON_VIOLATION_LAW, false),
-            ReportBean("虚假不实", REASON_FALSE_AND_UNTRUE, false),
-            ReportBean("危险行为", REASON_DANGEROUS_ACT, false),
-            ReportBean("谩骂攻击", REASON_ABUSIVE_ATTACK, false),
-            ReportBean("侵害未成年人", REASON_TORT_MINORS, false),
+            ConstBean("违法违规", REASON_VIOLATION_LAW, false),
+            ConstBean("虚假不实", REASON_FALSE_AND_UNTRUE, false),
+            ConstBean("危险行为", REASON_DANGEROUS_ACT, false),
+            ConstBean("谩骂攻击", REASON_ABUSIVE_ATTACK, false),
+            ConstBean("侵害未成年人", REASON_TORT_MINORS, false),
 
-            ReportBean("未成年人不当行为", REASON_MINOR_MISCONDUCT, false),
-            ReportBean("违规售卖", REASON_ILLEGAL_SALE, false),
-            ReportBean("疑似虐待动物", REASON_CRUELTY_ANIMAL, false),
-            ReportBean("其他类型", REASON_OTHER, false)
+            ConstBean("未成年人不当行为", REASON_MINOR_MISCONDUCT, false),
+            ConstBean("违规售卖", REASON_ILLEGAL_SALE, false),
+            ConstBean("疑似虐待动物", REASON_CRUELTY_ANIMAL, false),
+            ConstBean("其他类型", REASON_OTHER, false)
 
         )
         return list
     }
-
-    data class ReportBean(
-        val name: String = "",
-        val type: Int = 0,
-        var isSelect: Boolean = false
-    )
+    
 }

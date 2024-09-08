@@ -21,7 +21,7 @@ import com.bitat.repository.http.service.BlogReq
 import com.bitat.repository.http.service.SocialReq
 import com.bitat.repository.http.service.UserReportReq
 import com.bitat.state.BlogMoreState
-import com.bitat.utils.ReportUtils.ReportBean
+import com.bitat.utils.ConstBean
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -87,7 +87,7 @@ class BlogMoreViewModel : ViewModel() {
         }
     }
 
-    fun setReportList(report: Array<ReportBean>) {
+    fun setReportList(report: Array<ConstBean>) {
         state.update {
             it.reportList.clear()
             it.reportList.addAll(report)
@@ -95,7 +95,7 @@ class BlogMoreViewModel : ViewModel() {
         }
     }
 
-    fun selectRepor(report: ReportBean) {
+    fun selectRepor(report: ConstBean) {
         val index = state.value.reportList.indexOf(report)
         state.update {
             it.reportList[index] = report
