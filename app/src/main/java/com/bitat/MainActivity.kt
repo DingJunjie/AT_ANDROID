@@ -37,6 +37,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 import androidx.navigation.compose.rememberNavController
+import com.bitat.repository.singleChat.SingleChatHelper
 
 val MainCo = MainScope()
 
@@ -90,6 +91,9 @@ class MainActivity : ComponentActivity() {
                     toastState.show(data)
                 }
             }
+
+            SingleChatHelper.singleMsgOpsInit()
+
             KeySecret.start()
             TcpClient.start()
         }

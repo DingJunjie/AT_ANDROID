@@ -84,9 +84,10 @@ fun ChatHistoryPage(navHostController: NavHostController, viewModelProvider: Vie
                         keyword.value,
                         {
                             keyword.value = it
+                            vm.getHistoryByKeyword(chatState.currentRoom.otherId, keyword.value)
                         },
                         chatState.currentRoom,
-                        state.messageList
+                        state.historyMsgList
                     )
                 }
             }

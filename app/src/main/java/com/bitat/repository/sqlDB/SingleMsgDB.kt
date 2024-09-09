@@ -49,7 +49,7 @@ object SingleMsgDB {
     fun findContentByLike(selfId: Long, otherId: Long,content:String ,pageNo: Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
-            "select * from single_msg where self_id = ? and other_id = ? and content like %${content}% order by time desc limit ? offset ?",
+            "select * from single_msg where self_id = ? and other_id = ? and content like '%${content}%' order by time desc limit ? offset ?",
             selfId,
             otherId,
             pageSize,
