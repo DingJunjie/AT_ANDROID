@@ -81,7 +81,6 @@ fun BlogMorePop(
         vm.setUser(state.userId)
     }
 
-    val toast = rememberToastState()
     val ctx = LocalContext.current
 
     LaunchedEffect(state) {

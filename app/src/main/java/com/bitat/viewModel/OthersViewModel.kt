@@ -4,7 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.UserInfoDto
+import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.sqlDB.WatchHistoryDB
 import com.bitat.state.OthersState
@@ -19,13 +22,16 @@ class OthersViewModel : ViewModel() {
     private val _othersState = MutableStateFlow(OthersState())
     val othersState: StateFlow<OthersState> get() = _othersState.asStateFlow()
 
-    fun getUserInfo() {
+    fun getUserInfo(success:(UserPartDto) -> Unit={}) {
         MainCo.launch {
-            UserReq.userInfo(UserInfoDto(userId = othersState.value.userId.toLong())).await()
+            UserReq.userInfo(UserInfoDto(userId = othersState.value.userId)).await()
                 .map { res ->
                     _othersState.update {
                         it.copy(userInfo = mutableStateOf(res))
                     }
+                    success(res)
+                }.errMap {
+                    CuLog.error(CuTag.Profile," UserReq  userInfo error code:${it.code},msg:${it.msg}")
                 }
         }
     }
@@ -61,4 +67,6 @@ class OthersViewModel : ViewModel() {
             WatchHistoryDB
         }
     }
+
+
 }

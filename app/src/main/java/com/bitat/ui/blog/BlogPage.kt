@@ -376,6 +376,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
                         }
                     }
+                    if (state.flag<0) Text(text = "")
                 }
             }
         }

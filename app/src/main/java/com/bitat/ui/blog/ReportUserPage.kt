@@ -55,7 +55,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun ReportUserPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[BlogMoreViewModel::class]
-    val vmBlog = viewModelProvider[BlogViewModel::class]
     val state = vm.state.collectAsState()
     val ctx = LocalContext.current
     LaunchedEffect(state) {

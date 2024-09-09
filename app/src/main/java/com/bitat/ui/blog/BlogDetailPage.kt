@@ -139,7 +139,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
         .fillMaxHeight(), topBar = {
         CommonTopBar(
             modifier = Modifier,
-            title = stringResource(id = R.string.blog_post),
+            title ="",
             backFn = { AtNavigation(navHostController).navigateToHome() },
             isBg = true,
             padingStatus = true

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,10 +37,10 @@ import com.bitat.viewModel.BrowserHistoryViewModel
 @Composable
 fun BrowserHistoryPage(navHostController: NavHostController) {
     val vm = viewModel<BrowserHistoryViewModel>()
-    val state: State<BrowserHistoryState> = vm.state.collectAsState()
+    val state by vm.state.collectAsState()
 
     val PROFILE_TAB_OPTIONS = listOf("作品", "用户")
-    val pagerState: PagerState = rememberPagerState(initialPage = state.value.currentTabIndex) {
+    val pagerState: PagerState = rememberPagerState(initialPage = state.currentTabIndex) {
         PROFILE_TAB_OPTIONS.size
     }
 
@@ -67,7 +68,7 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
                     0 -> {
 
                         Column(modifier = Modifier.fillMaxSize()) {
-                            MediaGrid(mediaList = state.value.myWorks)
+                            MediaGrid(mediaList = state.myWorks)
 
                         }
                     }

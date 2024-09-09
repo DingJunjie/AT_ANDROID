@@ -6,6 +6,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -40,6 +42,7 @@ fun rememberPlayerView(exoPlayer: ExoPlayer, context: Context): PlayerView {
 //            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满
             player = exoPlayer
+            setBackgroundColor(context.resources.getColor( R.color.black,null))
             // 获取到PlayerView的Controller容器
             val controllerContainer = findViewById<FrameLayout>(R.id.exo_controller)
             // 动态替换自定义的Controller布局

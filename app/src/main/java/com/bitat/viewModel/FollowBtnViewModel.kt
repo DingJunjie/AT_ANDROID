@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 /**
  *    author : shilu
  *    date   : 2024/8/16  16:35
- *    desc   : 搜索按钮vm
+ *    desc   :
  */
 class FollowBtnViewModel : ViewModel() {
     val state = MutableStateFlow(FollowBtnState())

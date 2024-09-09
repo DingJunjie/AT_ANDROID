@@ -39,6 +39,7 @@ import com.bitat.ext.Density
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.state.OthersState
 import com.bitat.ui.common.CollapseText
@@ -104,8 +105,14 @@ fun BlogItem(
         ) {
             Spacer(modifier = Modifier.width(5.dp))
             Avatar(blog.profile, size = 35) {
-                othersVm.initUserId(blog.userId)
-                navHostController.navigate(NavigationItem.Others.route)
+                if(blog.userId!=UserStore.userInfo.id){
+                    othersVm.initUserId(blog.userId)
+                    navHostController.navigate(NavigationItem.Others.route)
+                }
+                else{
+                    navHostController.navigate(NavigationItem.Profile.route)
+                }
+
             }
 
             Spacer(modifier = Modifier.width(15.cdp))
