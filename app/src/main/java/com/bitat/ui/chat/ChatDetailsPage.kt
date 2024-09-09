@@ -1,8 +1,6 @@
 package com.bitat.ui.chat
 
 import android.net.Uri
-import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_UP
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +28,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
@@ -42,17 +38,13 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,22 +53,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -92,14 +79,10 @@ import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.consts.CHAT_Time
 import com.bitat.repository.consts.CHAT_Video
 import com.bitat.repository.po.SingleMsgPo
-import com.bitat.repository.singleChat.TcpHandler
-import com.bitat.repository.singleChat.TcpHandler.chatFlow
-import com.bitat.repository.store.UserStore
-import com.bitat.repository.store.UserStore.userFlow
+import com.bitat.repository.singleChat.TcpHandler.newMsgFlow
 import com.bitat.router.NavigationItem
 import com.bitat.state.ReplyMessageParams
 import com.bitat.state.VideoMessageParams
-import com.bitat.ui.common.CarmeraOpen
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.SingleFuncCamera
@@ -107,15 +90,12 @@ import com.bitat.ui.common.VideoPreview
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.component.EmojiTable
-import com.bitat.ui.discovery.CardView
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 /**
@@ -140,10 +120,12 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     }
 
     LaunchedEffect(IO) {
-        chatFlow.collect { value ->
-            if (chatState.currentRoom.otherId == value.otherId) {
-                vm.getNewMessage(value)
-                CuLog.debug(CuTag.SingleChat, value.content)
+        newMsgFlow.collect { value ->
+            if (value is SingleMsgPo) {
+                if (chatState.currentRoom.otherId == value.otherId) {
+                    vm.getNewMessage(value)
+                    CuLog.debug(CuTag.SingleChat, value.content)
+                }
             }
         }
     }

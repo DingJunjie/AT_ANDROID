@@ -42,14 +42,20 @@ class BlogMoreViewModel : ViewModel() {
     val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
 
     // 拉黑用户
-    fun masking(userId: Long) {
+    fun masking() {
         MainCo.launch {
-            SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
+            SocialReq.block(SocialDto(FOLLOWED, _state.value.userId)).await().map {
                 state.update { it.copy(masking = HTTP_SUCCESS) }
             }.errMap {
                 state.update { it.copy(masking = HTTP_FAIL) }
                 CuLog.error(CuTag.Blog, "masking fail====> code:${it.code},msg:${it.msg}")
             }
+        }
+    }
+
+    fun setUser(userId: Long) {
+        state.update {
+            it.copy(userId = userId)
         }
     }
 
@@ -68,9 +74,9 @@ class BlogMoreViewModel : ViewModel() {
     }
 
     // 举报用户
-    fun report(userId: Long) {
+    fun report() {
         MainCo.launch {
-            val dto = CreateUserReportDto(REPORT_KIND_USER.toByte(), userId)
+            val dto = CreateUserReportDto(REPORT_KIND_USER.toByte(), _state.value.userId)
             val arrayList = ArrayList<Int>()
             state.value.reportList.filter { it.isSelect }.forEachIndexed { _, reportBean ->
                 arrayList.add(reportBean.type)
@@ -172,7 +178,8 @@ class BlogMoreViewModel : ViewModel() {
 
     fun stateReset() {
         state.update {
-            it.copy(authResp = HTTP_DEFAULT,
+            it.copy(
+                authResp = HTTP_DEFAULT,
                 deleteResp = HTTP_DEFAULT,
                 dtAuthResp = HTTP_DEFAULT,
                 notInterested = HTTP_DEFAULT,
@@ -181,7 +188,8 @@ class BlogMoreViewModel : ViewModel() {
                 isDtAuthShow = false,
                 isAuthShow = false,
                 isOther = false,
-                updateIndex = 0)
+                updateIndex = 0
+            )
         }
     }
 }

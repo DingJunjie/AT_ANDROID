@@ -1,20 +1,15 @@
 package com.bitat.viewModel
 
 import android.net.Uri
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.dto.req.FindBaseByIdsDto
-import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.dto.resp.UserPartDto
-import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.singleChat.SingleChatHelper
+import com.bitat.repository.singleChat.TcpHandler
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -22,7 +17,6 @@ import com.bitat.state.ChatState
 import com.bitat.utils.FileType
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.UPLOAD_OPS
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,8 +89,6 @@ class ChatViewModel : ViewModel() {
                 it
             }
 
-
-
             _state.update { s ->
                 val i = s.chatList.indexOfFirst { it.otherId == otherId }
                 s.chatList[i].top = if (isTop) 1 else 0
@@ -104,7 +96,10 @@ class ChatViewModel : ViewModel() {
                 val updatedRoom = s.currentRoom.also {
                     it.top = if (isTop) 1 else 0
                 }
+
+
                 s.copy(currentRoom = updatedRoom)
+
             }
 
             SingleRoomDB.updateTop(
@@ -112,6 +107,8 @@ class ChatViewModel : ViewModel() {
                 UserStore.userInfo.id,
                 otherId
             )
+
+            TcpHandler.newMsgFlow.emit(SingleRoomPo())
         }
     }
 
@@ -141,18 +138,6 @@ class ChatViewModel : ViewModel() {
 
                 completeFn()
             }
-        }
-    }
-
-    fun sortMessage() {
-        val comparator = Comparator<SingleRoomPo> { r, l ->
-            if (r.top == l.top) {
-                (r.time - l.time).toInt()
-            } else r.top - l.top
-        }
-        _state.update {
-            it.chatList.sortWith(comparator)
-            it
         }
     }
 
@@ -203,19 +188,13 @@ class ChatViewModel : ViewModel() {
                 )
             }
         }
-
-
     }
 
     init {
         MainCo.launch {
             delay(300L)
-            getRooms()
+            SingleChatHelper.queryRooms()
         }
-    }
-
-    fun switchBg(uri: Uri) {
-
     }
 
     fun chooseRoom(room: SingleRoomPo) {
@@ -245,62 +224,13 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun getRooms() {
-        val ids = arrayListOf<Long>()
-        val arr = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
-        val tmpArr = mutableStateListOf<SingleRoomPo>()
-        if (arr.isNotEmpty()) {
-            tmpArr.addAll(arr)
-        }
-
-        tmpArr.forEach {
-            ids.add(it.otherId)
-        }
-
-        val tmpMap = mutableMapOf<Long, UserBase1Dto>()
-
-        MainCo.launch(Dispatchers.Default) {
-            UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await().map { res ->
-                res.forEach {
-                    tmpMap[it.id] = it
-                }
-
-                _state.update {
-                    tmpArr.forEach { that ->
-                        that.nickname = tmpMap[that.otherId]!!.nickname
-                        that.profile = tmpMap[that.otherId]!!.profile
-                        that.rel = tmpMap[that.otherId]!!.rel
-                        that.revRel = tmpMap[that.otherId]!!.revRel
-                        that.alias = tmpMap[that.otherId]!!.alias
-                    }
-//                    it.chatList.map { that ->
-//                        that.nickname = tmpMap[that.otherId]!!.nickname
-//                        that.profile = tmpMap[that.otherId]!!.profile
-//                        that.rel = tmpMap[that.otherId]!!.rel
-//                        that.revRel = tmpMap[that.otherId]!!.revRel
-//                        that.alias = tmpMap[that.otherId]!!.alias
-//                    }
-
-                    tmpArr.sortWith(comparator)
-
-
-                    it.chatList.clear()
-                    it.chatList.addAll(tmpArr)
-                    it
-                }
-            }
+    fun updateRooms(lists: List<SingleRoomPo>) {
+        _state.update {
+            it.chatList.clear()
+            it.chatList.addAll(lists)
+            it
         }
     }
-
-//    fun updateRoomContent(otherId: Long) {
-//        val room = SingleRoomDB.getRoom(selfId = UserStore.userInfo.id, otherId) ?: return
-//        _state.update {
-//            val i = it.chatList.indexOfFirst { that -> that.otherId == otherId }
-//            it.chatList[i].content = room.content
-//
-//            it
-//        }
-//    }
 
     fun deleteRoom(otherId: Long) {
         SingleRoomDB.delete(selfId = UserStore.userInfo.id, otherId)

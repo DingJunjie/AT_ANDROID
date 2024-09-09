@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
  */
 data class ChatDetailsState(
     val messageList: SnapshotStateList<SingleMsgPo> = mutableStateListOf(),
+    val historyMsgList: SnapshotStateList<SingleMsgPo> = mutableStateListOf(),
     val currentOptMsg: SingleMsgPo? = null,
     val currentPage: Int = 0,
     val replyMsg: SingleMsgPo? = null

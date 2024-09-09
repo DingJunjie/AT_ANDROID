@@ -45,6 +45,17 @@ class ChatDetailsViewModel : ViewModel() {
     private val _state = MutableStateFlow(ChatDetailsState())
     val state: StateFlow<ChatDetailsState> get() = _state.asStateFlow()
 
+    fun getHistoryByKeyword(toId: Long, keyword: String) {
+        MainCo.launch(IO) {
+            val result = SingleMsgDB.findContentByLike(UserStore.userInfo.id, toId, keyword)
+            _state.update {
+                it.historyMsgList.clear()
+                it.historyMsgList.addAll(result)
+                it
+            }
+        }
+    }
+
     fun getMessage(toId: Long, pageSize: Int = 10, pageNo: Int = 0, completeFn: () -> Unit = {}) {
         val msg = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, pageNo, pageSize)
         println("search msg")
