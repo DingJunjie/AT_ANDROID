@@ -19,6 +19,7 @@ import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.router.AtNavigation
 import com.bitat.ui.reel.BitVideoPlayer
 import com.bitat.ui.reel.VideoConfig
 import com.bitat.ui.video.CMPPlayer
@@ -27,52 +28,35 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
 
 @Composable
-fun BlogVideo(
-    modifier: Modifier = Modifier,
-    dto: BlogBaseDto,
-    height: Int,
-    isPlaying: Boolean = false,
-    coverIsFull: Boolean = true,
-    needRoundedCorner: Boolean = true,
-    navController: NavHostController,
-    viewModelProvider: ViewModelProvider
-) {
+fun BlogVideo(modifier: Modifier = Modifier, dto: BlogBaseDto, height: Int, isPlaying: Boolean = false, coverIsFull: Boolean = true, needRoundedCorner: Boolean = true, navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[BlogViewModel::class]
     val detailsVm = viewModelProvider[ReelViewModel::class]
 
     Surface(shape = RoundedCornerShape(if (needRoundedCorner) 20.cdp else 0.cdp),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height.dp)
-            .clickable {
-
-            }) {
-        AsyncImage(
-            model = dto.cover,
-            modifier = Modifier
-                .clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
-                .fillMaxWidth()
-                .height(height.dp)
-                .background(Color.Transparent),
+        modifier = modifier.fillMaxWidth().height(height.dp).clickable {
+            vm.setCurrentBlog(dto)
+            detailsVm.setCurrentBlog(dto)
+            AtNavigation(navController).navigateToVideo()
+        }) {
+        AsyncImage(model = dto.cover,
+            modifier = Modifier.clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
+                .fillMaxWidth().height(height.dp).background(Color.Transparent),
             contentDescription = null,
-            contentScale = if (coverIsFull) ContentScale.Crop else ContentScale.FillWidth
-        )
+            contentScale = if (coverIsFull) ContentScale.Crop else ContentScale.FillWidth)
 
-        if (isPlaying) {
-//            BitVideoPlayer(
-//                data = dto.resource.video,
-//                modifier = Modifier.fillMaxWidth(),
-//                cover = dto.cover,
-//                isFixHeight = true,
-//                soundShow = true, onSingleTap = {
-//                    vm.setCurrentBlog(dto)
-//                    detailsVm.setCurrentBlog(dto)
-//                    AtNavigation(navController).navigateToVideo()
-//                }
-//            )
+        if (isPlaying) { //            BitVideoPlayer(
+            //                data = dto.resource.video,
+            //                modifier = Modifier.fillMaxWidth(),
+            //                cover = dto.cover,
+            //                isFixHeight = true,
+            //                soundShow = true, onSingleTap = {
+            //                    vm.setCurrentBlog(dto)
+            //                    detailsVm.setCurrentBlog(dto)
+            //                    AtNavigation(navController).navigateToVideo()
+            //                }
+            //            )
 
-            CMPPlayer(
-                modifier = Modifier.fillMaxWidth(),
+            CMPPlayer(modifier = Modifier.fillMaxWidth(),
                 url = dto.resource.video,
                 isPause = false,
                 isMute = VideoConfig.isPlayVolume,
@@ -80,7 +64,7 @@ fun BlogVideo(
                 currentTime = {},
                 isSliding = false,
                 sliderTime = null,
-                speed = PlayerSpeed.X1){
+                speed = PlayerSpeed.X1) {
 
             }
         }

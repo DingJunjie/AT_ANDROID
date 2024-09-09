@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.plugin.serialization) //    添加 seriali 插件，不添加seriali的类打包后会找不到
-    alias(libs.plugins.jetbrains.compose)
+//    alias(libs.plugins.jetbrains.compose)
 }
 kotlin {
     sourceSets {
@@ -12,7 +12,6 @@ kotlin {
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
             }
         }
-
     }
 
     android {
@@ -180,7 +179,7 @@ kotlin {
         implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
         implementation(files("libs/sqlite-android-3460100.aar"))
 
-        implementation(compose.components.resources)
-        implementation("network.chaintech:compose-multiplatform-media-player:1.0.19")
+//        implementation(compose.components.resources)
+//        implementation("network.chaintech:compose-multiplatform-media-player:1.0.19")
     }
 }

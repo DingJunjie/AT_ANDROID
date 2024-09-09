@@ -1,6 +1,5 @@
 package com.bitat.ui.video
 
-import chaintech.videoplayer.util.getExoPlayerLifecycleObserver
 
 import android.content.Context
 import android.net.Uri
@@ -37,7 +36,6 @@ fun rememberPlayerView(exoPlayer: ExoPlayer, context: Context): PlayerView {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-
             useController = false
 //            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH //设置为宽度撑满

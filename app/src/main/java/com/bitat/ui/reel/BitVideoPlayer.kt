@@ -29,7 +29,7 @@ import androidx.media3.datasource.cache.Cache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import chaintech.videoplayer.ui.video.VideoPlayerView
+//import chaintech.videoplayer.ui.video.VideoPlayerView
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag

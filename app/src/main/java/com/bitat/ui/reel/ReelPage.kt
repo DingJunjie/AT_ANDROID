@@ -37,8 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import chaintech.videoplayer.model.PlayerConfig
-import chaintech.videoplayer.ui.video.VideoPlayerView
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -49,7 +47,6 @@ import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.SvgIcon
-import com.bitat.ui.common.VideoPreview
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.component.AtButton
 import com.bitat.ui.component.CollectButton
@@ -62,6 +59,8 @@ import com.bitat.ui.component.LikeButton
 import com.bitat.ui.component.UserInfoWithAvatar
 import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.theme.Typography
+import com.bitat.ui.video.CMPPlayer
+import com.bitat.ui.video.PlayerSpeed
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
@@ -165,23 +164,34 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 //                                        modifier = Modifier.fillMaxSize(),
 //                                        cover = currentDto.cover,
 //                                        isFixHeight = true)
-                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
+//                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
+//                                        url = currentDto.resource.video,
+//                                        playerConfig = PlayerConfig(
+//                                            isPauseResumeEnabled = false,
+//                                            isSeekBarVisible = false,
+//                                            isDurationVisible = false,
+//                                            seekBarThumbColor = Color.Red,
+//                                            seekBarActiveTrackColor = Color.Red,
+//                                            seekBarInactiveTrackColor = Color.White,
+//                                            durationTextColor = Color.White,
+//                                            seekBarBottomPadding = 10.dp,
+//                                            pauseResumeIconSize = 40.dp,
+//                                            isAutoHideControlEnabled = true,
+//                                            controlHideIntervalSeconds = 0,
+//                                            isFastForwardBackwardEnabled = false
+//                                        )
+//                                    )
+                                    CMPPlayer(modifier = Modifier.fillMaxWidth(),
                                         url = currentDto.resource.video,
-                                        playerConfig = PlayerConfig(
-                                            isPauseResumeEnabled = false,
-                                            isSeekBarVisible = false,
-                                            isDurationVisible = false,
-                                            seekBarThumbColor = Color.Red,
-                                            seekBarActiveTrackColor = Color.Red,
-                                            seekBarInactiveTrackColor = Color.White,
-                                            durationTextColor = Color.White,
-                                            seekBarBottomPadding = 10.dp,
-                                            pauseResumeIconSize = 40.dp,
-                                            isAutoHideControlEnabled = true,
-                                            controlHideIntervalSeconds = 0,
-                                            isFastForwardBackwardEnabled = false
-                                        )
-                                    )
+                                        isPause = false,
+                                        isMute = VideoConfig.isPlayVolume,
+                                        totalTime = {},
+                                        currentTime = {},
+                                        isSliding = false,
+                                        sliderTime = null,
+                                        speed = PlayerSpeed.X1) {
+
+                                    }
 
                                 }
                             }
