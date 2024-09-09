@@ -61,12 +61,16 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
     LaunchedEffect(state) {
         snapshotFlow { state.value.report }.distinctUntilChanged().collect {
             if (state.value.report == 1) {
-                ToastModel(ctx.getString(R.string.blog_report_success),
-                    ToastModel.Type.Success).showToast()
+                ToastModel(
+                    ctx.getString(R.string.blog_report_success),
+                    ToastModel.Type.Success
+                ).showToast()
                 navHostController.popBackStack()
             } else if (state.value.report == 2) {
-                ToastModel(ctx.getString(R.string.blog_report_fail),
-                    ToastModel.Type.Error).showToast()
+                ToastModel(
+                    ctx.getString(R.string.blog_report_fail),
+                    ToastModel.Type.Error
+                ).showToast()
                 navHostController.popBackStack()
             }
         }
@@ -78,41 +82,61 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
     }
 
     Scaffold(topBar = {
-
         CommonTopBar(modifier = Modifier.padding(top = statusBarHeight),
             title = stringResource(id = R.string.blog_report),
             backFn = { navHostController.popBackStack() })
 
     }) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().background(color = Color.White)
-            .padding(innerPadding),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
+                .padding(innerPadding),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-            Text(text = stringResource(R.string.blog_report_hint),
+            Text(
+                text = stringResource(R.string.blog_report_hint),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 10.dp),
-                textAlign = TextAlign.Start)
-            LazyVerticalGrid(columns = GridCells.Fixed(2), // 设置固定列数为2
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 10.dp),
+                textAlign = TextAlign.Start
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2), // 设置固定列数为2
                 contentPadding = PaddingValues(16.dp), // 设置内边距
                 verticalArrangement = Arrangement.spacedBy(10.dp), // 设置行间距
                 horizontalArrangement = Arrangement.spacedBy(10.dp) // 设置列间距
             ) {
                 items(state.value.reportList.size) { index ->
                     val item = state.value.reportList[index]
-                    Column(modifier = Modifier.fillMaxWidth().height(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(color = if (item.isSelect) MaterialTheme.colorScheme.primary else colorResource(
-                            R.color.pop_content_bg)).clickable {
-                            item.isSelect = !item.isSelect
-                            vm.selectRepor(item)
-                        },
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                color = if (item.isSelect) MaterialTheme.colorScheme.primary else colorResource(
+                                    R.color.pop_content_bg
+                                )
+                            )
+                            .clickable {
+                                item.isSelect = !item.isSelect
+                                vm.selectRepor(item)
+                            },
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         val text = ReportUtils.getReportTypeList()[index].name
-                        Text(text = text,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp,
-                                color = if (item.isSelect) MaterialTheme.colorScheme.onPrimary else MaterialTheme.typography.bodyMedium.color))
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 12.sp,
+                                color = if (item.isSelect) MaterialTheme.colorScheme.onPrimary else MaterialTheme.typography.bodyMedium.color
+                            )
+                        )
                     }
                 }
             }
@@ -121,14 +145,12 @@ fun ReportUserPage(navHostController: NavHostController, viewModelProvider: View
                 Text(text = state.value.updateIndex.toString())
             }
 
-            TextButton(modifier = Modifier.fillMaxWidth()
+            TextButton(modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 40.dp, end = 40.dp, top = 20.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
-                    CuLog.debug(CuTag.Blog, "点击举报${vmBlog.blogState.value.currentBlog?.userId}")
-                    vmBlog.blogState.value.currentBlog?.let {
-                        vm.report(it.userId.toLong())
-                    }
+                    vm.report()
                 }) {
                 Text(text = stringResource(R.string.submit))
             }

@@ -65,7 +65,12 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun TimeLinePage(
+    type: Int,
+    userId: Long,
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider
+) {
     val vm: TimeLineViewModel = viewModelProvider[TimeLineViewModel::class]
     val state = vm.state.collectAsState()
 
@@ -158,8 +163,12 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
         mutableStateOf(false)
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
-            .padding(start = 5.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .heightIn(min = ScreenUtils.screenHeight.dp - 56.dp)
+                .padding(start = 5.dp)
+        ) {
 
             state.value.timeLineList.forEachIndexed { index, item ->
                 TimeLineBlogItem(blog = item,
@@ -221,7 +230,7 @@ fun TimeLinePage(type: Int, userId: Long, navController: NavHostController, view
 
 
     state.value.currentBlog?.let {
-        BlogMorePop(isMoreVisible.value, it, navController) {
+        BlogMorePop(isMoreVisible.value, it, navController, viewModelProvider) {
             isMoreVisible.value = false
         }
     }

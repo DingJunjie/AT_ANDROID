@@ -10,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -61,16 +60,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
-import com.bitat.Local
+import com.bitat.MainCo
 import com.bitat.ext.toChatMessage
-import com.bitat.repository.dto.req.UserInfoDto
-import com.bitat.repository.dto.resp.UserPartDto
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.singleChat.TcpHandler
-import com.bitat.repository.singleChat.TcpHandler.roomFlow
+import com.bitat.repository.singleChat.ChatOps
+import com.bitat.repository.singleChat.SetTopParams
+import com.bitat.repository.singleChat.SingleChatHelper
+import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
@@ -84,9 +84,7 @@ import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -99,8 +97,23 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     val chatState by chatVm.state.collectAsState()
 
     LaunchedEffect(Dispatchers.Default) {
-        roomFlow.collect {
-            chatVm.getRooms()
+
+        singleChatUiFlow.collect {
+            when (it.keys.first()) {
+                ChatOps.GetRooms -> {
+                    chatVm.updateRooms(it.values.first() as List<SingleRoomPo>)
+                    CuLog.info(CuTag.SingleChat, it.toString())
+                }
+
+                ChatOps.SetTop -> {
+                    val res = it.values.first() as SetTopParams
+                    chatVm.setTop(res.otherId, res.isTop == 1) {}
+//                    chatVm.setTop()
+                }
+
+                ChatOps.SetMute -> TODO()
+                ChatOps.GetMessage -> TODO()
+            }
         }
     }
 
@@ -111,19 +124,11 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     val options = remember {
         listOf(
             SwipeActionItem(
-                type = SwipeActionType.PLAIN,
-                label = "喜欢",
-                icon = Icons.Outlined.FavoriteBorder
-            ),
-            SwipeActionItem(
-                type = SwipeActionType.WARNING,
-                label = "收藏",
-                icon = Icons.Outlined.Star
-            ),
-            SwipeActionItem(
-                type = SwipeActionType.DANGER,
-                label = "删除",
-                icon = Icons.Outlined.Delete
+                type = SwipeActionType.PLAIN, label = "喜欢", icon = Icons.Outlined.FavoriteBorder
+            ), SwipeActionItem(
+                type = SwipeActionType.WARNING, label = "收藏", icon = Icons.Outlined.Star
+            ), SwipeActionItem(
+                type = SwipeActionType.DANGER, label = "删除", icon = Icons.Outlined.Delete
             )
         )
     }
@@ -136,8 +141,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     ) {
         TopAppBar(title = {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = { navHostController.navigate(NavigationItem.Notification.route) }) {
                     Icon(imageVector = Icons.Outlined.Notifications, contentDescription = null)
@@ -174,22 +178,19 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     .background(Color(0xfff5f5f5))
                     .padding(horizontal = 8.dp)
                     .clickable { }) {
-                    ChatList(
-                        chatState.chatList,
-                        options,
-                        toast,
-                        setTop = {
-                            chatVm.setTop(it.otherId, it.top == 0)
-                            flag.value = !flag.value
-                        },
-                        setMute = {
+                    ChatList(chatState.chatList, options, toast, setTop = {
+                        MainCo.launch {
+                            SingleChatHelper.setTop(it.otherId, it.top)
+                        }
+                        chatVm.setTop(it.otherId, it.top == 0)
+                        flag.value = !flag.value
+                    }, setMute = {
 //                            chatVm.muteRoom(it.otherId)
-                            flag.value = !flag.value
-                        },
-                        delete = {
-                            chatVm.deleteRoom(it.otherId)
-                            flag.value = !flag.value
-                        }) {
+                        flag.value = !flag.value
+                    }, delete = {
+                        chatVm.deleteRoom(it.otherId)
+                        flag.value = !flag.value
+                    }) {
                         chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
                     }
@@ -295,8 +296,7 @@ fun ChatList(
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(
-                top = 4.dp,
-                bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
+                top = 4.dp, bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
             ),
     ) {
         items(roomList) { item ->
@@ -337,8 +337,7 @@ fun ChatList(
 @Composable
 fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
-            .padding(horizontal = 10.dp)
+        modifier = Modifier.padding(horizontal = 10.dp)
 //            .background(if (info.top > 0) Color.LightGray else Color.White)
     ) {
         Column(modifier = Modifier
@@ -354,8 +353,7 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
                     .fillMaxWidth()
             ) {
                 Avatar(
-                    url = info.profile,
-                    size = 50.dp
+                    url = info.profile, size = 50.dp
                 )
                 Column(
                     modifier = Modifier
@@ -380,9 +378,7 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
                     ) {
                         ChatContent(content = info.content.toChatMessage(info.kind))
                         Surface(
-                            modifier = Modifier.size(26.dp),
-                            color = Color.Red,
-                            shape = CircleShape
+                            modifier = Modifier.size(26.dp), color = Color.Red, shape = CircleShape
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -424,15 +420,13 @@ fun ChatContent(content: String) {
 @Composable
 fun Avatar(url: String, modifier: Modifier = Modifier, size: Dp = 40.dp, tapFn: () -> Unit = {}) {
     Surface(shape = CircleShape) {
-        Column(
-            modifier = modifier
-                .size(size)
-                .border(width = size / 2, color = Color.Transparent, shape = CircleShape)
-                .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
-                .clickable {
-                    tapFn()
-                }
-        ) {
+        Column(modifier = modifier
+            .size(size)
+            .border(width = size / 2, color = Color.Transparent, shape = CircleShape)
+            .paint(painter = rememberAsyncPainter(url), contentScale = ContentScale.Crop)
+            .clickable {
+                tapFn()
+            }) {
 
         }
     }

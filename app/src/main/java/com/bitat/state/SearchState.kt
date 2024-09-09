@@ -6,6 +6,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.dto.resp.UserBase1Dto
+import com.bitat.repository.po.SearchHistoryPo
 
 enum class SearchType {
     BLOG, VIDEO, ACTIVITY, PODCAST, USER, TAG;
@@ -27,7 +28,7 @@ enum class SearchType {
 
 data class SearchState(
     val keyword: String = "",
-    val historyList: SnapshotStateList<String> = mutableStateListOf(),
+    val historyList: SnapshotStateList<SearchHistoryPo> = mutableStateListOf(),
     val searchBlogResult: SnapshotStateList<SearchResults> = mutableStateListOf(),
     val searchType: SearchType = SearchType.BLOG,
     val searchUserResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
