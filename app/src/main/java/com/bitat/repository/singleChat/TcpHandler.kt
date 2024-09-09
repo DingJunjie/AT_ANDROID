@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 object TcpHandler {
-    val chatFlow = MutableSharedFlow<SingleMsgPo>()
-    val roomFlow = MutableSharedFlow<SingleRoomPo>()
+    val chatFlow = MutableSharedFlow<SingleMsgPo>(extraBufferCapacity = 16)
+    val roomFlow = MutableSharedFlow<SingleRoomPo>(extraBufferCapacity = 16)
 
     fun chat(msg: MsgDto.ChatMsg) {
         CuLog.debug(CuTag.SingleChat, "收到消息：${msg.data.toString(Charsets.UTF_8)}")

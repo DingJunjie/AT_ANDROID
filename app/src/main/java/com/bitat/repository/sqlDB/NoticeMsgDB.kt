@@ -13,7 +13,7 @@ CREATE TABLE IF NOT  EXISTS "notice_msg" (
   "source_id" integer NOT NULL,
   "from_id" integer NOT NULL,
    "time" integer NOT NULL,
-  "content" TEXT NOT NULL,
+  "content" TEXT NOT NULL
 );
 
     CREATE INDEX  IF NOT EXISTS  "notice_msg_0"

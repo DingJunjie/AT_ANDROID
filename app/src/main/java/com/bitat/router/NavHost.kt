@@ -5,11 +5,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.amap.api.services.route.Navi
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
 import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
+import com.bitat.ui.chat.ChatHistoryPage
 import com.bitat.ui.chat.ChatSettingsPage
 import com.bitat.ui.chat.NotificationPage
 import com.bitat.ui.common.GDMapPage
@@ -43,7 +45,7 @@ enum class Screen {
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
     PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK
+    FEEDBACK, CHAT_HISTORY
 }
 
 sealed class NavigationItem(val route: String) {
@@ -82,6 +84,7 @@ sealed class NavigationItem(val route: String) {
     data object Signout : NavigationItem(Screen.SIGNOUT.name)
     data object CancelAgreemet : NavigationItem(Screen.CANCELAGREEMENT.name)
     data object FeedBack : NavigationItem(Screen.FEEDBACK.name)
+    data object ChatHistory : NavigationItem(Screen.CHAT_HISTORY.name)
 
 }
 
@@ -173,16 +176,18 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ImagePreview.route) {
-
             ImagePreviewPage(navController = navController, viewModelProvider)
         }
+
         composable(NavigationItem.ReportUser.route) {
             ReportUserPage(navHostController = navController, viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.CollectionDetail.route) {
-            CollectionDetail(navHostController = navController,
-                viewModelProvider = viewModelProvider)
+            CollectionDetail(
+                navHostController = navController,
+                viewModelProvider = viewModelProvider
+            )
         }
 
         composable(NavigationItem.Others.route) {
@@ -198,8 +203,10 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ProfileEdit.route) {
-            ProfileEditPage(navHostController = navController,
-                viewModelProvider = viewModelProvider)
+            ProfileEditPage(
+                navHostController = navController,
+                viewModelProvider = viewModelProvider
+            )
         }
 
         composable(NavigationItem.Setting.route) {
@@ -231,6 +238,13 @@ fun AppNavHost(
         }
         composable(NavigationItem.FeedBack.route) {
             FeedbackPage(navController)
+        }
+
+        composable(NavigationItem.ChatHistory.route) {
+            ChatHistoryPage(
+                navHostController = navController,
+                viewModelProvider = viewModelProvider
+            )
         }
     }
 }

@@ -15,6 +15,7 @@ import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.singleChat.TcpHandler
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -95,8 +96,6 @@ class ChatViewModel : ViewModel() {
                 it
             }
 
-
-
             _state.update { s ->
                 val i = s.chatList.indexOfFirst { it.otherId == otherId }
                 s.chatList[i].top = if (isTop) 1 else 0
@@ -104,7 +103,10 @@ class ChatViewModel : ViewModel() {
                 val updatedRoom = s.currentRoom.also {
                     it.top = if (isTop) 1 else 0
                 }
+
+
                 s.copy(currentRoom = updatedRoom)
+
             }
 
             SingleRoomDB.updateTop(
@@ -112,6 +114,8 @@ class ChatViewModel : ViewModel() {
                 UserStore.userInfo.id,
                 otherId
             )
+
+            TcpHandler.roomFlow.emit(SingleRoomPo())
         }
     }
 

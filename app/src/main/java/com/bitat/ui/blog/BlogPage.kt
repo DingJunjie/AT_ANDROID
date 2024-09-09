@@ -283,7 +283,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                                 currentOperation = BlogOperation.Comment
                                             }
                                             isCommentVisible.value = true
-
                                         },
                                         tapAt = {
                                             coroutineScope.launch {
@@ -423,7 +422,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             vm.setCurrentBlog(it)
             vm.refreshCurrent(it)
         }
-
     }
 }
 

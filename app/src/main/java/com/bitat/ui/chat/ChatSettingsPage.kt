@@ -44,12 +44,15 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.amap.api.services.route.Navi
 import com.bitat.R
+import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.component.BackButton
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.ChatViewModel
 import java.security.spec.EllipticCurve
 
@@ -57,6 +60,9 @@ import java.security.spec.EllipticCurve
 fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
+
+    val oprVm = viewModelProvider[BlogMoreViewModel::class]
+    val oprState = oprVm.state.collectAsState()
 
     var flag = remember {
         mutableStateOf(false)
@@ -83,23 +89,26 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
                 switchMuted = {
                     chatVm.muteRoom(chatState.currentRoom.otherId, it)
                     flag.value = !flag.value
-
                 },
                 switchTop = {
                     chatVm.setTop(otherId = chatState.currentRoom.otherId, it)
                     flag.value = !flag.value
-
                 },
                 relationChange = {
                     flag.value = !flag.value
                 },
-                goHistory = {},
+                goHistory = {
+                    navHostController.navigate(NavigationItem.ChatHistory.route)
+                },
                 goDetailSetting = {},
                 clearAllMsg = {
                     chatVm.clearAllMessage(chatState.currentRoom.otherId)
 //                    chatVm.updateRoomContent(cr!!.otherId)
                 },
-                feedback = {}
+                feedback = {
+                    oprVm.setUser(chatState.currentRoom.otherId)
+                    navHostController.navigate(NavigationItem.ReportUser.route)
+                }
             )
             if (flag.value) Box(
                 modifier = Modifier

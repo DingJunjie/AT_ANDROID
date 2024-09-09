@@ -9,7 +9,12 @@ import com.bitat.repository.dto.common.PageDto
 import com.bitat.repository.dto.req.SearchCommonDto
 import com.bitat.repository.http.service.RankingReq
 import com.bitat.repository.http.service.SearchReq
+import com.bitat.repository.po.SearchHistoryPo
+import com.bitat.repository.sqlDB.SearchHistoryDB
+import com.bitat.repository.store.UserStore
 import com.bitat.state.SearchState
+import com.bitat.utils.TimeUtils
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,9 +31,40 @@ class SearchViewModel : ViewModel() {
         }
     }
 
+    fun deleteKeyword(keyword: String) {
+        MainCo.launch(IO) {
+            SearchHistoryDB.delete(UserStore.userInfo.id, keyword)
+            _searchState.update {
+                it.historyList.removeIf { that ->
+                    that.content == keyword
+                }
+                it
+            }
+        }
+    }
+
     fun updateKeyword(keyword: String) {
         _searchState.update {
             it.copy(keyword = keyword)
+        }
+    }
+
+    fun insertHistory() {
+        SearchHistoryDB.insertOne(SearchHistoryPo().apply {
+            userId = UserStore.userInfo.id
+            content = _searchState.value.keyword
+            time = TimeUtils.getNow()
+        })
+    }
+
+    fun getHistory() {
+        MainCo.launch(IO) {
+            val list = SearchHistoryDB.find(UserStore.userInfo.id)
+            _searchState.update {
+                it.historyList.clear()
+                it.historyList.addAll(list)
+                it
+            }
         }
     }
 
