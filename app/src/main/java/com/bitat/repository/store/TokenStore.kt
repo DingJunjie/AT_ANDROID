@@ -52,7 +52,6 @@ object TokenStore {
                         expire = it.expire
                     }
                 }
-
             }
         }
         return token

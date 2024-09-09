@@ -51,9 +51,8 @@ object BlogReq {
         Http.get<Array<BlogBaseDto>>("${Http.HOST}/service/blog/recommendBlogs")
 
     //用过blogId数组查询博文封面信息
-    suspend inline fun queryCover(dto: QueryCoverDto) =
-        Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/blog/queryCover", dto)
-
+    suspend inline fun queryHistory(dto: Array<QueryCoverDto>) =
+        Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/blog/queryHistory", dto)
 
     //获取我的是时间线
     suspend inline fun timeLine(dto: TimeLineDto) =

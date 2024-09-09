@@ -1,6 +1,9 @@
 package com.bitat.ui.video
 
-data class PlayerConfig(var isMute: Boolean = false)
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
+data class PlayerConfig(val isMute: MutableState<Boolean> = mutableStateOf(false),val isPause: MutableState<Boolean> = mutableStateOf(false))
 
 //var isPauseResumeEnabled: Boolean = true,
 //var isSeekBarVisible: Boolean = true,

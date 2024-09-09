@@ -41,11 +41,11 @@ fun Splash(navHostController: NavHostController) {
                     navHostController.navigate(NavigationItem.Home.route)
                 }.errMap {
                     println("get error message ${it.msg}")
+                    navHostController.navigate(NavigationItem.Login.route)
                 }
             }
         }
     }
-
 
     Scaffold { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) { //            TextToImage()

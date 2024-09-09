@@ -17,7 +17,7 @@ class CancelAgreementViewModel : ViewModel() {
 
     fun cancelAccount(captcha: String, phone: String, onCompleted: () -> Unit) {
         MainCo.launch {
-            LoginReq.cancel(CancelDto(captcha, phone)).await().map {
+            LoginReq.cancel(CancelDto(captcha,phone)).await().map {
                 onCompleted()
             }.errMap {
                 CuLog.error(CuTag.Profile, "LoginReq cancel error code:${it.code},msg:${it.msg}")

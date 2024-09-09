@@ -2,10 +2,13 @@ package com.bitat.viewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.http.service.UserReq
+import com.bitat.repository.sqlDB.WatchHistoryDB
 import com.bitat.state.OthersState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,6 +53,12 @@ class OthersViewModel : ViewModel() {
     fun atBottom(isBottom: Boolean) {
         _othersState.update {
             it.copy(isAtBottom = isBottom)
+        }
+    }
+
+    fun addWatchHistory(){
+        viewModelScope.launch(Dispatchers.IO) {
+            WatchHistoryDB
         }
     }
 }

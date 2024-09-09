@@ -186,7 +186,6 @@ fun FeedbackPage(navHostController: NavHostController) {
                             text = "请详细描述您遇到的问题、您的建议和诉求···",
                         )
                     },
-
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
@@ -194,7 +193,7 @@ fun FeedbackPage(navHostController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp),
-                    textStyle = MaterialTheme.typography.bodySmall,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     colors =
                     TextFieldDefaults.colors(
                         unfocusedContainerColor = MaterialTheme.colorScheme.background,

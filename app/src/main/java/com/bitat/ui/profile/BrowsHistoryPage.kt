@@ -10,6 +10,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import com.bitat.R
 import com.bitat.router.AtNavigation
 import com.bitat.state.BrowserHistoryState
 import com.bitat.ui.component.CommonTopBar
+import com.bitat.ui.component.MediaGrid
 import com.bitat.viewModel.BrowserHistoryViewModel
 
 /**
@@ -41,6 +43,9 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
         PROFILE_TAB_OPTIONS.size
     }
 
+    LaunchedEffect(Unit){
+        vm.worksHistory()
+    }
 
     Scaffold(topBar = {
         CommonTopBar(modifier = Modifier,
@@ -54,7 +59,6 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
             ProfileTabBar(pagerState, PROFILE_TAB_OPTIONS) { index ->
                 vm.setCurrentTabIndex(index)
             }
-
             HorizontalPager(state = pagerState,
                 modifier = Modifier.fillMaxSize().background(Color.White),
                 verticalAlignment = Alignment.Top) { index ->
@@ -62,6 +66,10 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
                 when (index) {
                     0 -> {
 
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            MediaGrid(mediaList = state.value.myWorks)
+
+                        }
                     }
                     1 -> { //                        ProfileWorks(userId = userId, navHostController, viewModelProvider)
                     }
@@ -70,4 +78,9 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
             }
         }
     }
+}
+
+@Composable
+fun WorkHistory(state: State<BrowserHistoryState>) {
+
 }

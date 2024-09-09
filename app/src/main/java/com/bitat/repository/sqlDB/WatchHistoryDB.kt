@@ -57,7 +57,7 @@ object WatchHistoryDB {
     )
     fun find(selfId: Long,pageNo: Int = 0,pageSize:Int = 50) =  SqlDB.queryBatch(
         WatchHistoryPo::of,
-        "select * from watch_history where user_id = ? order by create_time desc limit ? offset ?",
+        "select * from watch_history where user_id = ? order by time desc limit ? offset ?",
         selfId,
         pageSize,
         pageNo * pageSize

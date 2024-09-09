@@ -20,6 +20,7 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.AccountSecurePage
+import com.bitat.ui.profile.BrowserHistoryPage
 import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
@@ -42,8 +43,8 @@ enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, //
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
-    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK
+    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT, //
+    FEEDBACK, BROWSHISTORY
 }
 
 sealed class NavigationItem(val route: String) {
@@ -82,6 +83,7 @@ sealed class NavigationItem(val route: String) {
     data object Signout : NavigationItem(Screen.SIGNOUT.name)
     data object CancelAgreemet : NavigationItem(Screen.CANCELAGREEMENT.name)
     data object FeedBack : NavigationItem(Screen.FEEDBACK.name)
+    data object BrowHistory : NavigationItem(Screen.BROWSHISTORY.name)
 
 }
 
@@ -223,7 +225,7 @@ fun AppNavHost(
             NotificationPage(navController, viewModelProvider)
         }
         composable(NavigationItem.Signout.route) {
-            SignoutPage(navController)
+            SignoutPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.CancelAgreemet.route) {
@@ -231,6 +233,9 @@ fun AppNavHost(
         }
         composable(NavigationItem.FeedBack.route) {
             FeedbackPage(navController)
+        }
+        composable(NavigationItem.BrowHistory.route) {
+            BrowserHistoryPage(navController)
         }
     }
 }
@@ -328,6 +333,10 @@ class AtNavigation(navController: NavHostController) {
 
     val navigateToFeedBackPage: () -> Unit = {
         navController.navigate(NavigationItem.FeedBack.route)
+    }
+
+    val navigationToBrowserHistory: () -> Unit = {
+        navController.navigate(NavigationItem.BrowHistory.route)
     }
 
 

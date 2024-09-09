@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -21,8 +24,10 @@ import com.bitat.log.CuTag
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.reel.BitVideoPlayer
+import com.bitat.ui.reel.BitVideoType
 import com.bitat.ui.reel.VideoConfig
 import com.bitat.ui.video.CMPPlayer
+import com.bitat.ui.video.PlayerConfig
 import com.bitat.ui.video.PlayerSpeed
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
@@ -31,42 +36,35 @@ import com.bitat.viewModel.ReelViewModel
 fun BlogVideo(modifier: Modifier = Modifier, dto: BlogBaseDto, height: Int, isPlaying: Boolean = false, coverIsFull: Boolean = true, needRoundedCorner: Boolean = true, navController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[BlogViewModel::class]
     val detailsVm = viewModelProvider[ReelViewModel::class]
+    val config by remember {
+        mutableStateOf(PlayerConfig())
+    }
 
     Surface(shape = RoundedCornerShape(if (needRoundedCorner) 20.cdp else 0.cdp),
-        modifier = modifier.fillMaxWidth().height(height.dp).clickable {
-            vm.setCurrentBlog(dto)
-            detailsVm.setCurrentBlog(dto)
-            AtNavigation(navController).navigateToVideo()
-        }) {
+        modifier = modifier.fillMaxWidth().height(height.dp) //            .clickable {
+        //            vm.setCurrentBlog(dto)
+        //            detailsVm.setCurrentBlog(dto)
+        //            AtNavigation(navController).navigateToVideo()
+        //        }
+    ) {
         AsyncImage(model = dto.cover,
             modifier = Modifier.clip(RoundedCornerShape(if (needRoundedCorner) 8.dp else 0.dp))
                 .fillMaxWidth().height(height.dp).background(Color.Transparent),
             contentDescription = null,
             contentScale = if (coverIsFull) ContentScale.Crop else ContentScale.FillWidth)
 
-        if (isPlaying) { //            BitVideoPlayer(
-            //                data = dto.resource.video,
-            //                modifier = Modifier.fillMaxWidth(),
-            //                cover = dto.cover,
-            //                isFixHeight = true,
-            //                soundShow = true, onSingleTap = {
-            //                    vm.setCurrentBlog(dto)
-            //                    detailsVm.setCurrentBlog(dto)
-            //                    AtNavigation(navController).navigateToVideo()
-            //                }
-            //            )
-
-            CMPPlayer(modifier = Modifier.fillMaxWidth(),
-                url = dto.resource.video,
-                isPause = false,
-                isMute = VideoConfig.isPlayVolume,
-                totalTime = {},
-                currentTime = {},
-                isSliding = false,
-                sliderTime = null,
-                speed = PlayerSpeed.X1) {
-
-            }
+        if (isPlaying) {
+            BitVideoPlayer(data = dto.resource.video,
+                modifier = Modifier.fillMaxWidth(),
+                cover = dto.cover,
+                isFixHeight = true,
+                soundShow = true,
+                config = config, type = BitVideoType.VideoList,
+                onSingleTap = {
+                    vm.setCurrentBlog(dto)
+                    detailsVm.setCurrentBlog(dto)
+                    AtNavigation(navController).navigateToVideo()
+                })
         }
         CuLog.info(CuTag.Blog, "BlogVideo--------- ${dto.id}")
     }

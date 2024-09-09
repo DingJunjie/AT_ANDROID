@@ -103,6 +103,13 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
         val maxScroll = scrollState.maxValue
         vm.atBottom(scrollState.value == maxScroll)
     }
+
+
+    LaunchedEffect(Unit) {
+        // 页面打开记录浏览历史
+
+    }
+
     Scaffold { padding ->
 
         Column(modifier = Modifier.background(Color.White)) {

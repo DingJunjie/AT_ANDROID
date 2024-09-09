@@ -25,15 +25,6 @@ class SignoutViewModel : ViewModel() {
     private val _state = MutableStateFlow((SignoutState()))
     val state: StateFlow<SignoutState> get() = _state.asStateFlow()
 
-    fun cancelUser(captcha: String, phone: String) {
-        MainCo.launch {
-            LoginReq.cancel(CancelDto(captcha, phone)).await().map { }.errMap {
-
-
-            }
-        }
-    }
-
     fun sendMsg(phone: String, successFn: () -> Unit) {
         MainCo.launch {
             LoginReq.smsCaptcha(SmsCaptchaDto()).await().map {

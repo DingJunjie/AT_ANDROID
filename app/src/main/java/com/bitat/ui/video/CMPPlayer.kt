@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -30,13 +31,13 @@ fun CMPPlayer(
     modifier: Modifier,
     url: String,
     isPause: Boolean,
-    isMute: Boolean,
     totalTime: ((Int) -> Unit),
     currentTime: ((Int) -> Unit),
     isSliding: Boolean,
     sliderTime: Int?,
-    speed: PlayerSpeed,config: PlayerConfig=PlayerConfig(),
-    videoReady: (ExoPlayer) -> Unit = {}
+    speed: PlayerSpeed,
+    config: PlayerConfig=PlayerConfig(),
+    videoReady: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val exoPlayer = rememberExoPlayerWithLifecycle(url, context, isPause)
@@ -54,6 +55,24 @@ fun CMPPlayer(
         playerView.keepScreenOn = true
     }
 
+    LaunchedEffect(config.isMute){
+
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { config.isMute }.collect { value ->
+            exoPlayer.volume=if (config.isMute.value) 0f else 1f
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { config.isPause }.collect { value ->
+            CuLog.debug(CuTag.Base,"isPause,${config.isPause.value}")
+            if (config.isPause.value) exoPlayer.pause() else exoPlayer.play()
+        }
+    }
+
+
     Box {
         AndroidView(
             factory = { playerView },
@@ -61,7 +80,7 @@ fun CMPPlayer(
             update = { view ->
                 setProgressBarColor(view, progressBarColor)
                 exoPlayer.playWhenReady = !isPause
-                exoPlayer.volume = if (isMute) {
+                exoPlayer.volume = if (config.isMute.value) {
                     0f
                 } else {
                     1f
@@ -112,12 +131,12 @@ fun CMPPlayer(
                         Player.STATE_BUFFERING -> {
                             // 播放器正在缓冲
                             CuLog.debug(CuTag.Blog, "CMPVideo 加载中")
-                            videoReady(exoPlayer)
                         }
 
                         Player.STATE_READY -> {
                             // 播放器已经准备好，且能够立即播放
                             CuLog.debug(CuTag.Blog, "CMPVideo 准备完毕")
+                            videoReady()
                         }
 
                         Player.STATE_ENDED -> {
@@ -129,6 +148,7 @@ fun CMPPlayer(
 
                 override fun onPlayerError(error: PlaybackException) {
                     super.onPlayerError(error)
+                    CuLog.error(CuTag.Blog, "CMPVideo play error  code:${error.errorCode}")
                 }
             }
 

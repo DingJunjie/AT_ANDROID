@@ -1,6 +1,7 @@
 package com.bitat.ui.reel
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +61,7 @@ import com.bitat.ui.component.UserInfoWithAvatar
 import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.theme.Typography
 import com.bitat.ui.video.CMPPlayer
+import com.bitat.ui.video.PlayerConfig
 import com.bitat.ui.video.PlayerSpeed
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.CollectViewModel
@@ -80,12 +82,14 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     val state = vm.state.collectAsState()
     val pagerState = rememberPagerState(initialPage = state.value.resIndex,
         pageCount = { state.value.resList.size })
-    val horPagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
     val imagePreviewVm: ImagePreviewViewModel = viewModelProvider[ImagePreviewViewModel::class]
 
     val isCommentVisible = remember {
         mutableStateOf(false)
+    }
+    val config by remember {
+        mutableStateOf(PlayerConfig())
     }
 
     val commentVm: CommentViewModel = viewModelProvider[CommentViewModel::class]
@@ -139,12 +143,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         }
     }
 
-    //    BackHandler {
-    //        AtNavigation(navController).navigateToHome()
-    //    }
+    BackHandler {
+        AtNavigation(navController).navigateToHome()
+    }
 
-
-    val isPlay = mutableStateOf(true)
     val horpagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     HorizontalPager(state = horpagerState) { horPage ->
         when (horPage) {
@@ -153,61 +155,43 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
                     CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
-                    Box(modifier = Modifier
-                        .fillMaxSize()
+                    Box(modifier = Modifier.fillMaxSize()
                         .background(color = Color.Black)) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
-                                if (page == state.value.resIndex) { //                    isPlay.val ue = page == state.value.resIndex
+                                if (page == state.value.resIndex) {
                                     othersVm.initUserId(currentDto.userId)
-//                                    CuExoPlayer(data = currentDto.resource.video,
-//                                        modifier = Modifier.fillMaxSize(),
-//                                        cover = currentDto.cover,
-//                                        isFixHeight = true)
-//                                    VideoPlayerView(modifier = Modifier.fillMaxSize(),
-//                                        url = currentDto.resource.video,
-//                                        playerConfig = PlayerConfig(
-//                                            isPauseResumeEnabled = false,
-//                                            isSeekBarVisible = false,
-//                                            isDurationVisible = false,
-//                                            seekBarThumbColor = Color.Red,
-//                                            seekBarActiveTrackColor = Color.Red,
-//                                            seekBarInactiveTrackColor = Color.White,
-//                                            durationTextColor = Color.White,
-//                                            seekBarBottomPadding = 10.dp,
-//                                            pauseResumeIconSize = 40.dp,
-//                                            isAutoHideControlEnabled = true,
-//                                            controlHideIntervalSeconds = 0,
-//                                            isFastForwardBackwardEnabled = false
-//                                        )
-//                                    )
-                                    CMPPlayer(modifier = Modifier.fillMaxWidth(),
-                                        url = currentDto.resource.video,
-                                        isPause = false,
-                                        isMute = VideoConfig.isPlayVolume,
-                                        totalTime = {},
-                                        currentTime = {},
-                                        isSliding = false,
-                                        sliderTime = null,
-                                        speed = PlayerSpeed.X1) {
-
-                                    }
-
+                                    vm.addWatchHistory(currentDto)
+                                    //                                    CuExoPlayer(data = currentDto.resource.video,
+                                    //                                        modifier = Modifier.fillMaxSize(),
+                                    //                                        cover = currentDto.cover,
+                                    //                                        isFixHeight = true)
+                                    BitVideoPlayer(data = currentDto.resource.video,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        cover = currentDto.cover,
+                                        isFixHeight = true,
+                                        soundShow = false,
+                                        config = config,
+                                        type = BitVideoType.VideoReel,
+                                        onSingleTap = { //                                            config.isPause.value = true
+                                            //                                            CuLog.error(CuTag.Base,
+                                            //                                                "点击了视频，${config.isPause.value}")
+                                        })
                                 }
                             }
 
                             BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
-                                ImageBanner(currentDto.resource.images.toList(), true)
+                                if(page == state.value.resIndex){
+                                    vm.addWatchHistory(currentDto)
+                                    ImageBanner(currentDto.resource.images.toList(), true)
+                                }
                             }
                         } // 用户信息部分
-                        Column(modifier = Modifier
-                            .align(Alignment.BottomStart)
+                        Column(modifier = Modifier.align(Alignment.BottomStart)
                             .padding(start = 30.cdp, bottom = 50.cdp),
                             horizontalAlignment = Alignment.Start,
                             verticalArrangement = Arrangement.Bottom) {
-                            Column(modifier = Modifier
-                                .height(130.cdp)
-                                .padding(end = 50.dp)) {
+                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
                                 UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
                                     currentDto.nickname,
                                     currentDto.profile,
@@ -220,9 +204,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             }
                             CollapseText(value = currentDto.content,
                                 maxLines = 1,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 50.dp),
+                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
                                 textStyle = Typography.bodyLarge.copy(color = Color.White,
                                     lineHeight = 26.sp),
                                 maxLength = 17)
@@ -239,12 +221,12 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         }
 
                         // 点赞、收藏 部分
-                        Column(modifier = Modifier
-                            .padding(end = 20.cdp, bottom = 50.cdp)
+                        Column(modifier = Modifier.padding(end = 20.cdp, bottom = 50.cdp)
                             .align(Alignment.BottomEnd),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
-                            LikeButton(modifier = Modifier.size(26.dp), id = currentDto.id,
+                            LikeButton(modifier = Modifier.size(26.dp),
+                                id = currentDto.id,
                                 count = currentDto.agrees.toInt(),
                                 isLiked = currentDto.hasPraise,
                                 tintColor = Color.White) { //刷新页面、列表状态
@@ -254,11 +236,13 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
                             AtButton(modifier = Modifier.size(28.dp),
-                                count = currentDto.ats.toInt(), tintColor = Color.White) {
+                                count = currentDto.ats.toInt(),
+                                tintColor = Color.White) {
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            CommentButton(modifier = Modifier.size(25.dp),count = currentDto.comments.toInt(),
+                            CommentButton(modifier = Modifier.size(25.dp),
+                                count = currentDto.comments.toInt(),
                                 tintColor = Color.White) {
                                 coroutineScope.launch {
                                     commentVm.updateBlogId(currentDto.id)
@@ -269,12 +253,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             Spacer(modifier = Modifier.height(70.cdp))
                             CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier
-                                    .size(27.dp)
-                                    .onGloballyPositioned {
-                                        collectTipY = it.positionInWindow().y.toInt()
-                                        CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
-                                    }) {
+                                modifier = Modifier.size(27.dp).onGloballyPositioned {
+                                    collectTipY = it.positionInWindow().y.toInt()
+                                    CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
+                                }) {
 
                                 collectVm.updateBlog(blog = currentDto)
 
@@ -319,25 +301,6 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
         }
     }
-
-    //    Column(modifier = Modifier) { //短视频观看
-    //        val urlList = mutableListOf<String>()
-    //
-    //        state.value.resList.forEachIndexed { index, blogBaseDto ->
-    //            urlList.add(blogBaseDto.resource.video)
-    //        }
-    //
-    //        ReelsPlayerView(modifier = Modifier.fillMaxSize(),
-    //            urls = urlList,
-    //            playerConfig = PlayerConfig(
-    //                isSeekBarVisible = false,
-    //                isDurationVisible = false,
-    //                isAutoHideControlEnabled = false,
-    //                isPauseResumeEnabled=true,
-    //
-    //            )
-    //        )
-    //    }
 
     CommentPopup(visible = isCommentVisible.value,
         blogId = commentState.currentBlogId,

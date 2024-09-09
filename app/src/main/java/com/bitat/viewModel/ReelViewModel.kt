@@ -1,6 +1,7 @@
 package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
@@ -11,7 +12,10 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.repository.dto.req.RecommendSearchDetailDto
 import com.bitat.repository.http.service.SearchReq
+import com.bitat.repository.sqlDB.WatchHistoryDB
+import com.bitat.repository.store.UserStore
 import com.bitat.state.ReelState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -108,5 +112,11 @@ class ReelViewModel : ViewModel() {
         blog.hasCollect = !blog.hasCollect
         blog.collects = if (blog.hasCollect) blog.collects + 1u else blog.collects - 1u
         refreshCurrent(blog)
+    }
+
+    fun addWatchHistory(dto:BlogBaseDto) {
+        viewModelScope.launch(Dispatchers.IO) {
+            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
+        }
     }
 }

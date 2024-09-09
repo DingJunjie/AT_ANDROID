@@ -75,8 +75,11 @@ class SameCityBlogsDto(
 
 @Serializable
 class QueryCoverDto(
-    var blogIds: LongArray = EmptyArray.long //博文id数组
+    var blogId: Long = 0L, //博文id数组
+    var time:Long=0L
 )
+
+
 
 @Serializable
 class TimeLineDto(
