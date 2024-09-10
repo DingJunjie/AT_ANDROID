@@ -56,7 +56,6 @@ object SingleMsgDB {
             pageNo * pageSize
         )
     //根据kind查询
-    //模糊匹配内容
     fun findByKind(selfId: Long, otherId: Long,kind:Int ,pageNo: Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,

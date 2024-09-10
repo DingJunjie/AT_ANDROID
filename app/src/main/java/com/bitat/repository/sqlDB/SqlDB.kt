@@ -5,6 +5,10 @@ import android.content.Context
 import android.database.Cursor
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 
 const val DB_NAME = "bit_db"
@@ -12,24 +16,10 @@ const val DB_VERSION = 1
 
 class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-    /*fun init(context: Context) {
-        UserDB.init(context)
-        DraftsDB.init(context)
-        GroupMsgDB.init(context)
-        GroupRoomDB.init(context)
-        MyAtsDB.init(context)
-        NoticeDB.init(context)
-        SearchHistoriesDB.init(context)
-        SingleMsgDB.init(context)
-        SingleRoomDB.init(context)
-        WatchHistoriesDB.init(context)
-    }*/
-
     override fun onCreate(db: SQLiteDatabase) {
         UserDB.init(db)
         WatchHistoryDB.init(db)
         SocialRelDB.init(db)
-
         SingleRoomDB.init(db)
         SingleMsgDB.init(db)
         SearchHistoryDB.init(db)
@@ -49,46 +39,49 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         @SuppressLint("StaticFieldLeak")
         private var DB: SqlDB? = null
 
+        private val locker = ReentrantReadWriteLock()
+
         fun init(context: Context) {
             DB = SqlDB(context)
         }
 
-        fun fetchDB(writable: Boolean = false): SQLiteDatabase =
+        fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
             (DB ?: throw Exception("Null SqlDB")).run {
-                if (writable) writableDatabase else readableDatabase
+                if (writable) locker.write { writableDatabase.use(fn) }
+                else locker.read { readableDatabase.use(fn) }
             }
 
-        fun exec(sql: String, vararg bindings: Any) = fetchDB(true).use {
+        fun exec(sql: String, vararg bindings: Any) = fetchDB(true) {
             it.execSQL(sql, bindings)
         }
 
-        fun execFn(fn: (SqlExec) -> Unit) = fetchDB(true).use {
+        fun execFn(fn: (SqlExec) -> Unit) = fetchDB(true) {
             fn(SqlExec(it))
         }
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB(true).use {
+            fetchDB(true) {
                 it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
                     .run { if (moveToFirst()) toFn(this) else null }
             }
 
-        fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB().use {
-                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
-                    .run { if (moveToFirst()) toFn(this) else null }
-            }
+        fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? = fetchDB {
+            it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+                .run { if (moveToFirst()) toFn(this) else null }
+        }
 
-        inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
-            fetchDB().use {
-                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
-                    Array(count) {
-                        moveToNext()
-                        toFn(this)
-                    }
+        inline fun <reified T> queryBatch(
+            crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
+        ) = fetchDB {
+            it.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
+                Array(count) {
+                    moveToNext()
+                    toFn(this)
                 }
             }
+        }
 
-        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? = fetchDB().use {
+        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? = fetchDB {
             it.rawQuery(sql, null).run { if (moveToFirst()) toFn(this) else null }
         }
     }
@@ -103,6 +96,8 @@ value class SqlExec(val db: SQLiteDatabase) {
             .run { if (moveToFirst()) toFn(this) else null }
 
 }
+
+fun toInt(cursor: Cursor): Int = cursor.getInt(0)
 
 fun toLong(cursor: Cursor): Long = cursor.getLong(0)
 
