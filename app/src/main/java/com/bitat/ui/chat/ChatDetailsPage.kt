@@ -79,6 +79,11 @@ import com.bitat.repository.consts.CHAT_Text
 import com.bitat.repository.consts.CHAT_Time
 import com.bitat.repository.consts.CHAT_Video
 import com.bitat.repository.po.SingleMsgPo
+import com.bitat.repository.singleChat.GetNewMessage
+import com.bitat.repository.singleChat.GetRooms
+import com.bitat.repository.singleChat.SetTop
+import com.bitat.repository.singleChat.SingleChatHelper
+import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.repository.singleChat.TcpHandler.newMsgFlow
 import com.bitat.router.NavigationItem
 import com.bitat.state.ReplyMessageParams
@@ -95,6 +100,7 @@ import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.serialization.json.Json
 
@@ -119,15 +125,23 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
-    LaunchedEffect(IO) {
-        newMsgFlow.collect { value ->
-            if (value is SingleMsgPo) {
-                if (chatState.currentRoom.otherId == value.otherId) {
-                    vm.getNewMessage(value)
-                    CuLog.debug(CuTag.SingleChat, value.content)
+    LaunchedEffect(Dispatchers.Default) {
+        singleChatUiFlow.collect {
+            when (it) {
+                is GetRooms -> {
+                }
+
+                is SetTop -> {
+                }
+
+                is GetNewMessage -> {
+                    if (chatState.currentRoom.otherId == it.msg.otherId) {
+                        vm.getNewMessage(it.msg)
+                    }
                 }
             }
         }
+
     }
 
     val currentPointerOffset = remember {

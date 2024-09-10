@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            SingleChatHelper.singleMsgOpsInit()
+            SingleChatHelper.opsInit()
 
             KeySecret.start()
             TcpClient.start()

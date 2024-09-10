@@ -86,9 +86,8 @@ class ChatViewModel : ViewModel() {
         MainCo.launch(IO) {
             _state.update { s ->
                 val i = s.chatList.indexOfFirst { it.otherId == otherId }
-                val r = s.chatList.removeAt(i)
-                r.top = if (isTop) 1 else 0
-                s.chatList.add(i, r)
+                s.chatList[i].top = if (isTop) 1 else 0
+                s.chatList.sortWith(comparator)
 
                 if (s.currentRoom.id > 0) {
                     val updatedRoom = s.currentRoom.also {
@@ -100,8 +99,6 @@ class ChatViewModel : ViewModel() {
                     s.copy(flag = s.flag+1)
                 }
             }
-
-            completeFn()
         }
     }
 

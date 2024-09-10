@@ -67,8 +67,10 @@ import com.bitat.ext.toChatMessage
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.singleChat.ChatOps
-import com.bitat.repository.singleChat.SetTopParams
+import com.bitat.repository.singleChat.GetNewMessage
+import com.bitat.repository.singleChat.GetRooms
+import com.bitat.repository.singleChat.SetMute
+import com.bitat.repository.singleChat.SetTop
 import com.bitat.repository.singleChat.SingleChatHelper
 import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.ui.common.ToastState
@@ -99,19 +101,18 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     val chatState by chatVm.state.collectAsState()
     LaunchedEffect(Dispatchers.Default) {
         singleChatUiFlow.collect {
-            when (it.keys.first()) {
-                ChatOps.GetRooms -> {
-                    chatVm.updateRooms(it.values.first() as List<SingleRoomPo>)
+            when (it) {
+                is GetRooms -> {
+                    chatVm.updateRooms(it.rooms)
                     CuLog.info(CuTag.SingleChat, it.toString())
                 }
 
-                ChatOps.SetTop -> {
-                    val res = it.values.first() as SetTopParams
-                    chatVm.setTop(res.otherId, res.isTop == 1)
+                is SetTop -> {
+                    chatVm.setTop(it.otherId, it.isTop == 1)
                 }
 
-                ChatOps.SetMute -> TODO()
-                ChatOps.GetMessage -> TODO()
+                is SetMute -> TODO()
+                is GetNewMessage -> TODO()
             }
         }
     }
@@ -291,7 +292,9 @@ fun ChatList(
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(
-                top = 4.dp, bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
+                top = 4.dp,
+                bottom = 30.dp
+//                bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
             ),
     ) {
         items(roomList) { item ->
