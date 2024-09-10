@@ -71,7 +71,7 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
                                     AtNavigation(navController).navigateToAccountSecurePage()
                                 }
                                 2 -> {
-
+AtNavigation(navController).navigateToHome
                                 }
                                 4 -> AtNavigation(navController).navigateToCachePage()
                             }
