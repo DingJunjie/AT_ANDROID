@@ -29,7 +29,6 @@ class SingleRoomPo {
     var cfg: String = ""
     // ----------------
 
-
     var nickname: String = ""
     var alias: String = ""
     var profile: String = ""
@@ -47,8 +46,8 @@ class SingleRoomPo {
             content = cursor.getString(6)
             unreads = cursor.getInt(7)
             top = cursor.getInt(8)
-            muted = cursor.getInt(9)
-            background = cursor.getString(10)
+            background = cursor.getString(9)
+            muted = cursor.getInt(10)
             cfg = cursor.getString(11)
         }
 

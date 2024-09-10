@@ -45,8 +45,15 @@ object SingleMsgDB {
             pageSize,
             pageNo * pageSize
         )
+
     //模糊匹配内容
-    fun findContentByLike(selfId: Long, otherId: Long,content:String ,pageNo: Int = 0, pageSize: Int = 30) =
+    fun findContentByLike(
+        selfId: Long,
+        otherId: Long,
+        content: String,
+        pageNo: Int = 0,
+        pageSize: Int = 30
+    ) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
             "select * from single_msg where self_id = ? and other_id = ? and content like '%${content}%' order by time desc limit ? offset ?",
@@ -55,8 +62,9 @@ object SingleMsgDB {
             pageSize,
             pageNo * pageSize
         )
+
     //根据kind查询
-    fun findByKind(selfId: Long, otherId: Long,kind:Int ,pageNo: Int = 0, pageSize: Int = 30) =
+    fun findByKind(selfId: Long, otherId: Long, kind: Int, pageNo: Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
             "select * from single_msg where self_id = ? and other_id = ? and kind = ？ order by time desc limit ? offset ?",
@@ -66,13 +74,22 @@ object SingleMsgDB {
             pageSize,
             pageNo * pageSize
         )
+
     //获取我对于某个用户的一条消息
-    fun getMsg(selfId: Long, otherId: Long) = SqlDB.queryOne(
+    fun getMsg(selfId: Long, otherId: Long, time: Long) = SqlDB.queryOne(
         SingleMsgPo::of,
-        "select * from single_msg where self_id = ? and other_id = ? order by time desc limit 1",
+        "select * from single_msg where self_id = ? and other_id = ? and time = ? limit 1",
         selfId,
-        otherId
+        otherId,
+        time
     )
+
+    fun insertOneUnique(singleMsgPo: SingleMsgPo) = SqlDB.execFn {
+        val msg = getMsg(singleMsgPo.selfId, singleMsgPo.otherId, singleMsgPo.time)
+        if (msg == null) {
+            insertOne(singleMsgPo)
+        }
+    }
 
     //插入一条消息
     fun insertOne(

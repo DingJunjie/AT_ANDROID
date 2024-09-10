@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 
 class GetRooms(val rooms: List<SingleRoomPo>)
 class SetTop(val otherId: Long, val isTop: Int)
-class SetMute()
+class SetMute(val otherId: Long, val isMute: Int)
 class GetNewMessage(val msg: SingleMsgPo)
 
 object SingleChatHelper {
@@ -49,6 +49,23 @@ object SingleChatHelper {
                             }.await().also { that ->
                                 singleChatUiFlow.emit(
                                     SetTop(otherId = it.otherId, isTop = that)
+                                )
+                            }
+                        )
+                    }
+
+                    is SetMuteRoom -> {
+                        it.cd.complete(
+                            async {
+                                SingleRoomDB.updateMuted(
+                                    it.isMute,
+                                    UserStore.userInfo.id,
+                                    it.otherId
+                                )
+                                return@async it.isMute
+                            }.await().also { that ->
+                                singleChatUiFlow.emit(
+                                    SetMute(otherId = it.otherId, isMute = that)
                                 )
                             }
                         )
@@ -105,6 +122,10 @@ object SingleChatHelper {
         newMsgFlow.emit(SetTopRoom(otherId, isTop, it))
     }
 
+    suspend fun setMute(otherId: Long, isMute: Int) = CompletableDeferred<Int>().also {
+        newMsgFlow.emit(SetMuteRoom(otherId, isMute, it))
+    }
+
     suspend fun queryRooms() = CompletableDeferred<List<SingleRoomPo>>().also {
         newMsgFlow.emit(QueryChatRooms(it))
     }
@@ -128,7 +149,8 @@ object SingleChatHelper {
         nm.content = content
         nm.time = msg.time
 
-        SingleMsgDB.insertOne(nm)
+
+        SingleMsgDB.insertOneUnique(nm)
 
         val rooms = getRooms()
         singleChatUiFlow.emit(GetRooms(rooms = rooms))
@@ -138,5 +160,6 @@ object SingleChatHelper {
 
 class QueryChatRooms(val cd: CompletableDeferred<List<SingleRoomPo>>)
 class SetTopRoom(val otherId: Long, val isTop: Int, val cd: CompletableDeferred<Int>)
+class SetMuteRoom(val otherId: Long, val isMute: Int, val cd: CompletableDeferred<Int>)
 
 

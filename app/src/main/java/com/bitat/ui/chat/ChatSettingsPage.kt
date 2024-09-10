@@ -46,6 +46,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.amap.api.services.route.Navi
+import com.bitat.MainCo
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -54,6 +55,7 @@ import com.bitat.repository.singleChat.GetNewMessage
 import com.bitat.repository.singleChat.GetRooms
 import com.bitat.repository.singleChat.SetMute
 import com.bitat.repository.singleChat.SetTop
+import com.bitat.repository.singleChat.SingleChatHelper
 import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
@@ -64,6 +66,7 @@ import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.security.spec.EllipticCurve
 
 @Composable
@@ -88,12 +91,12 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
 
                 is SetTop -> {
                     chatVm.setTop(otherId = it.otherId, it.isTop == 1)
-                    {
-                        flag.value = !flag.value
-                    }
                 }
 
-                is SetMute -> TODO()
+                is SetMute -> {
+                    chatVm.muteRoom(it.otherId, it.isMute == 1)
+                }
+
                 is GetNewMessage -> TODO()
             }
         }
@@ -120,12 +123,21 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
                 isTop = chatState.currentRoom.top,
                 isBlackList = false,
                 switchMuted = {
-                    chatVm.muteRoom(chatState.currentRoom.otherId, it)
-                    flag.value = !flag.value
+                    MainCo.launch {
+                        SingleChatHelper.setMute(
+                            otherId = chatState.currentRoom.otherId,
+                            if (it) 1 else 0
+                        )
+                    }
+
                 },
                 switchTop = {
-                    chatVm.setTop(otherId = chatState.currentRoom.otherId, it)
-                    flag.value = !flag.value
+                    MainCo.launch {
+                        SingleChatHelper.setTop(
+                            otherId = chatState.currentRoom.otherId,
+                            if (it) 1 else 0
+                        )
+                    }
                 },
                 relationChange = {
                     flag.value = !flag.value

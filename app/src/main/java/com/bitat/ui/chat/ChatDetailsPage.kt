@@ -68,6 +68,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.bitat.MainCo
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
@@ -102,6 +103,8 @@ import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 /**
@@ -493,6 +496,10 @@ fun ChatInputField(
         mutableStateOf(true)
     }
 
+    val canSend = remember {
+        mutableStateOf(true)
+    }
+
     Row(modifier = Modifier.fillMaxWidth()) {
         IconButton(onClick = { isText.value = !isText.value }) {
             Icon(
@@ -524,7 +531,18 @@ fun ChatInputField(
             IconButton(onClick = { toggleOperation() }) {
                 Icon(Icons.Filled.AddCircle, contentDescription = "")
             }
-            IconButton(onClick = { sendMessage(message) }) {
+            IconButton(onClick = {
+                if (canSend.value) {
+                    sendMessage(message)
+                    canSend.value = false
+                    MainCo.launch {
+                        delay(300L)
+                        canSend.value = true
+                    }
+                } else {
+                    println("can not tap this ")
+                }
+            }) {
                 Icon(Icons.Filled.Send, contentDescription = "")
             }
         }
