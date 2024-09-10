@@ -2,6 +2,7 @@ package com.bitat.repository.singleChat
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.bitat.MainCo
 import com.bitat.repository.dto.req.FindBaseByIdsDto
 import com.bitat.repository.dto.resp.UserBase1Dto
@@ -19,16 +20,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-enum class ChatOps {
-    GetRooms, SetTop, SetMute, GetMessage
-}
 
-data class SetTopParams(val otherId: Long, val isTop: Int)
+class GetRooms(val rooms: List<SingleRoomPo>)
+class SetTop(val otherId: Long, val isTop: Int)
+class SetMute()
+class GetNewMessage(val msg: SingleMsgPo)
 
 object SingleChatHelper {
-    val singleChatUiFlow = MutableSharedFlow<Map<ChatOps, Any>>(extraBufferCapacity = 16)
+    val singleChatUiFlow = MutableSharedFlow<Any>(extraBufferCapacity = 16)
 
-    fun singleMsgOpsInit() {
+    fun opsInit() {
         MainCo.launch(IO) {
             newMsgFlow.collect { it ->
                 when (it) {
@@ -47,12 +48,7 @@ object SingleChatHelper {
                                 return@async it.isTop
                             }.await().also { that ->
                                 singleChatUiFlow.emit(
-                                    mapOf(
-                                        Pair(
-                                            ChatOps.SetTop,
-                                            SetTopParams(otherId = it.otherId, isTop = that)
-                                        )
-                                    )
+                                    SetTop(otherId = it.otherId, isTop = that)
                                 )
                             }
                         )
@@ -60,43 +56,49 @@ object SingleChatHelper {
 
                     is QueryChatRooms -> it.cd.complete(
                         async {
-                            val ids = arrayListOf<Long>()
-                            val arr = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
-                            val tmpArr = mutableStateListOf<SingleRoomPo>()
-                            if (arr.isNotEmpty()) {
-                                tmpArr.addAll(arr)
-                            }
-
-                            tmpArr.forEach {
-                                ids.add(it.otherId)
-                            }
-
-                            val tmpMap = mutableMapOf<Long, UserBase1Dto>()
-
-                            UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await()
-                                .map { res ->
-                                    res.forEach {
-                                        tmpMap[it.id] = it
-                                    }
-
-                                    tmpArr.forEach { that ->
-                                        that.nickname = tmpMap[that.otherId]!!.nickname
-                                        that.profile = tmpMap[that.otherId]!!.profile
-                                        that.rel = tmpMap[that.otherId]!!.rel
-                                        that.revRel = tmpMap[that.otherId]!!.revRel
-                                        that.alias = tmpMap[that.otherId]!!.alias
-                                    }
-
-                                    tmpArr.sortWith(comparator)
-                                }
-                            return@async tmpArr
+                            val list = getRooms()
+                            return@async list
                         }.await().also { res ->
-                            singleChatUiFlow.emit(mapOf(Pair(ChatOps.GetRooms, res)))
+                            singleChatUiFlow.emit(GetRooms(rooms = res))
                         }
                     )
                 }
             }
         }
+    }
+
+    suspend fun getRooms(): SnapshotStateList<SingleRoomPo> {
+        val ids = arrayListOf<Long>()
+        val arr = SingleRoomDB.getMagAndRoom(UserStore.userInfo.id)
+        val tmpArr = mutableStateListOf<SingleRoomPo>()
+        if (arr.isNotEmpty()) {
+            tmpArr.addAll(arr)
+        }
+
+        tmpArr.forEach {
+            ids.add(it.otherId)
+        }
+
+        val tmpMap = mutableMapOf<Long, UserBase1Dto>()
+
+        UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await()
+            .map { res ->
+                res.forEach {
+                    tmpMap[it.id] = it
+                }
+
+                tmpArr.forEach { that ->
+                    that.nickname = tmpMap[that.otherId]!!.nickname
+                    that.profile = tmpMap[that.otherId]!!.profile
+                    that.rel = tmpMap[that.otherId]!!.rel
+                    that.revRel = tmpMap[that.otherId]!!.revRel
+                    that.alias = tmpMap[that.otherId]!!.alias
+                }
+
+                tmpArr.sortWith(comparator)
+            }
+
+        return tmpArr
     }
 
     suspend fun setTop(otherId: Long, isTop: Int) = CompletableDeferred<Int>().also {
@@ -128,8 +130,9 @@ object SingleChatHelper {
 
         SingleMsgDB.insertOne(nm)
 
-        singleChatUiFlow.emit(mapOf(Pair(ChatOps.GetRooms, room!!)))
-        singleChatUiFlow.emit(mapOf(Pair(ChatOps.GetMessage, nm)))
+        val rooms = getRooms()
+        singleChatUiFlow.emit(GetRooms(rooms = rooms))
+        singleChatUiFlow.emit(GetNewMessage(nm))
     }
 }
 

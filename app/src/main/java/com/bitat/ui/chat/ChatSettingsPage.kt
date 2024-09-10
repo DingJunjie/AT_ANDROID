@@ -50,8 +50,10 @@ import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.singleChat.ChatOps
-import com.bitat.repository.singleChat.SetTopParams
+import com.bitat.repository.singleChat.GetNewMessage
+import com.bitat.repository.singleChat.GetRooms
+import com.bitat.repository.singleChat.SetMute
+import com.bitat.repository.singleChat.SetTop
 import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
@@ -79,22 +81,20 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
     LaunchedEffect(Dispatchers.Default) {
 
         singleChatUiFlow.collect {
-            when (it.keys.first()) {
-                ChatOps.GetRooms -> {
+            when (it) {
+                is GetRooms -> {
 
                 }
 
-                ChatOps.SetTop -> {
-                    val res = it.values.first() as SetTopParams
-                    chatVm.setTop(otherId = chatState.currentRoom.otherId, res.isTop == 1)
+                is SetTop -> {
+                    chatVm.setTop(otherId = it.otherId, it.isTop == 1)
                     {
                         flag.value = !flag.value
                     }
-//                    chatVm.setTop()
                 }
 
-                ChatOps.SetMute -> TODO()
-                ChatOps.GetMessage -> TODO()
+                is SetMute -> TODO()
+                is GetNewMessage -> TODO()
             }
         }
     }
