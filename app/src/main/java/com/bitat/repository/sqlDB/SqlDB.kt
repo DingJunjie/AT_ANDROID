@@ -46,7 +46,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         }
 
         fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
-            (DB ?: throw Exception("Null SqlDB")).run {
+            (DB ?: throw Exception("Null sqlDB")).run {
                 if (writable) locker.write { writableDatabase.use(fn) }
                 else locker.read { readableDatabase.use(fn) }
             }
