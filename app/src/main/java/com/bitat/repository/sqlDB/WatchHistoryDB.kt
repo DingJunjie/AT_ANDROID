@@ -1,5 +1,7 @@
 package com.bitat.repository.sqlDB
 
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.po.WatchHistoryPo
 import org.sqlite.database.sqlite.SQLiteDatabase
 
@@ -26,6 +28,7 @@ ON "watch_history" (
 object WatchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_WATCH_HISTORIES)
     fun insertOne(selfId:Long,kind: Short, dataId: Long, time: Long) :Long {
+        CuLog.debug(CuTag.Base,"WatchHistoryDB insertOne")
         val id = SqlDB.writeQueryOne(
             ::toLong,
             """insert into watch_history (user_id,kind,data_id,time)

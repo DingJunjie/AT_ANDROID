@@ -16,6 +16,8 @@ import com.bitat.repository.sqlDB.WatchHistoryDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ReelState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,8 +44,6 @@ class ReelViewModel : ViewModel() {
                 val resListIndex = _state.value.resList.indexOf(currentBlog)
                 if (resListIndex >= 0) _state.update {
                     it.resList[resListIndex] = currentBlog
-                    CuLog.debug(CuTag.Blog,
-                        "1111 data update success${it.resList[resListIndex].agrees}")
                     it
                 }
             } //            _state.update {
@@ -70,7 +70,6 @@ class ReelViewModel : ViewModel() {
                         it.resList.add(item)
                         it
                     }
-                    CuLog.debug(CuTag.Blog, "1111 add first${item.content}")
 
                 }
                 SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()
@@ -117,6 +116,10 @@ class ReelViewModel : ViewModel() {
     fun addWatchHistory(dto:BlogBaseDto) {
         viewModelScope.launch(Dispatchers.IO) {
             WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
+
+//            async {
+//                WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
+//            }
         }
     }
 }

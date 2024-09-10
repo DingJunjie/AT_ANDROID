@@ -2,6 +2,8 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.RecommendSearchDto
 import com.bitat.repository.http.service.SearchReq
 import com.bitat.state.DiscoveryMenuOptions
@@ -46,6 +48,8 @@ class DiscoveryViewModel : ViewModel() {
                             it.discoveryList.addAll(res)
                         }
                     }
+                }.errMap {
+                    CuLog.error(CuTag.Discovery,"SearchReq recommendSearch error code:${it.code},msg:${it.msg} ")
                 }
         }
     }

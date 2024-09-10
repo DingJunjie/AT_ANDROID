@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.amap.api.services.route.Navi
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
@@ -22,7 +21,6 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.AccountSecurePage
-import com.bitat.ui.profile.BrowserHistoryPage
 import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
@@ -30,6 +28,7 @@ import com.bitat.ui.profile.FansPage
 import com.bitat.ui.profile.FeedbackPage
 import com.bitat.ui.profile.FollowsPage
 import com.bitat.ui.profile.OthersPage
+import com.bitat.ui.profile.PrivacySettingsPage
 import com.bitat.ui.profile.ProfileEditPage
 import com.bitat.ui.profile.ProfilePage
 import com.bitat.ui.profile.SettingPage
@@ -46,7 +45,7 @@ enum class Screen {
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
     PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK,CHAT_HISTORY, BROWSHISTORY
+    FEEDBACK,CHAT_HISTORY, BROWSHISTORY,PRIVACYSETTINGS
 }
 
 sealed class NavigationItem(val route: String) {
@@ -87,7 +86,7 @@ sealed class NavigationItem(val route: String) {
     data object FeedBack : NavigationItem(Screen.FEEDBACK.name)
     data object BrowHistory : NavigationItem(Screen.BROWSHISTORY.name)
     data object ChatHistory : NavigationItem(Screen.CHAT_HISTORY.name)
-
+    data object PrivacySettings : NavigationItem(Screen.PRIVACYSETTINGS.name)
 }
 
 
@@ -249,8 +248,13 @@ fun AppNavHost(
             )
         }
         composable(NavigationItem.BrowHistory.route) {
-            BrowserHistoryPage(navController)
+//            BrowserHistoryPage(navController)
         }
+        composable(NavigationItem.PrivacySettings.route) {
+            PrivacySettingsPage(navController)
+        }
+
+
     }
 }
 

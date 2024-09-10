@@ -98,7 +98,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
     LaunchedEffect(Dispatchers.Default) {
-
         singleChatUiFlow.collect {
             when (it.keys.first()) {
                 ChatOps.GetRooms -> {
@@ -159,7 +158,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 .padding(bottom = 10.dp)
                 .fillMaxWidth()
         ) {
-            if (chatState.flag) Text("a") else Text("b")
+            if (chatState.flag<0) Text("a") else Text("b")
             ChatTab(tabPager, switchFun = {
                 coroutineScope.launch {
                     tabPager.animateScrollToPage(it)
@@ -185,10 +184,10 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     }, delete = {
                         chatVm.deleteRoom(it.otherId)
 //                        chatState.flag = !chatState.flag
-                    }) {
+                    }, itemClick = {
                         chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
-                    }
+                    }, flag = chatState.flag)
                 }
 
                 1 -> Box(
@@ -284,7 +283,8 @@ fun ChatList(
     setTop: (SingleRoomPo) -> Unit,
     setMute: (SingleRoomPo) -> Unit,
     delete: (SingleRoomPo) -> Unit,
-    itemClick: ((SingleRoomPo) -> Unit)
+    itemClick: ((SingleRoomPo) -> Unit),
+    flag:Int
 ) {
     LazyColumn(
         modifier = Modifier
@@ -323,15 +323,17 @@ fun ChatList(
                     },
                     height = 80.dp,
                 ) {
-                    ChatListItem(item, itemClick)
+                    ChatListItem(item, flag = flag,itemClick)
                 }
+
+                if (flag<0) Text("")
             }
         }
     }
 }
 
 @Composable
-fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
+fun ChatListItem(info: SingleRoomPo,flag: Int ,itemClick: ((SingleRoomPo) -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(horizontal = 10.dp)
 //            .background(if (info.top > 0) Color.LightGray else Color.White)
@@ -390,6 +392,7 @@ fun ChatListItem(info: SingleRoomPo, itemClick: ((SingleRoomPo) -> Unit)) {
                 }
             }
         }
+        if (flag<0) Text("a") else Text("b")
     }
 }
 

@@ -92,5 +92,6 @@
     <string name="setting_feedback_content">反馈内容</string>
     <string name="setting_feedback_submit">提交反馈</string>
     <string name="setting_feedback_submit_load">正在提交</string>
+    <string name="setting_privacy">隐私设置</string>
 
 </resources>

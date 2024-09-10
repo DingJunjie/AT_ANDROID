@@ -23,7 +23,7 @@ object SingleRoomDB {
     fun getMagAndRoom(selfId: Long) = SqlDB.queryBatch(
         SingleRoomPo::of, """SELECT sm.*,sr.unreads,sr.top,sr.muted,sr.background,sr.cfg
                 FROM single_msg sm
-	            LEFT JOIN single_room sr ON sm.self_id = sr.self_id 
+	            right join JOIN single_room sr ON sm.self_id = sr.self_id 
 	            AND sm.other_id = sr.other_id 
                 WHERE sm.self_id = ? AND ( sm.other_id, sm.time ) IN 
                 ( SELECT other_id, MAX( time ) FROM single_msg WHERE self_id = ? GROUP BY other_id ) 
@@ -94,5 +94,11 @@ object SingleRoomDB {
         selfId,
         otherId,
     )
-
+    //判断当前聊天室是否存在
+    fun hasRoom(selfId: Long, otherId: Long):Boolean{
+        return SqlDB.queryOne(SingleRoomPo::ofRoom,
+            "select * from single_room where self_id = ? and other_id = ?",
+            selfId,
+            otherId) != null
+    }
 }

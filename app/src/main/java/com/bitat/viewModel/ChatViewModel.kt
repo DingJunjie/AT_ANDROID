@@ -95,9 +95,9 @@ class ChatViewModel : ViewModel() {
                         it.top = if (isTop) 1 else 0
                     }
 
-                    s.copy(currentRoom = updatedRoom, flag = !s.flag)
+                    s.copy(currentRoom = updatedRoom, flag = s.flag+1)
                 } else {
-                    s.copy(flag = !s.flag)
+                    s.copy(flag = s.flag+1)
                 }
             }
 

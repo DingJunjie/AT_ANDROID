@@ -154,7 +154,6 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                 VerticalPager(state = pagerState) { page -> // Our page content
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
-                    CuLog.debug(CuTag.Blog, "1111 id:${currentDto.id}，agrees:${currentDto.agrees}")
                     Box(modifier = Modifier.fillMaxSize()
                         .background(color = Color.Black)) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
