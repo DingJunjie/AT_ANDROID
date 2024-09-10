@@ -5,7 +5,6 @@ import android.content.Context
 import android.database.Cursor
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
-import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -55,41 +54,43 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             it.execSQL(sql, bindings)
         }
 
-        fun execFn(fn: (SqlExec) -> Unit) = fetchDB(true) {
-            fn(SqlExec(it))
+        fun execFn(fn: (SqlOps) -> Unit) = fetchDB(true) {
+            fn(SqlOps(it))
         }
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB(true) {
-                it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
-                    .run { if (moveToFirst()) toFn(this) else null }
-            }
+            fetchDB(true) { SqlOps(it).writeQueryOne(toFn, sql, bindings) }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? = fetchDB {
-            it.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
-                .run { if (moveToFirst()) toFn(this) else null }
+            SqlOps(it).queryOne(toFn, sql, bindings)
         }
 
         inline fun <reified T> queryBatch(
             crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = fetchDB {
-            it.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
-                Array(count) {
-                    moveToNext()
-                    toFn(this)
-                }
-            }
-        }
+        ) = fetchDB { SqlOps(it).queryBatch(toFn, sql, bindings) }
     }
 
 }
 
 @JvmInline
-value class SqlExec(val db: SQLiteDatabase) {
+value class SqlOps(val db: SQLiteDatabase) {
     fun exec(sql: String, vararg bindings: Any) = db.execSQL(sql, bindings)
-    fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
+    inline fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
         db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
             .run { if (moveToFirst()) toFn(this) else null }
+
+    inline fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
+        db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
+            .run { if (moveToFirst()) toFn(this) else null }
+
+    inline fun <reified T> queryBatch(
+        crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
+    ) = db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
+        Array(count) {
+            moveToNext()
+            toFn(this)
+        }
+    }
 
 }
 
