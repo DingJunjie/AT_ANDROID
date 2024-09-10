@@ -105,7 +105,7 @@ object SingleMsgDB {
 
     fun insertArray(
         poArr: Array<SingleMsgPo>
-    ) = SqlDB.execFn {
+    ) = SqlDB.execBatch {
         for (po in poArr) it.exec(
             """insert into single_msg (self_id,other_id,time,status,kind,content)
                 values (?,?,?,?,?,?)""",

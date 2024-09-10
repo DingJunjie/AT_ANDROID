@@ -2,8 +2,6 @@ package com.bitat.repository.sqlDB
 
 import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.repository.po.NoticeMsgUnique
-import com.bitat.repository.po.SingleMsgPo
-import com.bitat.repository.po.SingleMsgUnique
 import org.sqlite.database.sqlite.SQLiteDatabase
 private const val CREATE_TABLE_NOTICE = """
 CREATE TABLE IF NOT  EXISTS "notice_msg" (
@@ -63,7 +61,7 @@ object NoticeMsgDB {
 
     fun insertArray(
         poList: Array<NoticeMsgPo>
-    ) = SqlDB.execFn {
+    ) = SqlDB.execBatch {
         for (po in poList) it.exec(
             """insert into notice_msg (user_id,kind,source_id,from_id,time,content)
                 values (?,?,?,?,?,?)""",
