@@ -3,6 +3,8 @@ package com.bitat.repository.sqlDB
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -46,7 +48,9 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
             (DB ?: throw Exception("Null sqlDB")).run {
-                if (writable) locker.write { writableDatabase.use(fn) }
+                if (writable) locker.write { writableDatabase
+                    .use(fn)
+                }
                 else locker.read { readableDatabase.use(fn) }
             }
 

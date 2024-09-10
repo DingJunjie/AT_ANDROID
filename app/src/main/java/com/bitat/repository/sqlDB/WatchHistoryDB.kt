@@ -27,28 +27,28 @@ ON "watch_history" (
 """
 object WatchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_WATCH_HISTORIES)
-    fun insertOne(selfId:Long,kind: Short, dataId: Long, time: Long) :Long {
-        CuLog.debug(CuTag.Base,"WatchHistoryDB insertOne")
+
+    fun insertOne(po:WatchHistoryPo) :Long {
         val id = SqlDB.writeQueryOne(
             ::toLong,
             """insert into watch_history (user_id,kind,data_id,time)
                 values (?,?,?,?) RETURNING last_insert_rowid() as id;""",
-            selfId,
-            kind,
-            dataId,
-            time
+            po.userId,
+            po.kind,
+            po.dataId,
+            po.time
         )
         val count = SqlDB.queryOne(
             ::toLong,
             "select count(*) as count from watch_history where user_id = ?"
-            ,selfId
+            ,po.userId
         )?:0
         if (count>30100){
             //删除100条
             SqlDB.exec(
                 """delete from watch_history where
                 id in(select id from watch_history where user_id = ? order by time asc limit 100)"""
-                ,selfId
+                ,po.userId
             )
         }
         return id?:0

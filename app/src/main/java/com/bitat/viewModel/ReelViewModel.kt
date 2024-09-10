@@ -12,9 +12,11 @@ import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.repository.dto.req.RecommendSearchDetailDto
 import com.bitat.repository.http.service.SearchReq
+import com.bitat.repository.po.WatchHistoryPo
 import com.bitat.repository.sqlDB.WatchHistoryDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.ReelState
+import com.bitat.utils.TimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -115,11 +117,13 @@ class ReelViewModel : ViewModel() {
 
     fun addWatchHistory(dto:BlogBaseDto) {
         viewModelScope.launch(Dispatchers.IO) {
-            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
-
-//            async {
-//                WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
-//            }
+//            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
+            WatchHistoryDB.insertOne(WatchHistoryPo().apply {
+                userId=  UserStore.userInfo.id
+                kind= dto.kind.toInt()
+                dataId=  dto.id
+                time= TimeUtils.getNow()
+            })
         }
     }
 }
