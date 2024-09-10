@@ -16,5 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 data class ChatState(
     val chatList: SnapshotStateList<SingleRoomPo> = mutableStateListOf(),
     var currentRoom: SingleRoomPo = SingleRoomPo(),
-    val currentUserInfo: UserPartDto? = null
+    val currentUserInfo: UserPartDto? = null,
+    val flag: Boolean = false
 )

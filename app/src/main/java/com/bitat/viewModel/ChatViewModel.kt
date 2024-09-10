@@ -84,31 +84,24 @@ class ChatViewModel : ViewModel() {
 
     fun setTop(otherId: Long, isTop: Boolean, completeFn: () -> Unit = {}) {
         MainCo.launch(IO) {
-            _state.update {
-                it.currentRoom.top = if (isTop) 1 else 0
-                it
-            }
-
             _state.update { s ->
                 val i = s.chatList.indexOfFirst { it.otherId == otherId }
-                s.chatList[i].top = if (isTop) 1 else 0
+                val r = s.chatList.removeAt(i)
+                r.top = if (isTop) 1 else 0
+                s.chatList.add(i, r)
 
-                val updatedRoom = s.currentRoom.also {
-                    it.top = if (isTop) 1 else 0
+                if (s.currentRoom.id > 0) {
+                    val updatedRoom = s.currentRoom.also {
+                        it.top = if (isTop) 1 else 0
+                    }
+
+                    s.copy(currentRoom = updatedRoom, flag = !s.flag)
+                } else {
+                    s.copy(flag = !s.flag)
                 }
-
-
-                s.copy(currentRoom = updatedRoom)
-
             }
 
-            SingleRoomDB.updateTop(
-                if (isTop) 1 else 0,
-                UserStore.userInfo.id,
-                otherId
-            )
-
-            TcpHandler.newMsgFlow.emit(SingleRoomPo())
+            completeFn()
         }
     }
 

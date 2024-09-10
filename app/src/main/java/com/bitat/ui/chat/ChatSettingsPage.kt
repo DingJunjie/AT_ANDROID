@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +47,12 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.amap.api.services.route.Navi
 import com.bitat.R
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.singleChat.ChatOps
+import com.bitat.repository.singleChat.SetTopParams
+import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
@@ -54,6 +61,7 @@ import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.ChatViewModel
+import kotlinx.coroutines.Dispatchers
 import java.security.spec.EllipticCurve
 
 @Composable
@@ -67,6 +75,31 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
     var flag = remember {
         mutableStateOf(false)
     }
+
+    LaunchedEffect(Dispatchers.Default) {
+
+        singleChatUiFlow.collect {
+            when (it.keys.first()) {
+                ChatOps.GetRooms -> {
+
+                }
+
+                ChatOps.SetTop -> {
+                    val res = it.values.first() as SetTopParams
+                    chatVm.setTop(otherId = chatState.currentRoom.otherId, res.isTop == 1)
+                    {
+                        flag.value = !flag.value
+                    }
+//                    chatVm.setTop()
+                }
+
+                ChatOps.SetMute -> TODO()
+                ChatOps.GetMessage -> TODO()
+            }
+        }
+    }
+
+
 
     Scaffold { padding ->
         Column() {

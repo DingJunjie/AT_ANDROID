@@ -84,7 +84,9 @@ import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -95,7 +97,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
-
     LaunchedEffect(Dispatchers.Default) {
 
         singleChatUiFlow.collect {
@@ -107,8 +108,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 
                 ChatOps.SetTop -> {
                     val res = it.values.first() as SetTopParams
-                    chatVm.setTop(res.otherId, res.isTop == 1) {}
-//                    chatVm.setTop()
+                    chatVm.setTop(res.otherId, res.isTop == 1)
                 }
 
                 ChatOps.SetMute -> TODO()
@@ -117,9 +117,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
         }
     }
 
-    val flag = remember {
-        mutableStateOf(false)
-    }
 
     val options = remember {
         listOf(
@@ -162,7 +159,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 .padding(bottom = 10.dp)
                 .fillMaxWidth()
         ) {
-            if (flag.value) Text("") else Box {}
+            if (chatState.flag) Text("a") else Text("b")
             ChatTab(tabPager, switchFun = {
                 coroutineScope.launch {
                     tabPager.animateScrollToPage(it)
@@ -182,14 +179,12 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                         MainCo.launch {
                             SingleChatHelper.setTop(it.otherId, it.top)
                         }
-                        chatVm.setTop(it.otherId, it.top == 0)
-                        flag.value = !flag.value
                     }, setMute = {
 //                            chatVm.muteRoom(it.otherId)
-                        flag.value = !flag.value
+//                        chatState.flag = !chatState.flag
                     }, delete = {
                         chatVm.deleteRoom(it.otherId)
-                        flag.value = !flag.value
+//                        chatState.flag = !chatState.flag
                     }) {
                         chatVm.chooseRoom(it)
                         AtNavigation(navHostController).navigateToChatDetailsPage()
@@ -317,6 +312,7 @@ fun ChatList(
                     onEndTap = {
                         when (it) {
                             0 -> {
+                                item.top = abs(item.top - 1)
                                 setTop(item)
                             }
 
