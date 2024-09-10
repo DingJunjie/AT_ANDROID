@@ -80,10 +80,6 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
                 }
             }
         }
-
-        fun <T> queryVersion(toFn: (Cursor) -> T, sql: String): T? = fetchDB {
-            it.rawQuery(sql, null).run { if (moveToFirst()) toFn(this) else null }
-        }
     }
 
 }
