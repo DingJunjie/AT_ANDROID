@@ -32,32 +32,23 @@ import kotlinx.coroutines.runBlocking
 fun Splash(navHostController: NavHostController) {
     LaunchedEffect(Unit) {
         val user = TokenStore.getUser()
-            if (user == null) {
+        if (user == null) {
+            navHostController.navigate(NavigationItem.Login.route)
+        } else {
+            UserStore.initUserInfo(user)
+            val token = TokenStore.fetchToken()
+            if (token.isNullOrEmpty()) {
+                navHostController.navigate(NavigationItem.Login.route)
+            } else {
+                UserReq.userInfo(UserInfoDto(userId = user.id)).await().map {
+                    UserStore.updateByUserInfo(it)
+                    navHostController.navigate(NavigationItem.Home.route)
+                }.errMap {
+                    println("get error message ${it.msg}")
                     navHostController.navigate(NavigationItem.Login.route)
-                } else {
-                    UserStore.initUserInfo(user)
-                    val token = TokenStore.fetchToken()
-                    if (token.isNullOrEmpty()) {
-                        navHostController.navigate(NavigationItem.Login.route)
-                    } else {
-                        UserReq.userInfo(UserInfoDto(userId = user.id)).await().map {
-                            UserStore.updateByUserInfo(it)
-                            navHostController.navigate(NavigationItem.Home.route)
-                        }.errMap {
-                            println("get error message ${it.msg}")
-                            navHostController.navigate(NavigationItem.Login.route)
-                        }
-                    }
                 }
-
-//        for (i in 0..100) {
-//            WatchHistoryDB.insertOne(WatchHistoryPo().apply {
-//                userId=  UserStore.userInfo.id
-//                kind= 1
-//                dataId=  456789098765
-//                time= TimeUtils.getNow()
-//            })
-//        }
+            }
+        }
     }
 
     Scaffold { paddingValues ->

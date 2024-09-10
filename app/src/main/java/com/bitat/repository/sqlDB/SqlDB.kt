@@ -3,8 +3,10 @@ package com.bitat.repository.sqlDB
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import okio.withLock
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
+import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -36,9 +38,9 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
     companion object {
         @SuppressLint("StaticFieldLeak")
-        private var DB: SqlDB? = null
+        public var DB: SqlDB? = null
 
-        private val locker = ReentrantReadWriteLock()
+        private val locker = ReentrantLock()
 
         fun init(context: Context) {
             DB = SqlDB(context)
@@ -46,10 +48,9 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
             (DB ?: throw Exception("Null sqlDB")).run {
-                if (writable) locker.write {
-                    writableDatabase.use(fn)
+                locker.withLock {
+                    (if(writable) writableDatabase else readableDatabase).use(fn)
                 }
-                else locker.read { readableDatabase.use(fn) }
             }
 
         fun exec(sql: String, vararg bindings: Any) = fetchDB(true) {

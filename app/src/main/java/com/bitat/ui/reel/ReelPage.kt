@@ -131,12 +131,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         } //        CuLog.debug(CuTag.Blog, "1111 init data")
     }
 
-    //    LaunchedEffect(Unit) { // 初始化数据
-    //        CuLog.debug(CuTag.Blog, "1111 init data")
-    //        vm.getList(true)
-    //    }
-
     DisposableEffect(Unit) {
+        CuLog.error(CuTag.Base,"获取数据 getList")
         vm.getList(true) {}
         onDispose { // 页面离开时可以执行一些清理操作
             vm.reset()
@@ -159,6 +155,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) {
+                                    CuLog.error(CuTag.Base,"创建video ${currentDto.id}")
                                     othersVm.initUserId(currentDto.userId)
                                     vm.addWatchHistory(currentDto)
                                     //                                    CuExoPlayer(data = currentDto.resource.video,
@@ -181,6 +178,7 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 
                             BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
                                 if(page == state.value.resIndex){
+                                    CuLog.error(CuTag.Base,"创建Image ${currentDto.id}")
                                     vm.addWatchHistory(currentDto)
                                     ImageBanner(currentDto.resource.images.toList(), true)
                                 }
@@ -254,7 +252,6 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 tintColor = Color.White,
                                 modifier = Modifier.size(27.dp).onGloballyPositioned {
                                     collectTipY = it.positionInWindow().y.toInt()
-                                    CuLog.debug(CuTag.Blog, "收藏位置更新 $collectTipY")
                                 }) {
 
                                 collectVm.updateBlog(blog = currentDto)
