@@ -74,6 +74,7 @@ import com.bitat.ext.clickableWithoutRipple
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.CHAT_Picture
+import com.bitat.repository.consts.CHAT_RECALL_LIMITED
 import com.bitat.repository.consts.CHAT_Recall
 import com.bitat.repository.consts.CHAT_Reply
 import com.bitat.repository.consts.CHAT_Text
@@ -93,12 +94,14 @@ import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
 import com.bitat.ui.common.SingleFuncCamera
 import com.bitat.ui.common.VideoPreview
+import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.component.EmojiTable
 import com.bitat.ui.theme.Typography
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
+import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.ChatDetailsViewModel
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
@@ -186,6 +189,8 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     val isShowVideo = remember {
         mutableStateOf(false)
     }
+
+    val toast = rememberToastState()
 
     LaunchedEffect(chatListScrollState) {
         snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
@@ -301,6 +306,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
                                 CHAT_Recall -> {
                                     RecallMessage(
+                                        true,
                                         nickname = chatState.currentRoom.nickname
                                     )
                                 }
@@ -331,7 +337,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                 }
 
                                 CHAT_Recall -> {
-                                    RecallMessage(nickname = chatState.currentRoom.nickname)
+                                    RecallMessage(false, nickname = chatState.currentRoom.nickname)
                                 }
 
                                 CHAT_Reply -> {
@@ -389,19 +395,30 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                         y = msgHeight[currentItemIndex.intValue].y.div(Density).dp
                     )
             ) {
+                val msg = state.messageList[currentItemIndex.intValue]
                 ChatMessageOpt(
-                    msg = state.messageList[currentItemIndex.intValue],
+                    msg = msg,
                     reply = {
-                        vm.setReplyMsg(state.messageList[currentItemIndex.intValue])
+                        vm.setReplyMsg(msg)
                         showMsgOpt.value = false
                     },
                     copy = {
                         showMsgOpt.value = false
                     }, recall = {
-                        vm.recallMessage(state.messageList[currentItemIndex.intValue])
+                        if (msg.status < 0) {
+                            toast.show("无法撤回他人消息")
+                            showMsgOpt.value = false
+                            return@ChatMessageOpt
+                        }
+                        if (TimeUtils.timeDiffNowSeconds(msg.time) > CHAT_RECALL_LIMITED) {
+                            toast.show("消息超过3分钟，无法撤回")
+                            showMsgOpt.value = false
+                            return@ChatMessageOpt
+                        }
+                        vm.recallMessage(msg)
                         showMsgOpt.value = false
                     }, delete = {
-                        vm.deleteMessage(state.messageList[currentItemIndex.intValue])
+                        vm.deleteMessage(msg)
                         msgHeight.removeAt(currentItemIndex.intValue)
                         showMsgOpt.value = false
                     })

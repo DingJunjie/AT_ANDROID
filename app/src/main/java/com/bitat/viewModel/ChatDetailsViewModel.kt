@@ -105,7 +105,6 @@ class ChatDetailsViewModel : ViewModel() {
         }
 
         _state.update {
-
             val i = it.messageList.indexOf(msg)
             val oldData = it.messageList.removeAt(i)
             oldData.kind = CHAT_Recall
@@ -155,7 +154,7 @@ class ChatDetailsViewModel : ViewModel() {
             it.copy(replyMsg = null)
         }
 
-        TcpClient.chat(toId, kind, content.toByteArray(charset("UTF-8")))
+        TcpClient.chat(toId, k, c.toByteArray(charset("UTF-8")))
         completeFn(msg)
     }
 

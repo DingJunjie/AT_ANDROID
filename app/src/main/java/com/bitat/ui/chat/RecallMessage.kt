@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.bitat.ui.theme.Typography
 
 @Composable
-fun RecallMessage(nickname: String) {
+fun RecallMessage(isSender: Boolean = false, nickname: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = nickname + "撤回了一条消息",
+            text = if (isSender) "你" + "撤回了一条消息" else nickname + "撤回了一条消息",
             color = Color.Gray,
             style = Typography.bodySmall.copy(),
             modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp)

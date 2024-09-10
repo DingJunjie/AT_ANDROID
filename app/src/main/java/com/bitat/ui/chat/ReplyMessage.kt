@@ -59,7 +59,7 @@ fun RecipientReplyMessage(message: String, replyContent: String, replyMsgKind: S
             color = Color.Black,
             shape = RoundedCornerShape(30.dp, 30.dp, 0.dp, 0.dp),
             modifier = Modifier
-                .padding(top = 10.dp, end = 20.dp)
+                .padding(top = 10.dp, start = 20.dp)
                 .fillMaxWidth(0.6f)
 //                .background(Color.Black)
 //                .height(100.dp),
@@ -75,7 +75,7 @@ fun RecipientReplyMessage(message: String, replyContent: String, replyMsgKind: S
             color = Color.Gray,
             shape = RoundedCornerShape(0.dp, 0.dp, 30.dp, 30.dp),
             modifier = Modifier
-                .padding(bottom = 10.dp, end = 20.dp)
+                .padding(bottom = 10.dp, start = 20.dp)
                 .fillMaxWidth(0.6f)
 //                .background(Color.Black)
 //                .height(100.dp),

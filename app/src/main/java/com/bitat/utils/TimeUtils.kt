@@ -13,7 +13,7 @@ object TimeUtils {
      * 时间差
      * 发表时间
      */
-    fun timeToText(time: Long,isTime:Boolean=false): String {
+    fun timeToText(time: Long, isTime: Boolean = false): String {
         val second = (getNow() - time) / 1000
         return if (second < 60) {
             "刚刚"
@@ -23,25 +23,31 @@ object TimeUtils {
             "${second / 60 / 60} 小时前"
         } else {
 
-            if (isTime){
-                val date= DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault())
+            if (isTime) {
+                val date = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneId.systemDefault())
                     .format(Instant.ofEpochMilli(time))
                 return date
-            }else{
-                val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-                    .format(Instant.ofEpochMilli(time))
+            } else {
+                val date =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                        .format(Instant.ofEpochMilli(time))
                 return date
             }
-
 
 
         }
     }
 
-    fun timeToYMD(time: Long):String{
-        val date= DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+    fun timeToYMD(time: Long): String {
+        val date = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
             .format(Instant.ofEpochMilli(time))
         return date
+    }
+
+    fun timeDiffNowSeconds(time: Long): Int {
+        val diff = getNow() - time
+        return diff.floorDiv(1000).toInt()
     }
 
     /**
@@ -59,17 +65,17 @@ object TimeUtils {
         } else {
 
 
-            val date= DateTimeFormatter.ofPattern("MM-dd").withZone(ZoneId.systemDefault())
+            val date = DateTimeFormatter.ofPattern("MM-dd").withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochMilli(time))
 
             return date
         }
     }
 
-    fun isThisYear(time: Long):Boolean{
-        val currentYear=getYearFromMillis(time)
-        val nowYear=getYearFromMillis(System.currentTimeMillis())
-        return  currentYear==nowYear
+    fun isThisYear(time: Long): Boolean {
+        val currentYear = getYearFromMillis(time)
+        val nowYear = getYearFromMillis(System.currentTimeMillis())
+        return currentYear == nowYear
     }
 
     fun getYearFromMillis(millis: Long): Int {
@@ -81,7 +87,7 @@ object TimeUtils {
     fun getYearFromString(time: Long): String {
 //        val calendar = Calendar.getInstance()
 //        calendar.timeInMillis = time
-      return  DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.systemDefault())
+        return DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.systemDefault())
             .format(Instant.ofEpochMilli(time))
 
     }
