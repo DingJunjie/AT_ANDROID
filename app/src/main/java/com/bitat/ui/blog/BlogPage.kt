@@ -68,6 +68,7 @@ import com.bitat.ui.common.rememberLoadMoreState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.AnimatedMenu
+import com.bitat.ui.component.AtPopup
 import com.bitat.ui.component.CollectPopup
 import com.bitat.ui.component.CollectTips
 import com.bitat.ui.component.CommentPopup
@@ -133,6 +134,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     }
 
     var collectPopupVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var atPopupVisible by remember {
         mutableStateOf(false)
     }
 
@@ -289,6 +294,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                                 delay(1000)
                                                 currentOperation = BlogOperation.At
                                             }
+                                            atPopupVisible = true
                                         },
                                         tapLike = { //更新列表中 点赞数据
                                             vm.likeClick(item)
@@ -376,7 +382,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                             BlogMenuOptions.Followed -> Text(text = "关注" + stringResource(R.string.no_data))
                         }
                     }
-                    if (state.flag<0) Text(text = "")
+                    if (state.flag < 0) Text(text = "")
                 }
             }
         }
@@ -388,7 +394,9 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
         })
     }
 
-
+    AtPopup(visible = atPopupVisible) {
+        atPopupVisible = false
+    }
 
     CollectPopup(visible = collectPopupVisible,
         collectViewModel = collectVm,

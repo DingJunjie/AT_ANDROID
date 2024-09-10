@@ -112,7 +112,9 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 }
 
                 is SetMute -> TODO()
-                is GetNewMessage -> TODO()
+                is GetNewMessage -> {
+                    chatVm.updateRoomContent(it.msg)
+                }
             }
         }
     }
@@ -159,7 +161,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 .padding(bottom = 10.dp)
                 .fillMaxWidth()
         ) {
-            if (chatState.flag<0) Text("a") else Text("b")
             ChatTab(tabPager, switchFun = {
                 coroutineScope.launch {
                     tabPager.animateScrollToPage(it)
@@ -285,7 +286,7 @@ fun ChatList(
     setMute: (SingleRoomPo) -> Unit,
     delete: (SingleRoomPo) -> Unit,
     itemClick: ((SingleRoomPo) -> Unit),
-    flag:Int
+    flag: Int
 ) {
     LazyColumn(
         modifier = Modifier
@@ -326,17 +327,17 @@ fun ChatList(
                     },
                     height = 80.dp,
                 ) {
-                    ChatListItem(item, flag = flag,itemClick)
+                    ChatListItem(item, flag = flag, itemClick)
                 }
 
-                if (flag<0) Text("")
+                if (flag < 0) Text("")
             }
         }
     }
 }
 
 @Composable
-fun ChatListItem(info: SingleRoomPo,flag: Int ,itemClick: ((SingleRoomPo) -> Unit)) {
+fun ChatListItem(info: SingleRoomPo, flag: Int, itemClick: ((SingleRoomPo) -> Unit)) {
     Surface( //        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(horizontal = 10.dp)
 //            .background(if (info.top > 0) Color.LightGray else Color.White)
@@ -395,7 +396,7 @@ fun ChatListItem(info: SingleRoomPo,flag: Int ,itemClick: ((SingleRoomPo) -> Uni
                 }
             }
         }
-        if (flag<0) Text("a") else Text("b")
+        if (flag < 0) Text("a", color = Color.Transparent) else Text("b", color = Color.Transparent)
     }
 }
 

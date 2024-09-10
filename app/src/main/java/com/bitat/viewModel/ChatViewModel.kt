@@ -18,6 +18,7 @@ import com.bitat.utils.FileType
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.UPLOAD_OPS
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,22 +50,22 @@ class ChatViewModel : ViewModel() {
     }
 
     fun muteRoom(otherId: Long, isMuted: Boolean, completeFn: () -> Unit = {}) {
+        if (_state.value.currentRoom.id > 0) {
+            _state.update {
+                it.currentRoom.muted = if (isMuted) 1 else 0
+                it
+            }
+        }
+
         _state.update {
-            it.currentRoom.muted = if (isMuted) 1 else 0
-            it
+            val i = it.chatList.indexOfFirst { that ->
+                that.otherId == otherId
+            }
+
+            it.chatList[i].muted = if (isMuted) 1 else 0
+            it.copy(flag = it.flag + 1)
         }
 
-        val i = _state.value.chatList.indexOfFirst {
-            it.otherId == otherId
-        }
-
-        _state.value.chatList[i].muted = if (isMuted) 1 else 0
-
-        SingleRoomDB.updateMuted(
-            muted = if (isMuted) 1 else 0,
-            UserStore.userInfo.id,
-            otherId
-        )
     }
 
     fun clearAllMessage(otherId: Long) {
@@ -94,9 +95,9 @@ class ChatViewModel : ViewModel() {
                         it.top = if (isTop) 1 else 0
                     }
 
-                    s.copy(currentRoom = updatedRoom, flag = s.flag+1)
+                    s.copy(currentRoom = updatedRoom, flag = s.flag + 1)
                 } else {
-                    s.copy(flag = s.flag+1)
+                    s.copy(flag = s.flag + 1)
                 }
             }
         }
@@ -211,6 +212,25 @@ class ChatViewModel : ViewModel() {
 
         MainCo.launch(IO) {
             SingleRoomDB.clearUnread(selfId = room.selfId, otherId = room.otherId)
+        }
+    }
+
+    fun updateRoomContent(newMsg: SingleMsgPo) {
+        MainCo.launch {
+            val i = _state.value.chatList.indexOfFirst { that ->
+                that.otherId == newMsg.otherId
+            }
+
+
+            _state.update {
+                val oldMsg = it.chatList.removeAt(i)
+                oldMsg.content = newMsg.content
+                oldMsg.time = newMsg.time
+
+                it.chatList.add(i, oldMsg)
+                it.copy(flag = it.flag + 1)
+            }
+
         }
     }
 
