@@ -21,13 +21,14 @@ object SingleRoomDB {
 
     //获取消息和聊天室信息
     fun getMagAndRoom(selfId: Long) = SqlDB.queryBatch(
-        SingleRoomPo::of, """SELECT sm.*,sr.unreads,sr.top,sr.muted,sr.background,sr.cfg
-                FROM single_msg sm
-	            right join JOIN single_room sr ON sm.self_id = sr.self_id 
-	            AND sm.other_id = sr.other_id 
-                WHERE sm.self_id = ? AND ( sm.other_id, sm.time ) IN 
-                ( SELECT other_id, MAX( time ) FROM single_msg WHERE self_id = ? GROUP BY other_id ) 
-                ORDER BY sm.time""", selfId, selfId
+        SingleRoomPo::of, """SELECT sm.*,sr.unreads,sr.top,sr.background,sr.muted,sr.cfg
+                              FROM single_msg sm
+                              LEFT JOIN single_room sr ON sm.self_id = sr.self_id
+                               AND sm.other_id = sr.other_id
+                               WHERE sm.self_id = ? AND ( sm.other_id, sm.time ) IN
+                              (SELECT other_id, MAX(time) FROM single_msg WHERE self_id = ? GROUP BY other_id )
+                               and sr.top is not null
+                               ORDER BY sm.time""", selfId, selfId
     )
 
     //获取聊天室详情信息
