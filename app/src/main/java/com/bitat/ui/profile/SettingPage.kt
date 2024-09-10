@@ -57,11 +57,19 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
     val state = vm.state.collectAsState()
     val profileVm = viewModelProvider[ProfileViewModel::class]
     Scaffold() { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)
-            .background(MaterialTheme.colorScheme.background)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             CommonTopBar(title = "设置", backFn = { navController.popBackStack() })
-            Box(modifier = Modifier.fillMaxSize().weight(1f)
-                .background(MaterialTheme.colorScheme.background)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
                 LazyColumn {
 
                     itemsIndexed(SettingCfg.getSettingMenu()) { index, item ->
@@ -70,17 +78,24 @@ fun SettingPage(navController: NavHostController, viewModelProvider: ViewModelPr
                                 1 -> {
                                     AtNavigation(navController).navigateToAccountSecurePage()
                                 }
+
                                 2 -> {
-AtNavigation(navController).navigateToHome
+                                    AtNavigation(navController).navigationToPrivacySettings()
                                 }
+
                                 4 -> AtNavigation(navController).navigateToCachePage()
                             }
                         })
                     }
                 }
-                Button(modifier = Modifier.fillMaxWidth(0.7f).align(Alignment.BottomCenter)
-                    .padding(bottom = 68.cdp + WindowInsets.navigationBars.asPaddingValues()
-                        .calculateBottomPadding()), onClick = {
+                Button(modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .align(Alignment.BottomCenter)
+                    .padding(
+                        bottom = 68.cdp + WindowInsets.navigationBars
+                            .asPaddingValues()
+                            .calculateBottomPadding()
+                    ), onClick = {
                     vm.loginOut(onSuccess = { // 关闭tcp连接
                         TcpClient.close() // 清除用户数据
                         profileVm.clearVm()
@@ -89,24 +104,39 @@ AtNavigation(navController).navigateToHome
                         Local.navigateToLoginPage()
                     }, onError = { })
                 }) {
-                    Row(modifier = Modifier.padding(5.dp),
+                    Row(
+                        modifier = Modifier.padding(5.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center) {
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         SvgIcon(
                             path = "svg/login-out.svg",
                             contentDescription = "loginouticon",
                             modifier = Modifier.size(60.cdp),
                         )
-                        Text(modifier = Modifier.fillMaxWidth().weight(1f),
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
                             text = "退出登录",
                             style = MaterialTheme.typography.bodyLarge.copy(color = white),
-                            textAlign = TextAlign.Center)
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
-                Spacer(modifier = Modifier.fillMaxWidth().height(68.cdp))
-                Spacer(modifier = Modifier.fillMaxWidth()
-                    .height(WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-                    .background(MaterialTheme.colorScheme.background))
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(68.cdp))
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(
+                            WindowInsets.navigationBars
+                                .asPaddingValues()
+                                .calculateBottomPadding()
+                        )
+                        .background(MaterialTheme.colorScheme.background)
+                )
             }
 
         }
@@ -120,7 +150,9 @@ fun LoadingPopup(visible: Boolean) {
     Popup(visible = visible, onClose = { }) {
         Column(modifier = Modifier.size(150.dp)) {
             CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(20.dp).fillMaxWidth())
+            Spacer(modifier = Modifier
+                .height(20.dp)
+                .fillMaxWidth())
             Text(text = "正在处理中···")
         }
     }

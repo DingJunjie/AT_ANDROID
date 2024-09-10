@@ -7,6 +7,8 @@
     <string name="operation_failed">操作失败!</string>
     <string name="update_success">修改成功!</string>
     <string name="update_failed">修改失败!</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
 
     ##### Login
     <string name="count_down">还剩 %1$s 秒</string>
@@ -59,6 +61,7 @@
     <string name="blog_recommend">发布</string>
     <string name="blog_latest">最新</string>
     <string name="blog_follow">关注</string>
+    <string name="blog_fans">粉丝</string>
 
     <string name="blog_post">帖子</string>
     <string name="blog_dtl_follow">关注</string>
@@ -93,5 +96,9 @@
     <string name="setting_feedback_submit">提交反馈</string>
     <string name="setting_feedback_submit_load">正在提交</string>
     <string name="setting_privacy">隐私设置</string>
+    <string name="setting_blacklist">黑名单</string>
+    <string name="setting_blacklist_remove">移出黑名单</string>
+
+
 
 </resources>

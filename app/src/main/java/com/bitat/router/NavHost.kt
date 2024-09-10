@@ -21,6 +21,7 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.AccountSecurePage
+import com.bitat.ui.profile.BlackListPage
 import com.bitat.ui.profile.BrowserHistoryPage
 import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
@@ -46,7 +47,7 @@ enum class Screen {
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
     PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK,CHAT_HISTORY, BROWSHISTORY,PRIVACYSETTINGS
+    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS,BLACKLIST
 }
 
 sealed class NavigationItem(val route: String) {
@@ -88,6 +89,8 @@ sealed class NavigationItem(val route: String) {
     data object BrowHistory : NavigationItem(Screen.BROWSHISTORY.name)
     data object ChatHistory : NavigationItem(Screen.CHAT_HISTORY.name)
     data object PrivacySettings : NavigationItem(Screen.PRIVACYSETTINGS.name)
+    data object BlackList : NavigationItem(Screen.BLACKLIST.name)
+
 }
 
 
@@ -255,6 +258,11 @@ fun AppNavHost(
             PrivacySettingsPage(navController)
         }
 
+        composable(NavigationItem.BlackList.route) {
+            BlackListPage(navController)
+        }
+
+
 
     }
 }
@@ -356,6 +364,16 @@ class AtNavigation(navController: NavHostController) {
 
     val navigationToBrowserHistory: () -> Unit = {
         navController.navigate(NavigationItem.BrowHistory.route)
+    }
+
+
+    val navigationToPrivacySettings: () -> Unit = {
+        navController.navigate(NavigationItem.PrivacySettings.route)
+    }
+
+
+    val navigationToBlackList: () -> Unit = {
+        navController.navigate(NavigationItem.BlackList.route)
     }
 
 

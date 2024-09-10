@@ -124,10 +124,6 @@ fun ImageBox(
                                     val width = state.painter.intrinsicSize.width
                                     val height =
                                         state.painter.intrinsicSize.height //                                    imageSize = Size(width.toInt(), height.toInt())
-                                    CuLog.debug(
-                                        CuTag.Blog,
-                                        "图片高度计算 Image width: ${width.toInt()} px, height: ${height.toInt()} px,maxHeight:${maxHeight}"
-                                    )
                                 }
                             })
                         Box(

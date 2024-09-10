@@ -166,7 +166,6 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
                     val bottomHeight = with(ctx) {
                         vm.setBottom(heightPx.toDp())
                     }
-                    CuLog.debug(CuTag.Blog, "底部导航栏高度$bottomHeight")
                 },
             //            .height(dimensionResource(R.dimen.home_tab_height)),
             backgroundColor = MaterialTheme.colorScheme.background

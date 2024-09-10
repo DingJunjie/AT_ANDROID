@@ -436,7 +436,7 @@ fun OtherMorePop(
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
-                        .background(colorResource(id = R.color.gray_ccc))
+                        .background(colorResource(id = R.color.gray_E0))
                         .clickable(onClick = {
 
                             AtNavigation(navController).navigateToReportUserPage()
@@ -454,7 +454,7 @@ fun OtherMorePop(
                     modifier = Modifier
                         .size(60.dp)
                         .clip(CircleShape)
-                        .background(colorResource(id = R.color.gray_ccc))
+                        .background(colorResource(id = R.color.gray_E0))
                         .clickable(onClick = {
 
                             vm.masking()

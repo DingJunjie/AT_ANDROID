@@ -10,6 +10,8 @@
     <color name="search_border">#707070</color>
     <color name="pop_content_bg">#F5F5F5</color>
     <color name="black_60">#66000000</color>
-    <color name="gray_ccc">#E0E0E0</color>
+    <color name="gray_E0">#E0E0E0</color>
+    <color name="gray_F0">#F0F0F0</color>
+    <color name="gray_ccc">#cccccc</color>
 
 </resources>

@@ -80,8 +80,3 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
         }
     }
 }
-
-@Composable
-fun WorkHistory(state: State<BrowserHistoryState>) {
-
-}

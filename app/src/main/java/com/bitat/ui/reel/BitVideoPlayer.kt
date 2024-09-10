@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import coil.compose.AsyncImage
@@ -104,18 +106,24 @@ fun BitVideoPlayer(
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize().clickable(onClick = {
-            when (type) {
-                BitVideoType.VideoList -> onSingleTap()
-                BitVideoType.VideoReel -> {
-                    config.isPause.value = !config.isPause.value
-                    onSingleTap()
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = {
+                when (type) {
+                    BitVideoType.VideoList -> onSingleTap()
+                    BitVideoType.VideoReel -> {
+                        config.isPause.value = !config.isPause.value
+                        onSingleTap()
+                    }
                 }
-            } },
-            indication = null, interactionSource = remember { MutableInteractionSource() }
+            },
+                indication = null, interactionSource = remember { MutableInteractionSource() }
             )) {
-            if (soundShow) Box(modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
-                .size(30.dp).clickable(onClick = {
+            if (soundShow) Box(modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(10.dp)
+                .size(30.dp)
+                .clickable(onClick = {
                     isFirstIn = false
                     VideoConfig.isPlayVolume = !VideoConfig.isPlayVolume
                     config.isMute.value = VideoConfig.isPlayVolume
@@ -131,6 +139,7 @@ fun BitVideoPlayer(
         }
     }
 }
+
 
 
 
