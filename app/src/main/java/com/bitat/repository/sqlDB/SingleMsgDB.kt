@@ -39,7 +39,7 @@ object SingleMsgDB {
     fun findMsg(selfId: Long, otherId: Long, pageNo: Int = 0, pageSize: Int = 30) =
         SqlDB.queryBatch(
             SingleMsgPo::of,
-            "select * from single_msg where self_id = ? and other_id = ?  order by time desc limit ? offset ?",
+            "select * from single_msg where self_id = ? and other_id = ? order by time desc limit ? offset ?",
             selfId,
             otherId,
             pageSize,
@@ -84,7 +84,7 @@ object SingleMsgDB {
         time
     )
 
-    fun insertOneUnique(singleMsgPo: SingleMsgPo) = SqlDB.execFn {
+    fun insertOneUnique(singleMsgPo: SingleMsgPo) = SqlDB.execBatch {
         val msg = getMsg(singleMsgPo.selfId, singleMsgPo.otherId, singleMsgPo.time)
         if (msg == null) {
             insertOne(singleMsgPo)

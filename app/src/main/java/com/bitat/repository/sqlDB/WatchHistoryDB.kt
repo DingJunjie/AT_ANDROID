@@ -54,7 +54,7 @@ object WatchHistoryDB {
     }
 
     //删除
-    fun del(id: Long) = SqlDB.exec(
+    fun delete(id: Long) = SqlDB.exec(
         "delete from watch_history where id = ?", id
     )
 

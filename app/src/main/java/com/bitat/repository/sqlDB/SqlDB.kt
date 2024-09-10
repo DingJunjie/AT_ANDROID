@@ -3,6 +3,8 @@ package com.bitat.repository.sqlDB
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import okio.withLock
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
@@ -38,7 +40,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
     companion object {
         @SuppressLint("StaticFieldLeak")
-        public var DB: SqlDB? = null
+        private var DB: SqlDB? = null
 
         private val locker = ReentrantLock()
 
@@ -49,7 +51,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
             (DB ?: throw Exception("Null sqlDB")).run {
                 locker.withLock {
-                    (if(writable) writableDatabase else readableDatabase).use(fn)
+                    (if (writable) writableDatabase else readableDatabase).use(fn)
                 }
             }
 
@@ -62,15 +64,14 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         }
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB(true) { SqlOps(it).writeQueryOne(toFn, sql, bindings) }
+            fetchDB(true) { SqlOps(it).writeQueryOne(toFn, sql, *bindings) }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? = fetchDB {
-            SqlOps(it).queryOne(toFn, sql, bindings)
+            SqlOps(it).queryOne(toFn, sql, *bindings)
         }
 
-        inline fun <reified T> queryBatch(
-            crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-        ) = fetchDB { SqlOps(it).queryBatch(toFn, sql, bindings) }
+        inline fun <reified T> queryBatch(crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
+            fetchDB { SqlOps(it).queryBatch(toFn, sql, *bindings) }
     }
 
 }
@@ -86,14 +87,13 @@ value class SqlOps(val db: SQLiteDatabase) {
         db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
             .run { if (moveToFirst()) toFn(this) else null }
 
-    inline fun <reified T> queryBatch(
-        crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
-    ) = db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
-        Array(count) {
-            moveToNext()
-            toFn(this)
+    inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
+        db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
+            Array(count) {
+                moveToNext()
+                toFn(this)
+            }
         }
-    }
 
 }
 

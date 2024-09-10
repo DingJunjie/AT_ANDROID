@@ -50,7 +50,6 @@ class BitApplication : Application(), ImageLoaderFactory {
 
         SqlDB.init(this)
 
-
     }
 
 

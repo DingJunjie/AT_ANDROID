@@ -21,6 +21,7 @@ import com.bitat.ui.discovery.SearchPage
 import com.bitat.ui.discovery.SearchResultPage
 import com.bitat.ui.login.LoginPage
 import com.bitat.ui.profile.AccountSecurePage
+import com.bitat.ui.profile.BrowserHistoryPage
 import com.bitat.ui.profile.CancelAgreementPage
 import com.bitat.ui.profile.ClearCachPage
 import com.bitat.ui.profile.CollectionDetail
@@ -248,7 +249,7 @@ fun AppNavHost(
             )
         }
         composable(NavigationItem.BrowHistory.route) {
-//            BrowserHistoryPage(navController)
+            BrowserHistoryPage(navController)
         }
         composable(NavigationItem.PrivacySettings.route) {
             PrivacySettingsPage(navController)
