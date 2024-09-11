@@ -39,12 +39,12 @@ enum class BlogMore {
 
 class BlogMoreViewModel : ViewModel() {
     val state = MutableStateFlow(BlogMoreState())
-    val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
+  private  val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
 
     // 拉黑用户
-    fun masking() {
+    fun masking(userId:Long) {
         MainCo.launch {
-            SocialReq.block(SocialDto(FOLLOWED, _state.value.userId)).await().map {
+            SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
                 state.update { it.copy(masking = HTTP_SUCCESS) }
             }.errMap {
                 state.update { it.copy(masking = HTTP_FAIL) }

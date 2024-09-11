@@ -34,14 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
-import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ext.Density
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.DEFAULT
+import com.bitat.repository.consts.FOLLOWED
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
-import com.bitat.state.OthersState
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.Avatar
@@ -51,27 +52,17 @@ import com.bitat.ui.theme.line
 import com.bitat.ui.theme.lineColor
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.FollowBtnViewModel
 import com.bitat.viewModel.OthersViewModel
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /*****
  * blog item 组件L
  */
 @Composable
-fun BlogItem(
-    blog: BlogBaseDto,
-    isPlaying: Boolean = false,
-    navHostController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    contentClick: (BlogBaseDto) -> Unit,
-    tapComment: () -> Unit,
-    tapAt: () -> Unit,
-    tapLike: () -> Unit,
-    tapCollect: (Int) -> Unit,
-    moreClick: () -> Unit
-) {
+fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog) //    val height = 500
     val lineHeight = remember {
@@ -86,100 +77,88 @@ fun BlogItem(
     val state by vm.blogState.collectAsState()
 
     val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
+    val moreVm: BlogMoreViewModel = viewModelProvider[BlogMoreViewModel::class]
+    val followVm: FollowBtnViewModel = viewModelProvider[FollowBtnViewModel::class]
+
 
     Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
         .onSizeChanged { size ->
             if (lineHeight.intValue == 0) {
                 lineHeight.intValue = (size.height / Density).toInt() - 75
             }
-        }
-        .fillMaxWidth()
-        .fillMaxHeight()
-    ) { //头像 和用户 和发布时间
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(88.cdp), //                .padding(start = 5.dp),
+        }.fillMaxWidth().fillMaxHeight()) { //头像 和用户 和发布时间
+        Row(modifier = Modifier.fillMaxWidth()
+            .height(88.cdp), //                .padding(start = 5.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Spacer(modifier = Modifier.width(5.dp))
-            Avatar(blog.profile, size = 35, showFollow = true) {
-                if(blog.userId!=UserStore.userInfo.id){
+            Avatar(blog.profile, size = 35, showFollow = blog.rel== DEFAULT, tapFn = {
+                if (blog.userId != UserStore.userInfo.id) {
                     othersVm.initUserId(blog.userId)
                     navHostController.navigate(NavigationItem.Others.route)
-                }
-                else{
+                } else {
                     navHostController.navigate(NavigationItem.Profile.route)
                 }
+            }, follow = {
+                when (blog.rel) {
+                    DEFAULT -> {
+                        followVm.followUser(blog.userId, FOLLOWED, onSuccess = { resultRel ->
+                            blog.rel = resultRel
+                            vm.setCurrentBlog(blog)
+                        }, onError = {})
+                    }
 
-            }
+                    FOLLOWED -> {
+                        followVm.followUser(blog.id, DEFAULT, onSuccess = { resultRel ->
+                            blog.rel = resultRel
+                            vm.setCurrentBlog(blog)
+
+                        }, onError = {})
+                    }
+                }
+
+            })
 
             Spacer(modifier = Modifier.width(15.cdp))
-            Surface(
-                modifier = Modifier //                .padding(start = 14.dp)
+            Surface(modifier = Modifier //                .padding(start = 14.dp)
             ) {
                 UserInfo(blog.nickname) {
                     vm.setCurrentBlog(blog)
+                    moreVm.setUser(blog.userId)
                     isMoreVisible.value = true
                     moreClick()
                 }
             }
         }
 
-        CuLog.debug(
-            CuTag.Blog,
-            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}"
-        )
+        CuLog.debug(CuTag.Blog,
+            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}")
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent)) {
-            Column(
-                modifier = Modifier
-                    .width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
-                    .fillMaxHeight()
-                    .padding(start = 5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
+            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
+                .fillMaxHeight().padding(start = 5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
 
                 Line(lineHeight.intValue - 10)
-                LottieBox(
-                    lottieRes = R.raw.follow_ani,
+                LottieBox(lottieRes = R.raw.follow_ani,
                     isRepeat = true,
-                    modifier = Modifier.size(40.cdp)
-                )
+                    modifier = Modifier.size(40.cdp))
             }
 
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-            ) {
+            Column(horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier
-                        .padding(
-                            start = 40.dp + 15.cdp,
+                    Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp,
                             end = 30.cdp,
-                            bottom = 30.cdp
-                        )
-                        .clickable(indication = null,
+                            bottom = 30.cdp).clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             contentClick(blog)
                         }) { //                        BlogText(blog.content)
                         CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                     }
-                }
-                //博文类型
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Transparent)
-                ) {
-                    BlogContent(
-                        blog.kind.toInt(),
+                } //博文类型
+                Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
+                    BlogContent(blog.kind.toInt(),
                         blog,
                         height,
                         true,
@@ -187,19 +166,16 @@ fun BlogItem(
                         coverIsFull = true,
                         needStartPadding = true,
                         navHostController,
-                        viewModelProvider
-                    )
+                        viewModelProvider)
                 }
 
                 Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp)) {
-                    BlogOperation(
-                        blog = blog,
+                    BlogOperation(blog = blog,
                         tapComment = tapComment,
                         tapAt = tapAt,
                         tapLike = tapLike,
                         tapCollect = tapCollect,
-                        updateFlag = state.flag
-                    )
+                        updateFlag = state.flag)
                 }
                 if (state.flag < 0) {
                     Text("")
@@ -213,39 +189,27 @@ fun BlogItem(
                 isMoreVisible.value = false
             }
         }
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(5.dp))
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp), color = lineColor)
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(10.dp))
+        Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
+        Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = lineColor)
+        Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
     }
+
 
 }
 
 @Composable
 fun Line(lineHeight: Int) {
     Row(
-        modifier = Modifier
-            .width(10.dp)
-            .height(lineHeight.dp), //            .padding(5.dp)
+        modifier = Modifier.width(10.dp).height(lineHeight.dp), //            .padding(5.dp)
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Canvas(
-            modifier = Modifier //                .height(lineHeight.dp)
-                .width(2.dp)
-                .height(lineHeight.dp)
-        ) {
-            drawLine(
-                color = line,
+        Canvas(modifier = Modifier //                .height(lineHeight.dp)
+            .width(2.dp).height(lineHeight.dp)) {
+            drawLine(color = line,
                 start = Offset(size.width / 2f, 1f),
                 end = Offset(size.width / 2f, size.height),
-                strokeWidth = 1.dp.toPx()
-            )
+                strokeWidth = 1.dp.toPx())
         }
     }
 }

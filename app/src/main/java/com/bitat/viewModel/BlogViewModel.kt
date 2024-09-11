@@ -227,23 +227,6 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun timeLineInit(lastTime: Long = 0L) {
-        MainCo.launch {
-            BlogReq.timeLine(TimeLineDto(20, UserStore.userInfo.id)).await().map { data ->
-                if (lastTime == 0L) blogState.update {
-                    it.blogList.clear()
-                    it
-                }
 
-                blogState.update {
-                    it.timeLineList.addAll(data)
-                    it
-                }
-                CuLog.error(CuTag.Profile, "timeLine success :${data.size}")
-            }.errMap {
-                CuLog.error(CuTag.Profile, "timeLine fail code:${it.code},msg:${it.msg}")
-            }
-        }
-    }
 
 }

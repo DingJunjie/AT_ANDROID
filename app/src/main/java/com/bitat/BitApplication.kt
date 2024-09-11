@@ -19,12 +19,12 @@ class BitApplication : Application(), ImageLoaderFactory {
         return ImageLoader.Builder(this).crossfade(true) //指定内存缓存策略
             .memoryCache {
                 MemoryCache.Builder(this) //指定最大Size为当前可用内存的25%
-                    .maxSizePercent(0.25) //启用或停用对缓存资源的弱引用
+//                    .maxSizePercent(0.25) //启用或停用对缓存资源的弱引用
                     //                    .weakReferencesEnabled(true)
                     //启用或停用对缓存资源的强引用
                     //                    .strongReferencesEnabled(true)
                     //指定最大Size为50MB
-                    //                    .maxSizeBytes(1024 * 1024 * 50)
+                                        .maxSizeBytes(1024 * 1024 * 100)
                     .build()
             } //指定磁盘缓存策略
             .diskCache {
@@ -38,17 +38,16 @@ class BitApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
-        System.loadLibrary("sqliteX")
+
+        SqlDB.init(this)
         //全局ctx初始化
         Local.ctx = this
         //事件发布初始化
         FlowBusInitializer.init(this)
-
         // emoji 初始化
         val config: EmojiCompat.Config = BundledEmojiCompatConfig(this)
         EmojiCompat.init(config)
 
-        SqlDB.init(this)
 
     }
 

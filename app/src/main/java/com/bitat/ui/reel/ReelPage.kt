@@ -128,11 +128,14 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                 }
             }
             vm.setIndex(page)
+            // 记录观看历史
+            if (state.value.resList.size>0)
+            vm.addWatchHistory(state.value.resList[page])
+
         } //        CuLog.debug(CuTag.Blog, "1111 init data")
     }
 
     DisposableEffect(Unit) {
-        CuLog.error(CuTag.Base,"获取数据 getList")
         vm.getList(true) {}
         onDispose { // 页面离开时可以执行一些清理操作
             vm.reset()
@@ -143,8 +146,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         AtNavigation(navController).navigateToHome()
     }
 
-    val horpagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
-    HorizontalPager(state = horpagerState) { horPage ->
+    val horPagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    HorizontalPager(state = horPagerState,beyondBoundsPageCount = 0) { horPage ->
         when (horPage) {
             0 -> {
                 VerticalPager(state = pagerState) { page -> // Our page content
@@ -155,9 +158,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) {
-                                    CuLog.error(CuTag.Base,"创建video ${currentDto.id}")
+//                                    CuLog.error(CuTag.Base,"创建video2 ${currentDto.id}")
                                     othersVm.initUserId(currentDto.userId)
-                                    vm.addWatchHistory(currentDto)
                                     //                                    CuExoPlayer(data = currentDto.resource.video,
                                     //                                        modifier = Modifier.fillMaxSize(),
                                     //                                        cover = currentDto.cover,

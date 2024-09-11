@@ -9,7 +9,7 @@ import com.bitat.repository.dto.resp.UserPartDto
 data class OthersState(
     val userId: Long = -1,
     val userInfo: MutableState<UserHomeDto>? = null,
-    val isTabbarTop: Boolean = false,
+    val isTabBarTop: Boolean = false,
     val isAtBottom: Boolean = false,
     val profileType: Int = 0,
 )

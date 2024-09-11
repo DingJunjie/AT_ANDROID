@@ -39,7 +39,7 @@ class OthersViewModel : ViewModel() {
 
     fun switchTabbar(isTop: Boolean) {
         _othersState.update {
-            it.copy(isTabbarTop = isTop)
+            it.copy(isTabBarTop = isTop)
         }
     }
 

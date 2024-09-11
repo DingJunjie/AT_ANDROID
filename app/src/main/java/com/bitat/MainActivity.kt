@@ -49,8 +49,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState) //        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         //        window.setDecorFitsSystemWindows(false)
         CuLog.debug(CuTag.Login, "MainActivity----- onCreate") //设置全屏显示
+
         enableEdgeToEdge()
         setContent {
+//            SqlDB.init(this)
             Local.mainAct = this
             CuLog.level = CuLog.DEBUG
             BaseStore.init(LocalContext.current) // 设置user 到 TokenStore 中

@@ -78,24 +78,28 @@ fun BlackListPage(navHostController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 items(state.myBlackList) { item ->
                     BlackListItem(item) {
-                        vm.setCurrent(item)
-                        isConfirmShow = true
+                        vm.setCurrent(item){
+                            isConfirmShow = true
+                        }
                     }
                 }
             }
+            if (state.flag<0)
+                Text("")
         }
-        if (isConfirmShow) ConfirmPop(isConfirmShow, state.currentUser!!, onConfirm = {
-            vm.removeBlackList(state.currentUser!!, onComplete = { result ->
+
+        state.currentUser?.let { user ->
+            ConfirmPop(isConfirmShow, user, onConfirm = {
+                vm.removeBlackList(state.currentUser!!, onComplete = { result ->
+                    isConfirmShow = false
+                    ToastModel(if (result) "操作成功" else "操作失败",
+                        ToastModel.Type.Success).showToast()
+                    vm.blackList()
+                })
+            }, onClose = {
                 isConfirmShow = false
-                ToastModel(if (result) "操作成功" else "操作失败",
-                    ToastModel.Type.Success).showToast()
-                vm.blackList()
             })
-        }, onClose = {
-            isConfirmShow = false
-        }) //        state.currentUser?.let { user ->
-        //
-        //        }
+        }
     }
 }
 
@@ -154,13 +158,19 @@ fun ConfirmPop(visible: Boolean, user: UserBase1Dto, onConfirm: () -> Unit, onCl
                         onClose()
                     },
                     shape = RoundedCornerShape(16.dp)) {
-                    Text(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp, start = 20.dp, end = 20.dp), text = stringResource(id = R.string.cancel))
+                    Text(modifier = Modifier.padding(top = 5.dp,
+                        bottom = 5.dp,
+                        start = 20.dp,
+                        end = 20.dp), text = stringResource(id = R.string.cancel))
                 }
                 Spacer(modifier = Modifier.width(20.dp))
-                Button( modifier = Modifier, onClick = {
+                Button(modifier = Modifier, onClick = {
                     onConfirm()
                 }, shape = RoundedCornerShape(16.dp)) {
-                    Text(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp, start = 20.dp, end = 20.dp), text = stringResource(id = R.string.confirm))
+                    Text(modifier = Modifier.padding(top = 5.dp,
+                        bottom = 5.dp,
+                        start = 20.dp,
+                        end = 20.dp), text = stringResource(id = R.string.confirm))
                 }
             }
         }

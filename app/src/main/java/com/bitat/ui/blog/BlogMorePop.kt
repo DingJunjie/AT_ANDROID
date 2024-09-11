@@ -75,9 +75,9 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
 
 
     LaunchedEffect(Unit) {
-        blogState.currentBlog?.let { blog ->
-            vm.setUser(blog.userId)
-        }
+//        blogState.currentBlog?.let { blog ->
+//            vm.setUser(blog.userId)
+//        }
 
     }
 
@@ -192,7 +192,7 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
-                        if (state.isOther) vm.masking()
+                        if (state.isOther) vm.masking(state.userId)
                         else vm.dtAuthShow(!state.isDtAuthShow)
                     }) {
                     Icon(imageVector = Icons.Outlined.FavoriteBorder,

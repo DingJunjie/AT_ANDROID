@@ -98,6 +98,8 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
     val blogVm = viewModelProvider[BlogViewModel::class]
     val blogState by blogVm.blogState.collectAsState()
 
+    val moreVm = viewModelProvider[BlogMoreViewModel::class]
+
     val scope = rememberCoroutineScope() // tab bar 的state
     val pagerState: PagerState = rememberPagerState {
         OTHER_TAB_OPTIONS.size
@@ -118,13 +120,11 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 
     val draggableState = rememberDraggableState { delta ->
         offsetY += delta
-    }
-    // 整体 scroll 的state
-    val scrollState: ScrollState = rememberScrollState()
-    // scroll 的触发
-    if (scrollState.value > positionTopBar && !state.isTabbarTop) {
+    } // 整体 scroll 的state
+    val scrollState: ScrollState = rememberScrollState() // scroll 的触发
+    if (scrollState.value > positionTopBar && !state.isTabBarTop) {
         vm.switchTabbar(true)
-    } else if (scrollState.value < positionTopBar && state.isTabbarTop) {
+    } else if (scrollState.value < positionTopBar && state.isTabBarTop) {
         vm.switchTabbar(false)
     }
 
@@ -135,8 +135,7 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
     }
 
 
-    LaunchedEffect(Unit) {
-        // 页面打开记录浏览历史
+    LaunchedEffect(Unit) { // 页面打开记录浏览历史
 
 
     }
@@ -145,56 +144,37 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 
         Column(modifier = Modifier.background(Color.White)) {
 
-            if (state.isTabbarTop) Column(modifier = Modifier.fillMaxWidth()) {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(statusBarHeight)
-                        .background(Color.White)
-                )
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(5.dp)
-                )
+            if (state.isTabBarTop) Column(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight)
+                    .background(Color.White))
+                Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
 
                     ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
                 Box {
                     state.userInfo?.let { user ->
                         ProfileBg(user.value.cover, menu = {
                             Menu(menuFun = {
+                                moreVm.setUser(user.value.id)
                                 moreVisible = true
                             })
                         })
                         Column(modifier = Modifier.align(Alignment.TopCenter)) {
-                            Box(
-                                modifier = Modifier
-                                    .height(160.dp)
-                                    .fillMaxWidth()
-                            )
-                            OthersDetail(
-                                vm,
-                                navController,
-                                state.userInfo!!.value, goChatDetail = {
+                            Box(modifier = Modifier.height(160.dp).fillMaxWidth())
+                            state.userInfo?.let {
+                                OthersDetail(vm, navController, state.userInfo!!.value, goChatDetail = {
                                     chatVm.createRoom(it)
                                     navController.navigate(NavigationItem.ChatDetails.route)
                                 }, followFn = {
                                     state.userInfo?.let { user ->
                                         when (user.value.rel) {
                                             DEFAULT -> {
-                                                followVm.followUser(
-                                                    user.value.id,
+                                                followVm.followUser(user.value.id,
                                                     FOLLOWED,
                                                     onSuccess = {
-
                                                         vm.getUserInfo() { user ->
                                                             blogState.currentBlog?.let {
                                                                 it.rel = user.rel
@@ -202,20 +182,22 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                                                             }
 
                                                         }
-                                                        UserStore.refreshUser()
-
                                                     },
                                                     onError = {})
                                             }
 
                                             FOLLOWED -> {
-                                                followVm.followUser(
-                                                    user.value.id,
+                                                followVm.followUser(user.value.id,
                                                     DEFAULT,
                                                     onSuccess = { rel ->
-
                                                         UserStore.refreshUser()
-                                                        vm.getUserInfo()
+                                                        vm.getUserInfo(){ user ->
+                                                            blogState.currentBlog?.let {
+                                                                it.rel = user.rel
+                                                                blogVm.refreshCurrent(it)
+                                                            }
+
+                                                        }
                                                     },
                                                     onError = {})
                                             }
@@ -223,6 +205,8 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                                     }
 
                                 })
+                            }
+
                         }
                     }
                 }
@@ -234,7 +218,7 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                                 coordinate.positionInRoot().y.toInt() - (padding.calculateTopPadding().value).toInt()
                         }
                     }) {
-                    if (!state.isTabbarTop) Box(modifier = Modifier.fillMaxWidth()) {
+                    if (!state.isTabBarTop) Box(modifier = Modifier.fillMaxWidth()) {
                         ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
                     }
                     ProfileTabView(
@@ -244,15 +228,10 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                         navController,
                         viewModelProvider = viewModelProvider,
                     ) { index ->
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(modifier = Modifier
-                                .fillMaxHeight()
-                                .background(Color.Cyan)
-                                .fillMaxWidth()
-                                .clickable {
+                        Box(modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.fillMaxHeight().background(Color.Cyan)
+                                .fillMaxWidth().clickable {
                                     UserStore.updateFans(100)
                                 }) {
 
@@ -272,40 +251,23 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 }
 
 @Composable
-fun OthersDetail(
-    viewModel: OthersViewModel,
-    navHostController: NavHostController,
-    userInfo: UserHomeDto,
-    goChatDetail: (UserHomeDto) -> Unit, followFn: () -> Unit
-) {
+fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostController, userInfo: UserHomeDto, goChatDetail: (UserHomeDto) -> Unit, followFn: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(40.dp, 40.dp, 0.dp, 0.dp),
     ) {
         Column(verticalArrangement = Arrangement.Top) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+            Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 AvatarWithShadow(url = userInfo.profile)
 
-                Column(
-                    modifier = Modifier
-                        .padding(top = 15.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
+                Column(modifier = Modifier.padding(top = 15.dp),
+                    verticalArrangement = Arrangement.SpaceBetween) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
                         TagLabel(TimeUtils.getAgeByBirthday(userInfo.birthday).toString())
                         TagLabel(userInfo.address)
                     }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 10.dp)
-                            .height(55.dp),
+                    Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         UserInfo(userInfo.nickname, userInfo.account, userInfo.introduce)
                         SocialData(userInfo.agrees, fans = userInfo.fans)
                     }
@@ -313,66 +275,42 @@ fun OthersDetail(
 
             }
 
-            Text(
-                userInfo.introduce,
+            Text(userInfo.introduce,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
-            )
-            OthersOperationBar(userInfo, followFn, chatFn = { goChatDetail(userInfo) })
-//            AlbumList()
+                modifier = Modifier.padding(start = 15.dp, top = 15.dp))
+            OthersOperationBar(userInfo,
+                followFn,
+                chatFn = { goChatDetail(userInfo) }) //            AlbumList()
         }
     }
 }
 
 @Composable
 fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
-            Icon(Icons.Filled.ShoppingCart, contentDescription = "")
-        }
+    Row(modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+//        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
+//            Icon(Icons.Filled.ShoppingCart, contentDescription = "")
+//        }
 
-        Row(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            Surface(
-                shape = RoundedCornerShape(10.dp), modifier = Modifier
-                    .weight(0.5f)
-                    .height(40.dp)
-                    .padding(horizontal = 10.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = { followFn() })
-                        .background(Color.LightGray), contentAlignment = Alignment.Center
-                ) {
+        Row(modifier = Modifier.weight(1f)) {
+            Surface(shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(0.5f).height(40.dp).padding(horizontal = 10.dp)) {
+                Box(modifier = Modifier.fillMaxWidth().clickable(onClick = { followFn() })
+                    .background(Color.LightGray), contentAlignment = Alignment.Center) {
                     Text(text = RelationUtils.toFollowContent(userInfo.rel))
                 }
             }
 
-            Surface(
-                shape = RoundedCornerShape(10.dp), modifier = Modifier
-                    .weight(0.5f)
-                    .height(40.dp)
-                    .padding(horizontal = 10.dp)
+            Surface(shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(0.5f).height(40.dp).padding(horizontal = 10.dp)
                     .clickable {
                         chatFn()
-                    }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.LightGray), contentAlignment = Alignment.Center
-                ) {
+                    }) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray),
+                    contentAlignment = Alignment.Center) {
                     Text(text = "私信")
                 }
             }
@@ -381,79 +319,43 @@ fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -
 }
 
 @Composable
-fun OtherMorePop(
-    visible: Boolean,
-    user: UserHomeDto,
-    navController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    onClose: () -> Unit
-) {
+fun OtherMorePop(visible: Boolean, user: UserHomeDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit) {
     val vm = viewModelProvider[BlogMoreViewModel::class]
     val state by vm.state.collectAsState()
-    LaunchedEffect(Unit) {
-        vm.setUser(state.userId)
-    }
+//    LaunchedEffect(Unit) {
+//        vm.setUser(state.userId)
+//    }
 
     Popup(visible = visible, onClose = onClose) {
-        Column(modifier = Modifier.padding(20.dp).background(MaterialTheme.colorScheme.background)) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
+        Column(modifier = Modifier.padding(20.dp)
+            .background(MaterialTheme.colorScheme.background)) {
+            Text(modifier = Modifier.fillMaxWidth(),
                 text = user.nickname,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+            Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
+            Text(modifier = Modifier.fillMaxWidth(),
                 text = "艾特号：${user.account}",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = hintTextColor
-                )
-            )
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(20.dp)
-            )
+                style = MaterialTheme.typography.bodySmall.copy(color = hintTextColor))
+            Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
             Row {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(colorResource(id = R.color.gray_E0))
-                        .clickable(onClick = {
+                Box(modifier = Modifier.size(60.dp).clip(CircleShape)
+                    .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
 
-                            AtNavigation(navController).navigateToReportUserPage()
-                        })
-                ) {
-                    Text( modifier = Modifier.align(Alignment.Center),text = stringResource(R.string.blog_report))
+                        AtNavigation(navController).navigateToReportUserPage()
+                    })) {
+                    Text(modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.blog_report))
 
                 }
-                Spacer(
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(10.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(colorResource(id = R.color.gray_E0))
-                        .clickable(onClick = {
+                Spacer(modifier = Modifier.width(30.dp).height(10.dp))
+                Box(modifier = Modifier.size(60.dp).clip(CircleShape)
+                    .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
 
-                            vm.masking()
-                            onClose()
-                        })
-                ) {
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.blog_masking)
-                    )
+                        vm.masking(state.userId)
+                        onClose()
+                    })) {
+                    Text(modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.blog_masking))
 
                 }
             }

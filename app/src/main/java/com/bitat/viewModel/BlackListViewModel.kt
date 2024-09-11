@@ -26,13 +26,13 @@ class BlackListViewModel : ViewModel() {
         MainCo.launch {
             UserReq.findBlackList(FindPrivateDto(HTTP_PAGESIZE)).await().map { result ->
                 _state.update {
-                    if (isInit)
-                        it.myBlackList.clear()
+                    if (isInit) it.myBlackList.clear()
                     it.myBlackList.addAll(result)
                     it
                 }
             }.errMap {
-                CuLog.error(CuTag.Profile, "UserReq  findBlackList error code:${it.code},msg:${it.msg}")
+                CuLog.error(CuTag.Profile,
+                    "UserReq  findBlackList error code:${it.code},msg:${it.msg}")
             }
 
         }
@@ -49,10 +49,16 @@ class BlackListViewModel : ViewModel() {
         }
     }
 
-    fun setCurrent(item: UserBase1Dto) {
+    fun setCurrent(item: UserBase1Dto, complete: () -> Unit) {
         _state.update {
             it.currentUser = item
             it
         }
+
+        _state.update {
+            it.copy(flag = _state.value.flag + 1)
+        }
+        complete()
+
     }
 }

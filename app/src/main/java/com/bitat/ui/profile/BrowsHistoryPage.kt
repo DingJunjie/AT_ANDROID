@@ -21,6 +21,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
+import com.bitat.repository.sqlDB.SqlDB
 import com.bitat.router.AtNavigation
 import com.bitat.state.BrowserHistoryState
 import com.bitat.ui.component.CommonTopBar
@@ -43,8 +46,7 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
     val pagerState: PagerState = rememberPagerState(initialPage = state.currentTabIndex) {
         PROFILE_TAB_OPTIONS.size
     }
-
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         vm.worksHistory()
     }
 

@@ -6,6 +6,6 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 
 data class BlackListState(
     val myBlackList: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
-    val flag: Int = 0,
+    var flag: Int = 0,
     var currentUser: UserBase1Dto?=null
 )

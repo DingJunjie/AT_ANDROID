@@ -116,6 +116,7 @@ class ReelViewModel : ViewModel() {
     }
 
     fun addWatchHistory(dto:BlogBaseDto) {
+        CuLog.error(CuTag.Blog,"添加观看历史")
         viewModelScope.launch(Dispatchers.IO) {
 //            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
             WatchHistoryDB.insertOne(WatchHistoryPo().apply {

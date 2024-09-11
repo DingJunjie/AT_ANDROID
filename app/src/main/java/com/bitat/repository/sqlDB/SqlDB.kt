@@ -18,6 +18,7 @@ const val DB_VERSION = 1
 class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
+        CuLog.error(CuTag.Base, "Db onCreate")
         UserDB.init(db)
         WatchHistoryDB.init(db)
         SocialRelDB.init(db)
@@ -42,9 +43,13 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
 
         private val locker = ReentrantReadWriteLock()
 
-        fun init(context: Context) = SqlDB(context).run {
-            readableOps = SqlOps(readableDatabase)
-            writableOps = SqlOps(writableDatabase)
+        fun init(context: Context) {
+            System.loadLibrary("sqliteX")
+            SqlDB(context).run {
+                CuLog.error(CuTag.Base, "Init Db")
+                readableOps = SqlOps(readableDatabase)
+                writableOps = SqlOps(writableDatabase)
+            }
         }
 
         fun close() {
@@ -53,12 +58,15 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             CuLog.debug(CuTag.Base, "关闭DB连接")
         }
 
-        fun <T> fetchDB(writable: Boolean = false, fn: (SqlOps) -> T): T =
-            (if (writable) writableOps?.let {
+        fun <T> fetchDB(writable: Boolean = false, fn: (SqlOps) -> T): T {
+            val wOps = writableOps
+            val rOps = readableOps
+            return if (wOps != null && rOps != null) if (writable) wOps.let {
                 locker.write { fn(it) }
-            } else readableOps?.let {
+            } else rOps.let {
                 locker.read { fn(it) }
-            }) ?: throw RuntimeException("SqlDB not init")
+            } else throw RuntimeException("SqlDB not init")
+        }
 
         fun exec(sql: String, vararg bindings: Any) = fetchDB(true) {
             it.exec(sql, *bindings)
