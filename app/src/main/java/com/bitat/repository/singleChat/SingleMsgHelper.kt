@@ -6,9 +6,15 @@ import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.*
+import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.dto.req.FindBaseByIdsDto
+import com.bitat.repository.dto.req.GetBlogDto
+import com.bitat.repository.dto.req.NoticeReqDto
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserBase1Dto
+import com.bitat.repository.dto.resp.UserHomeDto
+import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.http.service.NoticeReq
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.repository.po.SingleMsgPo
@@ -24,6 +30,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 
 class GetRooms(val rooms: List<SingleRoomPo>)
@@ -32,6 +40,22 @@ class SetMute(val otherId: Long, val isMute: Int)
 class GetNewMessage(val msg: SingleMsgPo)
 
 class GetNewNotice(val notice: NoticeMsgPo)
+
+@Serializable
+data class SocialNotice(
+    val id: Long = 0,
+    val blogId: Long = 0,
+    val commentId: Long = 0,
+    val comment: String = "",
+    val resource: ResourceDto = ResourceDto(),
+)
+
+@Serializable
+data class NoticeContent(
+    val commentId: Long = 0,
+    val comment: String = "",
+    val resource: ResourceDto = ResourceDto(),
+)
 
 object SingleMsgHelper {
     val singleChatUiFlow = MutableSharedFlow<Any>(extraBufferCapacity = 16)
@@ -49,47 +73,37 @@ object SingleMsgHelper {
                     }
 
                     is SetTopRoom -> {
-                        it.cd.complete(
-                            async {
-                                SingleRoomDB.updateTop(
-                                    it.isTop,
-                                    UserStore.userInfo.id,
-                                    it.otherId
-                                )
-                                return@async it.isTop
-                            }.await().also { that ->
-                                singleChatUiFlow.emit(
-                                    SetTop(otherId = it.otherId, isTop = that)
-                                )
-                            }
-                        )
+                        it.cd.complete(async {
+                            SingleRoomDB.updateTop(
+                                it.isTop, UserStore.userInfo.id, it.otherId
+                            )
+                            return@async it.isTop
+                        }.await().also { that ->
+                            singleChatUiFlow.emit(
+                                SetTop(otherId = it.otherId, isTop = that)
+                            )
+                        })
                     }
 
                     is SetMuteRoom -> {
-                        it.cd.complete(
-                            async {
-                                SingleRoomDB.updateMuted(
-                                    it.isMute,
-                                    UserStore.userInfo.id,
-                                    it.otherId
-                                )
-                                return@async it.isMute
-                            }.await().also { that ->
-                                singleChatUiFlow.emit(
-                                    SetMute(otherId = it.otherId, isMute = that)
-                                )
-                            }
-                        )
+                        it.cd.complete(async {
+                            SingleRoomDB.updateMuted(
+                                it.isMute, UserStore.userInfo.id, it.otherId
+                            )
+                            return@async it.isMute
+                        }.await().also { that ->
+                            singleChatUiFlow.emit(
+                                SetMute(otherId = it.otherId, isMute = that)
+                            )
+                        })
                     }
 
-                    is QueryChatRooms -> it.cd.complete(
-                        async {
-                            val list = getRooms()
-                            return@async list
-                        }.await().also { res ->
-                            singleChatUiFlow.emit(GetRooms(rooms = res))
-                        }
-                    )
+                    is QueryChatRooms -> it.cd.complete(async {
+                        val list = getRooms()
+                        return@async list
+                    }.await().also { res ->
+                        singleChatUiFlow.emit(GetRooms(rooms = res))
+                    })
                 }
             }
         }
@@ -109,22 +123,23 @@ object SingleMsgHelper {
 
         val tmpMap = mutableMapOf<Long, UserBase1Dto>()
 
-        UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await()
-            .map { res ->
-                res.forEach {
-                    tmpMap[it.id] = it
-                }
+        UserReq.findBaseByIds(FindBaseByIdsDto(ids.toLongArray())).await().map { res ->
+            res.forEach {
+                tmpMap[it.id] = it
+            }
 
-                tmpArr.forEach { that ->
+            tmpArr.forEach { that ->
+                if (tmpMap[that.otherId] != null) {
                     that.nickname = tmpMap[that.otherId]!!.nickname
                     that.profile = tmpMap[that.otherId]!!.profile
                     that.rel = tmpMap[that.otherId]!!.rel
                     that.revRel = tmpMap[that.otherId]!!.revRel
                     that.alias = tmpMap[that.otherId]!!.alias
                 }
-
-                tmpArr.sortWith(comparator)
             }
+
+            tmpArr.sortWith(comparator)
+        }
 
         return tmpArr
     }
@@ -163,20 +178,22 @@ object SingleMsgHelper {
         val newNotice = NoticeMsgPo().apply {
             fromId = msg.fromId
             userId = msg.toId
-            content = msg.data.toString(Charsets.UTF_8)
+            content = ""
             time = msg.time
             kind = msg.kind
         }
 
         // {"id":1413,"text":"你的动态未审核通过,我们会进一步进行审核,原因:"}
-        CuLog.info(CuTag.SingleChat, "收到一条通知，内容是$originContent")
+        CuLog.info(CuTag.Notice, "收到一条通知，内容是$originContent")
 
         when (msg.kind) {
             APP_NOTICE_FOLLOW -> {
                 val userInfo = UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
                     val content = "${info.nickname}关注了你"
+                    newNotice.content = content
 
                     NoticeMsgDB.insertOne(newNotice)
+                    CuLog.info(CuTag.Notice, "收到一条通知，内容是$content")
                 }
             }
 
@@ -193,26 +210,52 @@ object SingleMsgHelper {
             }
 
             APP_NOTICE_AT -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}AT了你"
-                    newNotice.content = content
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}AT了你"
+                    newNotice.sourceId = json.blogId
 
                     NoticeMsgDB.insertOne(newNotice)
                 }
             }
 
             APP_NOTICE_AGREE_BLOG -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}点赞了你"
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}点赞了你的博文 ${
+                        info.first().content.substring(
+                            0, 10
+                        )
+                    }..."
                     newNotice.content = content
+                    newNotice.sourceId = json.blogId
 
                     NoticeMsgDB.insertOne(newNotice)
                 }
             }
 
             APP_NOTICE_AGREE_COMMENT -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}点赞了你的评论"
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}点赞了你的评论"
                     newNotice.content = content
 
                     NoticeMsgDB.insertOne(newNotice)
@@ -220,8 +263,19 @@ object SingleMsgHelper {
             }
 
             APP_NOTICE_AGREE_SUB_COMMENT -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}点赞了你在下的评论"
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}点赞了你在博文${
+                        info.first().content.substring(
+                            0, 3
+                        )
+                    }下的评论"
                     newNotice.content = content
 
                     NoticeMsgDB.insertOne(newNotice)
@@ -229,18 +283,34 @@ object SingleMsgHelper {
             }
 
             APP_NOTICE_REPLY_COMMENT -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}回复了你"
-                    newNotice.content = content
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}回复了你"
+                    newNotice.content =
+                        NoticeContent(commentId = json.commentId, comment = json.comment).toString()
 
                     NoticeMsgDB.insertOne(newNotice)
                 }
             }
 
             APP_NOTICE_REPLY_SUB_COMMENT -> {
-                UserReq.userInfo(UserInfoDto(msg.fromId)).await().map { info ->
-                    val content = "${info.nickname}回复了你在下的评论"
-                    newNotice.content = content
+                val json = Json.decodeFromString(SocialNotice.serializer(), originContent)
+                NoticeReq.find(
+                    arrayOf(
+                        NoticeReqDto(
+                            fromId = msg.fromId, kind = msg.kind, sourceId = json.blogId
+                        )
+                    )
+                ).await().map { info ->
+                    val content = "${info.first().nickname}回复了你在下的评论"
+                    newNotice.content =
+                        NoticeContent(commentId = json.commentId, comment = json.comment).toString()
 
                     NoticeMsgDB.insertOne(newNotice)
                 }
@@ -264,8 +334,23 @@ object SingleMsgHelper {
 
             }
 
+            ///////////////////////////// 系统相关 ////////////////////////
+
+            SYSTEM_NOTICE -> {
+
+            }
+
+            SYSTEM_PASSED -> {
+
+            }
+
+            UPDATE_AUTHORITY -> {
+
+            }
+
         }
     }
+
 
     private suspend fun handleChat(msg: MsgDto.ChatMsg) {
         val newRoom = SingleRoomPo()
