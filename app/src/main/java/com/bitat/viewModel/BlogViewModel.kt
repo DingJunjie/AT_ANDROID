@@ -102,7 +102,8 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.error(CuTag.Blog, "调用Followed----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.error(CuTag.Blog,
+                            "调用Followed----errMap: code=${it.code},msg=${it.msg}")
                     }
                 }
             }
@@ -227,6 +228,15 @@ class BlogViewModel : ViewModel() {
         }
     }
 
+    fun removeOne(blog: BlogBaseDto) {
+        blogState.update {
+            it.blogList.remove(blog)
+            it
+        }
+        blogState.update {
+            it.copy(flag = it.flag+1)
+        }
+    }
 
 
 }

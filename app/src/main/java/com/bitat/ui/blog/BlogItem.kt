@@ -1,5 +1,12 @@
 package com.bitat.ui.blog
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,8 +68,9 @@ import kotlinx.serialization.json.Json
 /*****
  * blog item 组件L
  */
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit) {
+fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit,onRemove:() ->Unit) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog) //    val height = 500
     val lineHeight = remember {
@@ -79,122 +87,125 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
     val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
     val moreVm: BlogMoreViewModel = viewModelProvider[BlogMoreViewModel::class]
     val followVm: FollowBtnViewModel = viewModelProvider[FollowBtnViewModel::class]
-
-
-    Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
-        .onSizeChanged { size ->
-            if (lineHeight.intValue == 0) {
-                lineHeight.intValue = (size.height / Density).toInt() - 75
-            }
-        }.fillMaxWidth().fillMaxHeight()) { //头像 和用户 和发布时间
-        Row(modifier = Modifier.fillMaxWidth()
-            .height(88.cdp), //                .padding(start = 5.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically) {
-            Spacer(modifier = Modifier.width(5.dp))
-            Avatar(blog.profile, size = 35, showFollow = blog.rel== DEFAULT, tapFn = {
-                if (blog.userId != UserStore.userInfo.id) {
-                    othersVm.initUserId(blog.userId)
-                    navHostController.navigate(NavigationItem.Others.route)
-                } else {
-                    navHostController.navigate(NavigationItem.Profile.route)
+    AnimatedVisibility(
+        visible = true,
+        enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+        exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(),
+        initiallyVisible = false
+    ) {
+        Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
+            .onSizeChanged { size ->
+                if (lineHeight.intValue == 0) {
+                    lineHeight.intValue = (size.height / Density).toInt() - 75
                 }
-            }, follow = {
-                when (blog.rel) {
-                    DEFAULT -> {
-                        followVm.followUser(blog.userId, FOLLOWED, onSuccess = { resultRel ->
-                            blog.rel = resultRel
-                            vm.setCurrentBlog(blog)
-                        }, onError = {})
+            }.fillMaxWidth().fillMaxHeight()) { //头像 和用户 和发布时间
+            Row(modifier = Modifier.fillMaxWidth()
+                .height(88.cdp), //                .padding(start = 5.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(5.dp))
+                Avatar(blog.profile, size = 35, showFollow = blog.rel== DEFAULT&&blog.userId!=UserStore.userInfo.id, tapFn = {
+                    if (blog.userId != UserStore.userInfo.id) {
+                        othersVm.initUserId(blog.userId)
+                        navHostController.navigate(NavigationItem.Others.route)
+                    } else {
+                        navHostController.navigate(NavigationItem.Profile.route)
+                    }
+                }, follow = {
+                    when (blog.rel) {
+                        DEFAULT -> {
+                            followVm.followUser(blog.userId, FOLLOWED, onSuccess = { resultRel ->
+                                blog.rel = resultRel
+                                vm.setCurrentBlog(blog)
+                            }, onError = {})
+                        }
+
+                        FOLLOWED -> {
+                            followVm.followUser(blog.id, DEFAULT, onSuccess = { resultRel ->
+                                blog.rel = resultRel
+                                vm.setCurrentBlog(blog)
+
+                            }, onError = {})
+                        }
                     }
 
-                    FOLLOWED -> {
-                        followVm.followUser(blog.id, DEFAULT, onSuccess = { resultRel ->
-                            blog.rel = resultRel
-                            vm.setCurrentBlog(blog)
+                })
 
-                        }, onError = {})
+                Spacer(modifier = Modifier.width(15.cdp))
+                Surface(modifier = Modifier //                .padding(start = 14.dp)
+                ) {
+                    UserInfo(blog.nickname) {
+                        vm.setCurrentBlog(blog)
+                        moreVm.setUser(blog.userId)
+                        isMoreVisible.value = true
+                        moreClick()
                     }
                 }
+            }
 
-            })
+            CuLog.debug(CuTag.Blog,
+                "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}")
 
-            Spacer(modifier = Modifier.width(15.cdp))
-            Surface(modifier = Modifier //                .padding(start = 14.dp)
-            ) {
-                UserInfo(blog.nickname) {
-                    vm.setCurrentBlog(blog)
-                    moreVm.setUser(blog.userId)
-                    isMoreVisible.value = true
-                    moreClick()
+            Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
+                Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
+                    .fillMaxHeight().padding(start = 5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    Line(lineHeight.intValue - 10)
+                    LottieBox(lottieRes = R.raw.follow_ani,
+                        isRepeat = true,
+                        modifier = Modifier.size(40.cdp))
                 }
-            }
-        }
 
-        CuLog.debug(CuTag.Blog,
-            "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}")
-
-        Box(modifier = Modifier.fillMaxWidth().fillMaxHeight().background(Color.Transparent)) {
-            Column(modifier = Modifier.width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
-                .fillMaxHeight().padding(start = 5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-
-                Line(lineHeight.intValue - 10)
-                LottieBox(lottieRes = R.raw.follow_ani,
-                    isRepeat = true,
-                    modifier = Modifier.size(40.cdp))
-            }
-
-            Column(horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
-                if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp,
+                Column(horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+                    if (blog.content.isNotEmpty()) {
+                        Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp,
                             end = 30.cdp,
                             bottom = 30.cdp).clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             contentClick(blog)
                         }) { //                        BlogText(blog.content)
-                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
+                            CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
+                        }
+                    } //博文类型
+                    Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
+                        BlogContent(blog.kind.toInt(),
+                            blog,
+                            height,
+                            true,
+                            isPlaying,
+                            coverIsFull = true,
+                            needStartPadding = true,
+                            navHostController,
+                            viewModelProvider)
                     }
-                } //博文类型
-                Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
-                    BlogContent(blog.kind.toInt(),
-                        blog,
-                        height,
-                        true,
-                        isPlaying,
-                        coverIsFull = true,
-                        needStartPadding = true,
-                        navHostController,
-                        viewModelProvider)
-                }
 
-                Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp)) {
-                    BlogOperation(blog = blog,
-                        tapComment = tapComment,
-                        tapAt = tapAt,
-                        tapLike = tapLike,
-                        tapCollect = tapCollect,
-                        updateFlag = state.flag)
-                }
-                if (state.flag < 0) {
-                    Text("")
+                    Surface(modifier = Modifier.padding(start = 40.dp + 15.cdp)) {
+                        BlogOperation(blog = blog,
+                            tapComment = tapComment,
+                            tapAt = tapAt,
+                            tapLike = tapLike,
+                            tapCollect = tapCollect,
+                            updateFlag = state.flag)
+                    }
+                    if (state.flag < 0) {
+                        Text("")
 
+                    }
                 }
             }
-        }
 
-        if (isMoreVisible.value) {
-            BlogMorePop(isMoreVisible.value, blog, navHostController, viewModelProvider) {
-                isMoreVisible.value = false
+            if (isMoreVisible.value) {
+                BlogMorePop(isMoreVisible.value, blog, navHostController, viewModelProvider, onClose = {
+                    isMoreVisible.value = false
+                }, onRemove = { onRemove()})
             }
+            Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
+            Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = lineColor)
+            Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = lineColor)
-        Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
     }
-
-
 }
 
 @Composable

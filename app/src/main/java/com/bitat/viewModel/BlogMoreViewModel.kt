@@ -39,10 +39,10 @@ enum class BlogMore {
 
 class BlogMoreViewModel : ViewModel() {
     val state = MutableStateFlow(BlogMoreState())
-  private  val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
+    private val _state = MutableStateFlow(BlogMoreState()).asStateFlow()
 
     // 拉黑用户
-    fun masking(userId:Long) {
+    fun masking(userId: Long, onSuccess: () -> Unit) {
         MainCo.launch {
             SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
                 state.update { it.copy(masking = HTTP_SUCCESS) }
@@ -178,8 +178,7 @@ class BlogMoreViewModel : ViewModel() {
 
     fun stateReset() {
         state.update {
-            it.copy(
-                authResp = HTTP_DEFAULT,
+            it.copy(authResp = HTTP_DEFAULT,
                 deleteResp = HTTP_DEFAULT,
                 dtAuthResp = HTTP_DEFAULT,
                 notInterested = HTTP_DEFAULT,
@@ -188,8 +187,7 @@ class BlogMoreViewModel : ViewModel() {
                 isDtAuthShow = false,
                 isAuthShow = false,
                 isOther = false,
-                updateIndex = 0
-            )
+                updateIndex = 0)
         }
     }
 }

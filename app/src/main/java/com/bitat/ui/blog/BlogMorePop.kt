@@ -65,7 +65,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit) {
+fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit,onRemove:() ->Unit={}) {
 
     val vm = viewModelProvider[BlogMoreViewModel::class]
     val state by vm.state.collectAsState()
@@ -192,7 +192,7 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
-                        if (state.isOther) vm.masking(state.userId)
+                        if (state.isOther) vm.masking(state.userId){ onRemove()}
                         else vm.dtAuthShow(!state.isDtAuthShow)
                     }) {
                     Icon(imageVector = Icons.Outlined.FavoriteBorder,

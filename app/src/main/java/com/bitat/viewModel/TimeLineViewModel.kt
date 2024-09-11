@@ -38,7 +38,7 @@ class TimeLineViewModel : ViewModel() {
             }
             isLoadMore(true)
             loadState(HttpLoadState.Default)
-            BlogReq.timeLine(TimeLineDto(HTTP_PAGESIZE, userId,lastTime)).await().map { data ->
+            BlogReq.timeLine(TimeLineDto(HTTP_PAGESIZE, userId, lastTime)).await().map { data ->
                 state.update {
                     it.copy(updating = false)
                 }
@@ -85,7 +85,7 @@ class TimeLineViewModel : ViewModel() {
         refreshCurrent(blog)
     }
 
-     fun refreshCurrent(currentBlog: BlogBaseDto) {
+    fun refreshCurrent(currentBlog: BlogBaseDto) {
         MainCo.launch {
             val blogListIndex = state.value.timeLineList.indexOf(currentBlog)
 
@@ -146,6 +146,24 @@ class TimeLineViewModel : ViewModel() {
         state.update {
             it.timeLineList.clear()
             it
+        }
+    }
+
+//    fun removeOne(it: BlogBaseDto) {
+//        state.update {
+//            it.timeLineList.remove(it)
+//            it
+//        }
+//    }
+
+    fun removeOne(blog: BlogBaseDto) {
+        state.update {
+            it.timeLineList.remove(blog)
+            it
+        }
+
+        state.update {
+            it.copy(flag = it.flag+1)
         }
     }
 }

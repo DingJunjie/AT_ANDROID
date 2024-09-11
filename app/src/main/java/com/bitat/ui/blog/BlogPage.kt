@@ -329,6 +329,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         },
                                         moreClick = {
                                             vm.setCurrentBlog(item)
+                                        }, onRemove = {
+                                            vm.removeOne(blog = item)
                                         })
                                 }
                             }

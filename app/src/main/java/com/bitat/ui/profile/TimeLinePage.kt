@@ -230,9 +230,11 @@ fun TimeLinePage(
 
 
     state.value.currentBlog?.let {
-        BlogMorePop(isMoreVisible.value, it, navController, viewModelProvider) {
+        BlogMorePop(isMoreVisible.value, it, navController, viewModelProvider, onClose = {
             isMoreVisible.value = false
-        }
+        }, onRemove = {
+            vm.removeOne(it)
+        })
     }
 
     CommentPopup(visible = isCommentVisible.value,

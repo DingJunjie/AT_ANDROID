@@ -351,7 +351,9 @@ fun OtherMorePop(visible: Boolean, user: UserHomeDto, navController: NavHostCont
                 Box(modifier = Modifier.size(60.dp).clip(CircleShape)
                     .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
 
-                        vm.masking(state.userId)
+                        vm.masking(state.userId){
+
+                        }
                         onClose()
                     })) {
                     Text(modifier = Modifier.align(Alignment.Center),
