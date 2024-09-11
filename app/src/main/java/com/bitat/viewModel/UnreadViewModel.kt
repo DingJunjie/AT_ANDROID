@@ -42,7 +42,7 @@ class UnreadViewModel : ViewModel() {
                 if (state.value.unreadMsgCount > 30) 30 else state.value.unreadMsgCount
             MainCo.launch(IO) {
                 MsgReq.fetchChat(FetchChatCommon().apply {
-                    ack = false
+                    ack = true
                     fromId = 0
                     time = _state.value.lastMsgId
                     limit = fetchAmount.toLong()
@@ -73,7 +73,10 @@ class UnreadViewModel : ViewModel() {
                             u
                         )
                     }
-                    SingleMsgDB.insertArray(msgPoArr)
+
+                    val filteredList =
+                        SingleMsgDB.filterDuplicate(UserStore.userInfo.id, -1, msgPoArr)
+                    SingleMsgDB.insertArray(filteredList)
 
                     _state.update { kore ->
                         kore.copy(
