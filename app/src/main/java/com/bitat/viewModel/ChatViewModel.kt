@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
@@ -132,7 +133,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun createRoom(otherInfo: UserPartDto) {
+    fun createRoom(otherInfo: UserHomeDto) {
         MainCo.launch {
             CuLog.debug(CuTag.SingleChat, "获取数据库版本$SingleRoomDB")
             val u = SingleRoomPo()

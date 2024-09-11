@@ -52,6 +52,7 @@ import com.bitat.router.AtNavigation
 import com.bitat.ui.component.Popup
 import com.bitat.utils.EmptyArray
 import com.bitat.viewModel.BlogMoreViewModel
+import com.bitat.viewModel.BlogViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -64,19 +65,20 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun BlogMorePop(
-    visible: Boolean,
-    blog: BlogBaseDto,
-    navController: NavHostController,
-    viewModelProvider: ViewModelProvider,
-    onClose: () -> Unit
-) {
+fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit) {
 
     val vm = viewModelProvider[BlogMoreViewModel::class]
     val state by vm.state.collectAsState()
 
+    val blogVm = viewModelProvider[BlogViewModel::class]
+    val blogState by blogVm.blogState.collectAsState()
+
+
     LaunchedEffect(Unit) {
-        vm.setUser(state.userId)
+        blogState.currentBlog?.let { blog ->
+            vm.setUser(blog.userId)
+        }
+
     }
 
     val ctx = LocalContext.current
@@ -117,32 +119,19 @@ fun BlogMorePop(
 
     Popup(visible = visible, onClose = onClose) {
         Column {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
+            Text(modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
+            Text(modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.blog_more_title),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                textAlign = TextAlign.Center
-            )
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color = colorResource(R.color.pop_content_bg))
-                    .padding(20.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(color = colorResource(R.color.pop_content_bg)).padding(20.dp)) {
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
@@ -152,29 +141,20 @@ fun BlogMorePop(
                                 vm.notInterested(blog.labels)
                                 onClose()
                             } else {
-                                ToastModel(
-                                    ctx.getString(R.string.operation_success),
-                                    ToastModel.Type.Success
-                                ).showToast()
+                                ToastModel(ctx.getString(R.string.operation_success),
+                                    ToastModel.Type.Success).showToast()
                                 onClose()
                             }
                         } else {
                             vm.deleteBlog(blog.id, blog.kind)
                         }
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Notifications,
+                    Icon(imageVector = Icons.Outlined.Notifications,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
                         text = if (state.isOther) stringResource(R.string.blog_not_interested) else stringResource(
-                            R.string.blog_delete
-                        )
-                    )
+                            R.string.blog_delete))
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -182,28 +162,17 @@ fun BlogMorePop(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { //                        TODO()
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
+                    Icon(imageVector = Icons.Outlined.Person,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.blog_qrcode)
-                    )
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.blog_qrcode))
                 }
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color = colorResource(R.color.pop_content_bg))
-                    .padding(20.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(color = colorResource(R.color.pop_content_bg)).padding(20.dp)) {
 
                 Row(horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -212,19 +181,12 @@ fun BlogMorePop(
                             AtNavigation(navController).navigateToReportUserPage()
                         } else vm.authShow(!state.isAuthShow)
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Star,
+                    Icon(imageVector = Icons.Outlined.Star,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
                         text = if (state.isOther) stringResource(R.string.blog_report) else stringResource(
-                            R.string.blog_auth
-                        )
-                    )
+                            R.string.blog_auth))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.Center,
@@ -233,19 +195,12 @@ fun BlogMorePop(
                         if (state.isOther) vm.masking()
                         else vm.dtAuthShow(!state.isDtAuthShow)
                     }) {
-                    Icon(
-                        imageVector = Icons.Outlined.FavoriteBorder,
+                    Icon(imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 10.dp)
-                    )
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.size(30.dp).padding(end = 10.dp))
+                    Text(modifier = Modifier.fillMaxWidth(),
                         text = if (state.isOther) stringResource(R.string.blog_masking) else stringResource(
-                            R.string.blog_dongtai_auth
-                        )
-                    )
+                            R.string.blog_dongtai_auth))
                 }
             }
             if (state.isAuthShow) BlogVisibilePop(Visibility.getVisibility(blog.visible),
@@ -282,36 +237,21 @@ fun showOptResult(isSuccess: Boolean, ctx: Context, vm: BlogMoreViewModel, onClo
 
 
 @Composable
-fun BlogVisibilePop(
-    currentVisibility: Visibility,
-    visible: Boolean,
-    onSelect: (Visibility) -> Unit,
-    onClose: () -> Unit
-) {
+fun BlogVisibilePop(currentVisibility: Visibility, visible: Boolean, onSelect: (Visibility) -> Unit, onClose: () -> Unit) {
     Popup(visible = visible, onClose = { onClose() }) {
         LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
             items(Visibility.entries.size) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp, horizontal = 20.dp)
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                     .clickable {
                         onSelect(Visibility.entries[it])
                     }) {
-                    Text(
-                        modifier = Modifier
-                            .padding(end = 40.dp)
-                            .align(Alignment.CenterStart),
+                    Text(modifier = Modifier.padding(end = 40.dp).align(Alignment.CenterStart),
                         text = Visibility.getUiVisibility(visibility = Visibility.entries[it]),
-                        fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.Favorite,
+                        fontWeight = if (currentVisibility == Visibility.entries[it]) FontWeight.Bold else FontWeight.Normal)
+                    Icon(imageVector = Icons.Outlined.Favorite,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(start = 10.dp)
-                            .align(Alignment.CenterEnd)
-                    )
+                        modifier = Modifier.size(30.dp).padding(start = 10.dp)
+                            .align(Alignment.CenterEnd))
                 }
             }
         }
@@ -319,34 +259,21 @@ fun BlogVisibilePop(
 }
 
 @Composable
-fun BlogDtAuth(
-    visible: Boolean,
-    currentFollowable: Followable,
-    setFollowFn: (Followable) -> Unit,
-    onClose: () -> Unit
-) {
+fun BlogDtAuth(visible: Boolean, currentFollowable: Followable, setFollowFn: (Followable) -> Unit, onClose: () -> Unit) {
     Popup(visible = visible, onClose = { onClose() }) {
         LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
             items(Followable.entries.size) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp, horizontal = 20.dp)
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 20.dp)
                     .clickable {
                         setFollowFn(Followable.entries[it])
                     }) {
-                    Text(
-                        Followable.getUiFollowable(followable = Followable.entries[it]),
-                        fontWeight = if (currentFollowable == Followable.entries[it]) FontWeight.Bold else FontWeight.Normal
-                    )
+                    Text(Followable.getUiFollowable(followable = Followable.entries[it]),
+                        fontWeight = if (currentFollowable == Followable.entries[it]) FontWeight.Bold else FontWeight.Normal)
 
-                    Icon(
-                        imageVector = Icons.Outlined.Star,
+                    Icon(imageVector = Icons.Outlined.Star,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(start = 10.dp)
-                            .align(Alignment.CenterEnd)
-                    )
+                        modifier = Modifier.size(30.dp).padding(start = 10.dp)
+                            .align(Alignment.CenterEnd))
                 }
             }
         }

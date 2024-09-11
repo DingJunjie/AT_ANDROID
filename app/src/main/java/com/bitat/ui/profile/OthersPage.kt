@@ -67,6 +67,7 @@ import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
 import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
@@ -218,18 +219,6 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                                                     },
                                                     onError = {})
                                             }
-
-                                            BLACKLIST -> {
-                                                followVm.followUser(
-                                                    user.value.id,
-                                                    DEFAULT,
-                                                    onSuccess = { rel ->
-
-                                                        UserStore.refreshUser()
-                                                        vm.getUserInfo()
-                                                    },
-                                                    onError = {})
-                                            }
                                         }
                                     }
 
@@ -286,8 +275,8 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 fun OthersDetail(
     viewModel: OthersViewModel,
     navHostController: NavHostController,
-    userInfo: UserPartDto,
-    goChatDetail: (UserPartDto) -> Unit, followFn: () -> Unit
+    userInfo: UserHomeDto,
+    goChatDetail: (UserHomeDto) -> Unit, followFn: () -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(40.dp, 40.dp, 0.dp, 0.dp),
@@ -338,7 +327,7 @@ fun OthersDetail(
 }
 
 @Composable
-fun OthersOperationBar(userInfo: UserPartDto, followFn: () -> Unit, chatFn: () -> Unit) {
+fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -394,7 +383,7 @@ fun OthersOperationBar(userInfo: UserPartDto, followFn: () -> Unit, chatFn: () -
 @Composable
 fun OtherMorePop(
     visible: Boolean,
-    user: UserPartDto,
+    user: UserHomeDto,
     navController: NavHostController,
     viewModelProvider: ViewModelProvider,
     onClose: () -> Unit

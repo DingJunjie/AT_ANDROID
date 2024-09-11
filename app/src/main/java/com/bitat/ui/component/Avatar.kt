@@ -23,7 +23,7 @@ import com.bitat.R
 import com.bitat.ui.common.SvgIcon
 
 @Composable
-fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40, tapFn: () -> Unit = {}) {
+fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40, showFollow:Boolean=false,tapFn: () -> Unit = {}) {
 
     Box {
         Box(
@@ -47,6 +47,7 @@ fun Avatar(url: String, modifier: Modifier = Modifier, size: Int = 40, tapFn: ()
         ) {
         }
 
+        if (showFollow)
         Box(
             modifier = Modifier
                 .size(16.dp)

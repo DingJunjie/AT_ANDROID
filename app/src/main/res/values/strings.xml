@@ -98,6 +98,7 @@
     <string name="setting_privacy">隐私设置</string>
     <string name="setting_blacklist">黑名单</string>
     <string name="setting_blacklist_remove">移出黑名单</string>
+    <string name="setting_blacklist_remove_hint">确定从黑名单移出？</string>
 
 
 

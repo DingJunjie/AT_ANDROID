@@ -1,14 +1,12 @@
 package com.bitat.repository.sqlDB
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import okio.withLock
+import okhttp3.internal.closeQuietly
 import org.sqlite.database.sqlite.SQLiteDatabase
 import org.sqlite.database.sqlite.SQLiteOpenHelper
-import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -39,41 +37,46 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
     }
 
     companion object {
-        @SuppressLint("StaticFieldLeak")
-        private var DB: SqlDB? = null
+        private var readableOps: SqlOps? = null
+        private var writableOps: SqlOps? = null
 
-        private val locker = ReentrantLock()
+        private val locker = ReentrantReadWriteLock()
 
-        fun init(context: Context) {
-            DB = SqlDB(context)
+        fun init(context: Context) = SqlDB(context).run {
+            readableOps = SqlOps(readableDatabase)
+            writableOps = SqlOps(writableDatabase)
         }
 
-        fun <T> fetchDB(writable: Boolean = false, fn: (SQLiteDatabase) -> T) =
-            (DB ?: throw Exception("Null sqlDB")).run {
-                locker.withLock {
-                    (if (writable) writableDatabase else readableDatabase).use(fn)
-                }
-            }
+        fun close() {
+            readableOps?.db?.closeQuietly()
+            writableOps?.db?.closeQuietly()
+            CuLog.debug(CuTag.Base, "关闭DB连接")
+        }
+
+        fun <T> fetchDB(writable: Boolean = false, fn: (SqlOps) -> T): T =
+            (if (writable) writableOps?.let {
+                locker.write { fn(it) }
+            } else readableOps?.let {
+                locker.read { fn(it) }
+            }) ?: throw RuntimeException("SqlDB not init")
 
         fun exec(sql: String, vararg bindings: Any) = fetchDB(true) {
-            it.execSQL(sql, bindings)
+            it.exec(sql, *bindings)
         }
 
-        fun <T> execBatch(fn: (SqlOps) -> T): T = fetchDB(true) {
-            fn(SqlOps(it))
-        }
+        fun <T> execBatch(fn: (SqlOps) -> T): T = fetchDB(true, fn)
 
         fun <T> writeQueryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? =
-            fetchDB(true) { SqlOps(it).writeQueryOne(toFn, sql, *bindings) }
+            fetchDB(true) { it.writeQueryOne(toFn, sql, *bindings) }
 
         fun <T> queryOne(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): T? = fetchDB {
-            SqlOps(it).queryOne(toFn, sql, *bindings)
+            it.queryOne(toFn, sql, *bindings)
         }
 
         inline fun <reified T> queryBatch(crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
-            fetchDB { SqlOps(it).queryBatch(toFn, sql, *bindings) }
-    }
+            fetchDB { it.queryBatch(toFn, sql, *bindings) }
 
+    }
 }
 
 @JvmInline
@@ -87,7 +90,7 @@ value class SqlOps(val db: SQLiteDatabase) {
         db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
             .run { if (moveToFirst()) toFn(this) else null }
 
-    inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
+    inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): Array<T> =
         db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
             Array(count) {
                 moveToNext()

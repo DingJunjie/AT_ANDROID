@@ -25,7 +25,7 @@ object UserReq {
 
     //获取用户信息
     suspend inline fun userInfo(dto: UserInfoDto) =
-        Http.post<_, UserPartDto>("${Http.HOST}/service/user/userInfo", dto)
+        Http.post<_, UserHomeDto>("${Http.HOST}/service/user/userInfo", dto)
 
     //修改用户信息
     suspend inline fun updateInfo(dto: UpdateUserInfoDto) =

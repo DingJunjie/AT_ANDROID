@@ -12,6 +12,7 @@ import com.bitat.repository.dto.req.UpdateProfileDto
 import com.bitat.repository.dto.req.UpdateUserInfoDto
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserDto
+import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.state.GENDER
@@ -43,7 +44,7 @@ object UserStore {
         }
     }
 
-    fun updateByUserInfo(user: UserPartDto) {
+    fun updateByUserInfo(user: UserHomeDto) {
         userInfo.fans = user.fans
         userInfo.address = user.address
         userInfo.agrees = user.agrees

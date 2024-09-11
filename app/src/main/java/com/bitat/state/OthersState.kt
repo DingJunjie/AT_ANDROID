@@ -3,11 +3,12 @@ package com.bitat.state
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.bitat.repository.dto.resp.UserBase1Dto
+import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 
 data class OthersState(
     val userId: Long = -1,
-    val userInfo: MutableState<UserPartDto>? = null,
+    val userInfo: MutableState<UserHomeDto>? = null,
     val isTabbarTop: Boolean = false,
     val isAtBottom: Boolean = false,
     val profileType: Int = 0,

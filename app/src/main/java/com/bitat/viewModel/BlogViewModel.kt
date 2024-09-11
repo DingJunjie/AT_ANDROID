@@ -129,7 +129,6 @@ class BlogViewModel : ViewModel() {
             blogState.update {
                 it.copy(flag = blogState.value.flag + 1)
             }
-
         }
     }
 

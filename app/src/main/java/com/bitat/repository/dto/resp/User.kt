@@ -99,4 +99,33 @@ class UserPartDto {
     var revRel: Int = 0
 }
 
+@Serializable
+class UserHomeDto {
+    var id: Long = 0
+    var nickname: String = ""
+    var profile: String = ""
+    var cover: String = ""
+    var address: String = ""
+    var introduce: String = ""
+    var otherJson: String = ""
+    var account: String = ""
+    var gender: Byte = 0
+    var verified: Byte = 0
+    var lifeStatus: Byte = 0
+    var friends: Int = 0
+    var fans: Int = 0
+    var follows: Int = 0
+    var blogs: Int = 0
+    var photos: Int = 0
+    var topBlogs: Array<TopBlogsDto> = emptyArray() //专辑置顶
+    var collects: Int = 0
+    var agrees: Int = 0
+    var birthday: Long = 0
+    var homeOpen:Byte = 0 //主页
+    var blogOpen:Byte = 0 //时间线
+    var opusOpen:Byte = 0 //作品
+    var alias: String = ""
+    var rel: Int = 0
+    var revRel: Int = 0
+}
 

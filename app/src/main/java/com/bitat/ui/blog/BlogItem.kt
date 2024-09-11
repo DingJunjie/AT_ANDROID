@@ -104,7 +104,7 @@ fun BlogItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.width(5.dp))
-            Avatar(blog.profile, size = 35) {
+            Avatar(blog.profile, size = 35, showFollow = true) {
                 if(blog.userId!=UserStore.userInfo.id){
                     othersVm.initUserId(blog.userId)
                     navHostController.navigate(NavigationItem.Others.route)
@@ -120,6 +120,7 @@ fun BlogItem(
                 modifier = Modifier //                .padding(start = 14.dp)
             ) {
                 UserInfo(blog.nickname) {
+                    vm.setCurrentBlog(blog)
                     isMoreVisible.value = true
                     moreClick()
                 }

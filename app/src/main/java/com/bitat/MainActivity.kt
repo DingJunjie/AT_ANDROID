@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 import androidx.navigation.compose.rememberNavController
 import com.bitat.repository.singleChat.SingleChatHelper
+import com.bitat.repository.sqlDB.SqlDB
 
 val MainCo = MainScope()
 
@@ -52,8 +53,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Local.mainAct = this
             CuLog.level = CuLog.DEBUG
-            BaseStore.init(LocalContext.current)
-            // 设置user 到 TokenStore 中
+            BaseStore.init(LocalContext.current) // 设置user 到 TokenStore 中
             TokenStore.getUser()?.let {
                 UserStore.initUserInfo(it)
             }
@@ -109,8 +109,8 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onPause")
     }
 
-        //        KeySecret.start()
-        //        TcpClient.start()
+    //        KeySecret.start()
+    //        TcpClient.start()
 
     override fun onResume() {
         super.onResume()
@@ -130,6 +130,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        CuLog.debug(CuTag.Login, "MainActivity----- onDestroy")
+        SqlDB.close()
         MainCo.cancel()
         finishAffinity()
         android.os.Process.killProcess(android.os.Process.myPid())

@@ -7,6 +7,7 @@ import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.UserInfoDto
+import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.sqlDB.WatchHistoryDB
@@ -22,7 +23,7 @@ class OthersViewModel : ViewModel() {
     private val _othersState = MutableStateFlow(OthersState())
     val othersState: StateFlow<OthersState> get() = _othersState.asStateFlow()
 
-    fun getUserInfo(success:(UserPartDto) -> Unit={}) {
+    fun getUserInfo(success:(UserHomeDto) -> Unit={}) {
         MainCo.launch {
             UserReq.userInfo(UserInfoDto(userId = othersState.value.userId)).await()
                 .map { res ->
