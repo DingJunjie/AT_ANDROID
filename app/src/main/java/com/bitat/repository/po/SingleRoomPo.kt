@@ -37,18 +37,19 @@ class SingleRoomPo {
 
     companion object {
         fun of(cursor: Cursor) = SingleRoomPo().apply {
-            id = cursor.getLong(0)
-            selfId = cursor.getLong(1)
-            otherId = cursor.getLong(2)
-            time = cursor.getLong(3)
-            status = cursor.getShort(4)
-            kind = cursor.getShort(5)
-            content = cursor.getString(6)
-            unreads = cursor.getInt(7)
-            top = cursor.getInt(8)
-            background = cursor.getString(9)
-            muted = cursor.getInt(10)
-            cfg = cursor.getString(11)
+            selfId = cursor.getLong(0)
+            otherId = cursor.getLong(1)
+            unreads = cursor.getInt(2)
+            top = cursor.getInt(3)
+            background = cursor.getString(4)
+            muted = cursor.getInt(5)
+            cfg = cursor.getString(6)
+            id = cursor.getLong(7)
+            time = cursor.getLong(8)
+            status = cursor.getShort(9)
+            kind = cursor.getShort(10)
+            content = cursor.getString(11)
+
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
