@@ -32,31 +32,33 @@ CREATE TABLE IF NOT  EXISTS "notice_msg" (
 object NoticeMsgDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_NOTICE)
     fun insertOne(po:NoticeMsgPo) :Long {
-        val id = SqlDB.writeQueryOne(
-            ::toLong,
-            """insert into notice_msg (user_id,kind,source_id,from_id,time,content)
+        return SqlDB.execBatch {
+            val id = SqlDB.writeQueryOne(
+                ::toLong,
+                """insert into notice_msg (user_id,kind,source_id,from_id,time,content)
                 values (?,?,?,?,?,?) RETURNING last_insert_rowid() as id;""",
-            po.userId,
-            po.kind,
-            po.sourceId,
-            po.fromId,
-            po.time,
-            po.content
-        )
-        val count = SqlDB.queryOne(
-            ::toLong,
-            "select count(*) as count from notice_msg where user_id = ?",
-            po.userId,
-        )?:0
-       if (count>30100){
-           //删除100条
-           SqlDB.exec(
-               """delete from notice_msg where id in(select id from notice_msg where
+                po.userId,
+                po.kind,
+                po.sourceId,
+                po.fromId,
+                po.time,
+                po.content
+            )
+            val count = SqlDB.queryOne(
+                ::toLong,
+                "select count(*) as count from notice_msg where user_id = ?",
+                po.userId,
+            ) ?: 0
+            if (count > 30100) {
+                //删除100条
+                SqlDB.exec(
+                    """delete from notice_msg where id in(select id from notice_msg where
                user_id = ? order by time asc limit 100)""",
-               po.userId
-           )
-       }
-        return id?:0
+                    po.userId
+                )
+            }
+            id ?: 0
+        }
     }
 
     fun insertArray(

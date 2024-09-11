@@ -16,25 +16,27 @@ object SearchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SEARCH_HISTORIES)
 
     fun insertOne(po:SearchHistoryPo) {
-        SqlDB.exec(
-            """insert into search_history (user_id,content,time)values (?,?,?)
-                ON CONFLICT(user_id,content) DO UPDATE SET user_id = ?;""",
-            po.userId,
-            po.content,
-            po.time,
-            po.userId
-        )
-        val count = SqlDB.queryOne(
-            ::toLong,
-            "select count(*) as count from search_history where user_id = ?", po.userId
-        ) ?: 0
-        if (count > 25) {
-            //删除100条
+        return SqlDB.execBatch {
             SqlDB.exec(
-                """delete from search_history where
-                time in(select time from search_history where user_id = ? order by time asc limit 5)""",
+                """insert into search_history (user_id,content,time)values (?,?,?)
+                ON CONFLICT(user_id,content) DO UPDATE SET user_id = ?;""",
+                po.userId,
+                po.content,
+                po.time,
                 po.userId
             )
+            val count = SqlDB.queryOne(
+                ::toLong,
+                "select count(*) as count from search_history where user_id = ?", po.userId
+            ) ?: 0
+            if (count > 25) {
+                //删除100条
+                SqlDB.exec(
+                    """delete from search_history where
+                time in(select time from search_history where user_id = ? order by time asc limit 5)""",
+                    po.userId
+                )
+            }
         }
     }
 
