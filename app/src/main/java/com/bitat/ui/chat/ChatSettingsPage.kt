@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -32,31 +31,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.amap.api.services.route.Navi
 import com.bitat.MainCo
-import com.bitat.R
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
-import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.singleChat.GetNewMessage
 import com.bitat.repository.singleChat.GetRooms
 import com.bitat.repository.singleChat.SetMute
 import com.bitat.repository.singleChat.SetTop
-import com.bitat.repository.singleChat.SingleChatHelper
-import com.bitat.repository.singleChat.SingleChatHelper.singleChatUiFlow
+import com.bitat.repository.singleChat.SingleMsgHelper
+import com.bitat.repository.singleChat.SingleMsgHelper.singleChatUiFlow
 import com.bitat.router.NavigationItem
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
@@ -67,7 +55,6 @@ import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.security.spec.EllipticCurve
 
 @Composable
 fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
@@ -124,7 +111,7 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
                 isBlackList = false,
                 switchMuted = {
                     MainCo.launch {
-                        SingleChatHelper.setMute(
+                        SingleMsgHelper.setMute(
                             otherId = chatState.currentRoom.otherId,
                             if (it) 1 else 0
                         )
@@ -133,7 +120,7 @@ fun ChatSettingsPage(navHostController: NavHostController, viewModelProvider: Vi
                 },
                 switchTop = {
                     MainCo.launch {
-                        SingleChatHelper.setTop(
+                        SingleMsgHelper.setTop(
                             otherId = chatState.currentRoom.otherId,
                             if (it) 1 else 0
                         )

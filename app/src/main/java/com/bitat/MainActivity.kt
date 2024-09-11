@@ -37,7 +37,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 import androidx.navigation.compose.rememberNavController
-import com.bitat.repository.singleChat.SingleChatHelper
+import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SqlDB
 
 val MainCo = MainScope()
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            SingleChatHelper.opsInit()
+            SingleMsgHelper.opsInit()
 
             KeySecret.start()
             TcpClient.start()
@@ -109,15 +109,14 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onPause")
     }
 
-    //        KeySecret.start()
-    //        TcpClient.start()
+        //        KeySecret.start()
+        //        TcpClient.start()
 
     override fun onResume() {
         super.onResume()
 
         CuLog.debug(CuTag.Login, "MainActivity----- onResume") //        MainCo= MainScope()
     }
-
 
     fun getAvailableMemory(): ActivityManager.MemoryInfo {
         val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -126,7 +125,6 @@ class MainActivity : ComponentActivity() {
             CuLog.debug(CuTag.Blog, "系统运行内存${memoryInfo.availMem}")
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
