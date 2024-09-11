@@ -32,7 +32,10 @@ class BlogViewModel : ViewModel() {
         }
     }
 
-    fun initBlogList(menu: BlogMenuOptions = BlogMenuOptions.Recommend, isRefresh: Boolean = false) { // TODO
+    fun initBlogList(
+        menu: BlogMenuOptions = BlogMenuOptions.Recommend,
+        isRefresh: Boolean = false
+    ) { // TODO
         if (blogState.value.updating) {
             return
         }
@@ -60,8 +63,10 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.error(CuTag.Blog,
-                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.error(
+                            CuTag.Blog,
+                            "recommendBlogs----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
 
@@ -102,8 +107,10 @@ class BlogViewModel : ViewModel() {
                         blogState.update {
                             it.copy(updating = false)
                         }
-                        CuLog.error(CuTag.Blog,
-                            "调用Followed----errMap: code=${it.code},msg=${it.msg}")
+                        CuLog.error(
+                            CuTag.Blog,
+                            "调用Followed----errMap: code=${it.code},msg=${it.msg}"
+                        )
                     }
                 }
             }
@@ -229,13 +236,17 @@ class BlogViewModel : ViewModel() {
     }
 
     fun removeOne(blog: BlogBaseDto) {
-        blogState.update {
-            it.blogList.remove(blog)
-            it
+        val index = blogState.value.blogList.indexOf(blog)
+        if (index >= 0) {
+            blogState.update {
+                it.blogList.removeAt(index)
+                it
+            }
+            blogState.update {
+                it.copy(flag = it.flag + 1)
+            }
         }
-        blogState.update {
-            it.copy(flag = it.flag+1)
-        }
+
     }
 
 

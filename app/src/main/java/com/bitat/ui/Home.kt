@@ -2,6 +2,8 @@ package com.bitat.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,8 +54,11 @@ import com.bitat.ui.blog.BlogPage
 import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
+import com.bitat.ui.theme.NoIndication
 import com.bitat.viewModel.HomeViewModel
 import com.bitat.viewModel.UnreadViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /****
  * 首页的切换
@@ -176,8 +182,8 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
                     onClick = { onTabChange(index) },
                     enabled = true,
                     role = Role.Tab,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = NoIndication,
+                    interactionSource = remember { BitMutableInteractionSourceImpl() },
                 ), icon = {
                     Icon(
                         painter = if (index == selectIndex) painterResource(tab.iconSelect) else painterResource(
@@ -207,6 +213,22 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
         )
     }
 
+}
+
+@Stable
+private class BitMutableInteractionSourceImpl : MutableInteractionSource {
+    // TODO: consider replay for new indication instances during events?
+    override val interactions = MutableSharedFlow<Interaction>(
+
+    )
+
+    override suspend fun emit(interaction: Interaction) {
+        interactions.emit(interaction)
+    }
+
+    override fun tryEmit(interaction: Interaction): Boolean {
+        return interactions.tryEmit(interaction)
+    }
 }
 
 

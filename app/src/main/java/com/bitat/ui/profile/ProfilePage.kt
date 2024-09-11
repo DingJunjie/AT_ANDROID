@@ -7,6 +7,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,7 +91,6 @@ import com.bitat.ui.theme.Typography
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.ProfileViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -139,12 +138,12 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
-//    DisposableEffect(Unit) { // 每次显示去UserStore 拿最新的用户信息
-//        vm.updateUser(UserStore.userInfo) // onDispose 在页面退出组合时触发
-//        onDispose {
-//
-//        }
-//    }
+    DisposableEffect(Unit) { // 每次显示去UserStore 拿最新的用户信息
+        vm.updateUser(UserStore.userInfo) // onDispose 在页面退出组合时触发
+        onDispose {
+
+        }
+    }
 
 
     val userInfo by remember {
@@ -226,8 +225,10 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
     //            CuLog.debug(CuTag.Profile, value.nickname)
     //        }
     //    }
+    var bgType by remember {
+        mutableStateOf(0)
+    }
 
-    val localDensity = LocalDensity.current
 
     val drawerOffset =
         animateIntAsState(targetValue = if (showDrawer.value) (ScreenUtils.screenWidth.times(0.4)).toInt() else ScreenUtils.screenWidth)
@@ -258,6 +259,7 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
 
                     ) {
                         ProfileBg(state.user.cover, tapBG = {
+                            bgType = 0
                             showBGPopup.value = true
                         }, menu = {
                             Menu(menuFun = {
@@ -286,7 +288,10 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
                                 likes = userInfo.agrees,
                                 follows = userInfo.follows,
                                 fans = fans
-                            )
+                            ) {
+                                bgType = 1
+                                showBGPopup.value = true
+                            }
                         }
 
                     }
@@ -392,14 +397,24 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         }
     }
 
-    BackgroundPopup(visible = showBGPopup.value, { showBGPopup.value = false }, {
-        UserStore.updateCover(it)
+    BackgroundPopup(visible = showBGPopup.value, bgType, { showBGPopup.value = false }, {
+        when (bgType) {
+            0 -> UserStore.updateCover(it)
+            1 -> UserStore.updateAvatar(it, { }, {})
+        }
+
         showBGPopup.value = false
     })
 }
 
+
 @Composable
-fun BackgroundPopup(visible: Boolean, onClose: () -> Unit, changeFn: (uri: Uri) -> Unit) {
+fun BackgroundPopup(
+    visible: Boolean,
+    type: Int,
+    onClose: () -> Unit,
+    changeFn: (uri: Uri) -> Unit
+) {
     Popup(visible = visible, onClose = { onClose() }) {
         Row(
             modifier = Modifier
@@ -409,7 +424,7 @@ fun BackgroundPopup(visible: Boolean, onClose: () -> Unit, changeFn: (uri: Uri) 
             ImagePicker(maxSize = 1, option = ImagePickerOption.ImageOnly, onSelected = {
                 changeFn(it.first())
             }) {
-                Text(text = "更换背景")
+                Text(text = "更换" + if (type == 0) "背景" else "头像")
             }
         }
         Row(modifier = Modifier
@@ -459,7 +474,8 @@ fun ProfileDetail(
     introduction: String,
     fans: Int,
     follows: Int,
-    likes: Int
+    likes: Int,
+    avatarTap: () -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(
@@ -475,7 +491,7 @@ fun ProfileDetail(
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-                AvatarWithShadow(url = userInfo.profile)
+                AvatarWithShadow(url = userInfo.profile) { avatarTap() }
 
                 Column(
                     modifier = Modifier.padding(top = 15.dp),
@@ -486,7 +502,7 @@ fun ProfileDetail(
                             if (userInfo.birthday > 0L) TimeUtils.getAgeByBirthday(userInfo.birthday)
                                 .toString() else "未知"
                         )
-                        TagLabel("贵阳")
+                        TagLabel(userInfo.address)
                     }
                     Row(
                         modifier = Modifier
@@ -496,7 +512,12 @@ fun ProfileDetail(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        UserInfo(userInfo.nickname, atAccount, introduction)
+                        UserInfo(
+                            userInfo.nickname,
+                            atAccount,
+                            introduction,
+                            onNickClick = { navHostController.navigate(NavigationItem.ProfileEdit.route) },
+                            onAccountClick = { navHostController.navigate(NavigationItem.ProfileEdit.route) })
                         SocialData(likes, follows, fans, tapLike = {
 
                         }, tapFollows = {
@@ -510,15 +531,17 @@ fun ProfileDetail(
                 }
             }
 
-            Text(introduction,
+            Text(
+                introduction,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier
                     .padding(start = 15.dp, top = 15.dp)
-                    .clickable {
+                    .clickable(onClick = {
                         navHostController.navigate(NavigationItem.ProfileEdit.route)
                     })
+            )
             GoCreate()
         }
     }
@@ -630,19 +653,35 @@ fun AlbumItem() {
 
 
 @Composable
-fun UserInfo(nickname: String, atAccount: String, introduction: String) {
+fun UserInfo(
+    nickname: String,
+    atAccount: String,
+    introduction: String,
+    onNickClick: () -> Unit = {},
+    onAccountClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .padding(start = 10.dp, top = 5.dp)
             .height(55.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(nickname, fontSize = 16.sp, fontWeight = FontWeight(600))
         Text(
-            "艾特号：$atAccount",
+            modifier = Modifier.clickable(onClick = { onNickClick() }, indication = null,
+                interactionSource = remember {
+                    MutableInteractionSource()
+                }), text = nickname, fontSize = 16.sp, fontWeight = FontWeight(600)
+        )
+        Text(
+            text = "艾特号：$atAccount",
             fontSize = 12.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(vertical = 3.dp)
+            modifier = Modifier
+                .padding(vertical = 3.dp)
+                .clickable(onClick = { onAccountClick() }, indication = null,
+                    interactionSource = remember {
+                        MutableInteractionSource()
+                    })
         )
     }
 }

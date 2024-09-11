@@ -3,6 +3,13 @@ package com.bitat.ui.theme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.lightColorScheme
@@ -168,7 +175,8 @@ fun BitComposeTheme(
 
     val bottomBar = animateColorAsState(targetColors.bottomBar, TweenSpec(200), label = "")
     val background = animateColorAsState(targetColors.background, TweenSpec(200), label = "")
-    val chatListDivider = animateColorAsState(targetColors.chatListDivider, TweenSpec(600),
+    val chatListDivider = animateColorAsState(
+        targetColors.chatListDivider, TweenSpec(600),
         label = ""
     )
     val chatPage = animateColorAsState(targetColors.chatPage, TweenSpec(200), label = "")
@@ -176,7 +184,8 @@ fun BitComposeTheme(
     val textPrimaryMe = animateColorAsState(targetColors.textPrimaryMe, TweenSpec(200), label = "")
     val textSecondary = animateColorAsState(targetColors.textSecondary, TweenSpec(200), label = "")
     val onBackground = animateColorAsState(targetColors.onBackground, TweenSpec(200), label = "")
-    val dialogBackground = animateColorAsState(targetColors.dialogBackground, TweenSpec(200),
+    val dialogBackground = animateColorAsState(
+        targetColors.dialogBackground, TweenSpec(200),
         label = ""
     )
     val icon = animateColorAsState(targetColors.icon, TweenSpec(200), label = "")
@@ -184,7 +193,8 @@ fun BitComposeTheme(
     val badge = animateColorAsState(targetColors.badge, TweenSpec(200), label = "")
     val bubbleMe = animateColorAsState(targetColors.bubbleMe, TweenSpec(200), label = "")
     val more = animateColorAsState(targetColors.more, TweenSpec(200), label = "")
-    val chatPageBgAlpha = animateFloatAsState(targetColors.chatPageBgAlpha, TweenSpec(200),
+    val chatPageBgAlpha = animateFloatAsState(
+        targetColors.chatPageBgAlpha, TweenSpec(200),
         label = ""
     )
     val success = animateColorAsState(targetColors.success, TweenSpec(200), label = "")
@@ -231,9 +241,39 @@ fun BitComposeTheme(
             colorScheme = colorsSch,
             shapes = shapes,
             content = {
-                content()
+                CompositionLocalProvider(LocalIndication provides NoIndication, LocalRippleTheme provides NoRippleTheme) {
+                    content()
+                }
             },
             typography = Typography
         )
     }
+}
+
+object NoIndication : Indication {
+    private object NoIndicationInstance : IndicationInstance {
+        override fun ContentDrawScope.drawIndication() {
+            drawContent()
+        }
+
+    }
+
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        return NoIndicationInstance
+    }
+
+}
+
+object NoRippleTheme:RippleTheme{
+    @Composable
+    override fun defaultColor(): Color {
+       return  Color.Transparent
+    }
+
+    @Composable
+    override fun rippleAlpha(): RippleAlpha {
+       return RippleAlpha(0f,0f,0f,0f)
+    }
+
 }

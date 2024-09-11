@@ -138,11 +138,14 @@ fun BlogMorePop(visible: Boolean, blog: BlogBaseDto, navController: NavHostContr
 
                         if (state.isOther) {
                             if (!blog.labels.contentEquals(EmptyArray.int)) {
-                                vm.notInterested(blog.labels)
+                                vm.notInterested(blog.labels){
+                                    onRemove()
+                                }
                                 onClose()
                             } else {
                                 ToastModel(ctx.getString(R.string.operation_success),
                                     ToastModel.Type.Success).showToast()
+                                onRemove()
                                 onClose()
                             }
                         } else {

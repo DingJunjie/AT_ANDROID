@@ -72,6 +72,7 @@ class ReelViewModel : ViewModel() {
                         it.resList.add(item)
                         it
                     }
+                    addWatchHistory(item)
 
                 }
                 SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()

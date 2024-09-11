@@ -1,5 +1,6 @@
 package com.bitat.ui.blog
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -68,6 +69,7 @@ import kotlinx.serialization.json.Json
 /*****
  * blog item 组件L
  */
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: NavHostController, viewModelProvider: ViewModelProvider, contentClick: (BlogBaseDto) -> Unit, tapComment: () -> Unit, tapAt: () -> Unit, tapLike: () -> Unit, tapCollect: (Int) -> Unit, moreClick: () -> Unit,onRemove:() ->Unit) {
@@ -87,12 +89,12 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
     val othersVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
     val moreVm: BlogMoreViewModel = viewModelProvider[BlogMoreViewModel::class]
     val followVm: FollowBtnViewModel = viewModelProvider[FollowBtnViewModel::class]
-    AnimatedVisibility(
-        visible = true,
-        enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
-        exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(),
-        initiallyVisible = false
-    ) {
+//    AnimatedVisibility(
+//        visible = true,
+//        enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+//        exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(),
+//        initiallyVisible = false
+//    ) {
         Column(modifier = Modifier //        .onGloballyPositioned { coordinates ->
             .onSizeChanged { size ->
                 if (lineHeight.intValue == 0) {
@@ -205,7 +207,7 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
             Divider(modifier = Modifier.fillMaxWidth().height(1.dp), color = lineColor)
             Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
         }
-    }
+//    }
 }
 
 @Composable

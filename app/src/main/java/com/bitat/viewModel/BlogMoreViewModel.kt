@@ -46,6 +46,7 @@ class BlogMoreViewModel : ViewModel() {
         MainCo.launch {
             SocialReq.block(SocialDto(FOLLOWED, userId)).await().map {
                 state.update { it.copy(masking = HTTP_SUCCESS) }
+                onSuccess()
             }.errMap {
                 state.update { it.copy(masking = HTTP_FAIL) }
                 CuLog.error(CuTag.Blog, "masking fail====> code:${it.code},msg:${it.msg}")
@@ -60,10 +61,11 @@ class BlogMoreViewModel : ViewModel() {
     }
 
     // 不感兴趣
-    fun notInterested(labels: IntArray) {
+    fun notInterested(labels: IntArray, onSuccess: () -> Unit) {
         MainCo.launch {
             BlogOpsReq.notInterested(BlogOpsNotInterestedDto(labels)).await().map {
                 state.update { it.copy(notInterested = HTTP_SUCCESS) }
+                onSuccess()
             }.errMap {
                 state.update {
                     it.copy(notInterested = HTTP_FAIL)
