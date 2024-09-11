@@ -19,10 +19,12 @@ import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.po.SystemNoticeMsgPo
 import com.bitat.repository.singleChat.TcpHandler.newMsgFlow
 import com.bitat.repository.sqlDB.NoticeMsgDB
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
+import com.bitat.repository.sqlDB.SystemNoticeMsg
 import com.bitat.repository.store.UserStore
 import com.bitat.viewModel.comparator
 import kotlinx.coroutines.CompletableDeferred
@@ -42,19 +44,24 @@ class GetNewMessage(val msg: SingleMsgPo)
 class GetNewNotice(val notice: NoticeMsgPo)
 
 @Serializable
+data class SystemNotice(
+    val id: Long = 0,
+    val text: String = ""
+)
+
+@Serializable
 data class SocialNotice(
     val id: Long = 0,
     val blogId: Long = 0,
     val commentId: Long = 0,
     val comment: String = "",
-    val resource: ResourceDto = ResourceDto(),
+    val image: String = "",
 )
 
 @Serializable
 data class NoticeContent(
     val commentId: Long = 0,
     val comment: String = "",
-    val resource: ResourceDto = ResourceDto(),
 )
 
 object SingleMsgHelper {
@@ -183,7 +190,6 @@ object SingleMsgHelper {
             kind = msg.kind
         }
 
-        // {"id":1413,"text":"你的动态未审核通过,我们会进一步进行审核,原因:"}
         CuLog.info(CuTag.Notice, "收到一条通知，内容是$originContent")
 
         when (msg.kind) {
@@ -200,6 +206,7 @@ object SingleMsgHelper {
             APP_NOTICE_NOT_FOLLOW -> {
 
             }
+
 
             APP_NOTICE_BLOCK -> {
 
@@ -296,6 +303,8 @@ object SingleMsgHelper {
                         NoticeContent(commentId = json.commentId, comment = json.comment).toString()
 
                     NoticeMsgDB.insertOne(newNotice)
+                }.errMap {
+                    CuLog.error(CuTag.Notice, it.msg)
                 }
             }
 
@@ -330,22 +339,23 @@ object SingleMsgHelper {
 
             }
 
-            APP_NOTICE_USER_INFO -> {
-
-            }
-
             ///////////////////////////// 系统相关 ////////////////////////
+            // {"id":1413,"text":"你的动态未审核通过,我们会进一步进行审核,原因:"}
 
-            SYSTEM_NOTICE -> {
+            SYSTEM_NOTICE,
+            SYSTEM_PASSED,
+            UPDATE_AUTHORITY
+            -> {
+                val json = Json.decodeFromString(SystemNotice.serializer(), originContent)
+                SystemNoticeMsg.insertOne(SystemNoticeMsgPo().apply {
+                    userId = UserStore.userInfo.id
+                    kind = msg.kind
+                    sourceId = json.id
+                    time = msg.time
+                    content = json.text
+                })
 
-            }
-
-            SYSTEM_PASSED -> {
-
-            }
-
-            UPDATE_AUTHORITY -> {
-
+                val content = json.text
             }
 
         }
@@ -370,7 +380,6 @@ object SingleMsgHelper {
         nm.kind = msg.kind.toShort()
         nm.content = content
         nm.time = msg.time
-
 
         SingleMsgDB.insertOneUnique(nm)
 
