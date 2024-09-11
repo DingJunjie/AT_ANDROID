@@ -1,5 +1,8 @@
 package com.bitat.repository.dto.resp
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class NoticeDto {
     val fromId: Long = 0
     val kind: Int = 0

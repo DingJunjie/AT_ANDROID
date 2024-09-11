@@ -6,6 +6,7 @@ import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
@@ -41,7 +42,7 @@ class UnreadViewModel : ViewModel() {
                 if (state.value.unreadMsgCount > 30) 30 else state.value.unreadMsgCount
             MainCo.launch(IO) {
                 MsgReq.fetchChat(FetchChatCommon().apply {
-                    ack = false
+                    ack = true
                     fromId = 0
                     time = _state.value.lastMsgId
                     limit = fetchAmount.toLong()
@@ -72,7 +73,10 @@ class UnreadViewModel : ViewModel() {
                             u
                         )
                     }
-//                    SingleMsgDB.insertBatch(msgPoArr)
+
+                    val filteredList =
+                        SingleMsgDB.filterDuplicate(UserStore.userInfo.id, -1, msgPoArr)
+                    SingleMsgDB.insertArray(filteredList)
 
                     _state.update { kore ->
                         kore.copy(
@@ -80,7 +84,6 @@ class UnreadViewModel : ViewModel() {
                             unreadMsgCount = kore.unreadMsgCount - fetchAmount
                         )
                     }
-
 
                     getUnreadMessage()
                 }

@@ -44,6 +44,8 @@ class ChatViewModel : ViewModel() {
             it.chatList[index].time = msg.time
             it.chatList[index].kind = msg.kind
 
+            it.chatList.sortWith(comparator)
+
             it
         }
     }
