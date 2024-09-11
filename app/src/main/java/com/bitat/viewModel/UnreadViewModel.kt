@@ -6,7 +6,6 @@ import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.singleChat.SingleChatHelper
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState

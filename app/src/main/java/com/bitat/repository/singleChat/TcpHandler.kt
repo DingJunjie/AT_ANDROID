@@ -22,6 +22,9 @@ object TcpHandler {
     }
 
     fun handleNotice(msg: MsgDto.NoticeMsg) {
+        MainCo.launch(IO) {
+            newMsgFlow.emit(msg)
+        }
         CuLog.debug(CuTag.SingleChat, "收到通知：${msg.data.toString(Charsets.UTF_8)}")
     }
 }

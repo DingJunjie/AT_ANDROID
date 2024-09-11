@@ -9,8 +9,7 @@ import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
-import com.bitat.repository.singleChat.SingleChatHelper
-import com.bitat.repository.singleChat.TcpHandler
+import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -19,7 +18,6 @@ import com.bitat.utils.FileType
 import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.UPLOAD_OPS
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -112,7 +110,7 @@ class ChatViewModel : ViewModel() {
             ) { key ->
                 _state.update {
                     it.currentRoom.background = key
-                    it
+                    it.copy(flag = it.flag + 1)
                 }
 
                 val i = _state.value.chatList.indexOfFirst {
@@ -122,9 +120,7 @@ class ChatViewModel : ViewModel() {
                     _state.value.chatList[i].background = key
 
                     SingleRoomDB.updateBg(
-                        key,
-                        _state.value.currentRoom.selfId,
-                        _state.value.currentRoom.otherId
+                        key, _state.value.currentRoom.selfId, _state.value.currentRoom.otherId
                     )
                 }
 
@@ -185,7 +181,7 @@ class ChatViewModel : ViewModel() {
     init {
         MainCo.launch {
             delay(300L)
-            SingleChatHelper.queryRooms()
+            SingleMsgHelper.queryRooms()
         }
     }
 
