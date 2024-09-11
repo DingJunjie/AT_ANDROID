@@ -39,7 +39,7 @@ fun CollectionDetail(navHostController: NavHostController, viewModelProvider: Vi
     Scaffold(
         topBar = {
             CommonTopBar(
-                title = state.currentCollection!!.name,
+                title = state.currentCollection.name,
                 backFn = { navHostController.popBackStack() }) {
                 Text("编辑")
             }
