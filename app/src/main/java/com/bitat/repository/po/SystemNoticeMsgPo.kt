@@ -2,35 +2,33 @@ package com.bitat.repository.po
 
 import android.database.Cursor
 
-class NoticeMsgPo {
+class SystemNoticeMsgPo {
     var id: Long = 0
     var userId: Long = 0
     var kind: Int = 0
     var sourceId: Long = 0
-    var fromId: Long = 0
     var time: Long = 0
     var content: String = ""
-    fun getUnique() = NoticeMsgUnique(kind, sourceId,fromId,time)
+    fun getUnique() = SystemNoticeMsgUnique(kind, sourceId,time)
     companion object {
-        fun of(cursor: Cursor) = NoticeMsgPo().apply {
+        fun of(cursor: Cursor) = SystemNoticeMsgPo().apply {
             id = cursor.getLong(0)
             userId = cursor.getLong(1)
             kind = cursor.getInt(2)
             sourceId = cursor.getLong(3)
-            fromId = cursor.getLong(4)
-            time = cursor.getLong(5)
-            content = cursor.getString(6)
+            time = cursor.getLong(4)
+            content = cursor.getString(5)
         }
     }
 }
 
-data class NoticeMsgUnique(
-    val kind: Int, val sourceId: Long, val fromId: Long, val time: Long
+data class SystemNoticeMsgUnique(
+    val kind: Int, val sourceId: Long, val time: Long
 ) {
     companion object {
-        fun of(cursor: Cursor) = NoticeMsgUnique(
+        fun of(cursor: Cursor) = SystemNoticeMsgUnique(
             cursor.getInt(0), cursor.getLong(1),
-            cursor.getLong(2), cursor.getLong(3)
+            cursor.getLong(2)
         )
     }
 }
