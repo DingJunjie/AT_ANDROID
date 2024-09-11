@@ -25,6 +25,8 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,18 +42,24 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.profile.CollectionTab
 import com.bitat.ui.profile.PraiseHistory
 import com.bitat.ui.profile.ProfileWorks
 import com.bitat.ui.profile.TimeLinePage
 import com.bitat.utils.ScreenUtils
+import com.bitat.utils.TimeUtils
+import com.bitat.viewModel.NotificationViewModel
 import com.google.android.material.tabs.TabLayout.TabView
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NotificationPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
+    val vm = viewModelProvider[NotificationViewModel::class]
+    val state by vm.state.collectAsState()
+
     val options = listOf("消息", "@和动态", "系统通知")
     val pagerState = rememberPagerState {
         options.size
@@ -63,7 +71,38 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
     Scaffold { padding ->
         Column {
             NotificationTopBar(padding, backFn = { navHostController.popBackStack() })
-            NotificationContent(pagerState)
+            Surface(modifier = Modifier.padding(top = 40.dp)) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White),
+                    verticalAlignment = Alignment.Top
+                ) { index ->
+                    when (index) {
+                        0 -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Yellow)
+                        ) {
+                            MessageList(state.notifications)
+                        }
+
+                        1 -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Blue)
+                        )
+
+                        2 -> Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Cyan)
+                        )
+
+                    }
+                }
+            }
         }
 
         Row(
@@ -83,36 +122,26 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NotificationContent(pagerState: PagerState) {
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        verticalAlignment = Alignment.Top
-    ) { index ->
-        when (index) {
-            0 -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Yellow)
-            )
-
-            1 -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Blue)
-            )
-
-            2 -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Cyan)
-            )
+fun MessageList(list: List<NoticeMsgPo>) {
+    Column {
+        list.map {
+            MessageItem(it)
         }
-    } //    }
+    }
+}
+
+@Composable
+fun MessageItem(notice: NoticeMsgPo) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp, horizontal = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(notice.content)
+        if (notice.time > 0) Text(TimeUtils.timeToMD(notice.time))
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

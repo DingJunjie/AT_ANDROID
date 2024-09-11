@@ -6,6 +6,7 @@ import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
@@ -72,7 +73,7 @@ class UnreadViewModel : ViewModel() {
                             u
                         )
                     }
-//                    SingleMsgDB.insertBatch(msgPoArr)
+                    SingleMsgDB.insertArray(msgPoArr)
 
                     _state.update { kore ->
                         kore.copy(
@@ -80,7 +81,6 @@ class UnreadViewModel : ViewModel() {
                             unreadMsgCount = kore.unreadMsgCount - fetchAmount
                         )
                     }
-
 
                     getUnreadMessage()
                 }

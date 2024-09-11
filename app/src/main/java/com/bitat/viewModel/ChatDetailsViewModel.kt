@@ -58,6 +58,7 @@ class ChatDetailsViewModel : ViewModel() {
 
     fun getMessage(toId: Long, pageSize: Int = 10, pageNo: Int = 0, completeFn: () -> Unit = {}) {
         val msg = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, pageNo, pageSize)
+//        SingleMsgDB.filterDuplicate(UserStore.userInfo.id, toId, msg)
         println("search msg")
         println(msg.toString())
         val newList = arrayListOf<SingleMsgPo>()
