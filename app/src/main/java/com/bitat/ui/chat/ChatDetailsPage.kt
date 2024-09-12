@@ -71,6 +71,7 @@ import coil.compose.AsyncImage
 import com.bitat.MainCo
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.repository.consts.CHAT_DISABLED
 import com.bitat.repository.consts.CHAT_Picture
 import com.bitat.repository.consts.CHAT_RECALL_LIMITED
 import com.bitat.repository.consts.CHAT_Recall
@@ -191,6 +192,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     LaunchedEffect(chatListScrollState) {
         snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
+                if (chatListScrollState.layoutInfo.visibleItemsInfo.size < 3) return@collect
                 if (isLoadingMore.value) return@collect
                 val isBottom =
                     lastVisibleIndex == chatListScrollState.layoutInfo.totalItemsCount - 1
@@ -229,13 +231,17 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                     // 为空
                     return@ChatBottomContainer
                 }
-                vm.sendMessage(chatState.currentRoom.otherId, 1, it) { that ->
+                vm.sendMessage(chatState.currentRoom.otherId, 1, it, { msg ->
+                    toast.show(msg)
+                }) { that ->
                     chatVm.updateRoomInfo(that)
                     chatInput.value = ""
                 }
             },
             {
-                vm.sendPicture(chatState.currentRoom.otherId, it) { that ->
+                vm.sendPicture(chatState.currentRoom.otherId, it, { msg ->
+                    toast.show(msg)
+                }) { that ->
                     chatVm.updateRoomInfo(that)
                     chatInput.value = ""
                 }
@@ -322,6 +328,10 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                 CHAT_Time -> {
                                     TimeMessage(timestamp = item.time)
                                 }
+
+                                CHAT_DISABLED -> {
+                                    DisableMessage(item.content)
+                                }
                             }
                         } else if (item.status.toInt() == -1) {
                             when (item.kind) {
@@ -352,6 +362,9 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                                     TimeMessage(timestamp = item.time)
                                 }
 
+                                CHAT_DISABLED -> {
+                                    DisableMessage(item.content)
+                                }
                             }
                         }
                     }

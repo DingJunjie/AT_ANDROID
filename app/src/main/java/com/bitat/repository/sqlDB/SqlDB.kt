@@ -31,6 +31,7 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         GroupMsgDB.init(db)
         DraftsDB.init(db)
         UserTokenDB.init(db)
+        SystemNoticeMsg.init(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

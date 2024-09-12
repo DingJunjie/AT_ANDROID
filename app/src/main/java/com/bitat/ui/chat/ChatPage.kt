@@ -69,6 +69,7 @@ import com.bitat.repository.singleChat.SetMute
 import com.bitat.repository.singleChat.SetTop
 import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.singleChat.SingleMsgHelper.singleChatUiFlow
+import com.bitat.repository.singleChat.UpdateRoomContent
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
@@ -102,13 +103,17 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     CuLog.info(CuTag.SingleChat, it.toString())
                 }
 
+//                is UpdateRoomContent -> {
+//                    chatVm.updateRoomContent()
+//                }
+
                 is SetTop -> {
                     chatVm.setTop(it.otherId, it.isTop == 1)
                 }
 
                 is SetMute -> TODO()
                 is GetNewMessage -> {
-                    chatVm.updateRoomContent(it.msg)
+//                    chatVm.updateRoomContent(it.msg)
                 }
             }
         }

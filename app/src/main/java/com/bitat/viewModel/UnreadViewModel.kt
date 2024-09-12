@@ -10,6 +10,7 @@ import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
+import com.bitat.utils.IntBox
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,15 +56,25 @@ class UnreadViewModel : ViewModel() {
                         }
                     }.toTypedArray()
 
-                    val unreadCountGroup = msgPoArr.groupBy {
-                        it.otherId
+                    val unreadCountGroup = HashMap<Long, IntBox>()
+                    for (po in msgPoArr) {
+                        val count = unreadCountGroup[po.otherId]
+                        if (count == null) {
+                            unreadCountGroup[po.otherId] = IntBox(1)
+                        } else count.v += 1
                     }
+
+                    /**
+                     * val unreadCountGroup = msgPoArr.groupBy {
+                     *      it.otherId
+                     * }
+                     */
 
                     unreadCountGroup.forEach {
                         val u = SingleRoomPo().apply {
                             this.selfId = UserStore.userInfo.id
                             this.otherId = it.key
-                            this.unreads = it.value.size
+                            this.unreads = it.value.v
                         }
 
                         SingleRoomDB.insertOrUpdate(

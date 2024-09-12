@@ -2,6 +2,7 @@ package com.bitat.repository.singleChat
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.ViewModelProvider
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -26,6 +27,8 @@ import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.sqlDB.SystemNoticeMsg
 import com.bitat.repository.store.UserStore
+import com.bitat.state.RecallMessageParams
+import com.bitat.viewModel.ChatViewModel
 import com.bitat.viewModel.comparator
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers.IO
@@ -40,13 +43,13 @@ class GetRooms(val rooms: List<SingleRoomPo>)
 class SetTop(val otherId: Long, val isTop: Int)
 class SetMute(val otherId: Long, val isMute: Int)
 class GetNewMessage(val msg: SingleMsgPo)
+class UpdateRoomContent(val room: SingleRoomPo)
 
 class GetNewNotice(val notice: NoticeMsgPo)
 
 @Serializable
 data class SystemNotice(
-    val id: Long = 0,
-    val text: String = ""
+    val id: Long = 0, val text: String = ""
 )
 
 @Serializable
@@ -67,12 +70,12 @@ data class NoticeContent(
 object SingleMsgHelper {
     val singleChatUiFlow = MutableSharedFlow<Any>(extraBufferCapacity = 16)
 
-    fun opsInit() {
+    fun opsInit(viewModelProvider: ViewModelProvider) {
         MainCo.launch(IO) {
             newMsgFlow.collect { it ->
                 when (it) {
                     is MsgDto.ChatMsg -> {
-                        handleChat(it)
+                        handleChat(it, viewModelProvider)
                     }
 
                     is MsgDto.NoticeMsg -> {
@@ -342,10 +345,7 @@ object SingleMsgHelper {
             ///////////////////////////// 系统相关 ////////////////////////
             // {"id":1413,"text":"你的动态未审核通过,我们会进一步进行审核,原因:"}
 
-            SYSTEM_NOTICE,
-            SYSTEM_PASSED,
-            UPDATE_AUTHORITY
-            -> {
+            SYSTEM_NOTICE, SYSTEM_PASSED, UPDATE_AUTHORITY -> {
                 val json = Json.decodeFromString(SystemNotice.serializer(), originContent)
                 SystemNoticeMsg.insertOne(SystemNoticeMsgPo().apply {
                     userId = UserStore.userInfo.id
@@ -362,16 +362,16 @@ object SingleMsgHelper {
     }
 
 
-    private suspend fun handleChat(msg: MsgDto.ChatMsg) {
+    private suspend fun handleChat(msg: MsgDto.ChatMsg, viewModelProvider: ViewModelProvider) {
         val newRoom = SingleRoomPo()
         newRoom.selfId = UserStore.userInfo.id
         newRoom.otherId = msg.fromId
         newRoom.unreads = 1
         SingleRoomDB.insertOrUpdate(newRoom)
 
-        val room = SingleRoomDB.getRoom(UserStore.userInfo.id, msg.fromId)
-
         val content = msg.data.toString(Charsets.UTF_8)
+
+        val roomVm = viewModelProvider[ChatViewModel::class]
 
         val nm = SingleMsgPo()
         nm.selfId = msg.toId
@@ -381,11 +381,23 @@ object SingleMsgHelper {
         nm.content = content
         nm.time = msg.time
 
-        SingleMsgDB.insertOneUnique(nm)
+        if (msg.kind == CHAT_Recall.toInt()) {
+            val originContent = Json.decodeFromString(RecallMessageParams.serializer(), content)
+            SingleMsgDB.updateKind(msg.kind.toShort(), msg.toId, msg.fromId, originContent.time)
+        } else {
+            SingleMsgDB.insertOneUnique(nm)
 
-        val rooms = getRooms()
-        singleChatUiFlow.emit(GetRooms(rooms = rooms))
+            roomVm.updateRoomContent(nm)
+        }
         singleChatUiFlow.emit(GetNewMessage(nm))
+
+
+//        val rooms = getRooms()
+//        singleChatUiFlow.emit(GetRooms(rooms = rooms))
+//        if (room != null) {
+//            singleChatUiFlow.emit(UpdateRoomContent(room))
+//        }
+
     }
 }
 
