@@ -1,6 +1,7 @@
 package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
@@ -10,12 +11,17 @@ import com.bitat.repository.dto.req.FollowBlogsDto
 import com.bitat.repository.dto.req.NewBlogsDto
 import com.bitat.repository.dto.req.TimeLineDto
 import com.bitat.repository.http.service.BlogReq
+import com.bitat.repository.po.WORK_KIND
+import com.bitat.repository.po.WatchHistoryPo
 import com.bitat.repository.sqlDB.SingleMsgDB
+import com.bitat.repository.sqlDB.WatchHistoryDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
 import com.bitat.ui.common.LoadMoreState
+import com.bitat.utils.TimeUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -246,6 +252,18 @@ class BlogViewModel : ViewModel() {
             }
         }
 
+    }
+
+    fun addHistory(blogBaseDto: BlogBaseDto) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            WatchHistoryDB.insertOne(WatchHistoryPo().apply {
+                userId = UserStore.userInfo.id
+                dataId = blogBaseDto.id
+                kind = WORK_KIND
+                time = TimeUtils.getNow()
+            })
+        }
     }
 
 

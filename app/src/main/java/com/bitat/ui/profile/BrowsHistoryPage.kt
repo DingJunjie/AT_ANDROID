@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bitat.R
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
@@ -32,6 +33,7 @@ import com.bitat.state.BrowserHistoryState
 import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.MediaGrid
 import com.bitat.viewModel.BrowserHistoryViewModel
+import kotlinx.coroutines.Dispatchers
 
 /**
  *    author : shilu
@@ -49,9 +51,12 @@ fun BrowserHistoryPage(navHostController: NavHostController, viewModelProvider: 
     val pagerState: PagerState = rememberPagerState(initialPage = state.currentTabIndex) {
         PROFILE_TAB_OPTIONS.size
     }
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(Dispatchers.IO) {
+
         vm.worksHistory()
     }
+
 
     Scaffold(topBar = {
         CommonTopBar(modifier = Modifier,

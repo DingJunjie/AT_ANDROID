@@ -16,11 +16,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +33,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.MainCo
 import com.bitat.ext.Density
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.ui.blog.BlogContent
 import com.bitat.ui.common.statusBarHeight
@@ -58,6 +63,23 @@ fun DiscoveryDetailPage(
     }
     val latestY = remember {
         mutableFloatStateOf(0f)
+    }
+    val historyCache = remember { mutableListOf<Int>() }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
+            layoutInfo.visibleItemsInfo.forEachIndexed { index, lazyListItemInfo ->
+                if (!historyCache.contains(lazyListItemInfo.index)) {
+                    historyCache.add(lazyListItemInfo.index)
+                    vm.addHistory(state.discoveryList[lazyListItemInfo.index])
+                }
+            }
+        }
+
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            historyCache.clear()
+        }
     }
 
     Scaffold { padding ->
