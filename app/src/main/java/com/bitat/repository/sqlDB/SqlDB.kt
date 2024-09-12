@@ -61,10 +61,9 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
         fun <T> fetchDB(writable: Boolean = false, fn: (SqlOps) -> T): T {
             val wOps = writableOps
             val rOps = readableOps
-            return if (wOps != null && rOps != null) if (writable) wOps.let {
-                locker.write { fn(it) }
-            } else rOps.let {
-                locker.read { fn(it) }
+            return if (wOps != null && rOps != null) {
+                if (writable) locker.write { fn(wOps) }
+                else locker.read { fn(rOps) }
             } else throw RuntimeException("SqlDB not init")
         }
 
@@ -81,8 +80,9 @@ class SqlDB(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERS
             it.queryOne(toFn, sql, *bindings)
         }
 
-        inline fun <reified T> queryBatch(crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any) =
-            fetchDB { it.queryBatch(toFn, sql, *bindings) }
+        inline fun <reified T> queryBatch(
+            crossinline toFn: (Cursor) -> T, sql: String, vararg bindings: Any
+        ) = fetchDB { it.queryBatch(toFn, sql, *bindings) }
 
     }
 }
@@ -98,13 +98,14 @@ value class SqlOps(val db: SQLiteDatabase) {
         db.rawQuery(sql, bindings.map(Any::toString).toTypedArray())
             .run { if (moveToFirst()) toFn(this) else null }
 
-    inline fun <reified T> queryBatch(toFn: (Cursor) -> T, sql: String, vararg bindings: Any): Array<T> =
-        db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
-            Array(count) {
-                moveToNext()
-                toFn(this)
-            }
+    inline fun <reified T> queryBatch(
+        toFn: (Cursor) -> T, sql: String, vararg bindings: Any
+    ): Array<T> = db.rawQuery(sql, bindings.map(Any::toString).toTypedArray()).run {
+        Array(count) {
+            moveToNext()
+            toFn(this)
         }
+    }
 
 }
 
