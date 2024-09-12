@@ -241,7 +241,7 @@ class ChatDetailsViewModel : ViewModel() {
             } else {
                 return ReplyType.StrangerEnable
             }
-        } else if (res.rel.toInt() == BLACKLIST) {
+        } else if (res.toInt() == BLACKLIST) {
             // 拉黑
             return ReplyType.Blocked
         } else {
