@@ -13,15 +13,24 @@ CREATE TABLE IF NOT  EXISTS "social_rel" (
 """
 object SocialRelDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_SOCIAL_REL)
-    fun insertOrUpdate(po :SocialRelPo) = SqlDB.exec(
-        """insert into social_rel (self_id,other_id,rel)
+    fun insertOrUpdate(po :SocialRelPo) {
+        if (po.rel.toInt() == 0){
+            del(po.selfId,po.otherId)
+        }else{
+            SqlDB.exec(
+                """insert into social_rel (self_id,other_id,rel)
                 values (?,?,?) ON CONFLICT(self_id,other_id) DO UPDATE SET rel = ?;""",
-        po.selfId,po.otherId,po.rel,po.rel)
+                po.selfId,po.otherId,po.rel,po.rel)
+        }
+    }
 
-    fun getRel(selfId:Long,otherId:Long) = SqlDB.queryOne(
-        SocialRelPo::of,"select * from social_rel where self_id = ? and other_id = ?"
-        ,selfId,otherId)
-    fun  del(selfId:Long,otherId:Long) = SqlDB.exec(
+    fun getRel(selfId:Long,otherId:Long): Long {
+      return SqlDB.queryOne(
+            ::toLong,"select rel from social_rel where self_id = ? and other_id = ?"
+            ,selfId,otherId) ?: 0
+    }
+
+    fun del(selfId:Long,otherId:Long) = SqlDB.exec(
         "delete from social_rel where self_id = ? and other_id = ?",
         selfId,otherId
     )

@@ -49,7 +49,6 @@ class SingleRoomPo {
             status = cursor.getShort(9)
             kind = cursor.getShort(10)
             content = cursor.getString(11)
-
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
