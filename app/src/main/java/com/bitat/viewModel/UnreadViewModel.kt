@@ -10,6 +10,7 @@ import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
 import com.bitat.state.UnreadState
+import com.bitat.utils.IntBox
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,6 @@ class UnreadViewModel : ViewModel() {
                     it.copy(unreadNoticeCount = that.notice, unreadMsgCount = that.chat)
                 }
 
-
                 if (_state.value.unreadMsgCount > 0) {
                     getUnreadMessage()
                 }
@@ -38,14 +38,12 @@ class UnreadViewModel : ViewModel() {
 
     fun getUnreadMessage() {
         if (state.value.unreadMsgCount > 0) {
-            val fetchAmount =
-                if (state.value.unreadMsgCount > 30) 30 else state.value.unreadMsgCount
             MainCo.launch(IO) {
                 MsgReq.fetchChat(FetchChatCommon().apply {
                     ack = true
-                    fromId = 0
-                    time = _state.value.lastMsgId
-                    limit = fetchAmount.toLong()
+                    fromId = _state.value.lastMsgId
+                    time = _state.value.lastTime
+                    limit = 50
                 }).await().map { msgRes ->
                     val msgPoArr = msgRes.msgListList.map {
                         SingleMsgPo().also { po ->
@@ -58,15 +56,25 @@ class UnreadViewModel : ViewModel() {
                         }
                     }.toTypedArray()
 
-                    val unreadCountGroup = msgPoArr.groupBy {
-                        it.otherId
+                    val unreadCountGroup = HashMap<Long, IntBox>()
+                    for (po in msgPoArr) {
+                        val count = unreadCountGroup[po.otherId]
+                        if (count == null) {
+                            unreadCountGroup[po.otherId] = IntBox(1)
+                        } else count.v += 1
                     }
+
+                    /**
+                     * val unreadCountGroup = msgPoArr.groupBy {
+                     *      it.otherId
+                     * }
+                     */
 
                     unreadCountGroup.forEach {
                         val u = SingleRoomPo().apply {
                             this.selfId = UserStore.userInfo.id
                             this.otherId = it.key
-                            this.unreads = it.value.size
+                            this.unreads = it.value.v
                         }
 
                         SingleRoomDB.insertOrUpdate(
@@ -80,8 +88,9 @@ class UnreadViewModel : ViewModel() {
 
                     _state.update { kore ->
                         kore.copy(
-                            lastMsgId = msgRes.msgListList.first().time,
-                            unreadMsgCount = kore.unreadMsgCount - fetchAmount
+                            lastMsgId = msgRes.msgListList.last().fromId,
+                            lastTime = msgRes.msgListList.last().time,
+                            unreadMsgCount = kore.unreadMsgCount - msgPoArr.size
                         )
                     }
 
@@ -89,22 +98,29 @@ class UnreadViewModel : ViewModel() {
                 }
             }
         } else {
-//            MainCo.launch {
-//                SingleChatHelper.queryRooms()
-//            }
+            MainCo.launch {
+                MsgReq.fetchChat(FetchChatCommon().apply {
+                    ack = true
+                    fromId = _state.value.lastMsgId
+                    time = _state.value.lastTime
+                    limit = 50
+                }).await().map {
+                    _state.update {
+                        it.copy(unreadMsgCount = 0, lastTime = 0, lastMsgId = 0)
+                    }
+                }
+            }
             return
         }
     }
 
     fun getUnreadNotice() {
         if (state.value.unreadNoticeCount > 0) {
-            val fetchAmount =
-                if (state.value.unreadNoticeCount > 30) 30 else state.value.unreadNoticeCount
             MainCo.launch(IO) {
                 MsgReq.fetchNotice(FetchChatCommon().apply {
                     ack = false
                     time = _state.value.lastNoticeId
-                    limit = fetchAmount.toLong()
+                    limit = 50
                     fromId = 0
                 }).await().map {
                     it.msgListList.forEach { that ->

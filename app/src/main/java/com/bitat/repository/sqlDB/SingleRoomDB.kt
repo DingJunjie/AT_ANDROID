@@ -45,7 +45,7 @@ object SingleRoomDB {
 
     //新增聊天室存在则修改
     fun insertOrUpdate(
-        po:SingleRoomPo
+        po: SingleRoomPo
     ) = SqlDB.exec(
         """insert into single_room (self_id,other_id,unreads,top,background,muted,cfg) values (?,?,?,?,?,?,?) 
            ON CONFLICT(self_id,other_id) DO UPDATE SET unreads = unreads + ?;""",
@@ -59,9 +59,11 @@ object SingleRoomDB {
         po.unreads,
     )
 
-    fun clearUnread(selfId: Long, otherId: Long) = SqlDB.exec("""
+    fun clearUnread(selfId: Long, otherId: Long) = SqlDB.exec(
+        """
         update single_room set unreads = 0 where self_id = ? and other_id = ?
-    """)
+    """, selfId, otherId
+    )
 
     //修改配置
     fun updateCfg(cfg: String, selfId: Long, otherId: Long) = SqlDB.exec(
@@ -99,11 +101,14 @@ object SingleRoomDB {
         selfId,
         otherId,
     )
+
     //判断当前聊天室是否存在
-    fun hasRoom(selfId: Long, otherId: Long):Boolean{
-        return SqlDB.queryOne(SingleRoomPo::ofRoom,
+    fun hasRoom(selfId: Long, otherId: Long): Boolean {
+        return SqlDB.queryOne(
+            SingleRoomPo::ofRoom,
             "select * from single_room where self_id = ? and other_id = ?",
             selfId,
-            otherId) != null
+            otherId
+        ) != null
     }
 }

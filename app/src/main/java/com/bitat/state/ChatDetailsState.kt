@@ -25,6 +25,11 @@ class VideoMessageParams(
 )
 
 @Serializable
+class RecallMessageParams(
+    val time: Long = 0
+)
+
+@Serializable
 class ReplyMessageParams(
     val time: Long = 0,
     val kind: Short = 1,

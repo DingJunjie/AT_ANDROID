@@ -176,7 +176,7 @@ object TcpClient {
         return null
     }
 
-    fun chat(toId: Long, kind: Int, data: ByteArray) {
+    fun chat(toId: Long, kind: Int, time: Long, data: ByteArray) {
         MainCo.launch(IO) {
             val selfId = UserStore.userInfo.id
             val body = ChatMsg.newBuilder().also {
@@ -184,7 +184,7 @@ object TcpClient {
                 it.fromId = selfId
                 it.toRouter = 0
                 it.fromRouter = 0
-                it.time = TimeUtils.getNow()
+                it.time = time
                 it.kind = kind
                 it.data = ByteString.copyFrom(data)
             }.build()
@@ -270,7 +270,7 @@ object TcpClient {
 
                 TcpMsgEvent.CHAT -> if (decryptBody != null) {
                     val msg = ChatMsg.parseFrom(decryptBody)
-                    CuLog.debug(CuTag.SingleChat, "收消息：toId=${msg.toId},selfId=${selfId}")
+                    CuLog.debug(CuTag.SingleChat, "收消息：fromId=${msg.fromId},selfId=${selfId}")
                     if (msg.toId == selfId) {
                         chatRec(msg.toId, msg.fromId, 0, msg.fromRouter, msg.time, 1)
                         TcpHandler.chat(msg)

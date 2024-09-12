@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserHomeDto
 import com.bitat.repository.dto.resp.UserPartDto
+import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
 import com.bitat.repository.singleChat.SingleMsgHelper
@@ -189,6 +191,10 @@ class ChatViewModel : ViewModel() {
 
     fun chooseRoom(room: SingleRoomPo) {
         _state.update {
+            val i = it.chatList.indexOfFirst { that ->
+                that.otherId == room.otherId
+            }
+            it.chatList[i].unreads = 0
             it.currentRoom.apply {
                 id = room.id
                 otherId = room.otherId
@@ -199,7 +205,7 @@ class ChatViewModel : ViewModel() {
                 time = room.time
                 status = room.status
                 kind = room.kind
-                unreads = room.unreads
+                unreads = 0
                 profile = room.profile
                 top = room.top
                 muted = room.muted
@@ -220,16 +226,40 @@ class ChatViewModel : ViewModel() {
                 that.otherId == newMsg.otherId
             }
 
+            if (i > -1) {
+                _state.update {
+                    val oldMsg = it.chatList.removeAt(i)
+                    oldMsg.content = newMsg.content
+                    oldMsg.kind = newMsg.kind
+                    oldMsg.time = newMsg.time
+                    oldMsg.unreads += 1
 
-            _state.update {
-                val oldMsg = it.chatList.removeAt(i)
-                oldMsg.content = newMsg.content
-                oldMsg.time = newMsg.time
+                    it.chatList.add(i, oldMsg)
+                    it.copy(flag = it.flag + 1)
+                }
+            } else {
+                val room = SingleRoomDB.getRoom(newMsg.selfId, newMsg.otherId)
 
-                it.chatList.add(i, oldMsg)
-                it.copy(flag = it.flag + 1)
+                if (room != null) {
+                    UserReq.userInfo(UserInfoDto(userId = room.otherId)).await().map { info ->
+                        room.apply {
+                            nickname = info.nickname
+                            alias = info.alias
+                            profile = info.profile
+                            rel = info.rel
+                            revRel = info.revRel
+                            content = newMsg.content
+                            kind = newMsg.kind
+                            time = newMsg.time
+                        }
+                        _state.update {
+                            it.chatList.add(room)
+                            it
+                        }
+                    }
+
+                }
             }
-
         }
     }
 

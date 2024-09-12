@@ -69,6 +69,7 @@ import com.bitat.repository.singleChat.SetMute
 import com.bitat.repository.singleChat.SetTop
 import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.singleChat.SingleMsgHelper.singleChatUiFlow
+import com.bitat.repository.singleChat.UpdateRoomContent
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
@@ -102,13 +103,17 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     CuLog.info(CuTag.SingleChat, it.toString())
                 }
 
+//                is UpdateRoomContent -> {
+//                    chatVm.updateRoomContent()
+//                }
+
                 is SetTop -> {
                     chatVm.setTop(it.otherId, it.isTop == 1)
                 }
 
                 is SetMute -> TODO()
                 is GetNewMessage -> {
-                    chatVm.updateRoomContent(it.msg)
+//                    chatVm.updateRoomContent(it.msg)
                 }
             }
         }
@@ -374,7 +379,7 @@ fun ChatListItem(info: SingleRoomPo, flag: Int, itemClick: ((SingleRoomPo) -> Un
                             .fillMaxWidth()
                     ) {
                         ChatContent(content = info.content.toChatMessage(info.kind))
-                        Surface(
+                        if (info.unreads > 0) Surface(
                             modifier = Modifier.size(26.dp), color = Color.Red, shape = CircleShape
                         ) {
                             Box(
@@ -402,7 +407,7 @@ fun Nickname(name: String = "这是我的名字") {
 
 @Composable
 fun TimeWidget(sendTime: Long) {
-    Text(
+    if (sendTime > 0) Text(
         TimeUtils.timeToText(sendTime),
         textAlign = TextAlign.Center,
         style = LocalTextStyle.current.copy(fontSize = 12.sp, color = Color.Gray),

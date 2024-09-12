@@ -18,7 +18,7 @@ const val CHAT_VideoCallEnd: Short = -5; // 视频通话结束
 const val CHAT_VideoCallCancel: Short = -6;  // 视频通话取消
 const val CHAT_AudioCallEnd: Short = -7; // 语音通话结束
 const val CHAT_AudioCallCancel: Short = -8;   // 语音通话取消
-const val CHAT_BLACKLIST: Short = -999
+const val CHAT_DISABLED: Short = -999 // 拉黑
 
 
 

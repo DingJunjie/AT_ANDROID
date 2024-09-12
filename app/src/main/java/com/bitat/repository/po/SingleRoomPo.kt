@@ -47,11 +47,12 @@ class SingleRoomPo {
             background = cursor.getString(4)
             muted = cursor.getInt(5)
             cfg = cursor.getString(6)
-            id = cursor.getLongOrNull(7)?:0
-            time = cursor.getLongOrNull(8)?:0
-            status = cursor.getShortOrNull(9)?:0
-            kind = cursor.getShortOrNull(10)?:0
-            content = cursor.getStringOrNull(11)?:""
+
+            id = cursor.getLongOrNull(7) ?: 0
+            time = cursor.getLongOrNull(8) ?: 0
+            status = cursor.getShortOrNull(9) ?: 0
+            kind = cursor.getShortOrNull(10) ?: 0
+            content = cursor.getStringOrNull(11) ?: ""
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
