@@ -374,7 +374,7 @@ fun ChatListItem(info: SingleRoomPo, flag: Int, itemClick: ((SingleRoomPo) -> Un
                             .fillMaxWidth()
                     ) {
                         ChatContent(content = info.content.toChatMessage(info.kind))
-                        Surface(
+                        if (info.unreads > 0) Surface(
                             modifier = Modifier.size(26.dp), color = Color.Red, shape = CircleShape
                         ) {
                             Box(
@@ -402,7 +402,7 @@ fun Nickname(name: String = "这是我的名字") {
 
 @Composable
 fun TimeWidget(sendTime: Long) {
-    Text(
+    if (sendTime > 0) Text(
         TimeUtils.timeToText(sendTime),
         textAlign = TextAlign.Center,
         style = LocalTextStyle.current.copy(fontSize = 12.sp, color = Color.Gray),

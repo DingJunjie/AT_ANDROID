@@ -189,6 +189,10 @@ class ChatViewModel : ViewModel() {
 
     fun chooseRoom(room: SingleRoomPo) {
         _state.update {
+            val i = it.chatList.indexOfFirst { that ->
+                that.otherId == room.otherId
+            }
+            it.chatList[i].unreads = 0
             it.currentRoom.apply {
                 id = room.id
                 otherId = room.otherId
@@ -199,7 +203,7 @@ class ChatViewModel : ViewModel() {
                 time = room.time
                 status = room.status
                 kind = room.kind
-                unreads = room.unreads
+                unreads = 0
                 profile = room.profile
                 top = room.top
                 muted = room.muted
@@ -211,6 +215,10 @@ class ChatViewModel : ViewModel() {
 
         MainCo.launch(IO) {
             SingleRoomDB.clearUnread(selfId = room.selfId, otherId = room.otherId)
+//            updateRoomContent(SingleMsgPo().apply {
+//                selfId = room.selfId
+//                otherId = room.otherId
+//            })
         }
     }
 

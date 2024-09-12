@@ -5,5 +5,6 @@ data class UnreadState(
     val unreadNoticeCount: Int = 0,
 
     val lastMsgId: Long = 0,
+    val lastTime: Long = 0,
     val lastNoticeId: Long = 0
 )
