@@ -91,7 +91,7 @@ fun FeedbackPage(navHostController: NavHostController) {
         CommonTopBar(
             title = stringResource(id = R.string.setting_feedback),
             backFn = { navHostController.popBackStack() },
-            padingStatus = true
+            paddingStatus = true
         )
     }) { paddingValues ->
         Box(

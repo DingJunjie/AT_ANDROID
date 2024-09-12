@@ -91,7 +91,7 @@ fun ClearCachPage(navHostController: NavHostController) {
             title = stringResource(id = R.string.setting_clear_cache),
             backFn = { navHostController.popBackStack() },
             isBg = true,
-            padingStatus = true)
+            paddingStatus = true)
     }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             optList.forEachIndexed { index, str ->

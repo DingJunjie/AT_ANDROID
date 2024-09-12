@@ -70,7 +70,7 @@ fun BlackListPage(navHostController: NavHostController) {
             title = stringResource(id = R.string.setting_blacklist),
             backFn = { navHostController.popBackStack() },
             isBg = true,
-            padingStatus = true)
+            paddingStatus = true)
     }) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)
             .background(colorResource(id = R.color.gray_F0))) {

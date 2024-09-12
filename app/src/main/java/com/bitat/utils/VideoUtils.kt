@@ -22,23 +22,36 @@ object VideoUtils {
         VideoParams(width, height, duration)
     }
 
-    fun getCover(path: String, time: Long = 0): Uri {
+    fun getCover(uri: Uri, time: Long = 0): Uri = MediaMetadataRetriever().use {
         try {
-            val retriever = MediaMetadataRetriever();
-            retriever.setDataSource(path)
-            val firstFrame = retriever.getFrameAtTime(time)
-            retriever.release()
-
-            println("i have a frame ${firstFrame?.width ?: "oh no width"}")
-
-            val bmPath = saveBitmap(firstFrame!!, path)
+            it.setDataSource(Local.ctx, uri)
+            val firstFrame = it.getFrameAtTime(time)
+            it.release()
+            val bmPath = saveBitmap(firstFrame!!, "")
             return Uri.parse(bmPath)
         } catch (e: Exception) {
-            CuLog.error(CuTag.Publish, e.message.toString())
+            CuLog.error(CuTag.Publish, "video getCover ${e.message.toString()}")
             return Uri.EMPTY
         }
-        //    return firstFrame
     }
+
+    //    {
+    //        try {
+    //            val retriever = MediaMetadataRetriever();
+    //            retriever.setDataSource(path)
+    //            val firstFrame = retriever.getFrameAtTime(time)
+    //            retriever.release()
+    //
+    //            println("i have a frame ${firstFrame?.width ?: "oh no width"}")
+    //
+    //            val bmPath = saveBitmap(firstFrame!!, path)
+    //            return Uri.parse(bmPath)
+    //        } catch (e: Exception) {
+    //            CuLog.error(CuTag.Publish, e.message.toString())
+    //            return Uri.EMPTY
+    //        }
+    //        //    return firstFrame
+    //    }
 
     fun genCoverKey() {
 

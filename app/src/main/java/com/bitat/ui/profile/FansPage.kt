@@ -62,11 +62,11 @@ fun FansPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     .clickable {
 
                     }, contentDescription = "", path = "svg/search.svg", tint = toolBarIcon70)
-            })
-    }, modifier = Modifier.padding(top = statusBarHeight)) { padding ->
+            }, paddingStatus = true, isBg = true)
+    }, modifier = Modifier) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(state.fansList) { index, item ->
-                fansItem(item, itemTap = {
+                FansItem(item, itemTap = {
                     othersVm.initUserId(item.id)
                     navHostController.navigate(NavigationItem.Others.route)
                 }, followFn = {}, followText = RelationUtils.toRelationContent(item.rel,item.revRel))
@@ -77,10 +77,10 @@ fun FansPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 }
 
 @Composable
-fun fansItem(item: UserBase1Dto, itemTap: () -> Unit, followFn: () -> Unit,followText:String) {
+fun FansItem(item: UserBase1Dto, itemTap: () -> Unit, followFn: () -> Unit,followText:String) {
     Row(
         modifier = Modifier
-            .padding(start = 30.cdp, end = 30.cdp)
+            .padding(start = 30.cdp, end = 30.cdp, top = 10.dp, bottom = 10.dp)
             .clickable { itemTap() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -110,7 +110,7 @@ fun fansItem(item: UserBase1Dto, itemTap: () -> Unit, followFn: () -> Unit,follo
                 .background(MaterialTheme.colorScheme.primary)
                 .clickable(onClick = {
                     followFn()
-                }, indication = null, interactionSource = remember { MutableInteractionSource() }).padding(end = 10.dp),
+                }, indication = null, interactionSource = remember { MutableInteractionSource() }),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -31,7 +31,7 @@ class BrowserHistoryViewModel : ViewModel() {
     }
     fun worksHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            val ids = async { WatchHistoryDB.find(UserStore.userInfo.id) }.await()
+            val ids = async { WatchHistoryDB.find(UserStore.userInfo.id,1) }.await()
             val idArr = arrayListOf<QueryCoverDto>()
 
             ids.forEachIndexed { index, watchHistoryPo ->

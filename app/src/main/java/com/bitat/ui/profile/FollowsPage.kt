@@ -38,11 +38,11 @@ fun FollowsPage(navHostController: NavHostController, viewModelProvider: ViewMod
                 SvgIcon(modifier = Modifier.size(35.dp).padding(end = 30.cdp).clickable {
 
                 }, contentDescription = "", path = "svg/search.svg", tint = toolBarIcon70)
-            })
-    }, modifier = Modifier.padding(top = statusBarHeight)) { padding ->
+            },paddingStatus = true, isBg = true)
+    }, modifier = Modifier) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(state.followsList) { index, item ->
-                fansItem(item,itemTap = {
+                FansItem(item,itemTap = {
                     othersVm.initUserId(item.id)
                     navHostController.navigate(NavigationItem.Others.route)
                 }, followFn = {}, followText = RelationUtils.toRelationContent(item.rel,item.revRel))

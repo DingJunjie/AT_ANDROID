@@ -198,7 +198,8 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
-            CuLog.debug(CuTag.Blog, "layoutInfo，滑动到底部")
+            CuLog.debug(CuTag.Blog, "layoutInfo，当前显示item ${layoutInfo.visibleItemsInfo}")
+
             val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
             if (lastVisibleItemIndex == state.blogList.size - 1) {
                 vm.isLoadMore(true)
@@ -206,6 +207,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                     ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
                 }
             }
+
+            // 添加观看记录
+
+
         }
     }
 

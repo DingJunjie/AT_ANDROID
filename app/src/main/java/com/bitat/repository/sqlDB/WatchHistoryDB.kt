@@ -9,27 +9,26 @@ CREATE TABLE IF NOT  EXISTS "watch_history" (
  "user_id" integer NOT NULL,
   "data_id" integer NOT NULL,
   "kind" integer NOT NULL,
-  "time" integer NOT NULL
+  "time" integer NOT NULL,
+  PRIMARY KEY ( "user_id","data_id","kind")
 );
-PRIMARY KEY ( "user_id","data_id","kind")
+
 """
 
 object WatchHistoryDB {
     fun init(db: SQLiteDatabase) = db.execSQL(CREATE_TABLE_WATCH_HISTORIES)
 
-    fun insertOne(po: WatchHistoryPo): Long {
+    fun insertOne(po: WatchHistoryPo) {
         return SqlDB.execBatch {
-            val id = it.writeQueryOne(
-                ::toLong,
+            it.exec(
                 """insert into watch_history (user_id,data_id,kind,time)
-                values (?,?,?,?) ON CONFLICT(user_id,data_id,kind) DO UPDATE SET time = ?
-                 RETURNING last_insert_rowid() as data_id;""",
+                values (?,?,?,?) ON CONFLICT(user_id,data_id,kind) DO UPDATE SET time = ?""",
                 po.userId,
                 po.dataId,
                 po.kind,
                 po.time,
                 po.time
-            ) ?: 0
+            )
             val count = it.queryOne(
                 ::toLong, "select count(*) as count from watch_history where user_id = ?", po.userId
             ) ?: 0
@@ -42,7 +41,6 @@ object WatchHistoryDB {
                     po.userId
                 )
             }
-            id
         }
     }
 
@@ -51,10 +49,11 @@ object WatchHistoryDB {
         "delete from watch_history where user_id=?,data_id=?,kind=?",userId,dataId,kind
     )
 
-    fun find(selfId: Long, pageNo: Int = 0, pageSize: Int = 50) = SqlDB.queryBatch(
+    fun find(selfId: Long, kind:Short,pageNo: Int = 0, pageSize: Int = 50) = SqlDB.queryBatch(
         WatchHistoryPo::of,
-        "select * from watch_history where user_id = ? order by time desc limit ? offset ?",
-        selfId,
+        "select * from watch_history where user_id = ? and kind=? order by time desc limit ? offset ?",
+        selfId
+        ,kind,
         pageSize,
         pageNo * pageSize
     )
