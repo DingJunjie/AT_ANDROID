@@ -100,7 +100,6 @@ fun TimeLinePage(
                     vm.firstFetchFinish()
                 }
             }
-
         }
 
     }

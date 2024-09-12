@@ -55,7 +55,7 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
             title = stringResource(id = R.string.setting_browser_history),
             backFn = { AtNavigation(navHostController).navigateToHome() },
             isBg = true,
-            padingStatus = true)
+            paddingStatus = true)
 
     }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {

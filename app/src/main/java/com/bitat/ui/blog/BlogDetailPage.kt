@@ -142,7 +142,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
             title ="",
             backFn = { AtNavigation(navHostController).navigateToHome() },
             isBg = true,
-            padingStatus = true
+            paddingStatus = true
         )
     }) { padding ->
         Column(

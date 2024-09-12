@@ -26,7 +26,7 @@ fun PrivacySettingsPage(navHostController: NavHostController) {
             title = stringResource(id = R.string.setting_privacy),
             backFn = { navHostController.popBackStack() },
             isBg = true,
-            padingStatus = true
+            paddingStatus = true
         )
     }) { padding ->
         Column(modifier = Modifier.padding(padding)) {

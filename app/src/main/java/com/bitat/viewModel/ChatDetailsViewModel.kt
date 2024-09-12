@@ -169,7 +169,7 @@ class ChatDetailsViewModel : ViewModel() {
 
     fun sendVideo(toId: Long, uri: Uri, completeFn: (SingleMsgPo) -> Unit) {
         MainCo.launch(IO) {
-            val cover = VideoUtils.getCover(uri.toString())
+            val cover = VideoUtils.getCover(uri)
 
             QiNiuUtil.uploadSingleFile(
                 cover, UPLOAD_OPS.Chat, FileType.Image, isUsingUri = false

@@ -20,11 +20,11 @@ import com.bitat.ui.common.statusBarHeight
 import com.google.android.material.badge.BadgeDrawable.BadgeGravity
 
 @Composable
-fun CommonTopBar(modifier: Modifier = Modifier, title: String, tint: Color = Color.Black, backFn: () -> Unit, isBg: Boolean = false, bgColor: Color = Color.White, padingStatus: Boolean = false, endButton: @Composable () -> Unit = {
+fun CommonTopBar(modifier: Modifier = Modifier, title: String, tint: Color = Color.Black, backFn: () -> Unit, isBg: Boolean = false, bgColor: Color = Color.White, paddingStatus: Boolean = false, endButton: @Composable () -> Unit = {
     Box(modifier = Modifier.size(30.dp)) {}
 }) {
     Column {
-        if (padingStatus) Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight).background(if (isBg) bgColor else Color.Transparent))
+        if (paddingStatus) Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight).background(if (isBg) bgColor else Color.Transparent))
         Row(horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier.fillMaxWidth()

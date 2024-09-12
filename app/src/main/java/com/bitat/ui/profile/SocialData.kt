@@ -4,9 +4,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -37,19 +39,21 @@ fun SocialData(
         SocialDataItem(likes, "获赞", tapFn = {
             tapLike()
         })
-        VerticalDivider(
-            modifier = Modifier
-                .height(40.dp)
-                .padding(vertical = 10.dp), color = Color(0xffeeeeee)
-        )
+//        VerticalDivider(
+//            modifier = Modifier
+//                .height(40.dp)
+//                .padding(vertical = 10.dp), color = Color(0xffeeeeee)
+//        )
+        Spacer(modifier = Modifier.height(40.dp).width(10.dp))
         SocialDataItem(fans, "粉丝") {
             tapFans()
         }
-        VerticalDivider(
-            modifier = Modifier
-                .height(40.dp)
-                .padding(top = 10.dp), color = Color(0xffeeeeee)
-        )
+//        VerticalDivider(
+//            modifier = Modifier
+//                .height(40.dp)
+//                .padding(top = 10.dp), color = Color(0xffeeeeee)
+//        )
+        Spacer(modifier = Modifier.height(40.dp).width(10.dp))
         if (follows > -1) SocialDataItem(follows, "关注") {
             tapFollows()
         }

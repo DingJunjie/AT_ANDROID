@@ -448,7 +448,7 @@ fun ProfileBg(url: String, tapBG: () -> Unit = {}, menu: @Composable (() -> Unit
                     .placeholder(R.mipmap.ic_launcher)  // 加载中的占位图
                     .error(R.mipmap.ic_launcher)  // 加载失败时的默认图片
                     .build()
-            ), contentScale = ContentScale.FillWidth
+            ), contentScale = ContentScale.Crop
         )
         .fillMaxWidth()
         .height(200.dp)

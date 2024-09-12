@@ -106,26 +106,6 @@ class PublishViewModel : ViewModel() {
 
     fun searchAt(userKeyword: String = "") {
         MainCo.launch {
-
-//            val atUser = arrayOf(
-//                UserBase1Dto(
-//                    id = 2435L,
-//                    profile = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F03%2F20180903231510_FusSU.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1725883211&t=648f137e53de99ca6729e1fe7f560e9a",
-//                    nickname = "汤姆",
-//                    ats = 5
-//                ), UserBase1Dto(
-//                    id = 228725L,
-//                    profile = "https://img1.baidu.com/it/u=1400805158,551781376&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=664",
-//                    nickname = "不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友不知名网友",
-//                    ats = 137
-//                ), UserBase1Dto(
-//                    id = 15649L,
-//                    profile = "https://img0.baidu.com/it/u=444590157,2329884399&fm=253&fmt=auto&app=138&f=JPEG?w=570&h=570",
-//                    nickname = "嬉皮猴",
-//                    ats = 587
-//                )
-//            )
-
             SearchReq.searchUser(SearchCommonDto(keyword = userKeyword, pageNo = 0, pageSize = 20))
                 .await().map { res ->
                     _commonState.update {
@@ -481,7 +461,7 @@ class PublishViewModel : ViewModel() {
                     },
                 ).await()
 
-                val cover = VideoUtils.getCover(mediaState.value.localVideo.path!!)
+                val cover = VideoUtils.getCover(mediaState.value.localVideo)
                 var coverKey = ""
                 if (cover == Uri.EMPTY) {
                     coverKey = key + QiNiuUtil.VIDEO_COVER.replace(

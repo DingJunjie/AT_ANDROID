@@ -58,7 +58,7 @@ fun CancelAgreementPage(navHostController: NavHostController, viewModelProvider:
     Scaffold(topBar = {
         CommonTopBar(title = stringResource(id = R.string.signout_auth_account),
             backFn = { navHostController.popBackStack() },
-            padingStatus = true)
+            paddingStatus = true)
     }) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 

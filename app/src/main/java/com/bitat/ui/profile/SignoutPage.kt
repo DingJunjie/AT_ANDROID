@@ -41,7 +41,7 @@ fun SignoutPage(navHostController: NavHostController,viewModelProvider: ViewMode
     Scaffold(topBar = {
         CommonTopBar(title = stringResource(id = R.string.setting_signout_apply),
             backFn = { navHostController.popBackStack() },
-            padingStatus = true)
+            paddingStatus = true)
     }) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             Spacer(modifier = Modifier.fillMaxWidth().height(30.dp))
