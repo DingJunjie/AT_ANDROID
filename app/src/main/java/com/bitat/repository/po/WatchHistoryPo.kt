@@ -17,3 +17,6 @@ class WatchHistoryPo {
         }
     }
 }
+
+const val USER_KIND=2
+const val WORK_KIND=1

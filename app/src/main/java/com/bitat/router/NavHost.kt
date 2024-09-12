@@ -252,7 +252,7 @@ fun AppNavHost(
             )
         }
         composable(NavigationItem.BrowHistory.route) {
-            BrowserHistoryPage(navController)
+            BrowserHistoryPage(navController,viewModelProvider)
         }
         composable(NavigationItem.PrivacySettings.route) {
             PrivacySettingsPage(navController)

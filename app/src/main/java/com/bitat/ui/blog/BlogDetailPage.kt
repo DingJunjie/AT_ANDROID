@@ -134,66 +134,44 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
         }
     }
 
-    Scaffold(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(), topBar = {
-        CommonTopBar(
-            modifier = Modifier,
-            title ="",
+    Scaffold(modifier = Modifier.fillMaxWidth().fillMaxHeight(), topBar = {
+        CommonTopBar(modifier = Modifier,
+            title = "",
             backFn = { AtNavigation(navHostController).navigateToHome() },
             isBg = true,
-            paddingStatus = true
-        )
+            paddingStatus = true)
     }) { padding ->
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(padding),
+        Column(modifier = Modifier.verticalScroll(scrollState).padding(padding),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+            horizontalAlignment = Alignment.CenterHorizontally) {
             state.value.currentBlog?.let {
-                Row(
-                    modifier = Modifier
-                        .height(80.dp)
-                        .padding(start = 10.dp, end = 10.dp),
+                Row(modifier = Modifier.height(80.dp).padding(start = 10.dp, end = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
+                    horizontalArrangement = Arrangement.Center) {
 
                     Box(modifier = Modifier.weight(3f)) {
-                        UserInfoWithAddr(
-                            nickname = it.nickname,
+                        UserInfoWithAddr(nickname = it.nickname,
                             createTime = it.createTime,
                             isShowTime = true,
                             avatar = it.profile,
-                            address = it.ipTerritory
-                        )
+                            address = it.ipTerritory)
                     }
                     if (it.userId != UserStore.userInfo.id)
 
-                        FollowBtn(modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
+                        FollowBtn(modifier = Modifier.weight(1f).height(40.dp),
                             rel = it.rel,
+                            revRel = it.revRel,
                             it.userId,
                             clickFn = { rel ->
                                 it.rel = rel // 刷新 blog列表数据
                                 blogListVm.refreshCurrent(it)
                             })
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp, end = 10.dp)
-                ) {
-                    Text(
-                        text = it.content,
+                Column(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)) {
+                    Text(text = it.content,
                         modifier = Modifier.padding(bottom = 10.dp),
-                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight)
-                    )
-                    BlogContent(
-                        it.kind.toInt(),
+                        style = TextStyle(lineHeight = MaterialTheme.typography.bodyMedium.lineHeight))
+                    BlogContent(it.kind.toInt(),
                         it,
                         heigh,
                         needRoundedCorner = true,
@@ -201,8 +179,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         coverIsFull = true,
                         needStartPadding = false,
                         navHostController,
-                        viewModelProvider
-                    )
+                        viewModelProvider)
                     Spacer(modifier = Modifier.height(40.cdp))
                     BlogOperation(it, tapComment = {
 
@@ -237,25 +214,18 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                     }, updateFlag = state.value.flag)
                     Spacer(modifier = Modifier.height(60.cdp))
                 }
-                Column(
-                    modifier = Modifier
-                        .height(70.cdp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(start = 5.dp, end = 5.dp),
+                Column(modifier = Modifier.height(70.cdp).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(start = 5.dp, end = 5.dp),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                         text = "全部评论（${it.comments}）",
-                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary)
-                    )
+                        style = Typography.bodySmall.copy(color = MaterialTheme.colorScheme.onPrimary))
                 }
                 Spacer(modifier = Modifier.height(30.cdp))
                 if (isCommentVisible) {
-                    CommentPopup(
-                        visible = true,
+                    CommentPopup(visible = true,
                         blogId = commentState.currentBlogId,
                         commentViewModel = commentVm,
                         coroutineScope = coroutineScope,
@@ -265,8 +235,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                         },
                         commentState = commentState,
                         onClose = { },
-                        isPop = false
-                    ) {
+                        isPop = false) {
                         it.comments += 1u
                         vm.setCurrentBlog(it)
                         updateList(it)
@@ -296,7 +265,7 @@ fun BlogDetailPage(navHostController: NavHostController, viewModelProvider: View
                 collectVm.collectBlog(it.key, completeFn = {
                     toast.show("收藏成功")
                     state.value.currentBlog?.let { blog ->
-                        val newBlog =  vm.collectClick(state.value.currentBlog!!)
+                        val newBlog = vm.collectClick(state.value.currentBlog!!)
                         updateList(blog)
                     }
                 })

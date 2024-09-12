@@ -50,9 +50,6 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         mutableStateOf(0)
     }
 
-
-
-
     Scaffold(modifier = Modifier.padding(top = statusBarHeight), topBar = {
         ResultTopBar(navHostController, state.keyword, {
             vm.updateKeyword(it)
@@ -63,7 +60,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
                     vm.searchVideo(state.keyword)
                 }
 
-                4 -> {
+                2 -> {
                     vm.searchUser(state.keyword)
                 }
 
@@ -77,9 +74,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
             when (selectedTabIndex) {
                 0 -> Text("0")
                 1 -> MediaGrid(mediaList = state.searchVideoResult)
-                2 -> Text("2")
-                3 -> Text("3")
-                4 -> UserResult(state.searchUserResult)
+                2 -> UserResult(state.searchUserResult)
             }
         }
     }

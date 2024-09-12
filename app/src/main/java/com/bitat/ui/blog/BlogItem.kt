@@ -64,6 +64,8 @@ import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.FollowBtnViewModel
 import com.bitat.viewModel.OthersViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.serialization.json.Json
 
 /*****
@@ -108,29 +110,22 @@ fun BlogItem(blog: BlogBaseDto, isPlaying: Boolean = false, navHostController: N
                 Spacer(modifier = Modifier.width(5.dp))
                 Avatar(blog.profile, size = 35, showFollow = blog.rel== DEFAULT&&blog.userId!=UserStore.userInfo.id, tapFn = {
                     if (blog.userId != UserStore.userInfo.id) {
+                        vm.setCurrentBlog(blog)
                         othersVm.initUserId(blog.userId)
                         navHostController.navigate(NavigationItem.Others.route)
                     } else {
                         navHostController.navigate(NavigationItem.Profile.route)
                     }
                 }, follow = {
-                    when (blog.rel) {
-                        DEFAULT -> {
-                            followVm.followUser(blog.userId, FOLLOWED, onSuccess = { resultRel ->
-                                blog.rel = resultRel
-                                vm.setCurrentBlog(blog)
-                            }, onError = {})
+                    followVm.followUser(blog.rel,blog.revRel,blog.userId, onSuccess = { resultRel ->
+                        blog.rel = resultRel
+                        vm.setCurrentBlog(blog)
+                    }, onError = { error->
+
+                        when(error.code){
+                            -1 -> ToastModel(error.msg, ToastModel.Type.Error,1000).showToast()
                         }
-
-                        FOLLOWED -> {
-                            followVm.followUser(blog.id, DEFAULT, onSuccess = { resultRel ->
-                                blog.rel = resultRel
-                                vm.setCurrentBlog(blog)
-
-                            }, onError = {})
-                        }
-                    }
-
+                    })
                 })
 
                 Spacer(modifier = Modifier.width(15.cdp))

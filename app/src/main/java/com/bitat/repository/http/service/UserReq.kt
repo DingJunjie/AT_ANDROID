@@ -86,9 +86,8 @@ object UserReq {
         Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/user/findPrivate", dto)
 
     //获取双向关系
-    suspend inline fun getRelation(dto: GetRelation) = Http.post<_, FriendRelDto>(
-        "${Http.HOST}/service/user/getRelation", dto
-    )
+    suspend inline fun getRelation(dto: GetRelation) =
+        Http.post<_, FriendRelDto>("${Http.HOST}/service/user/getRelation", dto)
 
     //随机推荐用户
     suspend inline fun randUser() = Http.get<UserBase1Dto>("${Http.HOST}/service/user/randUser")
@@ -96,4 +95,8 @@ object UserReq {
     //修改密码
     suspend inline fun setPassWord(dto: SetPassWordDto) =
         Http.post<_, Unit>("${Http.HOST}/service/user/setPassWord", dto)
+
+    //修改密码
+    suspend inline fun queryHistory(dto: Array<QueryHistoryDto>) =
+        Http.post<_, Array<UserBase2Dto>>("${Http.HOST}/service/user/queryHistory", dto)
 }

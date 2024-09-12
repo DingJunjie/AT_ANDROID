@@ -521,10 +521,8 @@ fun ProfileDetail(
                         SocialData(likes, follows, fans, tapLike = {
 
                         }, tapFollows = {
-                            viewModel.getMyFollows()
                             navHostController.navigate(NavigationItem.Follows.route)
                         }, tapFans = {
-                            viewModel.getMyFans()
                             navHostController.navigate(NavigationItem.Fans.route)
                         })
                     }

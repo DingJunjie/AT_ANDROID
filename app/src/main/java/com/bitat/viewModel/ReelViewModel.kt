@@ -122,7 +122,7 @@ class ReelViewModel : ViewModel() {
 //            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
             WatchHistoryDB.insertOne(WatchHistoryPo().apply {
                 userId=  UserStore.userInfo.id
-                kind= dto.kind.toInt()
+                kind= 1
                 dataId=  dto.id
                 time= TimeUtils.getNow()
             })

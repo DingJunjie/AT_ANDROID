@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -18,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bitat.R
@@ -38,8 +41,8 @@ import com.bitat.viewModel.BrowserHistoryViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrowserHistoryPage(navHostController: NavHostController) {
-    val vm = viewModel<BrowserHistoryViewModel>()
+fun BrowserHistoryPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
+    val vm = viewModelProvider[BrowserHistoryViewModel::class]
     val state by vm.state.collectAsState()
 
     val PROFILE_TAB_OPTIONS = listOf("作品", "用户")
@@ -74,11 +77,30 @@ fun BrowserHistoryPage(navHostController: NavHostController) {
 
                         }
                     }
-                    1 -> { //                        ProfileWorks(userId = userId, navHostController, viewModelProvider)
+                    1 -> {
+                        UserHistory(viewModelProvider)
                     }
                 }
-
             }
         }
     }
+}
+
+@Composable
+fun UserHistory(viewModelProvider: ViewModelProvider) {
+    val vm = viewModelProvider[BrowserHistoryViewModel::class]
+    val state by vm.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        vm.getUserList(true)
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn {
+            items(state.userList) { user ->
+                FansItem(user, 1,itemTap = {}, followFn = {}, "发消息")
+            }
+        }
+    }
+
 }

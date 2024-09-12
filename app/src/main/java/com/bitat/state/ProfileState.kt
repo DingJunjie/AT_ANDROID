@@ -16,8 +16,6 @@ data class ProfileUiState(
     val drawerStateValue: DrawerValue = DrawerValue.Closed,
     val isTabbarTop: Boolean = false,
     val myWorks: SnapshotStateList<BlogPartDto> = mutableStateListOf(),
-    val fansList: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
-    val followsList: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val myPraise: SnapshotStateList<BlogPartDto> = mutableStateListOf(),
     val isAtBottom: Boolean = false,
     val profileType: Int = 0,
@@ -28,7 +26,7 @@ data class ProfileUiState(
     var user: UserDto = UserStore.userInfo,
     val updateFlag:Int=0,
     val showSuccess:Boolean=false,
-    val showFail:Boolean=false
+    val showFail:Boolean=false,
 )
 
 val PROFILE_TAB_OPTIONS = listOf("作品", "相册", "收藏", "赞过")

@@ -83,6 +83,8 @@ import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ChatViewModel
 import com.bitat.viewModel.FollowBtnViewModel
 import com.bitat.viewModel.OthersViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -136,8 +138,7 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 
 
     LaunchedEffect(Unit) { // 页面打开记录浏览历史
-
-
+        vm.addWatchHistory(state.userId)
     }
 
     Scaffold { padding ->
@@ -165,46 +166,36 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                         Column(modifier = Modifier.align(Alignment.TopCenter)) {
                             Box(modifier = Modifier.height(160.dp).fillMaxWidth())
                             state.userInfo?.let {
-                                OthersDetail(vm, navController, state.userInfo!!.value, goChatDetail = {
-                                    chatVm.createRoom(it)
-                                    navController.navigate(NavigationItem.ChatDetails.route)
-                                }, followFn = {
-                                    state.userInfo?.let { user ->
-                                        when (user.value.rel) {
-                                            DEFAULT -> {
-                                                followVm.followUser(user.value.id,
-                                                    FOLLOWED,
-                                                    onSuccess = {
-                                                        vm.getUserInfo() { user ->
-                                                            blogState.currentBlog?.let {
-                                                                it.rel = user.rel
-                                                                blogVm.refreshCurrent(it)
-                                                            }
-
+                                OthersDetail(vm,
+                                    navController,
+                                    state.userInfo!!.value,
+                                    goChatDetail = {
+                                        chatVm.createRoom(it)
+                                        navController.navigate(NavigationItem.ChatDetails.route)
+                                    },
+                                    followFn = {
+                                        state.userInfo?.let { user ->
+                                            followVm.followUser(user.value.rel,
+                                                user.value.revRel,
+                                                user.value.id,
+                                                onSuccess = {
+                                                    vm.getUserInfo() { user ->
+                                                        blogState.currentBlog?.let {
+                                                            it.rel = user.rel
+                                                            blogVm.refreshCurrent(it)
                                                         }
-                                                    },
-                                                    onError = {})
-                                            }
+                                                    }
+                                                },
+                                                onError = { error ->
+                                                    when (error.code) {
+                                                        -1 -> ToastModel(error.msg,
+                                                            ToastModel.Type.Error,
+                                                            1000).showToast()
+                                                    }
 
-                                            FOLLOWED -> {
-                                                followVm.followUser(user.value.id,
-                                                    DEFAULT,
-                                                    onSuccess = { rel ->
-                                                        UserStore.refreshUser()
-                                                        vm.getUserInfo(){ user ->
-                                                            blogState.currentBlog?.let {
-                                                                it.rel = user.rel
-                                                                blogVm.refreshCurrent(it)
-                                                            }
-
-                                                        }
-                                                    },
-                                                    onError = {})
-                                            }
+                                                })
                                         }
-                                    }
-
-                                })
+                                    })
                             }
 
                         }
@@ -290,10 +281,9 @@ fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostControlle
 @Composable
 fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-//        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
-//            Icon(Icons.Filled.ShoppingCart, contentDescription = "")
-//        }
+        verticalAlignment = Alignment.CenterVertically) { //        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
+        //            Icon(Icons.Filled.ShoppingCart, contentDescription = "")
+        //        }
 
         Row(modifier = Modifier.weight(1f)) {
             Surface(shape = RoundedCornerShape(10.dp),
@@ -321,10 +311,7 @@ fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -
 @Composable
 fun OtherMorePop(visible: Boolean, user: UserHomeDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit) {
     val vm = viewModelProvider[BlogMoreViewModel::class]
-    val state by vm.state.collectAsState()
-//    LaunchedEffect(Unit) {
-//        vm.setUser(state.userId)
-//    }
+    val state by vm.state.collectAsState() //    LaunchedEffect(Unit) { //        vm.setUser(state.userId) //    }
 
     Popup(visible = visible, onClose = onClose) {
         Column(modifier = Modifier.padding(20.dp)
@@ -351,7 +338,7 @@ fun OtherMorePop(visible: Boolean, user: UserHomeDto, navController: NavHostCont
                 Box(modifier = Modifier.size(60.dp).clip(CircleShape)
                     .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
 
-                        vm.masking(state.userId){
+                        vm.masking(state.userId) {
 
                         }
                         onClose()

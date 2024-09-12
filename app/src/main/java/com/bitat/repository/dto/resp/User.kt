@@ -71,6 +71,21 @@ data class UserBase1Dto(
     val followTime: Long = 0L
 )
 
+@Serializable
+data class UserBase2Dto(
+    val id: Long = 0L,
+    val nickname: String = "",
+    val profile: String = "",
+    val fans: Int = 0,
+    val follows: Int = 0,
+    val account: String = "",
+    val alias: String = "",
+    val rel: Int = 0,
+    val revRel: Int = 0,
+    val time: Long = 0L
+)
+
+
 
 @Serializable
 class UserPartDto {

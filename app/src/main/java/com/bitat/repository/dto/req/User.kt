@@ -111,3 +111,8 @@ class SetPassWordDto(
     var passWord: String,
     var captcha: String,
 )
+
+@Serializable
+class QueryHistoryDto(
+   var userId:Long, var time: Long
+)

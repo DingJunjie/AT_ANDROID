@@ -9,7 +9,10 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.po.SearchHistoryPo
 
 enum class SearchType {
-    BLOG, VIDEO, ACTIVITY, PODCAST, USER, TAG;
+    BLOG, VIDEO,
+//    ACTIVITY, PODCAST,
+    USER;
+//    TAG;
 
 
     companion object {
@@ -18,9 +21,9 @@ enum class SearchType {
                 BLOG -> "综合"
                 VIDEO -> "视频"
                 USER -> "用户"
-                PODCAST -> "播客"
-                ACTIVITY -> "活动"
-                TAG -> "话题"
+//                PODCAST -> "播客"
+//                ACTIVITY -> "活动"
+//                TAG -> "话题"
             }
         }
     }

@@ -122,7 +122,6 @@ class BlogViewModel : ViewModel() {
         blogState.update {
             it.copy(currentBlog = currentBlog)
         }
-
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {

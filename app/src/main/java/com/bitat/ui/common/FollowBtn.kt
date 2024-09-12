@@ -25,6 +25,8 @@ import com.bitat.repository.consts.FOLLOWED
 import com.bitat.repository.store.UserStore
 import com.bitat.ui.theme.white
 import com.bitat.viewModel.FollowBtnViewModel
+import com.wordsfairy.note.ui.widgets.toast.ToastModel
+import com.wordsfairy.note.ui.widgets.toast.showToast
 
 /**
  *    author : shilu
@@ -32,7 +34,7 @@ import com.bitat.viewModel.FollowBtnViewModel
  *    desc   :
  */
 @Composable
-fun FollowBtn(modifier: Modifier = Modifier, rel: Int, userId: Long, clickFn: (Int) -> Unit) { //关注按钮
+fun FollowBtn(modifier: Modifier = Modifier, rel: Int, revRel: Int, userId: Long, clickFn: (Int) -> Unit) { //关注按钮
 
     var relation by remember { mutableStateOf("") }
 
@@ -41,29 +43,18 @@ fun FollowBtn(modifier: Modifier = Modifier, rel: Int, userId: Long, clickFn: (I
     vm.initType(rel)
     Column(modifier = modifier) {
         DebouncedButton(modifier = Modifier.fillMaxSize().weight(1f).clip(CircleShape), onClick = {
-            when (state.value.rel) {
-                DEFAULT -> {
-                    vm.followUser(userId, FOLLOWED, onSuccess = { rel ->
-                        clickFn(rel)
-                        UserStore.refreshUser()
-                    }, onError = {})
+            vm.followUser(rel, revRel, userId, onSuccess = { rel ->
+                clickFn(rel)
+                UserStore.refreshUser()
+            }, onError = { error->
+                when(error.code){
+                    -1 -> ToastModel(error.msg, ToastModel.Type.Error,1000).showToast()
                 }
-                FOLLOWED -> {
-                    vm.followUser(userId, DEFAULT, onSuccess = { rel ->
-                        clickFn(rel)
-                        UserStore.refreshUser()
-                    }, onError = {})
-                }
-                BLACKLIST -> {
-                    vm.followUser(userId, DEFAULT, onSuccess = { rel ->
-                        clickFn(rel)
-                        UserStore.refreshUser()
-                    }, onError = {})
-                }
-            }
+            })
 
         }) {
-            Text(text = state.value.relContent, style = MaterialTheme.typography.bodyMedium.copy(color = white, fontSize = 22.csp))
+            Text(text = state.value.relContent,
+                style = MaterialTheme.typography.bodyMedium.copy(color = white, fontSize = 22.csp))
         }
     }
 

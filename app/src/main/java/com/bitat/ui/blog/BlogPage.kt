@@ -198,7 +198,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
-            CuLog.debug(CuTag.Blog, "layoutInfo，当前显示item ${layoutInfo.visibleItemsInfo}")
+            layoutInfo.visibleItemsInfo.forEachIndexed { index, lazyListItemInfo ->
+                CuLog.debug(CuTag.Blog, "layoutInfo，当前显示item ${lazyListItemInfo.index}")
+
+            }
 
             val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
             if (lastVisibleItemIndex == state.blogList.size - 1) {

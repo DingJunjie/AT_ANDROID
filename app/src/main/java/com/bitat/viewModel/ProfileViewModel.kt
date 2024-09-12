@@ -10,22 +10,13 @@ import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.req.BlogOpsAgreeHistoryDto
 import com.bitat.repository.dto.req.FindPrivateDto
 import com.bitat.repository.dto.req.PhotoBlogListDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.http.service.BlogOpsReq
 import kotlinx.coroutines.flow.update
-import com.bitat.repository.dto.req.UpdateNicknameDto
 import com.bitat.repository.dto.resp.UserDto
-import com.bitat.repository.http.service.BlogReq
 import com.bitat.state.ProfileUiState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
-import com.bitat.repository.http.service.SearchReq
-import com.bitat.repository.http.service.UserExtraReq
 import com.bitat.repository.http.service.UserReq
-import com.bitat.repository.store.UserStore
-import com.bitat.state.GENDER
 import kotlinx.coroutines.launch
 
 
@@ -75,35 +66,8 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getMyFans(lastId: Long = 0, pageSize: Int = 20) {
-        MainCo.launch {
-            UserReq.findFansList(FindPrivateDto(lastTime = lastId, pageSize = pageSize)).await()
-                .map { res ->
-                    uiState.update {
-                        if (lastId == 0L) {
-                            it.fansList.clear()
-                        }
-                        it.fansList.addAll(res)
-                        it
-                    }
-                }
-        }
-    }
 
-    fun getMyFollows(lastId: Long = 0, pageSize: Int = 20) {
-        MainCo.launch {
-            UserReq.findFollowList(FindPrivateDto(lastTime = lastId, pageSize = pageSize)).await()
-                .map { res ->
-                    uiState.update {
-                        if (lastId == 0L) {
-                            it.followsList.clear()
-                        }
-                        it.followsList.addAll(res)
-                        it
-                    }
-                }
-        }
-    }
+
 
     fun getMyPraise(lastTime: Long = 0, pageSize: Int = HTTP_PAGESIZE) {
         if (uiState.value.isReq) return
@@ -174,14 +138,17 @@ class ProfileViewModel : ViewModel() {
         uiState.update { it.copy(updateFlag = uiState.value.updateFlag + 1) }
     }
 
-    fun showSuccess(result:Boolean){
+    fun showSuccess(result: Boolean) {
         uiState.update { it.copy(showSuccess = result) }
     }
-    fun showFail(result:Boolean){
+
+    fun showFail(result: Boolean) {
         uiState.update { it.copy(showFail = result) }
     }
 
-    fun clearVm(){
+    fun clearVm() {
         onCleared()
     }
+
+
 }
