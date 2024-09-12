@@ -1,6 +1,9 @@
 package com.bitat.repository.po
 
 import android.database.Cursor
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getShortOrNull
+import androidx.core.database.getStringOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.json.Json
@@ -44,11 +47,11 @@ class SingleRoomPo {
             background = cursor.getString(4)
             muted = cursor.getInt(5)
             cfg = cursor.getString(6)
-            id = cursor.getLong(7)
-            time = cursor.getLong(8)
-            status = cursor.getShort(9)
-            kind = cursor.getShort(10)
-            content = cursor.getString(11)
+            id = cursor.getLongOrNull(7)?:0
+            time = cursor.getLongOrNull(8)?:0
+            status = cursor.getShortOrNull(9)?:0
+            kind = cursor.getShortOrNull(10)?:0
+            content = cursor.getStringOrNull(11)?:""
         }
 
         fun ofRoom(cursor: Cursor) = SingleRoomPo().apply {
