@@ -1,7 +1,6 @@
 package com.bitat.repository.http.service
 
 import com.bitat.repository.dto.common.PageDto
-import com.bitat.repository.dto.common.T2
 import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.http.Http
 
