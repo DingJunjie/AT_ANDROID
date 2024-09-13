@@ -94,7 +94,6 @@ object TcpClient {
                 }
                 residue = readBuf.buffer.size - readBuf.bufOffset
             }
-            byteBuf.clear()
             MainCo.launch(IO) {
                 read()
             }
@@ -164,7 +163,8 @@ object TcpClient {
         return false
     }
 
-    private fun read() { //readBuf.byteBuffer = ByteBuffer.allocate(1024)
+    private fun read() {
+        readBuf.byteBuffer.clear()
         conn?.read(readBuf.byteBuffer, readBuf, readHandler)
     }
 
