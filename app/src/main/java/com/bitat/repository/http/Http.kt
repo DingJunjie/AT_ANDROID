@@ -4,12 +4,13 @@ import com.bitat.repository.common.CuRes
 import com.bitat.repository.common.INNER_ERROR
 import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.common.OK_CODE
+import com.bitat.repository.dto.common.ResDto
 import com.bitat.repository.store.TokenStore
-import com.bitat.repository.store.UserStore
+import com.bitat.ui.common.DialogOps
+import com.bitat.ui.common.showDialog
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.serialization.Serializable
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers.Companion.toHeaders
@@ -20,8 +21,7 @@ import okhttp3.Response
 import java.io.IOException
 
 //响应通用类
-@Serializable
-class ResDto<T>(val msg: String, val code: Int, val data: T?)
+
 
 // 封装http请求处理
 object Http {
@@ -30,7 +30,7 @@ object Http {
     val HttpClient = OkHttpClient()
 
     suspend fun <T, R> common(toJsonFn: (T) -> String, fromJsonFn: (String) -> ResDto<R>, //参数
-        method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean): Deferred<CuRes<R>> {
+                              method: String, url: String, data: T?, headers: Map<String, String>, login: Boolean): Deferred<CuRes<R>> {
         val headerMap = HashMap<String, String>(2)
         headerMap["content-Type"] = "application/json"
         val cd = CompletableDeferred<CuRes<R>>()
@@ -39,6 +39,7 @@ object Http {
             if (token != null) headerMap["Authorization"] = token
             else {
                 cd.complete(CuRes.err(INNER_ERROR, "not has token"))
+                DialogOps("登录过期","获取用户信息失败，请重新登录",true,{},{}).showDialog()
                 return cd
             }
         }

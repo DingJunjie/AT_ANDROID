@@ -1,5 +1,6 @@
 package com.bitat.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -23,7 +24,7 @@ import com.bitat.utils.ScreenUtils
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MediaGrid(mediaList: List<BlogPartDto>) {
+fun MediaGrid(mediaList: List<BlogPartDto>, itemTap: (BlogPartDto) -> Unit={}) {
     val width = (ScreenUtils.screenWidth / 3)
     val height = width * 1.33
 
@@ -31,7 +32,7 @@ fun MediaGrid(mediaList: List<BlogPartDto>) {
         verticalArrangement = Arrangement.Top,
     ) {
         mediaList.forEach {
-            Box(modifier = Modifier.width(width.dp).height(height.dp).padding(1.dp)) {
+            Box(modifier = Modifier.width(width.dp).height(height.dp).padding(1.dp).clickable { itemTap(it) }) {
                 if (it.cover.isNotEmpty()) {
                     AsyncImage(modifier = Modifier.fillMaxSize(), model = it.cover.ifEmpty {
                         if (it.resource.images.isNotEmpty()) {
@@ -39,7 +40,8 @@ fun MediaGrid(mediaList: List<BlogPartDto>) {
                         }
                     }, contentDescription = "", contentScale = ContentScale.Crop)
                 } else {
-                    AsyncImage(modifier = Modifier.fillMaxSize(),model = "https://file.bitebei.com/i_u_126&t_1720077862743&x_1280&y_1920?imageView2/2/w/900/&e=1724682138&token=Cb1TU1t1vOR7LDfWtMkBlAMbb7AjXe4HYXALbHO4:ZwcbYIEynxB1MBSk7XBbNdnvnfQ=",
+                    AsyncImage(modifier = Modifier.fillMaxSize(),
+                        model = "https://file.bitebei.com/i_u_126&t_1720077862743&x_1280&y_1920?imageView2/2/w/900/&e=1724682138&token=Cb1TU1t1vOR7LDfWtMkBlAMbb7AjXe4HYXALbHO4:ZwcbYIEynxB1MBSk7XBbNdnvnfQ=",
                         contentDescription = "",
                         contentScale = ContentScale.Crop)
                 }

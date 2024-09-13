@@ -32,12 +32,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.ext.toAmountUnit
 import com.bitat.repository.dto.resp.UserBase1Dto
+import com.bitat.router.AtNavigation
 import com.bitat.state.SearchType
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.MediaGrid
 import com.bitat.ui.profile.AvatarWithShadow
 import com.bitat.utils.RelationUtils
+import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.ReelViewModel
 import com.bitat.viewModel.SearchViewModel
 
 
@@ -45,6 +48,9 @@ import com.bitat.viewModel.SearchViewModel
 fun SearchResultPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[SearchViewModel::class]
     val state by vm.searchState.collectAsState()
+
+    val blogVm = viewModelProvider[BlogViewModel::class]
+    val detailsVm = viewModelProvider[ReelViewModel::class]
 
     var selectedTabIndex by remember {
         mutableStateOf(0)
@@ -73,7 +79,11 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         ) {
             when (selectedTabIndex) {
                 0 -> Text("0")
-                1 -> MediaGrid(mediaList = state.searchVideoResult)
+                1 -> MediaGrid(mediaList = state.searchVideoResult){ item ->
+//                    vm.setCurrentBlog(dto)
+//                    detailsVm.setCurrentBlog(item)
+//                    AtNavigation(navHostController).navigateToVideo()
+                }
                 2 -> UserResult(state.searchUserResult)
             }
         }

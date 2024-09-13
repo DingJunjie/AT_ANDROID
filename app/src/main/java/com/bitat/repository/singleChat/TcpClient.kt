@@ -22,10 +22,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
-import java.util.BitSet
 import kotlin.math.min
-
-private val EmptyByteBuf = ByteBuffer.allocate(0)
 
 object TcpClient {
     private const val HOST = "test.bitebei.com"
@@ -93,8 +90,9 @@ object TcpClient {
                 }
                 residue = readBuf.buffer.size - readBuf.bufOffset
             }
-            byteBuf.clear()
-            read()
+            MainCo.launch(IO) {
+                read()
+            }
         }
 
         override fun failed(exc: Throwable, readBuf: TcpReadBuf) {
@@ -162,9 +160,7 @@ object TcpClient {
     }
 
     private fun read() {
-        val byteBuffer = ByteBuffer.allocate(1024)
-        readBuf.byteBuffer = byteBuffer
-        conn?.read(byteBuffer, readBuf, readHandler)
+        conn?.read(readBuf.ready(), readBuf, readHandler)
     }
 
     private fun genMsg(event: Short, body: ByteArray): ByteArray? {
@@ -245,11 +241,8 @@ object TcpClient {
 
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
-        val decryptBody = KeySecret.encryptByKey(
-            head.secret, body, null
-        )
-        val selfId = UserStore.userInfo.id
-//        val selfId = 159L
+        val decryptBody = KeySecret.encryptByKey(head.secret, body, null)
+        val selfId = UserStore.userInfo.id //        val selfId = 159L
         try {
             when (head.event) {
                 TcpMsgEvent.AUTH_REC -> CuLog.info(CuTag.SingleChat, "Auth ok")
@@ -333,14 +326,17 @@ class TcpMsgHead(val secret: Short, val event: Short, val size: Int) {
 }
 
 class TcpReadBuf {
-    var byteBuffer: ByteBuffer = EmptyByteBuf
+    var byteBuffer: ByteBuffer = ByteBuffer.allocate(1024)
     var buffer = EmptyArray.byte
     var head: TcpMsgHead? = null
     var body: ByteArray? = null
     var bufOffset: Int = 0
     var bodyOffset: Int = 0
 
+    fun ready() = byteBuffer.apply { clear() }
+
     fun clear() {
+        byteBuffer = ByteBuffer.allocate(1024)
         buffer = EmptyArray.byte
         bufOffset = 0
         head = null

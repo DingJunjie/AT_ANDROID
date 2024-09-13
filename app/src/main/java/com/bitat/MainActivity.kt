@@ -6,7 +6,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -39,6 +42,9 @@ import kotlin.system.exitProcess
 import androidx.navigation.compose.rememberNavController
 import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SqlDB
+import com.bitat.ui.common.DialogOps
+import com.bitat.ui.common.DialogProps
+import com.bitat.ui.common.rememberDialogState
 
 val MainCo = MainScope()
 
@@ -51,8 +57,7 @@ class MainActivity : ComponentActivity() {
         CuLog.debug(CuTag.Login, "MainActivity----- onCreate") //设置全屏显示
 
         enableEdgeToEdge()
-        setContent {
-//            SqlDB.init(this)
+        setContent { //            SqlDB.init(this)
             Local.mainAct = this
             CuLog.level = CuLog.DEBUG
             BaseStore.init(LocalContext.current) // 设置user 到 TokenStore 中
@@ -73,6 +78,21 @@ class MainActivity : ComponentActivity() {
             statusBarHeight = statusBarTop
 
             val navController = rememberNavController()
+            val dialogShow = remember { mutableStateOf(false) }
+            val dialog = rememberDialogState()
+            val dialogState = remember {
+                mutableStateOf(DialogProps(title = "",
+                    content = "",
+                    okText = "确认",
+                    cancelText = "取消",
+                    okColor = Color.Black,
+                    closeOnAction = false,
+                    onCancel = {},
+                    onOk = {
+                        AtNavigation(navController).navigateToLogin()
+                        dialogShow.value = false
+                    }))
+            }
 
             val navigationActions = remember(navController) {
                 AtNavigation(navController)
@@ -80,12 +100,13 @@ class MainActivity : ComponentActivity() {
             val toastState = remember { ToastUIState() }
 
             BitComposeTheme {
-                AppNavHost(
-                    navController,
+                AppNavHost(navController,
                     AtNavigation(navController),
-                    viewModelProvider = viewModelProvider
-                )
+                    viewModelProvider = viewModelProvider)
                 ToastUI(toastState)
+                if (dialogShow.value) {
+                    dialog.show(dialogState.value)
+                }
             }
 
             /** toast */
@@ -93,6 +114,19 @@ class MainActivity : ComponentActivity() {
                 lifecycleScope.launch {
                     val data = it as ToastModel
                     toastState.show(data)
+                }
+            }
+
+            /** toast */
+            observeEvent(key = BitEventBus.TokenDialog) {
+                lifecycleScope.launch {
+                    val dialogOps = it as DialogOps
+                    dialogState.value.title = dialogOps.title
+                    dialogState.value.content = dialogOps.content
+                    dialogState.value.closeOnAction =
+                        dialogOps.closeOnAction //                    dialogState.value.onOk = dialogOps.onOk
+                    //                    dialogState.value.onCancel = dialogOps.onCancel
+                    dialogShow.value = true
                 }
             }
 
@@ -139,5 +173,4 @@ class MainActivity : ComponentActivity() {
         android.os.Process.killProcess(android.os.Process.myPid())
         exitProcess(0)
     }
-
 }
