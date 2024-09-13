@@ -32,6 +32,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bitat.config.BitEventBus
 import com.bitat.ext.flowbus.postEventValue
+import com.bitat.repository.po.NoticeMsgPo
+import com.bitat.repository.po.SingleMsgPo
+import com.bitat.state.Notification
 
 /**
  * 对话框
@@ -158,19 +161,19 @@ interface DialogState {
      */
     fun show(
         title: String,
-        content: String ,
+        content: String,
         okText: String = "确定",
         cancelText: String = "取消",
         okColor: Color = Color.Black,
         closeOnAction: Boolean = true,
         onCancel: () -> Unit = {},
-        onOk: () -> Unit = {  }
+        onOk: () -> Unit = { }
     )
 
     /**
      * 显示对话框
      */
-    fun show(opt:DialogProps)
+    fun show(opt: DialogProps)
 
     /**
      * 隐藏对话框
@@ -241,7 +244,8 @@ private class DialogStateImpl : DialogState {
         )
         visible = true
     }
-    override fun show(opt:DialogProps) {
+
+    override fun show(opt: DialogProps) {
         props = opt
         visible = true
     }
@@ -269,6 +273,41 @@ data class DialogOps(
     val onCancel: () -> Unit,
     val onOk: () -> Unit
 )
+
+data class NotificationOps(
+    val title: String,
+    val content: String,
+    val closeOnAction: Boolean,
+    val profile: String,
+    val cover: String,
+    val onCancel: () -> Unit,
+    val onTap: (Notification) -> Unit
+)
+
+fun NotificationOps.showNotification() {
+    postEventValue(
+        BitEventBus.NotificationDialog,
+        this
+    )
+}
+
+data class ChatMessageOps(
+    val title: String,
+    val content: String,
+    val closeOnAction: Boolean,
+    val profile: String,
+    val cover: String,
+    val onCancel: () -> Unit,
+    val onTap: (SingleMsgPo) -> Unit
+)
+
+fun ChatMessageOps.showMsgNotification() {
+    postEventValue(
+        BitEventBus.ChatMessageDialog,
+        this
+    )
+}
+
 
 fun DialogOps.showDialog() {
     postEventValue(

@@ -13,5 +13,6 @@ object BitEventBus {
 
     const val TokenDialog = "TokenDialog"
 
-
+    const val NotificationDialog = "NotificationDialog"
+    const val ChatMessageDialog = "ChatMessageDialog"
 }

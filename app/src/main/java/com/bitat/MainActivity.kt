@@ -130,6 +130,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            
+
             SingleMsgHelper.opsInit(viewModelProvider)
 
             KeySecret.start()
