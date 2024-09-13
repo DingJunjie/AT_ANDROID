@@ -19,11 +19,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.router.AtNavigation
+import com.bitat.state.ReelType
 import com.bitat.ui.common.ListFootView
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
+import com.bitat.viewModel.ReelViewModel
 
 /**
  *    author : shilu
@@ -35,6 +38,7 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
 
     val vm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
     val state by vm.uiState.collectAsState()
+    val detailsVm = viewModelProvider[ReelViewModel::class]
 
     LaunchedEffect(Unit) {
         vm.getMyPraise()
@@ -62,7 +66,15 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
                 ScreenUtils.screenHeight.dp-56.dp- statusBarHeight
             )
     ) {
-        MediaGrid(mediaList = state.myPraise)
+        MediaGrid(mediaList = state.myPraise){ item ->
+            val index = state.myPraise.indexOf(item)
+            if (index >= 0) {
+                detailsVm.setPageType(ReelType.LIKE)
+                detailsVm.setIndex(index)
+                detailsVm.setSearchList(state.myPraise.toList())
+                AtNavigation(navHostController).navigateToVideo()
+            }
+        }
         ListFootView(state.isFootShow, state.httpState) {
             loadMore()
         }

@@ -1,10 +1,10 @@
 package com.bitat.ui.discovery
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,15 +31,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.ext.toAmountUnit
+import com.bitat.repository.consts.BLACKLIST
+import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.router.AtNavigation
+import com.bitat.router.Others
+import com.bitat.state.ReelType
 import com.bitat.state.SearchType
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.MediaGrid
-import com.bitat.ui.profile.AvatarWithShadow
+import com.bitat.ui.profile.OthersPage
 import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.BlogViewModel
+import com.bitat.viewModel.FollowBtnViewModel
 import com.bitat.viewModel.ReelViewModel
 import com.bitat.viewModel.SearchViewModel
 
@@ -51,6 +56,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
 
     val blogVm = viewModelProvider[BlogViewModel::class]
     val detailsVm = viewModelProvider[ReelViewModel::class]
+    val followVm = viewModelProvider[FollowBtnViewModel::class]
 
     var selectedTabIndex by remember {
         mutableStateOf(0)
@@ -79,34 +85,64 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
         ) {
             when (selectedTabIndex) {
                 0 -> Text("0")
-                1 -> MediaGrid(mediaList = state.searchVideoResult){ item ->
-//                    vm.setCurrentBlog(dto)
-//                    detailsVm.setCurrentBlog(item)
-//                    AtNavigation(navHostController).navigateToVideo()
+                1 -> MediaGrid(mediaList = state.searchVideoResult) { item ->
+                    val index = state.searchVideoResult.indexOf(item)
+                    if (index >= 0) {
+                        detailsVm.setPageType(ReelType.SEARCH)
+                        detailsVm.setKevWords(state.keyword)
+                        detailsVm.setIndex(index)
+                        detailsVm.setSearchList(state.searchVideoResult.toList())
+                        AtNavigation(navHostController).navigateToVideo()
+                    }
                 }
-                2 -> UserResult(state.searchUserResult)
+
+                2 -> UserResult(
+                    state.searchUserResult,
+                    followTap = { user ->
+                        followVm.followUser(
+                            user.rel,
+                            user.revRel,
+                            user.id,
+                            onSuccess = { rel ->
+                                user.rel = rel
+                                vm.updateUser(user)
+                            },
+                            onError = { })
+                    }, flag = state.flag, itemTap = {
+                        navHostController.navigate(Others(otherId = it.id))
+                    })
             }
         }
     }
 }
 
 @Composable
-fun UserResult(userList: List<UserBase1Dto>) {
+fun UserResult(
+    userList: List<UserBase1Dto>,
+    followTap: (UserBase1Dto) -> Unit,
+    itemTap: (UserBase1Dto) -> Unit, flag: Int
+) {
     LazyColumn {
         items(userList) { user ->
             Surface(modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)) {
-                UserItem(user)
+                UserItem(user, flag, followTap, itemTap)
             }
         }
     }
+    if (flag < 0) Text(text = "")
 }
 
 @Composable
-fun UserItem(user: UserBase1Dto) {
+fun UserItem(
+    user: UserBase1Dto, flag: Int,
+    followTap: (UserBase1Dto) -> Unit,
+    itemTap: (UserBase1Dto) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
+            .clickable { itemTap(user) }
     ) {
         Avatar(url = user.profile)
         Column(modifier = Modifier.weight(1f)) {
@@ -116,17 +152,19 @@ fun UserItem(user: UserBase1Dto) {
         }
         Surface(shape = CircleShape) {
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { followTap(user) },
                 modifier = Modifier
                     .background(Color.LightGray)
                     .height(40.dp)
                     .width(70.dp),
                 shape = CircleShape,
+                enabled = user.rel != BLACKLIST, // 已拉黑不能点击
                 contentPadding = PaddingValues(vertical = 0.dp, horizontal = 4.dp)
             ) {
-                Text(RelationUtils.toRelationContent(user.rel, user.revRel))
+                Text(RelationUtils.toFollowContent(user.rel))
             }
         }
+        if (flag < 0) Text(text = "")
     }
 }
 

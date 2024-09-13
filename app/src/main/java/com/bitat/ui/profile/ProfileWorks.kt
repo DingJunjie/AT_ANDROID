@@ -12,15 +12,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.repository.store.UserStore
+import com.bitat.router.AtNavigation
+import com.bitat.state.ReelType
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.ProfileViewModel
+import com.bitat.viewModel.ReelViewModel
 
 @Composable
 fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
     val state by vm.uiState.collectAsState()
+    val detailsVm = viewModelProvider[ReelViewModel::class]
 
     LaunchedEffect(Unit) {
         vm.getMyWorks(userId)
@@ -38,6 +42,14 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
     }
 
     Column(modifier = Modifier.fillMaxWidth().heightIn(min = ScreenUtils.screenHeight.dp-56.dp- statusBarHeight)) {
-        MediaGrid(mediaList = state.myWorks)
+        MediaGrid(mediaList = state.myWorks){ item ->
+            val index = state.myWorks.indexOf(item)
+            if (index >= 0) {
+                detailsVm.setPageType(ReelType.PHOTO)
+                detailsVm.setIndex(index)
+                detailsVm.setSearchList(state.myWorks.toList())
+                AtNavigation(navHostController).navigateToVideo()
+            }
+        }
     }
 }

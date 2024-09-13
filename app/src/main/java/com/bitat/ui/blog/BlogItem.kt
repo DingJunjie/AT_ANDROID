@@ -134,7 +134,7 @@ fun BlogItem(
                 tapFn = {
                     if (blog.userId != UserStore.userInfo.id) {
                         vm.setCurrentBlog(blog)
-                        othersVm.initUserId(blog.userId)
+//                        othersVm.initUserId(blog.userId)
 //                        navHostController.navigate(NavigationItem.Others.route)
                         navHostController.navigate(Others(otherId = blog.userId))
                     } else {

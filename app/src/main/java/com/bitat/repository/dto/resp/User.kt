@@ -65,7 +65,7 @@ data class UserBase1Dto(
     val ats: Int = 0,
     val account: String = "",
     val alias: String = "",
-    val rel: Int = 0,
+    var rel: Int = 0,
     val revRel: Int = 0,
     val gender: Byte = 0,
     val followTime: Long = 0L

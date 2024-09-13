@@ -10,7 +10,8 @@ import com.bitat.repository.po.SearchHistoryPo
 
 enum class SearchType {
     BLOG, VIDEO,
-//    ACTIVITY, PODCAST,
+
+    //    ACTIVITY, PODCAST,
     USER;
 //    TAG;
 
@@ -36,5 +37,5 @@ data class SearchState(
     val searchType: SearchType = SearchType.BLOG,
     val searchUserResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val searchVideoResult: SnapshotStateList<BlogPartDto> = mutableStateListOf(),
-    val rankingList: SnapshotStateList<BlogPartDto> = mutableStateListOf()
+    val rankingList: SnapshotStateList<BlogPartDto> = mutableStateListOf(), val flag: Int = 0
 )
