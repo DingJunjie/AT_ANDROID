@@ -99,7 +99,6 @@ sealed class NavigationItem(val route: String) {
 @Serializable
 data class Others(val otherId: Long)
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
