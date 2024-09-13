@@ -183,7 +183,7 @@ object SingleMsgHelper {
         const val APP_NOTICE_USER_INFO = 14        // 谁访问了我
 * */
 
-    private suspend fun handleNotice(msg: MsgDto.NoticeMsg) {
+    suspend fun handleNotice(msg: MsgDto.NoticeMsg) {
         val originContent = msg.data.toString(Charsets.UTF_8)
         val newNotice = NoticeMsgPo().apply {
             fromId = msg.fromId
@@ -245,7 +245,7 @@ object SingleMsgHelper {
                     )
                 ).await().map { info ->
                     val content = "${info.first().nickname}点赞了你的博文 ${
-                        info.first().content.substring(
+                        if (info.first().content.isEmpty()) "" else info.first().content.substring(
                             0, 10
                         )
                     }..."
@@ -303,7 +303,10 @@ object SingleMsgHelper {
                 ).await().map { info ->
                     val content = "${info.first().nickname}回复了你"
                     newNotice.content =
-                        NoticeContent(commentId = json.commentId, comment = json.comment).toString()
+                        Json.encodeToString(
+                            NoticeContent.serializer(),
+                            NoticeContent(commentId = json.commentId, comment = json.comment)
+                        )
 
                     NoticeMsgDB.insertOne(newNotice)
                 }.errMap {

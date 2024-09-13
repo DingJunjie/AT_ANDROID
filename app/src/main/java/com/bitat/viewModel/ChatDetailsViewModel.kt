@@ -112,7 +112,6 @@ class ChatDetailsViewModel : ViewModel() {
 //            it.messageList.addAll(msg.first())
                 it.messageList.addAll(newList)
                 it.copy(currentPage = pageNo + 1)
-
             }
         } else if (cs == ReplyType.StrangerSender || cs == ReplyType.StrangerRecipient) {
             val msg = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, pageNo, pageSize)
@@ -297,23 +296,28 @@ class ChatDetailsViewModel : ViewModel() {
 
         val time = TimeUtils.getNow()
 
-        val msg = SingleMsgPo()
-        msg.kind = k.toShort()
-        msg.content = c
-        msg.time = time
-        msg.selfId = UserStore.userInfo.id
-        msg.status = 1
-        msg.otherId = toId
-        SingleMsgDB.insertOne(msg)
+        if (k != CHAT_Recall.toInt()) {
 
-        _state.update {
+            val msg = SingleMsgPo()
+            msg.kind = k.toShort()
+            msg.content = c
+            msg.time = time
+            msg.selfId = UserStore.userInfo.id
+            msg.status = 1
+            msg.otherId = toId
+            SingleMsgDB.insertOne(msg)
+
+            _state.update {
 //            if(it.messageList[0].time )
-            it.messageList.add(0, msg)
-            it.copy(replyMsg = null)
+                it.messageList.add(0, msg)
+                it.copy(replyMsg = null)
+            }
+            TcpClient.chat(toId, k, time, c.toByteArray(charset("UTF-8")))
+            completeFn(msg)
+        } else {
+            TcpClient.chat(toId, k, time, c.toByteArray(charset("UTF-8")))
         }
 
-        TcpClient.chat(toId, k, time, c.toByteArray(charset("UTF-8")))
-        completeFn(msg)
     }
 
     fun sendPicture(

@@ -89,7 +89,14 @@ import com.wordsfairy.note.ui.widgets.toast.showToast
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelProvider) {
+fun OthersPage(
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider,
+    otherId: Long
+) {
+
+    println("I've got the id is $otherId")
+
     val vm = viewModelProvider[OthersViewModel::class]
     val state by vm.othersState.collectAsState();
 
@@ -146,15 +153,27 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
         Column(modifier = Modifier.background(Color.White)) {
 
             if (state.isTabBarTop) Column(modifier = Modifier.fillMaxWidth()) {
-                Spacer(modifier = Modifier.fillMaxWidth().height(statusBarHeight)
-                    .background(Color.White))
-                Spacer(modifier = Modifier.fillMaxWidth().height(5.dp))
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(statusBarHeight)
+                        .background(Color.White)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(5.dp)
+                )
                 Box(modifier = Modifier.fillMaxWidth()) {
 
                     ProfileTabBar(pagerState, OTHER_TAB_OPTIONS) { index -> vm.tabType(index) }
                 }
             }
-            Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
                 Box {
                     state.userInfo?.let { user ->
                         ProfileBg(user.value.cover, menu = {
@@ -164,13 +183,17 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                             })
                         })
                         Column(modifier = Modifier.align(Alignment.TopCenter)) {
-                            Box(modifier = Modifier.height(160.dp).fillMaxWidth())
+                            Box(
+                                modifier = Modifier
+                                    .height(160.dp)
+                                    .fillMaxWidth()
+                            )
                             state.userInfo?.let {
                                 OthersDetail(vm,
                                     navController,
                                     state.userInfo!!.value,
                                     goChatDetail = {
-                                        chatVm.createRoom(it)
+                                        chatVm.createRoomByProfile(it)
                                         navController.navigate(NavigationItem.ChatDetails.route)
                                     },
                                     followFn = {
@@ -188,9 +211,11 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                                                 },
                                                 onError = { error ->
                                                     when (error.code) {
-                                                        -1 -> ToastModel(error.msg,
+                                                        -1 -> ToastModel(
+                                                            error.msg,
                                                             ToastModel.Type.Error,
-                                                            1000).showToast()
+                                                            1000
+                                                        ).showToast()
                                                     }
 
                                                 })
@@ -219,10 +244,15 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
                         navController,
                         viewModelProvider = viewModelProvider,
                     ) { index ->
-                        Box(modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center) {
-                            Box(modifier = Modifier.fillMaxHeight().background(Color.Cyan)
-                                .fillMaxWidth().clickable {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(modifier = Modifier
+                                .fillMaxHeight()
+                                .background(Color.Cyan)
+                                .fillMaxWidth()
+                                .clickable {
                                     UserStore.updateFans(100)
                                 }) {
 
@@ -242,7 +272,13 @@ fun OthersPage(navController: NavHostController, viewModelProvider: ViewModelPro
 }
 
 @Composable
-fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostController, userInfo: UserHomeDto, goChatDetail: (UserHomeDto) -> Unit, followFn: () -> Unit) {
+fun OthersDetail(
+    viewModel: OthersViewModel,
+    navHostController: NavHostController,
+    userInfo: UserHomeDto,
+    goChatDetail: (UserHomeDto) -> Unit,
+    followFn: () -> Unit
+) {
     Surface(
         shape = RoundedCornerShape(40.dp, 40.dp, 0.dp, 0.dp),
     ) {
@@ -250,15 +286,22 @@ fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostControlle
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
                 AvatarWithShadow(url = userInfo.profile)
 
-                Column(modifier = Modifier.padding(top = 15.dp),
-                    verticalArrangement = Arrangement.SpaceBetween) {
+                Column(
+                    modifier = Modifier.padding(top = 15.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
                     Row(modifier = Modifier.padding(bottom = 5.dp, start = 5.dp)) {
                         TagLabel(TimeUtils.getAgeByBirthday(userInfo.birthday).toString())
                         TagLabel(userInfo.address)
                     }
-                    Row(modifier = Modifier.fillMaxWidth().padding(end = 10.dp).height(55.dp),
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 10.dp)
+                            .height(55.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically) {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         UserInfo(userInfo.nickname, userInfo.account, userInfo.introduce)
                         SocialData(userInfo.agrees, fans = userInfo.fans)
                     }
@@ -266,11 +309,13 @@ fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostControlle
 
             }
 
-            Text(userInfo.introduce,
+            Text(
+                userInfo.introduce,
                 maxLines = 3,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 15.dp, top = 15.dp))
+                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+            )
             OthersOperationBar(userInfo,
                 followFn,
                 chatFn = { goChatDetail(userInfo) }) //            AlbumList()
@@ -280,27 +325,48 @@ fun OthersDetail(viewModel: OthersViewModel, navHostController: NavHostControlle
 
 @Composable
 fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically) { //        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) { //        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.size(50.dp)) {
         //            Icon(Icons.Filled.ShoppingCart, contentDescription = "")
         //        }
 
         Row(modifier = Modifier.weight(1f)) {
-            Surface(shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.weight(0.5f).height(40.dp).padding(horizontal = 10.dp)) {
-                Box(modifier = Modifier.fillMaxWidth().clickable(onClick = { followFn() })
-                    .background(Color.LightGray), contentAlignment = Alignment.Center) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .weight(0.5f)
+                    .height(40.dp)
+                    .padding(horizontal = 10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = { followFn() })
+                        .background(Color.LightGray), contentAlignment = Alignment.Center
+                ) {
                     Text(text = RelationUtils.toFollowContent(userInfo.rel))
                 }
             }
 
             Surface(shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.weight(0.5f).height(40.dp).padding(horizontal = 10.dp)
+                modifier = Modifier
+                    .weight(0.5f)
+                    .height(40.dp)
+                    .padding(horizontal = 10.dp)
                     .clickable {
                         chatFn()
                     }) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray),
-                    contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(text = "私信")
                 }
             }
@@ -309,42 +375,81 @@ fun OthersOperationBar(userInfo: UserHomeDto, followFn: () -> Unit, chatFn: () -
 }
 
 @Composable
-fun OtherMorePop(visible: Boolean, user: UserHomeDto, navController: NavHostController, viewModelProvider: ViewModelProvider, onClose: () -> Unit) {
+fun OtherMorePop(
+    visible: Boolean,
+    user: UserHomeDto,
+    navController: NavHostController,
+    viewModelProvider: ViewModelProvider,
+    onClose: () -> Unit
+) {
     val vm = viewModelProvider[BlogMoreViewModel::class]
     val state by vm.state.collectAsState() //    LaunchedEffect(Unit) { //        vm.setUser(state.userId) //    }
 
     Popup(visible = visible, onClose = onClose) {
-        Column(modifier = Modifier.padding(20.dp)
-            .background(MaterialTheme.colorScheme.background)) {
-            Text(modifier = Modifier.fillMaxWidth(),
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = user.nickname,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
-            Spacer(modifier = Modifier.fillMaxWidth().height(10.dp))
-            Text(modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+            )
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp)
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = "艾特号：${user.account}",
-                style = MaterialTheme.typography.bodySmall.copy(color = hintTextColor))
-            Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
+                style = MaterialTheme.typography.bodySmall.copy(color = hintTextColor)
+            )
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(20.dp)
+            )
             Row {
-                Box(modifier = Modifier.size(60.dp).clip(CircleShape)
-                    .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(colorResource(id = R.color.gray_E0))
+                        .clickable(onClick = {
 
-                        AtNavigation(navController).navigateToReportUserPage()
-                    })) {
-                    Text(modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.blog_report))
+                            AtNavigation(navController).navigateToReportUserPage()
+                        })
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.blog_report)
+                    )
 
                 }
-                Spacer(modifier = Modifier.width(30.dp).height(10.dp))
-                Box(modifier = Modifier.size(60.dp).clip(CircleShape)
-                    .background(colorResource(id = R.color.gray_E0)).clickable(onClick = {
+                Spacer(
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(10.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(colorResource(id = R.color.gray_E0))
+                        .clickable(onClick = {
 
-                        vm.masking(state.userId) {
+                            vm.masking(state.userId) {
 
-                        }
-                        onClose()
-                    })) {
-                    Text(modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.blog_masking))
+                            }
+                            onClose()
+                        })
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.blog_masking)
+                    )
 
                 }
             }

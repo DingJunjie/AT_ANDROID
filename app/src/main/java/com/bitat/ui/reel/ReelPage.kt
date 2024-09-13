@@ -119,6 +119,10 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     val coroutineScope = rememberCoroutineScope()
     val toast = rememberToastState()
 
+    val otherId = remember {
+        mutableStateOf(0L)
+    }
+
     // 监听当前页面的变化
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page -> // 页面切换时触发的操作
@@ -129,8 +133,8 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
             }
             vm.setIndex(page)
             // 记录观看历史
-            if (state.value.resList.size>0)
-            vm.addWatchHistory(state.value.resList[page])
+            if (state.value.resList.size > 0)
+                vm.addWatchHistory(state.value.resList[page])
 
         } //        CuLog.debug(CuTag.Blog, "1111 init data")
     }
@@ -147,14 +151,18 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     }
 
     val horPagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
-    HorizontalPager(state = horPagerState,beyondBoundsPageCount = 0) { horPage ->
+    HorizontalPager(state = horPagerState) { horPage ->
         when (horPage) {
             0 -> {
                 VerticalPager(state = pagerState) { page -> // Our page content
                     //            Text(text = "Page: $page", modifier = Modifier.fillMaxWidth().height(100.dp))
                     var currentDto = state.value.resList[page]
-                    Box(modifier = Modifier.fillMaxSize()
-                        .background(color = Color.Black)) { // 视频/图片 部分
+                    otherId.value = currentDto.userId
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Black)
+                    ) { // 视频/图片 部分
                         when (currentDto.kind.toInt()) {
                             BLOG_VIDEO_ONLY, BLOG_VIDEO_TEXT -> {
                                 if (page == state.value.resIndex) {
@@ -179,34 +187,49 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             }
 
                             BLOG_IMAGE_TEXT, BLOG_IMAGES_ONLY -> {
-                                if(page == state.value.resIndex){
-                                    CuLog.error(CuTag.Base,"创建Image ${currentDto.id}")
+                                if (page == state.value.resIndex) {
+                                    CuLog.error(CuTag.Base, "创建Image ${currentDto.id}")
                                     vm.addWatchHistory(currentDto)
                                     ImageBanner(currentDto.resource.images.toList(), true)
                                 }
                             }
                         } // 用户信息部分
-                        Column(modifier = Modifier.align(Alignment.BottomStart)
-                            .padding(start = 30.cdp, bottom = 50.cdp),
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 30.cdp, bottom = 50.cdp),
                             horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.Bottom) {
-                            Column(modifier = Modifier.height(130.cdp).padding(end = 50.dp)) {
-                                UserInfoWithAvatar(modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Column(modifier = Modifier
+                                .height(130.cdp)
+                                .padding(end = 50.dp)) {
+                                UserInfoWithAvatar(
+                                    modifier = Modifier.fillMaxSize(),
                                     currentDto.nickname,
                                     currentDto.profile,
-                                    textStyle = Typography.bodyLarge.copy(fontSize = 14.sp,
+                                    textStyle = Typography.bodyLarge.copy(
+                                        fontSize = 14.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Left),
+                                        textAlign = TextAlign.Left
+                                    ),
                                     isShowMore = false,
-                                    avatarSize = 40)
+                                    avatarSize = 40
+                                )
                             }
-                            CollapseText(value = currentDto.content,
+                            CollapseText(
+                                value = currentDto.content,
                                 maxLines = 1,
-                                modifier = Modifier.fillMaxWidth().padding(end = 50.dp),
-                                textStyle = Typography.bodyLarge.copy(color = Color.White,
-                                    lineHeight = 26.sp),
-                                maxLength = 17)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 50.dp),
+                                textStyle = Typography.bodyLarge.copy(
+                                    color = Color.White,
+                                    lineHeight = 26.sp
+                                ),
+                                maxLength = 17
+                            )
                             Spacer(modifier = Modifier.height(5.dp))
 
                             //                                if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
@@ -220,29 +243,38 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                         }
 
                         // 点赞、收藏 部分
-                        Column(modifier = Modifier.padding(end = 20.cdp, bottom = 50.cdp)
-                            .align(Alignment.BottomEnd),
+                        Column(
+                            modifier = Modifier
+                                .padding(end = 20.cdp, bottom = 50.cdp)
+                                .align(Alignment.BottomEnd),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center) {
-                            LikeButton(modifier = Modifier.size(26.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            LikeButton(
+                                modifier = Modifier.size(26.dp),
                                 id = currentDto.id,
                                 count = currentDto.agrees.toInt(),
                                 isLiked = currentDto.hasPraise,
-                                tintColor = Color.White) { //刷新页面、列表状态
+                                tintColor = Color.White
+                            ) { //刷新页面、列表状态
                                 vm.likeClick(currentDto)
                                 blogVm.refreshCurrent(currentDto)
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            AtButton(modifier = Modifier.size(28.dp),
+                            AtButton(
+                                modifier = Modifier.size(28.dp),
                                 count = currentDto.ats.toInt(),
-                                tintColor = Color.White) {
+                                tintColor = Color.White
+                            ) {
 
                             }
                             Spacer(modifier = Modifier.height(70.cdp))
-                            CommentButton(modifier = Modifier.size(25.dp),
+                            CommentButton(
+                                modifier = Modifier.size(25.dp),
                                 count = currentDto.comments.toInt(),
-                                tintColor = Color.White) {
+                                tintColor = Color.White
+                            ) {
                                 coroutineScope.launch {
                                     commentVm.updateBlogId(currentDto.id)
                                     delay(1000)
@@ -252,9 +284,11 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                             Spacer(modifier = Modifier.height(70.cdp))
                             CollectButton(currentDto.hasCollect,
                                 tintColor = Color.White,
-                                modifier = Modifier.size(27.dp).onGloballyPositioned {
-                                    collectTipY = it.positionInWindow().y.toInt()
-                                }) {
+                                modifier = Modifier
+                                    .size(27.dp)
+                                    .onGloballyPositioned {
+                                        collectTipY = it.positionInWindow().y.toInt()
+                                    }) {
 
                                 collectVm.updateBlog(blog = currentDto)
 
@@ -294,7 +328,11 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
             }
 
             1 -> {
-                OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+                OthersPage(
+                    navController = navController,
+                    viewModelProvider = viewModelProvider,
+                    otherId = otherId.value
+                )
             }
 
         }

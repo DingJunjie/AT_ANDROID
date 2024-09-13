@@ -54,7 +54,6 @@ import com.bitat.ui.blog.BlogPage
 import com.bitat.ui.chat.ChatPage
 import com.bitat.ui.discovery.DiscoveryPage
 import com.bitat.ui.profile.ProfilePage
-import com.bitat.ui.theme.NoIndication
 import com.bitat.viewModel.HomeViewModel
 import com.bitat.viewModel.UnreadViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -182,7 +181,7 @@ fun BottomAppBarBar(selectIndex: Int, vm: HomeViewModel, onTabChange: (Int) -> U
                     onClick = { onTabChange(index) },
                     enabled = true,
                     role = Role.Tab,
-                    indication = NoIndication,
+                    indication = null,
                     interactionSource = remember { BitMutableInteractionSourceImpl() },
                 ), icon = {
                     Icon(

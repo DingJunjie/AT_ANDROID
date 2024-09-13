@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.amap.api.services.route.Navi
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
@@ -41,13 +43,14 @@ import com.bitat.ui.publish.PublishPage
 import com.bitat.ui.publish.VideoDisplay
 import com.bitat.ui.reel.ReelPageDemo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import kotlinx.serialization.Serializable
 
 enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, //
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
     PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS,BLACKLIST
+    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS, BLACKLIST
 }
 
 sealed class NavigationItem(val route: String) {
@@ -74,7 +77,6 @@ sealed class NavigationItem(val route: String) {
     data object ReportUser : NavigationItem(Screen.REPORT_USER.name)
     data object Blog : NavigationItem(Screen.BLOG.name)
     data object CollectionDetail : NavigationItem(Screen.COLLECTION_DETAIL.name)
-    data object Others : NavigationItem(Screen.OTHERS.name)
     data object Fans : NavigationItem(Screen.FANS.name)
     data object Follows : NavigationItem(Screen.FOLLOWS.name)
     data object ProfileEdit : NavigationItem(Screen.PROFILE_EDIT.name)
@@ -90,9 +92,12 @@ sealed class NavigationItem(val route: String) {
     data object ChatHistory : NavigationItem(Screen.CHAT_HISTORY.name)
     data object PrivacySettings : NavigationItem(Screen.PRIVACYSETTINGS.name)
     data object BlackList : NavigationItem(Screen.BLACKLIST.name)
-
+    data object Others : NavigationItem(Screen.OTHERS.name)
 }
 
+
+@Serializable
+data class Others(val otherId: Long)
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -195,8 +200,16 @@ fun AppNavHost(
             )
         }
 
-        composable(NavigationItem.Others.route) {
-            OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+//        composable(NavigationItem.Others.route) {
+//            OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+//        }
+        composable<Others> { backEntry ->
+            val others: Others = backEntry.toRoute()
+            OthersPage(
+                navController = navController,
+                viewModelProvider = viewModelProvider,
+                otherId = others.otherId
+            )
         }
 
         composable(NavigationItem.Fans.route) {
@@ -252,7 +265,7 @@ fun AppNavHost(
             )
         }
         composable(NavigationItem.BrowHistory.route) {
-            BrowserHistoryPage(navController,viewModelProvider)
+            BrowserHistoryPage(navController, viewModelProvider)
         }
         composable(NavigationItem.PrivacySettings.route) {
             PrivacySettingsPage(navController)
@@ -261,7 +274,6 @@ fun AppNavHost(
         composable(NavigationItem.BlackList.route) {
             BlackListPage(navController)
         }
-
 
 
     }

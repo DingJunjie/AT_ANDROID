@@ -24,7 +24,7 @@ kotlin {
             }
         }
         namespace = "com.bitat"
-        compileSdk = 34
+        compileSdk = 35
 
         defaultConfig {
             applicationId = "com.bitat"
@@ -131,7 +131,7 @@ kotlin {
         implementation(libs.androidx.navigation.dynamic.features.fragment)
         implementation(libs.androidx.material3.android)
         implementation(libs.androidx.junit.ktx)
-        implementation(libs.androidx.compose.foundation)
+//        implementation(libs.androidx.compose.foundation)
         testImplementation(libs.junit.junit)
 
         // Testing Navigation
@@ -183,6 +183,8 @@ kotlin {
 
         implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
         implementation(files("libs/sqlite-android-3460100.aar"))
+
+        implementation(libs.androidx.foundation)
 
 //        implementation(compose.components.resources)
 //        implementation("network.chaintech:compose-multiplatform-media-player:1.0.19")
