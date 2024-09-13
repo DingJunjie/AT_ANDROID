@@ -15,7 +15,9 @@ import com.bitat.repository.store.UserStore
 import com.bitat.state.BlogLoad
 import com.bitat.state.BlogMenuOptions
 import com.bitat.state.BlogState
+import com.bitat.ui.common.DialogOps
 import com.bitat.ui.common.LoadMoreState
+import com.bitat.ui.common.showDialog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch

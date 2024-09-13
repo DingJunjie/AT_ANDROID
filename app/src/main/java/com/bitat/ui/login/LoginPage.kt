@@ -183,10 +183,6 @@ fun LoginPage(navHostController: NavHostController, navigateToHome: () -> Unit) 
                         login(viewModel, dialog, successFn = {
                             navigateToHome()
                         })
-
-                        MainCo.launch {
-                            CuLog.debug(CuTag.Login, "登录login")
-                        }
                     })
             }
 
@@ -200,7 +196,6 @@ fun LoginPage(navHostController: NavHostController, navigateToHome: () -> Unit) 
                         MapsInitializer.updatePrivacyAgree(ctx, it)
                     })
                 }
-
             }
         }
     }

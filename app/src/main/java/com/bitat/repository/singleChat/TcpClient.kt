@@ -22,10 +22,7 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
-import java.util.BitSet
 import kotlin.math.min
-
-private val EmptyByteBuf = ByteBuffer.allocate(0)
 
 object TcpClient {
     private const val HOST = "test.bitebei.com"
@@ -50,9 +47,11 @@ object TcpClient {
             var residue = readBuf.buffer.size - readBuf.bufOffset
             if (result > 0) { // 如果缓冲区没有读完，就合并到新缓冲区
                 val newBuf = ByteArray(residue + result)
-                if (residue > 0) System.arraycopy(
-                    readBuf.buffer, readBuf.bufOffset, newBuf, 0, residue
-                )
+                if (residue > 0) System.arraycopy(readBuf.buffer,
+                    readBuf.bufOffset,
+                    newBuf,
+                    0,
+                    residue)
                 byteBuf.get(newBuf, residue, result)
                 readBuf.buffer = newBuf
                 readBuf.bufOffset = 0
@@ -78,9 +77,11 @@ object TcpClient {
                     val readSize =
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
-                        System.arraycopy(
-                            readBuf.buffer, readBuf.bufOffset, body, readBuf.bodyOffset, readSize
-                        )
+                        System.arraycopy(readBuf.buffer,
+                            readBuf.bufOffset,
+                            body,
+                            readBuf.bodyOffset,
+                            readSize)
                         readBuf.bufOffset += readSize
                         readBuf.bodyOffset += readSize // 判断body是否写完，写完就返回head和body
                         if (body.size == head.size) {
@@ -94,7 +95,9 @@ object TcpClient {
                 residue = readBuf.buffer.size - readBuf.bufOffset
             }
             byteBuf.clear()
-            read()
+            MainCo.launch(IO) {
+                read()
+            }
         }
 
         override fun failed(exc: Throwable, readBuf: TcpReadBuf) {
@@ -140,7 +143,7 @@ object TcpClient {
                     connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
             } catch (exc: Exception) {
-                CuLog.error(CuTag.SingleChat, "Tcp open err", exc)
+                CuLog.error(CuTag.SingleChat, "Tcp open err,${exc.printStackTrace()}", exc)
             }
         }
     }
@@ -161,10 +164,8 @@ object TcpClient {
         return false
     }
 
-    private fun read() {
-        val byteBuffer = ByteBuffer.allocate(1024)
-        readBuf.byteBuffer = byteBuffer
-        conn?.read(byteBuffer, readBuf, readHandler)
+    private fun read() { //readBuf.byteBuffer = ByteBuffer.allocate(1024)
+        conn?.read(readBuf.byteBuffer, readBuf, readHandler)
     }
 
     private fun genMsg(event: Short, body: ByteArray): ByteArray? {
@@ -210,10 +211,8 @@ object TcpClient {
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
 
-    private fun chatRec(
-        toId: Long, fromId: Long, toRouter: Int, //
-        fromRouter: Int, time: Long, receive: Int
-    ) {
+    private fun chatRec(toId: Long, fromId: Long, toRouter: Int, //
+        fromRouter: Int, time: Long, receive: Int) {
         val body = ChatRecMsg.newBuilder().also {
             it.toId = toId
             it.fromId = fromId
@@ -245,11 +244,8 @@ object TcpClient {
 
     private fun msgHandler(head: TcpMsgHead, body: ByteArray) {
         readTime = TimeUtils.getNow()
-        val decryptBody = KeySecret.encryptByKey(
-            head.secret, body, null
-        )
-        val selfId = UserStore.userInfo.id
-//        val selfId = 159L
+        val decryptBody = KeySecret.encryptByKey(head.secret, body, null)
+        val selfId = UserStore.userInfo.id //        val selfId = 159L
         try {
             when (head.event) {
                 TcpMsgEvent.AUTH_REC -> CuLog.info(CuTag.SingleChat, "Auth ok")
@@ -333,7 +329,7 @@ class TcpMsgHead(val secret: Short, val event: Short, val size: Int) {
 }
 
 class TcpReadBuf {
-    var byteBuffer: ByteBuffer = EmptyByteBuf
+    var byteBuffer: ByteBuffer = ByteBuffer.allocate(1024)
     var buffer = EmptyArray.byte
     var head: TcpMsgHead? = null
     var body: ByteArray? = null
@@ -341,6 +337,8 @@ class TcpReadBuf {
     var bodyOffset: Int = 0
 
     fun clear() {
+        byteBuffer.clear()
+        byteBuffer = ByteBuffer.allocate(1024)
         buffer = EmptyArray.byte
         bufOffset = 0
         head = null

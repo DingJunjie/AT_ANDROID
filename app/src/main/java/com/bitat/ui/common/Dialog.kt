@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.bitat.config.BitEventBus
+import com.bitat.ext.flowbus.postEventValue
 
 /**
  * 对话框
@@ -64,7 +66,7 @@ fun WeDialog(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .fillMaxWidth(0.8f)
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -80,7 +82,7 @@ fun WeDialog(
                             start = 24.dp,
                             end = 24.dp
                         ),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -91,7 +93,7 @@ fun WeDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp),
-                        color = MaterialTheme.colorScheme.onSecondary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 17.sp,
                         textAlign = TextAlign.Center
                     )
@@ -113,7 +115,7 @@ fun WeDialog(
                         ) {
                             Text(
                                 text = cancelText,
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -156,14 +158,19 @@ interface DialogState {
      */
     fun show(
         title: String,
-        content: String? = null,
+        content: String ,
         okText: String = "确定",
         cancelText: String = "取消",
         okColor: Color = Color.Black,
         closeOnAction: Boolean = true,
-        onCancel: (() -> Unit)? = {},
-        onOk: (() -> Unit)? = null
+        onCancel: () -> Unit = {},
+        onOk: () -> Unit = {  }
     )
+
+    /**
+     * 显示对话框
+     */
+    fun show(opt:DialogProps)
 
     /**
      * 隐藏对话框
@@ -184,7 +191,7 @@ fun rememberDialogState(): DialogState {
                 cancelText = props.cancelText,
                 okColor = props.okColor,
                 onOk = {
-                    props.onOk?.invoke()
+                    props.onOk.invoke()
                     if (props.closeOnAction) {
                         state.hide()
                     }
@@ -214,13 +221,13 @@ private class DialogStateImpl : DialogState {
 
     override fun show(
         title: String,
-        content: String?,
+        content: String,
         okText: String,
         cancelText: String,
         okColor: Color,
         closeOnAction: Boolean,
-        onCancel: (() -> Unit)?,
-        onOk: (() -> Unit)?
+        onCancel: () -> Unit,
+        onOk: () -> Unit
     ) {
         props = DialogProps(
             title,
@@ -234,19 +241,38 @@ private class DialogStateImpl : DialogState {
         )
         visible = true
     }
+    override fun show(opt:DialogProps) {
+        props = opt
+        visible = true
+    }
 
     override fun hide() {
         visible = false
     }
 }
 
-private data class DialogProps(
-    val title: String,
-    val content: String?,
+data class DialogProps(
+    var title: String,
+    var content: String,
     val okText: String,
     val cancelText: String,
     val okColor: Color,
-    val closeOnAction: Boolean,
-    val onCancel: (() -> Unit)?,
-    val onOk: (() -> Unit)?
+    var closeOnAction: Boolean,
+    var onCancel: () -> Unit,
+    var onOk: () -> Unit
 )
+
+data class DialogOps(
+    val title: String,
+    val content: String,
+    val closeOnAction: Boolean,
+    val onCancel: () -> Unit,
+    val onOk: () -> Unit
+)
+
+fun DialogOps.showDialog() {
+    postEventValue(
+        BitEventBus.TokenDialog,
+        this
+    )
+}

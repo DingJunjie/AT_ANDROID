@@ -11,6 +11,7 @@ import com.bitat.repository.consts.BLOG_IMAGE_TEXT
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.repository.dto.req.RecommendSearchDetailDto
+import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.repository.http.service.SearchReq
 import com.bitat.repository.po.WatchHistoryPo
 import com.bitat.repository.sqlDB.WatchHistoryDB
@@ -33,11 +34,10 @@ class ReelViewModel : ViewModel() {
     val state: StateFlow<ReelState> get() = _state.asStateFlow()
 
 
-    fun setCurrentBlog(currentBlog: BlogBaseDto) {
+    fun setCurrentBlog(blog: Any) {
         _state.update {
-            it.copy(currentBlog = currentBlog)
+            it.copy(currentBlog = blog)
         }
-        CuLog.debug(CuTag.Blog, "1111 reelPage setCurrentBlog${_state.value.currentBlog?.content}")
     }
 
     fun refreshCurrent(currentBlog: BlogBaseDto) {
@@ -62,30 +62,45 @@ class ReelViewModel : ViewModel() {
 
             _state.value.currentBlog?.let { item ->
 
-                if (isInit) {
-                    _state.update {
-                        it.resList.clear()
-                        it
+
+                when(item){
+                    // 博文列表类型
+                   is BlogBaseDto ->
+                        {
+                        if (isInit) {
+                            _state.update {
+                                it.resList.clear()
+                                it
+                            }
+
+                            _state.update {
+                                it.resList.add(item)
+                                it
+                            }
+                            addWatchHistory(item)
+
+                        }
+                        SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()
+                            .map { data ->
+                                _state.update {
+                                    it.resList.addAll(data)
+                                    it
+                                }
+                                successFn()
+                            }.errMap {
+                                CuLog.debug(CuTag.Blog,
+                                    "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}")
+                            }
                     }
 
-                    _state.update {
-                        it.resList.add(item)
-                        it
+                   is BlogPartDto ->{
+
                     }
-                    addWatchHistory(item)
 
                 }
-                SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id)).await()
-                    .map { data ->
-                        _state.update {
-                            it.resList.addAll(data)
-                            it
-                        }
-                        successFn()
-                    }.errMap {
-                        CuLog.debug(CuTag.Blog,
-                            "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}")
-                    }
+
+
+
             }
         }
     }

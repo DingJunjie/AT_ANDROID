@@ -11,5 +11,7 @@ object BitEventBus {
     const val NavController = "NavController"
     const val ShowToast = "ShowToast"
 
+    const val TokenDialog = "TokenDialog"
+
 
 }

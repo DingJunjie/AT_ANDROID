@@ -6,6 +6,8 @@ import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.common.OK_CODE
 import com.bitat.repository.store.TokenStore
 import com.bitat.repository.store.UserStore
+import com.bitat.ui.common.DialogOps
+import com.bitat.ui.common.showDialog
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -39,6 +41,7 @@ object Http {
             if (token != null) headerMap["Authorization"] = token
             else {
                 cd.complete(CuRes.err(INNER_ERROR, "not has token"))
+                DialogOps("登录过期","获取用户信息失败，请重新登录",true,{},{}).showDialog()
                 return cd
             }
         }
