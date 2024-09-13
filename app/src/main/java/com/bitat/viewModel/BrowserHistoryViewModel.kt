@@ -47,6 +47,7 @@ class BrowserHistoryViewModel : ViewModel() {
                 val dto = QueryCoverDto(watchHistoryPo.dataId, watchHistoryPo.time)
                 idArr.add(dto)
             }
+            CuLog.error(CuTag.Profile, "get  history count:${ids.size}")
             if (idArr.isNotEmpty()) {
                 BlogReq.queryHistory(idArr.toTypedArray()).await().map { result ->
                     _state.update {
@@ -54,8 +55,10 @@ class BrowserHistoryViewModel : ViewModel() {
                         it
                     }
                 }.errMap {
-                    CuLog.error(CuTag.Profile,
-                        "BlogReq queryHistory error code:${it.code},msg:${it.msg}")
+                    CuLog.error(
+                        CuTag.Profile,
+                        "BlogReq queryHistory error code:${it.code},msg:${it.msg}"
+                    )
                 }
             }
         }
@@ -93,13 +96,17 @@ class BrowserHistoryViewModel : ViewModel() {
     fun baseDto2BYBaseDto1(arr: Array<UserBase2Dto>): Array<UserBase1Dto> {
         var result = arrayListOf<UserBase1Dto>()
         arr.forEachIndexed { index, userBase2Dto ->
-            result.add(UserBase1Dto(id = userBase2Dto.id,
-                nickname = userBase2Dto.nickname,
-                profile = userBase2Dto.profile, //
-                rel = userBase2Dto.rel,
-                revRel = userBase2Dto.revRel,
-                fans = userBase2Dto.fans,
-                follows = userBase2Dto.follows))
+            result.add(
+                UserBase1Dto(
+                    id = userBase2Dto.id,
+                    nickname = userBase2Dto.nickname,
+                    profile = userBase2Dto.profile, //
+                    rel = userBase2Dto.rel,
+                    revRel = userBase2Dto.revRel,
+                    fans = userBase2Dto.fans,
+                    follows = userBase2Dto.follows
+                )
+            )
         }
         return result.toTypedArray()
     }

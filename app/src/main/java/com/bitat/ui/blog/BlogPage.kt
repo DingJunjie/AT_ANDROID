@@ -150,6 +150,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     val playingIndex = remember {
         mutableStateOf(0)
     }
+    val historyCache = remember { mutableListOf<Int>() }
 
     LaunchedEffect(state.currentMenu) {
         if (state.isFirst) {
@@ -199,8 +200,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect { layoutInfo ->
             layoutInfo.visibleItemsInfo.forEachIndexed { index, lazyListItemInfo ->
-                CuLog.debug(CuTag.Blog, "layoutInfo，当前显示item ${lazyListItemInfo.index}")
-
+                if (!historyCache.contains(lazyListItemInfo.index)) {
+                    historyCache.add(lazyListItemInfo.index)
+                    vm.addHistory(state.blogList[lazyListItemInfo.index])
+                }
             }
 
             val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
@@ -227,7 +230,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     }
     DisposableEffect(Unit) {
         onDispose {
-
+            historyCache.clear()
         }
     }
 
