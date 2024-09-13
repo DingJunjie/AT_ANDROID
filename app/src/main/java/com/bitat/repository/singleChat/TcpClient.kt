@@ -160,8 +160,10 @@ object TcpClient {
     }
 
     private fun read() {
-        readBuf.byteBuffer.clear()
-        conn?.read(readBuf.byteBuffer, readBuf, readHandler)
+        readBuf.byteBuffer.let {
+            it.clear()
+            conn?.read(it, readBuf, readHandler)
+        }
     }
 
     private fun genMsg(event: Short, body: ByteArray): ByteArray? {
