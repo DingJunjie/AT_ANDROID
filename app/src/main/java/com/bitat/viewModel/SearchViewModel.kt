@@ -98,13 +98,14 @@ class SearchViewModel : ViewModel() {
         MainCo.launch {
             RankingReq.rankingList(PageDto(pageSize = 6)).await().map { data ->
                 CuLog.error(CuTag.Blog, "atRankingList success data:${data}")
-                if (data.v0 == RankingAts) {
-                    _searchState.update {
-                        it.rankingList.clear()
-                        it.rankingList.addAll(data.v1)
-                        it
+                if (data.isNotEmpty()) //
+                    if (data.last().v0 == RankingAts) {
+                        _searchState.update {
+                            it.rankingList.clear()
+                            it.rankingList.addAll(data.first().v1)
+                            it
+                        }
                     }
-                }
 
             }.errMap {
                 CuLog.error(CuTag.Blog, "atRankingList fail code:${it.code},msg:${it.msg}")

@@ -11,7 +11,7 @@ object RankingReq {
 
     //获取榜单
     suspend inline fun rankingList(page: PageDto) =
-        Http.post<PageDto, RankingDto>("${Http.HOST}/service/ranking/list",
+        Http.post<PageDto, Array<RankingDto>>("${Http.HOST}/service/ranking/list",
             page)
 
 }
