@@ -138,7 +138,7 @@ object TcpClient {
                     connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
             } catch (exc: Exception) {
-                CuLog.error(CuTag.SingleChat, "Tcp open err,", exc)
+                CuLog.error(CuTag.SingleChat, "Tcp open err", exc)
             }
         }
     }
@@ -335,7 +335,6 @@ class TcpReadBuf {
     var bodyOffset: Int = 0
 
     fun clear() {
-        byteBuffer.clear()
         byteBuffer = ByteBuffer.allocate(1024)
         buffer = EmptyArray.byte
         bufOffset = 0
