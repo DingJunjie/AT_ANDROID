@@ -58,6 +58,28 @@ object SingleRoomDB {
         po.cfg,
         po.unreads,
     )
+    //批量插入
+    fun insertOrUpdateArr(
+        pos:Array<SingleRoomPo>
+    ) {
+        SqlDB.execBatch {
+            for (po in pos) {
+                SqlDB.exec(
+                    """insert into single_room (self_id,other_id,unreads,top,background,muted,cfg) values (?,?,?,?,?,?,?) 
+                        ON CONFLICT(self_id,other_id) DO UPDATE SET unreads = unreads + ?;""",
+                    po.selfId,
+                    po.otherId,
+                    po.unreads,
+                    po.top,
+                    po.background,
+                    po.muted,
+                    po.cfg,
+                    po.unreads,
+                )
+            }
+        }
+    }
+
 
     fun clearUnread(selfId: Long, otherId: Long) = SqlDB.exec(
         """

@@ -47,11 +47,9 @@ object TcpClient {
             var residue = readBuf.buffer.size - readBuf.bufOffset
             if (result > 0) { // 如果缓冲区没有读完，就合并到新缓冲区
                 val newBuf = ByteArray(residue + result)
-                if (residue > 0) System.arraycopy(readBuf.buffer,
-                    readBuf.bufOffset,
-                    newBuf,
-                    0,
-                    residue)
+                if (residue > 0) System.arraycopy(
+                    readBuf.buffer, readBuf.bufOffset, newBuf, 0, residue
+                )
                 byteBuf.get(newBuf, residue, result)
                 readBuf.buffer = newBuf
                 readBuf.bufOffset = 0
@@ -77,11 +75,9 @@ object TcpClient {
                     val readSize =
                         min(body.size - readBuf.bodyOffset, readBuf.buffer.size - readBuf.bufOffset)
                     if (readSize > 0) {
-                        System.arraycopy(readBuf.buffer,
-                            readBuf.bufOffset,
-                            body,
-                            readBuf.bodyOffset,
-                            readSize)
+                        System.arraycopy(
+                            readBuf.buffer, readBuf.bufOffset, body, readBuf.bodyOffset, readSize
+                        )
                         readBuf.bufOffset += readSize
                         readBuf.bodyOffset += readSize // 判断body是否写完，写完就返回head和body
                         if (body.size == head.size) {
@@ -142,7 +138,7 @@ object TcpClient {
                     connect(InetSocketAddress(HOST, PORT), Unit, connHandler)
                 }
             } catch (exc: Exception) {
-                CuLog.error(CuTag.SingleChat, "Tcp open err,${exc.printStackTrace()}", exc)
+                CuLog.error(CuTag.SingleChat, "Tcp open err,", exc)
             }
         }
     }
@@ -211,8 +207,10 @@ object TcpClient {
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
 
-    private fun chatRec(toId: Long, fromId: Long, toRouter: Int, //
-        fromRouter: Int, time: Long, receive: Int) {
+    private fun chatRec(
+        toId: Long, fromId: Long, toRouter: Int, //
+        fromRouter: Int, time: Long, receive: Int
+    ) {
         val body = ChatRecMsg.newBuilder().also {
             it.toId = toId
             it.fromId = fromId
