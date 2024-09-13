@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            /** toast */
+            /** Token 弹窗 */
             observeEvent(key = BitEventBus.TokenDialog) {
                 lifecycleScope.launch {
                     val dialogOps = it as DialogOps
