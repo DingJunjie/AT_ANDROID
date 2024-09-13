@@ -7,6 +7,7 @@ cameraLifecycle = "1.4.0-rc01"
 commonsIo = "2.16.1"
 emoji2 = "1.4.0"
 emoji2Bundled = "1.4.0"
+foundation = "1.8.0-alpha01"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -22,7 +23,7 @@ composeBom = "2024.08.00"
 
 
 #官方库
-navVersion = "2.7.7"
+navVersion = "2.8.0"
 lifecycle-viewmodel-compose = "2.8.4"
 coil-compose = "2.7.0"
 #coil-compose = "2.6.0"
@@ -56,6 +57,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 #noinspection SimilarGradleDependency
 
 
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -113,7 +115,7 @@ androidx-material3-android = { group = "androidx.compose.material3", name = "mat
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
-androidx-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeFoundation" }
+#androidx-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeFoundation" }
 
 
 [plugins]
