@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.amap.api.services.route.Navi
+import com.bitat.AppConfig.APP_CURRENT_PAGE
 import com.bitat.ui.Home
 import com.bitat.ui.Splash
 import com.bitat.ui.blog.BlogDetailPage
@@ -113,18 +114,22 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.Login.route) {
+            APP_CURRENT_PAGE=NavigationItem.Login.route
             LoginPage(navController, navigation.navigateToHome)
         }
 
         composable(NavigationItem.Home.route) {
+            APP_CURRENT_PAGE=NavigationItem.Home.route
             Home(navController = navController, viewModelProvider)
         }
 
         composable(NavigationItem.BlogDetail.route) {
+            APP_CURRENT_PAGE=NavigationItem.BlogDetail.route
             BlogDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.Profile.route) {
+            APP_CURRENT_PAGE=NavigationItem.Profile.route
             ProfilePage(navController, viewModelProvider)
         }
 
@@ -135,6 +140,7 @@ fun AppNavHost(
         //        }
 
         composable(NavigationItem.Discovery.route) {
+            APP_CURRENT_PAGE=NavigationItem.Discovery.route
             DiscoveryPage(navController, viewModelProvider)
         }
 
@@ -142,6 +148,7 @@ fun AppNavHost(
         //            VideoPage()
         //        }
         composable(NavigationItem.ReelPageDemo.route) {
+            APP_CURRENT_PAGE=NavigationItem.ReelPageDemo.route
             ReelPageDemo(navController, viewModelProvider)
         }
 
@@ -150,50 +157,62 @@ fun AppNavHost(
         //        }
 
         composable(NavigationItem.Publish.route) {
+            APP_CURRENT_PAGE=NavigationItem.Publish.route
             PublishPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.PublishDetail.route) {
+            APP_CURRENT_PAGE=NavigationItem.PublishDetail.route
             PublishDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.ChatDetails.route) {
+            APP_CURRENT_PAGE=NavigationItem.ChatDetails.route
             ChatDetailsPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.GDMap.route) {
+            APP_CURRENT_PAGE=NavigationItem.GDMap.route
             GDMapPage()
         }
 
         composable(NavigationItem.PictureDisplay.route) {
+            APP_CURRENT_PAGE=NavigationItem.PictureDisplay.route
             PictureDisplay(navController, viewModelProvider)
         }
 
         composable(NavigationItem.VideoDisplay.route) {
+            APP_CURRENT_PAGE=NavigationItem.VideoDisplay.route
             VideoDisplay(navController, viewModelProvider)
         }
 
         composable(NavigationItem.Search.route) {
+            APP_CURRENT_PAGE=NavigationItem.Search.route
             SearchPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.SearchResult.route) {
+            APP_CURRENT_PAGE=NavigationItem.SearchResult.route
             SearchResultPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.DiscoveryDetail.route) {
+            APP_CURRENT_PAGE=NavigationItem.DiscoveryDetail.route
             DiscoveryDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.ImagePreview.route) {
+            APP_CURRENT_PAGE=NavigationItem.ImagePreview.route
             ImagePreviewPage(navController = navController, viewModelProvider)
         }
 
         composable(NavigationItem.ReportUser.route) {
+            APP_CURRENT_PAGE=NavigationItem.ReportUser.route
             ReportUserPage(navHostController = navController, viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.CollectionDetail.route) {
+            APP_CURRENT_PAGE=NavigationItem.CollectionDetail.route
             CollectionDetail(
                 navHostController = navController,
                 viewModelProvider = viewModelProvider
@@ -205,6 +224,7 @@ fun AppNavHost(
 //        }
         composable<Others> { backEntry ->
             val others: Others = backEntry.toRoute()
+            APP_CURRENT_PAGE="Others"
             OthersPage(
                 navController = navController,
                 viewModelProvider = viewModelProvider,

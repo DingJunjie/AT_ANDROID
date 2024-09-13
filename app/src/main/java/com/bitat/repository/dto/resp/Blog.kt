@@ -184,5 +184,11 @@ class BlogPart3Dto {
     var musicInfo: MusicPart1? = null //音乐信息
 }
 
+@Serializable
+class RankingDto {
+    var v0: Byte = 0
+    var v1: Array<BlogPartDto> = emptyArray()
+}
+
 
 

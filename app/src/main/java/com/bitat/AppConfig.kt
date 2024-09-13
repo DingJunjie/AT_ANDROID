@@ -10,6 +10,8 @@ import android.content.Intent
 object AppConfig {
     const val BASE_URL = ""
     const val APP_DESIGN_WIDTH = 750
+    var APP_CURRENT_PAGE = ""
+
 }
 
 @SuppressLint("StaticFieldLeak")
