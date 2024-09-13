@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
 import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
+import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
+import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SingleMsgDB
 import com.bitat.repository.sqlDB.SingleRoomDB
 import com.bitat.repository.store.UserStore
@@ -31,6 +33,11 @@ class UnreadViewModel : ViewModel() {
 
                 if (_state.value.unreadMsgCount > 0) {
                     getUnreadMessage()
+                }
+
+
+                if (_state.value.unreadNoticeCount > 0) {
+                    getUnreadNotice()
                 }
             }
         }
@@ -114,20 +121,45 @@ class UnreadViewModel : ViewModel() {
         }
     }
 
-    fun getUnreadNotice() {
+    private fun getUnreadNotice() {
         if (state.value.unreadNoticeCount > 0) {
             MainCo.launch(IO) {
                 MsgReq.fetchNotice(FetchChatCommon().apply {
-                    ack = false
-                    time = _state.value.lastNoticeId
+                    ack = true
+                    time = _state.value.lastNoticeTime
                     limit = 50
-                    fromId = 0
+                    fromId = _state.value.lastNoticeId
                 }).await().map {
-                    it.msgListList.forEach { that ->
+                    it.msgListList.map { that ->
+                        SingleMsgHelper.handleNotice(that)
+                    }
 
+                    _state.update { kore ->
+                        kore.copy(
+                            unreadNoticeCount = kore.unreadMsgCount - it.msgListList.size,
+                            lastNoticeTime = it.msgListList.last().time,
+                            lastNoticeId = it.msgListList.last().fromId
+                        )
                     }
                 }
             }
+
+            getUnreadMessage()
+        } else {
+            MainCo.launch {
+                MsgReq.fetchNotice(FetchChatCommon().apply {
+                    ack = false
+                    time = _state.value.lastNoticeTime
+                    limit = 1
+                    fromId = _state.value.lastNoticeId
+                }).await().map {
+                    _state.update {
+                        it.copy(unreadMsgCount = 0, lastNoticeTime = 0, lastNoticeId = 0)
+                    }
+                }
+            }
+            return
+
         }
     }
 }

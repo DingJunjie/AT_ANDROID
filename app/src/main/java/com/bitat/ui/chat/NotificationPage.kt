@@ -2,6 +2,10 @@ package com.bitat.ui.chat
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
@@ -42,12 +47,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.ext.clickableWithoutRipple
+import com.bitat.repository.consts.APP_NOTICE_FOLLOW
 import com.bitat.repository.po.NoticeMsgPo
+import com.bitat.state.Notification
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.profile.CollectionTab
 import com.bitat.ui.profile.PraiseHistory
 import com.bitat.ui.profile.ProfileWorks
 import com.bitat.ui.profile.TimeLinePage
+import com.bitat.ui.theme.Typography
+import com.bitat.utils.QiNiuUtil
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.viewModel.NotificationViewModel
@@ -68,6 +77,10 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
         mutableIntStateOf(0)
     }
 
+    val msgScrollableState = rememberScrollableState {
+        it
+    }
+
     Scaffold { padding ->
         Column {
             NotificationTopBar(padding, backFn = { navHostController.popBackStack() })
@@ -83,9 +96,10 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
                         0 -> Box(
                             modifier = Modifier
                                 .fillMaxSize()
+//                                .scrollable(msgScrollableState, orientation = Orientation.Vertical)
                                 .background(Color.Yellow)
                         ) {
-                            MessageList(state.notifications)
+                            MessageList(navHostController, state.notifications)
                         }
 
                         1 -> Box(
@@ -99,7 +113,6 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
                                 .fillMaxSize()
                                 .background(Color.Cyan)
                         )
-
                     }
                 }
             }
@@ -117,32 +130,47 @@ fun NotificationPage(navHostController: NavHostController, viewModelProvider: Vi
                 currentPage.intValue = it
             }
         }
-
     }
-
 }
 
 @Composable
-fun MessageList(list: List<NoticeMsgPo>) {
-    Column {
+fun MessageList(navHostController: NavHostController, list: List<Notification>) {
+    Column(modifier = Modifier.fillMaxSize()) {
         list.map {
-            MessageItem(it)
+            MessageItem(navHostController, it)
         }
     }
 }
 
 @Composable
-fun MessageItem(notice: NoticeMsgPo) {
+fun MessageItem(navHostController: NavHostController, notice: Notification) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(vertical = 10.dp, horizontal = 20.dp)
+            .clickable {
+                when (notice.kind) {
+
+                }
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(notice.content)
-        if (notice.time > 0) Text(TimeUtils.timeToMD(notice.time))
+        Avatar(url = notice.profile)
+        Text(
+            notice.displayContent,
+            style = Typography.bodySmall.copy(fontSize = 14.sp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 10.dp)
+        )
+        if (notice.time > 0) Text(
+            TimeUtils.timeToMD(notice.time),
+            style = Typography.bodySmall.copy(fontSize = 12.sp, color = Color.Gray)
+        )
     }
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -63,6 +63,8 @@ class SingleRoomPo {
             background = cursor.getString(4)
             muted = cursor.getInt(5)
             cfg = cursor.getString(6)
+
+            id = cursor.getLongOrNull(7) ?: 0
         }
     }
 }

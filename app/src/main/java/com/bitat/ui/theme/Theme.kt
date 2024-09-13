@@ -4,7 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
+//import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -241,28 +241,13 @@ fun BitComposeTheme(
             colorScheme = colorsSch,
             shapes = shapes,
             content = {
-                CompositionLocalProvider(LocalIndication provides NoIndication, LocalRippleTheme provides NoRippleTheme) {
+                CompositionLocalProvider( LocalRippleTheme provides NoRippleTheme) {
                     content()
                 }
             },
             typography = Typography
         )
     }
-}
-
-object NoIndication : Indication {
-    private object NoIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication() {
-            drawContent()
-        }
-
-    }
-
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        return NoIndicationInstance
-    }
-
 }
 
 object NoRippleTheme:RippleTheme{

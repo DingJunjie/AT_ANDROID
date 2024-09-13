@@ -109,7 +109,11 @@ fun WeSwipeAction(
                     if (!isLabelStyle) RoundedCornerShape(8.dp) else RectangleShape
                 )
                 .padding(horizontal = 16.dp)
-                .anchoredDraggable(state, Orientation.Horizontal, reverseDirection = true),
+                .anchoredDraggable(
+                    state,
+                    orientation = Orientation.Horizontal,
+                    reverseDirection = true
+                ),
             contentAlignment = Alignment.CenterStart
         ) {
             content()
@@ -231,12 +235,12 @@ fun rememberSwipeActionState(
                 DragAnchor.Center at 0f
                 DragAnchor.End at endActionWidthPx
             },
-            // 位置阀值：滑动多远距离自动进入该锚点
-            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-            // 速度阀值：即使没有超过位置阀值，一秒钟滑动多少个像素也能自动进入下一个锚点
-            velocityThreshold = { density.run { 100.dp.toPx() } },
-            // 切换状态的动画
-            animationSpec = tween()
+//            // 位置阀值：滑动多远距离自动进入该锚点
+//            positionalThreshold = { totalDistance -> totalDistance * 0.5f },
+//            // 速度阀值：即使没有超过位置阀值，一秒钟滑动多少个像素也能自动进入下一个锚点
+//            velocityThreshold = { density.run { 100.dp.toPx() } },
+//            // 切换状态的动画
+//            animationSpec = tween()
         )
     }
 
