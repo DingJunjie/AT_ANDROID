@@ -6,13 +6,11 @@ import com.bitat.repository.common.INNER_TIMEOUT
 import com.bitat.repository.common.OK_CODE
 import com.bitat.repository.dto.common.ResDto
 import com.bitat.repository.store.TokenStore
-import com.bitat.repository.store.UserStore
 import com.bitat.ui.common.DialogOps
 import com.bitat.ui.common.showDialog
 import com.bitat.utils.JsonUtils
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.serialization.Serializable
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers.Companion.toHeaders
