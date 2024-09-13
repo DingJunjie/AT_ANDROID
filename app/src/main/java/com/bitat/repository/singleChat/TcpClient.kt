@@ -333,6 +333,8 @@ class TcpReadBuf {
     var bufOffset: Int = 0
     var bodyOffset: Int = 0
 
+    fun ready() = byteBuffer.apply { clear() }
+
     fun clear() {
         byteBuffer = ByteBuffer.allocate(1024)
         buffer = EmptyArray.byte
@@ -341,8 +343,6 @@ class TcpReadBuf {
         body = null
         bodyOffset = 0
     }
-
-    fun ready() = byteBuffer.apply { clear() }
 }
 
 object TcpMsgEvent {
