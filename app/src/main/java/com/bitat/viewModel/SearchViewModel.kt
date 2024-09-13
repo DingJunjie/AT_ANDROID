@@ -109,6 +109,7 @@ class SearchViewModel : ViewModel() {
             }.errMap {
                 CuLog.error(CuTag.Blog, "atRankingList fail code:${it.code},msg:${it.msg}")
             }
+
         }
     }
 }

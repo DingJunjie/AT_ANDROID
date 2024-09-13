@@ -87,7 +87,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val tabPager: PagerState = rememberPagerState(0, pageCount = { 2 })
@@ -118,7 +118,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
             }
         }
     }
-
 
     val options = remember {
         listOf(
@@ -205,7 +204,6 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatTab(tabState: PagerState, switchFun: (Int) -> Unit) {
     val blockOffset by animateFloatAsState(
