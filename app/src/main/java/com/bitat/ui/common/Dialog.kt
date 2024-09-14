@@ -35,6 +35,7 @@ import com.bitat.ext.flowbus.postEventValue
 import com.bitat.repository.po.NoticeMsgPo
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.state.Notification
+import kotlinx.serialization.Serializable
 
 /**
  * 对话框
@@ -274,14 +275,22 @@ data class DialogOps(
     val onOk: () -> Unit
 )
 
+@Serializable
 data class NotificationOps(
     val title: String,
     val content: String,
     val closeOnAction: Boolean,
     val profile: String,
     val cover: String,
-    val onCancel: () -> Unit,
-    val onTap: (Notification) -> Unit
+    val kind: Short,
+    val sourceId: Long,
+    val comment: String = "",
+    val commentId: Long = 0,
+    val userId: Long = 0,
+//    val onCancel: () -> Unit,
+//    val onTap: (
+////        Notification
+//    ) -> Unit
 )
 
 fun NotificationOps.showNotification() {
@@ -301,7 +310,7 @@ data class ChatMessageOps(
     val onTap: (SingleMsgPo) -> Unit
 )
 
-fun ChatMessageOps.showMsgNotification() {
+fun ChatMessageOps.showNotification() {
     postEventValue(
         BitEventBus.ChatMessageDialog,
         this

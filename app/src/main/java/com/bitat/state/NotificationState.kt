@@ -6,6 +6,7 @@ import com.bitat.repository.dto.common.ResourceDto
 import com.bitat.repository.po.NoticeMsgPo
 import kotlinx.serialization.Serializable
 
+@Serializable
 data class Notification(
     var id: Long = 0,
     var userId: Long = 0,

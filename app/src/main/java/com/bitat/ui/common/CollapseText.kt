@@ -39,6 +39,7 @@ import kotlinx.serialization.json.Json
 @Composable
 fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, onCollapse: (Boolean) -> Unit = {}) {
     var expanded by remember { mutableStateOf(false) }
+
     Column {
         Text(
             text = value,

@@ -373,7 +373,6 @@ object SingleMsgHelper {
         SingleRoomDB.insertOrUpdate(newRoom)
 
         val content = msg.data.toString(Charsets.UTF_8)
-
         val roomVm = viewModelProvider[ChatViewModel::class]
 
         val nm = SingleMsgPo()
@@ -389,7 +388,6 @@ object SingleMsgHelper {
             SingleMsgDB.updateKind(msg.kind.toShort(), msg.toId, msg.fromId, originContent.time)
         } else {
             SingleMsgDB.insertOneUnique(nm)
-
             roomVm.updateRoomContent(nm)
         }
         singleChatUiFlow.emit(GetNewMessage(nm))

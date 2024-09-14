@@ -174,9 +174,8 @@ class ToastUIState {
 
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
-public fun ToastUI(
+fun ToastUI(
     hostState: ToastUIState,
     modifier: Modifier = Modifier,
     toast: @Composable (ToastData) -> Unit = { Toast(it) },
