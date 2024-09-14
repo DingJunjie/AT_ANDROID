@@ -91,7 +91,7 @@ fun SearchResultPage(navHostController: NavHostController, viewModelProvider: Vi
                         detailsVm.setPageType(ReelType.SEARCH)
                         detailsVm.setKevWords(state.keyword)
                         detailsVm.setIndex(index)
-                        detailsVm.setSearchList(state.searchVideoResult.toList())
+                        detailsVm.setResList(state.searchVideoResult.toList())
                         AtNavigation(navHostController).navigateToVideo()
                     }
                 }

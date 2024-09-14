@@ -107,7 +107,7 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
                 if (index >= 0) {
                     detailsVm.setPageType(ReelType.COLLECT)
                     detailsVm.setIndex(index)
-                    detailsVm.setSearchList(state.currentCollectionItems.toList())
+                    detailsVm.setResList(state.currentCollectionItems.toList())
                     AtNavigation(navHostController).navigateToVideo()
                 }
             }

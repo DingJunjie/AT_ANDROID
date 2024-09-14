@@ -30,10 +30,10 @@ object UserExtraReq {
     suspend inline fun collectList() = Http.get<Array<CollectPartDto>>("${Http.HOST}/service/userExtra/collectList")
 
     //查询我收藏的所有作品
-    suspend inline fun findCollectOpus(dto: FindCollectOpusDto) = Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/userExtra/findCollectOpus", dto)
+    suspend inline fun findCollectOpus(dto: FindCollectOpusDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/userExtra/findCollectOpus", dto)
 
     //查询收藏夹下的作品
-    suspend inline fun collectNextList(dto: CollectNextListDto) = Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/userExtra/collectNextList", dto)
+    suspend inline fun collectNextList(dto: CollectNextListDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/userExtra/collectNextList", dto)
 
     //判断用户是否拥有某一个权限
     suspend inline fun isApply(dto: IsApplyDto) = Http.post<_, Unit>("${Http.HOST}/service/userExtra/isApply", dto)

@@ -37,6 +37,7 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.PROFILE_MINE
 import com.bitat.repository.consts.PROFILE_OTHER
 import com.bitat.router.AtNavigation
+import com.bitat.router.NavigationItem
 import com.bitat.state.BlogDetailsType
 import com.bitat.state.BlogOperation
 import com.bitat.ui.blog.BlogMorePop
@@ -53,6 +54,7 @@ import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
 import com.bitat.viewModel.OthersViewModel
 import com.bitat.viewModel.ProfileViewModel
+import com.bitat.viewModel.SearchViewModel
 import com.bitat.viewModel.TimeLineViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -79,6 +81,7 @@ fun TimeLinePage(
 
     val otherVm: OthersViewModel = viewModelProvider[OthersViewModel::class]
     val otherState by otherVm.othersState.collectAsState()
+    val searchVm = viewModelProvider[SearchViewModel::class]
 
     val detailsVm: BlogDetailsViewModel = viewModelProvider[BlogDetailsViewModel::class]
 
@@ -212,6 +215,10 @@ fun TimeLinePage(
                     moreClick = {
                         vm.setCurrentBlog(item)
                         isMoreVisible.value = true
+                    }, tagTap = { tag ->
+                        // 跳转到tag搜索页
+                        searchVm.updateKeyword("#$tag")
+                        navController.navigate(NavigationItem.SearchResult.route)
                     })
             }
 

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
-import com.bitat.repository.dto.req.FindBaseByIdsDto
 import com.bitat.repository.dto.req.QueryCoverDto
 import com.bitat.repository.dto.req.QueryHistoryDto
 import com.bitat.repository.dto.resp.UserBase1Dto
@@ -51,7 +50,7 @@ class BrowserHistoryViewModel : ViewModel() {
             if (idArr.isNotEmpty()) {
                 BlogReq.queryHistory(idArr.toTypedArray()).await().map { result ->
                     _state.update {
-                        it.myWorks.addAll(result)
+                        it.historyList.addAll(result)
                         it
                     }
                 }.errMap {

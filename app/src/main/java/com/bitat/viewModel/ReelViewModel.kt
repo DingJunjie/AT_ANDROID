@@ -73,27 +73,34 @@ class ReelViewModel : ViewModel() {
 
                         }
                         SearchReq.recommendSearchDetail(RecommendSearchDetailDto(blogId = item.id))
-                            .await()
-                            .map { data ->
+                            .await().map { data ->
                                 _state.update {
                                     it.resList.addAll(data)
                                     it
                                 }
                                 successFn()
                             }.errMap {
-                                CuLog.debug(
-                                    CuTag.Blog,
-                                    "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}"
-                                )
+                                CuLog.debug(CuTag.Blog,
+                                    "recommendSearchDetail failed ，code：${it.code}  msg:${it.msg}")
                             }
                     }
                 }
 
-                ReelType.SEARCH -> addPart()
-                ReelType.COLLECT -> addPart()
-                ReelType.LIKE -> addPart()
-                ReelType.PHOTO -> addPart()
-                ReelType.HISTORY -> addPart()
+                ReelType.SEARCH -> {
+                   // addPart()
+                }
+                ReelType.COLLECT -> {
+//                    addPart()
+                }
+                ReelType.LIKE -> {
+//                    addPart()
+                }
+                ReelType.PHOTO -> {
+//                    addPart()
+                }
+                ReelType.HISTORY -> {
+//                    addPart()
+                }
             }
 
         }
@@ -151,14 +158,21 @@ class ReelViewModel : ViewModel() {
 
     fun addWatchHistory(dto: BlogBaseDto) {
         CuLog.error(CuTag.Blog, "添加观看历史")
-        viewModelScope.launch(Dispatchers.IO) {
-//            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
+        viewModelScope.launch(Dispatchers.IO) { //            WatchHistoryDB.insertOne(UserStore.userInfo.id,dto.kind.toShort(), dataId = dto.id,System.currentTimeMillis())
             WatchHistoryDB.insertOne(WatchHistoryPo().apply {
                 userId = UserStore.userInfo.id
                 kind = 1
                 dataId = dto.id
                 time = TimeUtils.getNow()
             })
+        }
+    }
+
+    fun setResList(list: List<BlogBaseDto>) {
+        _state.update {
+            it.resList.clear()
+            it.resList.addAll(list)
+            it
         }
     }
 
@@ -174,18 +188,17 @@ class ReelViewModel : ViewModel() {
     }
 
     fun getVideoSearchList(keyword: String, onComplete: () -> Unit) {
-        viewModelScope.launch {
-            SearchReq.searchVideo(SearchCommonDto(keyword = keyword, pageNo = 0, pageSize = 20))
-                .await().map { videos ->
-
-                    addPart(videos)
-                    onComplete()
-                }.errMap {
-                    CuLog.error(
-                        CuTag.Blog,
-                        "reel SearchReq searchVideo error code:${it.code},msg:${it.msg}"
-                    )
-                }
+        viewModelScope.launch { //            SearchReq.searchVideo(SearchCommonDto(keyword = keyword, pageNo = 0, pageSize = 20))
+            //                .await().map { videos ->
+            //
+            //                    addPart(videos)
+            //                    onComplete()
+            //                }.errMap {
+            //                    CuLog.error(
+            //                        CuTag.Blog,
+            //                        "reel SearchReq searchVideo error code:${it.code},msg:${it.msg}"
+            //                    )
+            //                }
         }
     }
 

@@ -19,7 +19,7 @@ object SearchReq {
     suspend inline fun searchUser(dto: SearchCommonDto) = Http.post<_, Array<UserBase1Dto>>("${Http.HOST}/service/search/searchUser", dto)
 
     //搜索视频
-    suspend inline fun searchVideo(dto: SearchCommonDto) = Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/search/searchVideo", dto)
+    suspend inline fun searchVideo(dto: SearchCommonDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/search/searchVideo", dto)
 
     //搜索推荐
     suspend inline fun recommendSearch(dto: RecommendSearchDto) = Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/search/recommendSearch", dto)

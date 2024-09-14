@@ -38,6 +38,7 @@ kotlinx-serialization = "2.0.20"
 lifecycle-runtime-compose-android = "2.8.4"
 accompanist-permissions = "0.34.0"
 compose = "1.6.11"
+mlkit = "17.2.0"
 
 #三方库
 lottieCompose = "6.5.0"
@@ -105,6 +106,7 @@ androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exop
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 com-google-protobuf-protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobufKotlin" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" } # 简化权限请求
+google-mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit" }
 
 #三方库
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }

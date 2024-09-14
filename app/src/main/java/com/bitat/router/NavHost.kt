@@ -36,6 +36,7 @@ import com.bitat.ui.profile.OthersPage
 import com.bitat.ui.profile.PrivacySettingsPage
 import com.bitat.ui.profile.ProfileEditPage
 import com.bitat.ui.profile.ProfilePage
+import com.bitat.ui.profile.QRScannerPage
 import com.bitat.ui.profile.SettingPage
 import com.bitat.ui.profile.SignoutPage
 import com.bitat.ui.publish.PictureDisplay
@@ -51,7 +52,7 @@ enum class Screen {
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
     PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS, BLACKLIST
+    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS, BLACKLIST,QRSCANNER
 }
 
 sealed class NavigationItem(val route: String) {
@@ -94,6 +95,8 @@ sealed class NavigationItem(val route: String) {
     data object PrivacySettings : NavigationItem(Screen.PRIVACYSETTINGS.name)
     data object BlackList : NavigationItem(Screen.BLACKLIST.name)
     data object Others : NavigationItem(Screen.OTHERS.name)
+    data object QRScanner : NavigationItem(Screen.QRSCANNER.name)
+
 }
 
 
@@ -294,6 +297,10 @@ fun AppNavHost(
             BlackListPage(navController)
         }
 
+        composable(NavigationItem.QRScanner.route) {
+            QRScannerPage(navController)
+        }
+
 
     }
 }
@@ -406,6 +413,11 @@ class AtNavigation(navController: NavHostController) {
     val navigationToBlackList: () -> Unit = {
         navController.navigate(NavigationItem.BlackList.route)
     }
+
+    val navigationToQRScanner: () -> Unit = {
+        navController.navigate(NavigationItem.QRScanner.route)
+    }
+
 
 
 }

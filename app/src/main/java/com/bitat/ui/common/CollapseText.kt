@@ -81,7 +81,6 @@ fun compileTag(value: String): MutableList<String> {
     val pattern = Pattern.compile(TAG_REGEX_SPLIT)
     val matcher = pattern.matcher(value)
     val result = mutableListOf<String>()
-
     var start = 0
     while (matcher.find()) {
         val separator = matcher.group()
@@ -127,21 +126,11 @@ fun CollapseReachText(
     maxLines: Int,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
-    maxLength: Int = 24,
+    maxLength: Int = 24,tagTap:(String) ->Unit,
     onCollapse: (Boolean) -> Unit = {}
 ) {
-
-    var regexAar = value.split(TAG_REGEX_SPLIT.toRegex())
+    var expanded by remember { mutableStateOf(false) }
     val res = compileTag(value)
-
-
-//    var regResultArr = value.replace(TAG_REGEX_SPLIT.toRegex()) {
-//        val dto = Json.decodeFromString(BlogTagDto.serializer(), it.value)
-//        println(dto.name)
-//        it.toString()
-//    }
-
-
     val contentWithTag = buildAnnotatedString {
         if (res.size > 1) {
             // 带tag
@@ -149,8 +138,8 @@ fun CollapseReachText(
                 if (i % 2 == 1) {
                     // \^#{\d+:\w+}^\
                     val tag = matchTag(v)
-                    pushStringAnnotation(tag = tag.name, annotation = tag.id.toString())
-                    withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W900)) {
+                    pushStringAnnotation(tag = tag.id.toString(), annotation = tag.name)
+                    withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W500)) {
                         append("#${tag.name}")
                     }
                     pop()
@@ -160,38 +149,39 @@ fun CollapseReachText(
                     }
                 }
             }
+        }else if (res.size ==1){
+            withStyle(style = SpanStyle(color = Color.Black)) {
+                append(res[0])
+            }
         }
     }
-
-    val annotatedString = buildAnnotatedString { //创建富文本内容
-        withStyle(style = SpanStyle(color = Color.Black)) {
-            append("跳转到官网:")
-        }
-        pushStringAnnotation(tag = "juejin", annotation = "https://juejin.cn/")
-        withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W900)) {
-            append("#juejin")
-        }
-        pop()
-        append("\n")
-        withStyle(style = SpanStyle(color = Color.Black)) {
-            append("跳转到官网:")
-        }
-        pushStringAnnotation(tag = "baidu", annotation = "https://www.baidu.com/")
-        withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W900)) {
-            append("#baidu")
-        }
-        pop()
-    } //可点击的文本控件
-
-
-    ClickableText(text = contentWithTag, onClick = { offset ->
-        annotatedString.getStringAnnotations(tag = "juejin", start = offset, end = offset)
-            .firstOrNull()?.let { annotation -> // 点击事件的处理
-                CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
+    Column {
+        ClickableText(text = contentWithTag, onClick = { offset -> //可点击的文本控件
+            tags.forEach{ tag->
+                contentWithTag.getStringAnnotations(tag = "${tag.id}", start = offset, end = offset)
+                    .firstOrNull()?.let { annotation -> // 点击事件的处理
+                        CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
+                        tagTap(annotation.item)
+                    }
             }
-        annotatedString.getStringAnnotations(tag = "baidu", start = offset, end = offset)
-            .firstOrNull()?.let { annotation -> // 点击事件的处理
-                CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
+        },maxLines = if (expanded) Int.MAX_VALUE else maxLines, // Maximum number of lines to display
+            overflow = TextOverflow.Ellipsis,
+            style = textStyle,)
+
+        if (value.length > maxLines * maxLength) {
+            Box(modifier = Modifier
+                .background(Color.Transparent)
+                .padding(top = 5.dp) // Background color
+                .clickable {
+                    expanded = !expanded
+                    onCollapse(expanded)
+                }) {
+
+                Text(
+                    text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
+                )
             }
-    })
+        }
+    }
 }

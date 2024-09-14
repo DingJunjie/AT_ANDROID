@@ -21,6 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.R
+import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.toBlogBaseDto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.MediaGrid
@@ -70,8 +72,11 @@ fun BrowserHistoryPage(navHostController: NavHostController, viewModelProvider: 
                     0 -> {
 
                         Column(modifier = Modifier.fillMaxSize()) {
-                            MediaGrid(mediaList = state.myWorks)
-
+                            val list= mutableListOf<BlogBaseDto>()
+                            state.historyList.map {
+                                list.add(it.toBlogBaseDto())
+                            }
+                            MediaGrid(mediaList = list)
                         }
                     }
                     1 -> {

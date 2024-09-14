@@ -30,9 +30,6 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
     LaunchedEffect(Unit) {
         vm.getMyWorks(userId)
     }
-
-
-
     fun loadMore(){
         if (state.profileType == 2) {
             if (state.myWorks.isNotEmpty()) {
@@ -53,7 +50,7 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
             if (index >= 0) {
                 detailsVm.setPageType(ReelType.PHOTO)
                 detailsVm.setIndex(index)
-                detailsVm.setSearchList(state.myWorks.toList())
+                detailsVm.setResList(state.myWorks.toList())
                 AtNavigation(navHostController).navigateToVideo()
             }
         }

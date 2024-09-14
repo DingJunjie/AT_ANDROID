@@ -21,7 +21,7 @@ enum class CollectionTabs {
 
 data class CollectState(
     val collections: SnapshotStateList<CollectPartDto> = mutableStateListOf(),
-    val currentCollectionItems: SnapshotStateList<BlogPartDto> = mutableStateListOf(),
+    val currentCollectionItems: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
     val currentCollection: CollectPartDto = CollectPartDto(),
     val currentBlog: BlogBaseDto? = null,
     val currentTab: CollectionTabs = CollectionTabs.Works,

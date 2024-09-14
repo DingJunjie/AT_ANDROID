@@ -185,8 +185,11 @@ kotlin {
         implementation(files("libs/sqlite-android-3460100.aar"))
 
         implementation(libs.androidx.foundation)
+        //  二维码扫描
+        implementation(libs.google.mlkit.barcode.scanning)
 
 //        implementation(compose.components.resources)
 //        implementation("network.chaintech:compose-multiplatform-media-player:1.0.19")
+
     }
 }

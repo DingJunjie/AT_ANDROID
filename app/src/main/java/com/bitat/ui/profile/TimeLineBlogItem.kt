@@ -41,10 +41,13 @@ import com.bitat.ext.Density
 import com.bitat.ext.cdp
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.dto.common.toBlogTagDto
+import com.bitat.repository.dto.resp.BlogTagDto
 import com.bitat.router.NavigationItem
 import com.bitat.state.OthersState
 import com.bitat.ui.blog.BlogContent
 import com.bitat.ui.blog.BlogMorePop
+import com.bitat.ui.common.CollapseReachText
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.Avatar
@@ -75,7 +78,8 @@ fun TimeLineBlogItem(
     tapAt: () -> Unit,
     tapLike: () -> Unit,
     tapCollect: (Int) -> Unit,
-    moreClick: () -> Unit
+    moreClick: () -> Unit,
+    tagTap:(String) ->Unit={}
 ) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog)
@@ -164,13 +168,20 @@ fun TimeLineBlogItem(
                                 interactionSource = remember { MutableInteractionSource() }) {
                                 contentClick(blog)
                             }) { //                        BlogText(blog.content)
-                            CollapseText(
-                                value = blog.content,
-                                2,
-                                modifier = Modifier.fillMaxWidth()
-                            ) { res ->
-                                isCollapse.value = res
+//                            CollapseText(
+//                                value = blog.content,
+//                                2,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) { res ->
+//                                isCollapse.value = res
+//                            }
+                            val tagList= mutableListOf<BlogTagDto>()
+                            blog.tags.map {
+                                tagList.add(it.toBlogTagDto())
                             }
+                            CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth(), tagTap = { tag->
+                                tagTap(tag)
+                            })
                         }
                     }
 

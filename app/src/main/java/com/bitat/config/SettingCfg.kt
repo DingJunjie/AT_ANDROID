@@ -30,6 +30,11 @@ class SettingCfg() {
                 icon = "svg/set-up-fill.svg",
                 content = "设置",
                 showRight = false))
+            profileMenu.add(SettingMenuPo(showLeft = true,
+                itemIndex = 3,
+                icon = "svg/set-up-fill.svg",
+                content = "我的名片",
+                showRight = false))
             return profileMenu
         }
 

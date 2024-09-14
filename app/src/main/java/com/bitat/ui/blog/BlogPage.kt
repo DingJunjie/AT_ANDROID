@@ -81,6 +81,7 @@ import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.HomeViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.bitat.viewModel.SearchViewModel
 import com.wordsfairy.note.ui.widgets.toast.ToastModel
 import com.wordsfairy.note.ui.widgets.toast.showToast
 import kotlinx.coroutines.Dispatchers
@@ -208,8 +209,6 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
             }
 
             // 添加观看记录
-
-
         }
     }
 
@@ -235,6 +234,7 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
     val isCommentVisible = remember {
         mutableStateOf(false)
     }
+    val searchVm = viewModelProvider[SearchViewModel::class]
 
     Scaffold(modifier = Modifier.fillMaxHeight().fillMaxWidth().background(white)) { padding ->
         Column(modifier = Modifier.padding().fillMaxSize()) {
@@ -316,6 +316,10 @@ fun BlogPage(navController: NavHostController, viewModelProvider: ViewModelProvi
                                         },
                                         onRemove = {
                                             vm.removeOne(blog = item)
+                                        }, tagTap = { tag->
+                                            // 跳转到tag搜索页
+                                            searchVm.updateKeyword("#$tag")
+                                            navController.navigate(NavigationItem.SearchResult.route)
                                         })
                                 }
                             }

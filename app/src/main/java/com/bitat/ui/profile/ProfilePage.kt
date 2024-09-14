@@ -175,15 +175,11 @@ fun ProfilePage(navController: NavHostController, viewModelProvider: ViewModelPr
         mutableStateOf(0)
     }
 
-
-    var topBarHeight by remember {
-        mutableStateOf(0)
-    }
-
     val coroutineScope = rememberCoroutineScope()
 
     // scroll 的触发
     if (scrollState.value > positionTopBar && !state.isTabbarTop) {
+        CuLog.error(CuTag.Profile,"个人页 scroll触发 ${scrollState.value} , ${positionTopBar}")
         vm.switchTabbar(true)
 
     } else if (scrollState.value < positionTopBar && state.isTabbarTop) {

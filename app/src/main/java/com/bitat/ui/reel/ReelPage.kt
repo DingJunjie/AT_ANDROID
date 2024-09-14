@@ -140,16 +140,16 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
 //                        }
                     }
                     ReelType.COLLECT -> {
-                        TODO()
+//                        TODO()
                     }
                     ReelType.LIKE -> {
-                        TODO()
+//                        TODO()
                     }
                     ReelType.PHOTO -> {
-                        TODO()
+//                        TODO()
                     }
                     ReelType.HISTORY -> {
-                        TODO()
+//                        TODO()
                     }
                 }
 

@@ -72,7 +72,7 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
             if (index >= 0) {
                 detailsVm.setPageType(ReelType.LIKE)
                 detailsVm.setIndex(index)
-                detailsVm.setSearchList(state.myPraise.toList())
+                detailsVm.setResList(state.myPraise.toList())
                 AtNavigation(navHostController).navigateToVideo()
             }
         }

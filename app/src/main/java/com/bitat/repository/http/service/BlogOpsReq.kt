@@ -18,7 +18,7 @@ object BlogOpsReq {
 
     //点赞历史
     suspend inline fun agreeHistory(dto: BlogOpsAgreeHistoryDto) =
-        Http.post<_, Array<BlogPartDto>>(
+        Http.post<_, Array<BlogBaseDto>>(
             "${Http.HOST}/service/blogOps/agreeHistory", dto
         )
 

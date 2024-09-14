@@ -19,12 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.repository.dto.resp.BlogPartDto
 import com.bitat.utils.ScreenUtils
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MediaGrid(mediaList: List<BlogPartDto>, itemTap: (BlogPartDto) -> Unit={}) {
+fun MediaGrid(mediaList: List<BlogBaseDto>, itemTap: (BlogBaseDto) -> Unit={}) {
     val width = (ScreenUtils.screenWidth / 3)
     val height = width * 1.33
 

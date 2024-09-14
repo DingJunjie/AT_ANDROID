@@ -90,7 +90,8 @@ fun BlogItem(
     tapLike: () -> Unit,
     tapCollect: (Int) -> Unit,
     moreClick: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    tagTap:(String) ->Unit ={}
 ) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog) //    val height = 500
@@ -222,7 +223,9 @@ fun BlogItem(
                         blog.tags.map {
                             tagList.add(it.toBlogTagDto())
                         }
-                        CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth())
+                        CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth(), tagTap = { tag->
+                            tagTap(tag)
+                        })
                     }
                 } //博文类型
                 Box(modifier = Modifier

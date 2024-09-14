@@ -40,7 +40,7 @@ object UserReq {
 
     //通过id查询相册列表
     suspend inline fun photoBlogList(dto: PhotoBlogListDto) =
-        Http.post<_, Array<BlogPartDto>>("${Http.HOST}/service/user/photoBlogList", dto)
+        Http.post<_, Array<BlogBaseDto>>("${Http.HOST}/service/user/photoBlogList", dto)
 
     //修改用户公开性
     suspend inline fun updateVisible(dto: UpdateVisibleDto) =
