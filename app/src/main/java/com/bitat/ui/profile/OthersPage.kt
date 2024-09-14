@@ -99,6 +99,7 @@ fun OthersPage(
 
     val vm = viewModelProvider[OthersViewModel::class]
     val state by vm.othersState.collectAsState();
+    vm.initUserId(otherId)
 
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()

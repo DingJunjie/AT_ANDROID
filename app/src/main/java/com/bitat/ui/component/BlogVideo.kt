@@ -1,7 +1,6 @@
 package com.bitat.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,10 +24,7 @@ import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.router.AtNavigation
 import com.bitat.ui.reel.BitVideoPlayer
 import com.bitat.ui.reel.BitVideoType
-import com.bitat.ui.reel.VideoConfig
-import com.bitat.ui.video.CMPPlayer
 import com.bitat.ui.video.PlayerConfig
-import com.bitat.ui.video.PlayerSpeed
 import com.bitat.viewModel.BlogViewModel
 import com.bitat.viewModel.ReelViewModel
 

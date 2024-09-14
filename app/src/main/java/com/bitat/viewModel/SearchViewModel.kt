@@ -7,6 +7,7 @@ import com.bitat.log.CuTag
 import com.bitat.repository.consts.RankingAts
 import com.bitat.repository.dto.common.PageDto
 import com.bitat.repository.dto.req.SearchCommonDto
+import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.http.service.RankingReq
 import com.bitat.repository.http.service.SearchReq
 import com.bitat.repository.po.SearchHistoryPo
@@ -111,6 +112,18 @@ class SearchViewModel : ViewModel() {
                 CuLog.error(CuTag.Blog, "atRankingList fail code:${it.code},msg:${it.msg}")
             }
 
+        }
+    }
+
+    fun updateUser(user: UserBase1Dto) {
+        val index = _searchState.value.searchUserResult.indexOf(user)
+        if (index >= 0)
+            _searchState.update {
+                it.searchUserResult[index] = user
+                it
+            }
+        _searchState.update {
+            it.copy(flag = it.flag + 1)
         }
     }
 }

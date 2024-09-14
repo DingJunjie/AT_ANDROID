@@ -20,7 +20,8 @@ class BlogBaseDto {
     var visible: Byte = 0 //可见性
     var openComment: Byte = 0 //是否开放评论
     var kind: Byte = 0 //博文类型
-//    var musicKind: Byte = 0 //音乐类型
+
+    //    var musicKind: Byte = 0 //音乐类型
     var status: Byte = 0 //状态
     var vote: Byte = 0//投票
     var cover: String = "" //封面
@@ -53,6 +54,7 @@ class BlogBaseDto {
     //--------------------------------------------
     @Transient //表示不参加序列化
     var out: Int = 0
+
     @Transient
     var height: Int = 0
 }
@@ -82,6 +84,31 @@ class BlogPartDto(
     var blogVote: BlogVotesDto = BlogVotesDto(),
 )
 
+fun BlogPartDto.toBlogBaseDto(): BlogBaseDto {
+    val blogBaseDto = BlogBaseDto()
+    blogBaseDto.id = this.id
+    blogBaseDto.userId = this.userId
+    blogBaseDto.nickname = this.nickname
+    blogBaseDto.profile = this.profile
+    blogBaseDto.visible = this.visible
+    blogBaseDto.status = this.status.toByte()
+    blogBaseDto.longitude = this.longitude
+    blogBaseDto.latitude = this.latitude
+    blogBaseDto.comments = this.comments
+    blogBaseDto.ats = this.ats
+    blogBaseDto.exposure = this.exposure
+    blogBaseDto.kind = this.kind
+    blogBaseDto.cover = this.cover
+    blogBaseDto.content = this.content
+    blogBaseDto.createTime = this.createTime
+    blogBaseDto.vote = this.vote
+    blogBaseDto.labels = this.labels
+    blogBaseDto.tags = this.tags
+    blogBaseDto.resource = this.resource
+    blogBaseDto.blogVote = this.blogVote
+    return blogBaseDto
+}
+
 
 @Serializable
 class BlogVotesDto {
@@ -108,7 +135,8 @@ class BlogPart2Dto {
     var visible: Byte = 0 //可见性
     var openComment: Byte = 0 //是否开放评论
     var kind: Byte = 0 //博文类型
-//    var musicKind: Byte = 0 //音乐类型
+
+    //    var musicKind: Byte = 0 //音乐类型
     var status: Byte = 0 //状态
     var vote: Byte = 0//投票
     var cover: String = "" //封面
@@ -153,7 +181,8 @@ class BlogPart3Dto {
     var visible: Byte = 0 //可见性
     var openComment: Byte = 0 //是否开放评论
     var kind: Byte = 0 //博文类型
-//    var musicKind: Byte = 0 //音乐类型
+
+    //    var musicKind: Byte = 0 //音乐类型
     var status: Byte = 0 //状态
     var vote: Byte = 0//投票
     var cover: String = "" //封面

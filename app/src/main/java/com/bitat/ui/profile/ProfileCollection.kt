@@ -46,13 +46,16 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bitat.ext.timestampFormat
 import com.bitat.repository.dto.resp.CollectPartDto
+import com.bitat.router.AtNavigation
 import com.bitat.router.NavigationItem
 import com.bitat.state.CollectionTabs
+import com.bitat.state.ReelType
 import com.bitat.ui.common.ListFootView
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.ProfileViewModel
+import com.bitat.viewModel.ReelViewModel
 import kotlinx.coroutines.Dispatchers
 
 
@@ -63,6 +66,7 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
 
     val profileVm: ProfileViewModel = viewModelProvider[ProfileViewModel::class]
     val profileState by profileVm.uiState.collectAsState()
+    val detailsVm = viewModelProvider[ReelViewModel::class]
 
     LaunchedEffect(Dispatchers.Default) {
         vm.initMyCollections()
@@ -98,7 +102,15 @@ fun CollectionTab(navHostController: NavHostController, viewModelProvider: ViewM
 
 
         when (state.currentTab) {
-            CollectionTabs.Works -> MediaGrid(mediaList = state.currentCollectionItems)
+            CollectionTabs.Works -> MediaGrid(mediaList = state.currentCollectionItems){ item ->
+                val index = state.currentCollectionItems.indexOf(item)
+                if (index >= 0) {
+                    detailsVm.setPageType(ReelType.COLLECT)
+                    detailsVm.setIndex(index)
+                    detailsVm.setSearchList(state.currentCollectionItems.toList())
+                    AtNavigation(navHostController).navigateToVideo()
+                }
+            }
             CollectionTabs.Custom -> CustomCollections(myCustomCollections = state.collections, {
                 vm.selectCollection(it)
             }, {

@@ -46,6 +46,7 @@ import com.bitat.repository.consts.BLOG_IMAGE_TEXT
 import com.bitat.repository.consts.BLOG_VIDEO_ONLY
 import com.bitat.repository.consts.BLOG_VIDEO_TEXT
 import com.bitat.router.AtNavigation
+import com.bitat.state.ReelType
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.rememberToastState
@@ -127,9 +128,31 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page -> // 页面切换时触发的操作
             if (page == pagerState.pageCount - 1) {
-                vm.getList(false) {
-                    ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
+                when(state.value.pageType){
+                    ReelType.BLOG -> {
+                        vm.getList(false) {
+                            ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
+                        }
+                    }
+                    ReelType.SEARCH -> {
+                        vm.getVideoSearchList(state.value.searchKeyWords){
+                            ToastModel("加载更多成功", ToastModel.Type.Success).showToast()
+                        }
+                    }
+                    ReelType.COLLECT -> {
+                        TODO()
+                    }
+                    ReelType.LIKE -> {
+                        TODO()
+                    }
+                    ReelType.PHOTO -> {
+                        TODO()
+                    }
+                    ReelType.HISTORY -> {
+                        TODO()
+                    }
                 }
+
             }
             vm.setIndex(page)
             // 记录观看历史
@@ -146,9 +169,9 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
         }
     }
 
-    BackHandler {
-        AtNavigation(navController).navigateToHome()
-    }
+//    BackHandler {
+//        AtNavigation(navController).navigateToHome()
+//    }
 
     val horPagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     HorizontalPager(state = horPagerState) { horPage ->
@@ -231,14 +254,6 @@ fun ReelPageDemo(navController: NavHostController, viewModelProvider: ViewModelP
                                 maxLength = 17
                             )
                             Spacer(modifier = Modifier.height(5.dp))
-
-                            //                                if (currentDto.location.isNotEmpty()) Options(title = currentDto.location,
-                            //                                    iconPath = "svg/location_line.svg",
-                            //                                    selected = false,
-                            //                                    modifier = Modifier.height(30.dp),
-                            //                                    tapFn = {
-                            //
-                            //                                    })
                             Spacer(modifier = Modifier.height(20.dp))
                         }
 
