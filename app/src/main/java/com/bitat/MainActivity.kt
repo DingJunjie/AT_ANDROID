@@ -1,14 +1,23 @@
 package com.bitat
 
 import android.app.ActivityManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -44,10 +53,18 @@ import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SqlDB
 import com.bitat.ui.common.DialogOps
 import com.bitat.ui.common.DialogProps
+import com.bitat.ui.common.NotificationOps
+import com.bitat.ui.common.RequestPermission
+import com.bitat.ui.common.SnackbarNotification
+import com.bitat.ui.common.SnackbarVisualsWithError
 import com.bitat.ui.common.rememberDialogState
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.serialization.json.Json
 
 val MainCo = MainScope()
 
+const val CHANNEL_ID = "at_channel"
+const val CHANNEL_NAME = "At Channel"
 
 class MainActivity : ComponentActivity() {
 
@@ -81,17 +98,19 @@ class MainActivity : ComponentActivity() {
             val dialogShow = remember { mutableStateOf(false) }
             val dialog = rememberDialogState()
             val dialogState = remember {
-                mutableStateOf(DialogProps(title = "",
-                    content = "",
-                    okText = "确认",
-                    cancelText = "取消",
-                    okColor = Color.Black,
-                    closeOnAction = false,
-                    onCancel = {},
-                    onOk = {
-                        AtNavigation(navController).navigateToLogin()
-                        dialogShow.value = false
-                    }))
+                mutableStateOf(
+                    DialogProps(title = "",
+                        content = "",
+                        okText = "确认",
+                        cancelText = "取消",
+                        okColor = Color.Black,
+                        closeOnAction = false,
+                        onCancel = {},
+                        onOk = {
+                            AtNavigation(navController).navigateToLogin()
+                            dialogShow.value = false
+                        })
+                )
             }
 
             val navigationActions = remember(navController) {
@@ -99,13 +118,26 @@ class MainActivity : ComponentActivity() {
             }
             val toastState = remember { ToastUIState() }
 
+            val snackbarHostState = remember { SnackbarHostState() }
+
             BitComposeTheme {
-                AppNavHost(navController,
-                    AtNavigation(navController),
-                    viewModelProvider = viewModelProvider)
-                ToastUI(toastState)
-                if (dialogShow.value) {
-                    dialog.show(dialogState.value)
+                Scaffold(snackbarHost = {
+//                    SnackbarHost(hostState = snackbarHostState, snackbar = { data ->
+//                        SnackbarNotification(data)
+//                    })
+                }) { _ ->
+                    AppNavHost(
+                        navController,
+                        AtNavigation(navController),
+                        viewModelProvider = viewModelProvider
+                    )
+                    ToastUI(toastState)
+                    if (dialogShow.value) {
+                        dialog.show(dialogState.value)
+                    }
+                    SnackbarHost(hostState = snackbarHostState, snackbar = { data ->
+                        SnackbarNotification(data, navController)
+                    })
                 }
             }
 
@@ -130,7 +162,40 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            
+            observeEvent(key = BitEventBus.NotificationDialog) {
+                MainCo.launch(IO) {
+                    if (it is NotificationOps) {
+                        snackbarHostState.showSnackbar(
+                            message = Json.encodeToString(
+                                NotificationOps.serializer(),
+                                it
+                            ),
+                            withDismissAction = true,
+                            actionLabel = "关闭"
+                        )
+                        println(it)
+                    }
+                }
+            }
+
+            observeEvent(key = BitEventBus.ChatMessageDialog) {
+                println(it)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                RequestPermission(
+                    permission = android.Manifest.permission.POST_NOTIFICATIONS,
+                    tip = "开启通知咩"
+                )
+            }
+
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
+                description = "This is my channel description"
+            }
+            val notificationManager: NotificationManager =
+                LocalContext.current.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
 
             SingleMsgHelper.opsInit(viewModelProvider)
 

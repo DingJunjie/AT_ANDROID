@@ -307,23 +307,22 @@ class ChatViewModel : ViewModel() {
 
             if (i > -1) {
                 _state.update {
-                    val oldMsg = it.chatList.removeAt(i)
-                    oldMsg.content = newMsg.content
-                    oldMsg.kind = newMsg.kind
-                    oldMsg.time = newMsg.time
-                    oldMsg.unreads += 1
+                    it.chatList[i].apply {
+                        content = newMsg.content
+                        kind = newMsg.kind
+                        time = newMsg.time
+                        unreads += 1
+                    }
 
-                    it.chatList.add(i, oldMsg)
-                    it.copy(flag = it.flag + 1)
+                    it
                 }
             } else {
                 createRoom(newMsg.otherId, false) {}
-
             }
 
             _state.update {
                 it.chatList.sortWith(comparator)
-                it
+                it.copy(flag = it.flag + 1)
             }
         }
     }

@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -50,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -74,6 +76,7 @@ import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
 import com.bitat.router.NavigationItem
+import com.bitat.ui.common.NotificationOps
 import com.bitat.ui.common.SwipeActionItem
 import com.bitat.ui.common.SwipeActionStyle
 import com.bitat.ui.common.SwipeActionType
@@ -81,6 +84,7 @@ import com.bitat.ui.common.WeSwipeAction
 import com.bitat.utils.ScreenUtils
 import com.bitat.utils.TimeUtils
 import com.bitat.ui.common.rememberAsyncPainter
+import com.bitat.ui.common.showNotification
 import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,6 +136,14 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
     }
     val toast = rememberToastState()
 
+    val showNotificationState = remember {
+        mutableStateOf(false)
+    }
+
+    if (showNotificationState.value) {
+        showNotification(context = LocalContext.current, notificationId = 1)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,7 +158,9 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                 }
 
                 Row {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        showNotificationState.value = !showNotificationState.value
+                    }) {
                         Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
                     }
                     IconButton(onClick = { /*TODO*/ }) {
