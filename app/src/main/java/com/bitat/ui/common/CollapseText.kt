@@ -1,5 +1,6 @@
 package com.bitat.ui.common
 
+import android.text.style.ClickableSpan
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -35,9 +36,18 @@ import com.bitat.ui.theme.Typography
 import com.bitat.utils.PublishUtils.TAG_REGEX
 import com.bitat.utils.PublishUtils.TAG_REGEX_SPLIT
 import kotlinx.serialization.json.Json
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @Composable
-fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, onCollapse: (Boolean) -> Unit = {}) {
+fun CollapseText(
+    value: String,
+    maxLines: Int,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
+    maxLength: Int = 24,
+    onCollapse: (Boolean) -> Unit = {}
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Column {
@@ -50,34 +60,108 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, te
         )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier.background(Color.Transparent)
+            Box(modifier = Modifier
+                .background(Color.Transparent)
                 .padding(top = 5.dp) // Background color
                 .clickable {
                     expanded = !expanded
                     onCollapse(expanded)
                 }) {
 
-                Text(text = if (!expanded) "展开" else "收起",
-                    style = textStyle.copy(color = colorResource(id = R.color.search_border)))
+                Text(
+                    text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
+                )
             }
         }
     }
 }
 
+fun compileTag(value: String): MutableList<String> {
+    val pattern = Pattern.compile(TAG_REGEX_SPLIT)
+    val matcher = pattern.matcher(value)
+    val result = mutableListOf<String>()
+
+    var start = 0
+    while (matcher.find()) {
+        val separator = matcher.group()
+        if (start < matcher.start()) {
+            result.add(value.substring(start, matcher.start()))
+        }
+        result.add(separator)
+        start = matcher.end()
+    }
+    if (start < value.length) {
+        result.add(value.substring(start))
+    }
+    return result
+}
+
+fun matchTag(value: String): BlogTagDto {
+    //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
+    val pattern = Pattern.compile("[0-9]+")
+    val im: Matcher = pattern.matcher(value)
+
+    val cp = Pattern.compile("""\p{IsHan}+""")
+    val cm: Matcher = cp.matcher(value)
+
+    im.find()
+    cm.find()
+    val idg = im.group()
+    val content = cm.group()
+
+    return BlogTagDto().apply {
+        id = if (idg == "") 0 else idg.toLong()
+        name = content
+    }
+}
 
 /**
  * 显示话题的文本内容
  * */
 @Composable
 @Suppress("Deprecation")
-fun CollapseReachText(value: String, tags: List<BlogTagDto>,maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, onCollapse: (Boolean) -> Unit = {}) {
+fun CollapseReachText(
+    value: String,
+    tags: List<BlogTagDto>,
+    maxLines: Int,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
+    maxLength: Int = 24,
+    onCollapse: (Boolean) -> Unit = {}
+) {
 
-   var regexAar= value.split(TAG_REGEX_SPLIT.toRegex())
+    var regexAar = value.split(TAG_REGEX_SPLIT.toRegex())
+    val res = compileTag(value)
+
+
 //    var regResultArr = value.replace(TAG_REGEX_SPLIT.toRegex()) {
 //        val dto = Json.decodeFromString(BlogTagDto.serializer(), it.value)
 //        println(dto.name)
 //        it.toString()
 //    }
+
+
+    val contentWithTag = buildAnnotatedString {
+        if (res.size > 1) {
+            // 带tag
+            res.mapIndexed { i, v ->
+                if (i % 2 == 1) {
+                    // \^#{\d+:\w+}^\
+                    val tag = matchTag(v)
+                    pushStringAnnotation(tag = tag.name, annotation = tag.id.toString())
+                    withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W900)) {
+                        append("#${tag.name}")
+                    }
+                    pop()
+                } else {
+                    withStyle(style = SpanStyle(color = Color.Black)) {
+                        append(v)
+                    }
+                }
+            }
+        }
+    }
 
     val annotatedString = buildAnnotatedString { //创建富文本内容
         withStyle(style = SpanStyle(color = Color.Black)) {
@@ -99,14 +183,15 @@ fun CollapseReachText(value: String, tags: List<BlogTagDto>,maxLines: Int, modif
         pop()
     } //可点击的文本控件
 
-    ClickableText(text = annotatedString, onClick = { offset ->
+
+    ClickableText(text = contentWithTag, onClick = { offset ->
         annotatedString.getStringAnnotations(tag = "juejin", start = offset, end = offset)
             .firstOrNull()?.let { annotation -> // 点击事件的处理
-                CuLog.error(CuTag.Blog,"点击了文本${annotation.item}")
+                CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
             }
         annotatedString.getStringAnnotations(tag = "baidu", start = offset, end = offset)
             .firstOrNull()?.let { annotation -> // 点击事件的处理
-                CuLog.error(CuTag.Blog,"点击了文本${annotation.item}")
+                CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
             }
     })
 }
