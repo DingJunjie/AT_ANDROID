@@ -5,6 +5,7 @@ import com.bitat.MainCo
 import com.bitat.repository.dto.resp.BlogBaseDto
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.consts.HTTP_PAGESIZE
 import com.bitat.repository.consts.HttpLoadState
 import com.bitat.repository.dto.req.BlogOpsAddCollectDto
 import com.bitat.repository.dto.req.BlogOpsRemoveCollectDto
@@ -61,7 +62,7 @@ class CollectViewModel : ViewModel() {
         MainCo.launch {
             reqState(true)
             footShow(true)
-            UserExtraReq.findCollectOpus(FindCollectOpusDto(pageSize = 20, lastTime = lastId))
+            UserExtraReq.findCollectOpus(FindCollectOpusDto(pageSize = HTTP_PAGESIZE, lastTime = lastId))
                 .await().map { res ->
                     _collectState.update {
                         if (lastId == 0L) it.currentCollectionItems.clear()
@@ -69,9 +70,10 @@ class CollectViewModel : ViewModel() {
                         it
                     }
 
-                    if (res.isEmpty()) {
+                    if (res.isEmpty()||res.size<HTTP_PAGESIZE) {
                         httpState(HttpLoadState.NoData)
                     } else {
+
                         footShow(false)
                     }
                     reqState(false)

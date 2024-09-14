@@ -5,7 +5,10 @@ import com.bitat.repository.dto.resp.UserBase1Dto
 
 object PublishUtils {
     private const val AT_REGEX: String = """\\^@{id:nickname}^\\""";
-    private const val TAG_REGEX: String = """\\^#{id:content}^\\"""
+     const val TAG_REGEX: String = """\\^#{id:content}^\\"""
+    const val TAG_REGEX_SPLIT: String = """\\\^#\{\d+:\p{IsHan}+\}\^\\"""
+
+    //value.split("""\\\^#\{\d+:\p{IsHan}+\}\^\\""".toRegex())
 
     fun convertContentWithTag(content: String, tags: List<BlogTagDto>): String {
         var newContent = content;

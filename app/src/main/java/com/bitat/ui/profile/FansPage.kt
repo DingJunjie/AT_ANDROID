@@ -35,6 +35,7 @@ import com.bitat.ext.cdp
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
+import com.bitat.router.Others
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.component.Avatar
 import com.bitat.ui.component.CommonTopBar
@@ -75,8 +76,8 @@ fun FansPage(navHostController: NavHostController, viewModelProvider: ViewModelP
         LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(state.fansList) { index, item ->
                 FansItem(item, state.flag, itemTap = {
-                    othersVm.initUserId(item.id)
-                    navHostController.navigate(NavigationItem.Others.route)
+//                    othersVm.initUserId(item.id)
+                    navHostController.navigate(Others(otherId = item.id))
                 }, followFn = {
                     followVm.followUser(item.rel, item.revRel, item.id, onSuccess = {
                         vm.updateCurrentFans(index, item.copy(rel = it))

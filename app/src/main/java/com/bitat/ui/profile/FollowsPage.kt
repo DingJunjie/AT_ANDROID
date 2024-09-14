@@ -26,6 +26,7 @@ import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
+import com.bitat.router.Others
 import com.bitat.ui.common.ListFootView
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.common.statusBarHeight
@@ -83,8 +84,9 @@ fun FollowsPage(navHostController: NavHostController, viewModelProvider: ViewMod
         LazyColumn(state = listState, modifier = Modifier.padding(padding)) {
             itemsIndexed(state.followsList) { index, item ->
                 FansItem(item, state.flag, itemTap = {
-                    othersVm.initUserId(item.id)
-                    navHostController.navigate(NavigationItem.Others.route)
+//                    othersVm.initUserId(item.id)
+//                    navHostController.navigate(NavigationItem.Others.route)
+                    navHostController.navigate(Others(otherId = item.id))
                 }, followFn = {
 
                     followVm.followUser(item.rel, item.revRel, item.id, onSuccess = {

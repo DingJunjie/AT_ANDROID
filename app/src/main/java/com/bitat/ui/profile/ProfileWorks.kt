@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
 import com.bitat.state.ReelType
+import com.bitat.ui.common.ListFootView
 import com.bitat.ui.common.statusBarHeight
 import com.bitat.ui.component.MediaGrid
 import com.bitat.utils.ScreenUtils
@@ -30,7 +31,9 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
         vm.getMyWorks(userId)
     }
 
-    LaunchedEffect(state.isAtBottom) {
+
+
+    fun loadMore(){
         if (state.profileType == 2) {
             if (state.myWorks.isNotEmpty()) {
                 val lastTime = state.myWorks.last().createTime
@@ -39,6 +42,9 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
                 vm.getMyWorks(userId = UserStore.userInfo.id)
             }
         }
+    }
+    LaunchedEffect(state.isAtBottom) {
+        loadMore()
     }
 
     Column(modifier = Modifier.fillMaxWidth().heightIn(min = ScreenUtils.screenHeight.dp-56.dp- statusBarHeight)) {
@@ -50,6 +56,9 @@ fun ProfileWorks(userId: Long, navHostController: NavHostController, viewModelPr
                 detailsVm.setSearchList(state.myWorks.toList())
                 AtNavigation(navHostController).navigateToVideo()
             }
+        }
+        ListFootView(state.isFootShow, state.httpState) {
+            loadMore()
         }
     }
 }

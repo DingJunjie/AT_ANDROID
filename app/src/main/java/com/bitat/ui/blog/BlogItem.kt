@@ -48,10 +48,13 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.DEFAULT
 import com.bitat.repository.consts.FOLLOWED
+import com.bitat.repository.dto.common.toBlogTagDto
 import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogTagDto
 import com.bitat.repository.store.UserStore
 import com.bitat.router.NavigationItem
 import com.bitat.router.Others
+import com.bitat.ui.common.CollapseReachText
 import com.bitat.ui.common.CollapseText
 import com.bitat.ui.common.LottieBox
 import com.bitat.ui.component.Avatar
@@ -60,6 +63,7 @@ import com.bitat.ui.component.UserInfo
 import com.bitat.ui.theme.line
 import com.bitat.ui.theme.lineColor
 import com.bitat.utils.ImageUtils
+import com.bitat.utils.PublishUtils
 import com.bitat.utils.ScreenUtils
 import com.bitat.viewModel.BlogMoreViewModel
 import com.bitat.viewModel.BlogViewModel
@@ -213,7 +217,12 @@ fun BlogItem(
                             interactionSource = remember { MutableInteractionSource() }) {
                             contentClick(blog)
                         }) { //                        BlogText(blog.content)
-                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
+//                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
+                        val tagList= mutableListOf<BlogTagDto>()
+                        blog.tags.map {
+                            tagList.add(it.toBlogTagDto())
+                        }
+                        CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth())
                     }
                 } //博文类型
                 Box(modifier = Modifier

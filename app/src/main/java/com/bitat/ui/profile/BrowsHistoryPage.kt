@@ -1,6 +1,5 @@
 package com.bitat.ui.profile
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,17 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bitat.R
-import com.bitat.log.CuLog
-import com.bitat.log.CuTag
-import com.bitat.repository.sqlDB.SqlDB
 import com.bitat.router.AtNavigation
-import com.bitat.state.BrowserHistoryState
 import com.bitat.ui.component.CommonTopBar
 import com.bitat.ui.component.MediaGrid
+import com.bitat.utils.RelationUtils
 import com.bitat.viewModel.BrowserHistoryViewModel
 import kotlinx.coroutines.Dispatchers
 
@@ -41,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
  *    desc   : 浏览历史
  */
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrowserHistoryPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
     val vm = viewModelProvider[BrowserHistoryViewModel::class]
@@ -103,7 +95,7 @@ fun UserHistory(viewModelProvider: ViewModelProvider) {
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
             items(state.userList) { user ->
-                FansItem(user, 1,itemTap = {}, followFn = {}, "发消息")
+                FansItem(user, 1,itemTap = {}, followFn = {}, RelationUtils.toFollowContent(user.rel))
             }
         }
     }

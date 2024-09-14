@@ -47,12 +47,15 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun getMyWorks(userId: Long, lastTime: Long = 0, pageSize: Int = 20) {
+    fun getMyWorks(userId: Long, lastTime: Long = 0, pageSize: Int = HTTP_PAGESIZE) {
         MainCo.launch {
+            isFootShow(true)
+            httpResp(true)
             UserReq.photoBlogList(PhotoBlogListDto(userId = userId,
                 pageSize = pageSize,
                 lastTime = lastTime)).await().map { res ->
                 CuLog.info(CuTag.Profile, "get my works, size is ${res.size}")
+                httpResp(false)
                 uiState.update {
                     if (lastTime == 0L) {
                         it.myWorks.clear()
@@ -60,7 +63,15 @@ class ProfileViewModel : ViewModel() {
                     it.myWorks.addAll(res)
                     it
                 }
+                if (res.isEmpty()||res.size<HTTP_PAGESIZE) {
+                    httpState(HttpLoadState.NoData)
+                } else {
+                    isFootShow(false)
+                    httpState(HttpLoadState.Default)
+                }
             }.errMap {
+                httpResp(false)
+                httpState(HttpLoadState.Fail)
                 CuLog.error(CuTag.Profile, "has not get my works, ${it.msg}")
             }
         }
@@ -85,7 +96,7 @@ class ProfileViewModel : ViewModel() {
                     it.myPraise.addAll(res)
                     it
                 }
-                if (res.isEmpty()) {
+                if (res.isEmpty()||res.size<HTTP_PAGESIZE) {
                     httpState(HttpLoadState.NoData)
                 } else {
                     isFootShow(false)

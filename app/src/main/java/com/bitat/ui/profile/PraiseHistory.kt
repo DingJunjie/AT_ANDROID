@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.store.UserStore
 import com.bitat.router.AtNavigation
 import com.bitat.state.ReelType
 import com.bitat.ui.common.ListFootView
@@ -54,7 +55,7 @@ fun PraiseHistory(navHostController: NavHostController, viewModelProvider: ViewM
         }
     }
 
-    LaunchedEffect(state.isAtBottom) {
+    LaunchedEffect( state.isAtBottom) {
         loadMore()
 
     }
