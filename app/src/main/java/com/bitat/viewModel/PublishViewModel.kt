@@ -10,6 +10,7 @@ import com.bitat.repository.consts.Commentable
 import com.bitat.repository.consts.Followable
 import com.bitat.repository.consts.Visibility
 import com.bitat.repository.dto.common.ResourceDto
+import com.bitat.repository.dto.common.TagsDto
 import com.bitat.repository.dto.req.BlogTagFindDto
 import com.bitat.repository.dto.req.FindFriendListDto
 import com.bitat.repository.dto.req.PublishBlogDto
@@ -509,6 +510,12 @@ class PublishViewModel : ViewModel() {
             longitude = _commonState.value.longitude
             latitude = _commonState.value.latitude
             location = _commonState.value.location
+            tags = _commonState.value.tags.map {
+                TagsDto().apply {
+                    v0 = it.id
+                    v1 = it.name
+                }
+            }.toTypedArray()
 
 //            content = _commonState.value.content
             content = newContent
