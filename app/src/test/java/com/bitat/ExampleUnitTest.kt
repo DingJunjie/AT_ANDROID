@@ -19,6 +19,10 @@ class ExampleUnitTest {
             } else r.top - l.top
         }
         list.sortWith(comparator)
+        val arr = arrayOf(1,2,3,4,5)
+        arr.firstOrNull{
+            it == 0
+        }
     }
 
     private val tagDict = HashMap<String, Long>()
@@ -33,4 +37,14 @@ class ExampleUnitTest {
     }
 
 
+}
+
+open class Base {
+    val name1: String = ""
+    val age1: Int = 0
+}
+
+class Base0 : Base() {
+    val name: String = ""
+    val age: Int = 0
 }

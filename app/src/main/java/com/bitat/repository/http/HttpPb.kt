@@ -32,7 +32,7 @@ object HttpPb {
             val token = TokenStore.fetchToken()
             if (token != null) headerMap["Authorization"] = token
             else {
-                cd.complete(CuRes.err(INNER_ERROR, "not has token"))
+                cd.complete(CuRes.err(INNER_ERROR, "Not has token"))
                 return cd
             }
         }
