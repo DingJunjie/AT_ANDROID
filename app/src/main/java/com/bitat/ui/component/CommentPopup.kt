@@ -19,20 +19,51 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CommentPopup(visible: Boolean, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit, blogId: Long, onClose: () -> Unit, isPop: Boolean = true,commentSuccess:() ->Unit={}) {
+fun CommentPopup(
+    visible: Boolean,
+    commentViewModel: CommentViewModel,
+    commentState: CommentState,
+    coroutineScope: CoroutineScope,
+    tapImage: (String) -> Unit,
+    blogId: Long,
+    onClose: () -> Unit,
+    isPop: Boolean = true,
+    commentSuccess: () -> Unit = {}
+) {
     if (isPop) {
         Popup(visible = visible, onClose = { onClose() }) {
-            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage,commentSuccess)
+            CommonLayout(
+                blogId,
+                commentViewModel,
+                commentState,
+                coroutineScope,
+                tapImage,
+                commentSuccess
+            )
         }
     } else {
         Column {
-            CommonLayout(blogId, commentViewModel, commentState, coroutineScope, tapImage,commentSuccess)
+            CommonLayout(
+                blogId,
+                commentViewModel,
+                commentState,
+                coroutineScope,
+                tapImage,
+                commentSuccess
+            )
         }
     }
 }
 
 @Composable
-fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState: CommentState, coroutineScope: CoroutineScope, tapImage: (String) -> Unit,commentSuccess:() ->Unit={}) {
+fun CommonLayout(
+    blogId: Long,
+    commentViewModel: CommentViewModel,
+    commentState: CommentState,
+    coroutineScope: CoroutineScope,
+    tapImage: (String) -> Unit,
+    commentSuccess: () -> Unit = {}
+) {
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(commentState.commentInput))
     }
@@ -141,12 +172,18 @@ fun CommonLayout(blogId: Long, commentViewModel: CommentViewModel, commentState:
             inputAt.value = ""
         }, tapAt = {
             val b = textFieldValue.text.substring(0, textFieldValue.selection.start)
-            val a = textFieldValue.text.substring(TextRange(textFieldValue.selection.start,
-                textFieldValue.text.length))
+            val a = textFieldValue.text.substring(
+                TextRange(
+                    textFieldValue.selection.start,
+                    textFieldValue.text.length
+                )
+            )
             val t = "$b@$a"
             focusRequester.requestFocus()
-            textFieldValue = textFieldValue.copy(text = t,
-                selection = TextRange(textFieldValue.selection.start + 1))
+            textFieldValue = textFieldValue.copy(
+                text = t,
+                selection = TextRange(textFieldValue.selection.start + 1)
+            )
             atStart.value = textFieldValue.selection.start
             commentViewModel.searchUser("")
         }, selectedImage = commentState.imagePath, imageSelect = {

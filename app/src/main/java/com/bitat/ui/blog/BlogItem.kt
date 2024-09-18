@@ -91,7 +91,7 @@ fun BlogItem(
     tapCollect: (Int) -> Unit,
     moreClick: () -> Unit,
     onRemove: () -> Unit,
-    tagTap:(String) ->Unit ={}
+    tagTap: (String) -> Unit = {}
 ) {
     println("current blog is ${Json.encodeToString(BlogBaseDto.serializer(), blog)}")
     val height = getHeight(blog) //    val height = 500
@@ -181,10 +181,12 @@ fun BlogItem(
             "博文类型>>>>>>>>>>>>>>" + blog.kind.toInt() + "用户id：${blog.userId},关系：${blog.rel},位置：${blog.ipTerritory},lab:${blog.labels}"
         )
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(Color.Transparent)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        ) {
             Column(
                 modifier = Modifier
                     .width(ScreenUtils.screenWidth.times(0.1).dp) //                    .background(Color.Blue)
@@ -219,18 +221,25 @@ fun BlogItem(
                             contentClick(blog)
                         }) { //                        BlogText(blog.content)
 //                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
-                        val tagList= mutableListOf<BlogTagDto>()
+                        val tagList = mutableListOf<BlogTagDto>()
                         blog.tags.map {
                             tagList.add(it.toBlogTagDto())
                         }
-                        CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth(), tagTap = { tag->
-                            tagTap(tag)
-                        })
+                        CollapseReachText(
+                            value = blog.content,
+                            tagList,
+                            2,
+                            modifier = Modifier.fillMaxWidth(),
+                            tagTap = { tag ->
+                                tagTap(tag)
+                            })
                     }
                 } //博文类型
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent)
+                ) {
                     BlogContent(
                         blog.kind.toInt(),
                         blog,
@@ -256,7 +265,6 @@ fun BlogItem(
                 }
                 if (state.flag < 0) {
                     Text("")
-
                 }
             }
         }
@@ -266,15 +274,21 @@ fun BlogItem(
                 isMoreVisible.value = false
             }, onRemove = { onRemove() })
         }
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(5.dp))
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp), color = lineColor)
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(10.dp))
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(5.dp)
+        )
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp), color = lineColor
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+        )
     }
 //    }
 }

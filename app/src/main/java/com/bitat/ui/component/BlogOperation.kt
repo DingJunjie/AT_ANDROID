@@ -23,12 +23,21 @@ import androidx.compose.ui.unit.dp
 import com.bitat.repository.dto.resp.BlogBaseDto
 
 @Composable
-fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> Unit = {}, tapLike: () -> Unit = {}, tapCollect: (Int) -> Unit = {},updateFlag:Int=0) {
+fun BlogOperation(blog: BlogBaseDto,
+                  tapComment: () -> Unit = {},
+                  tapAt: () -> Unit = {},
+                  tapLike: () -> Unit = {},
+                  tapCollect: (Int) -> Unit = {},
+                  updateFlag: Int = 0
+) {
     val collectY = remember {
         mutableIntStateOf(0)
     }
 
-    Row(modifier = Modifier.fillMaxWidth().height(40.dp).padding(end = 20.dp),
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(40.dp)
+        .padding(end = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
         Row(modifier = Modifier.padding( end = 10.dp),
@@ -60,10 +69,13 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
 
         CollectButton(
             hasCollect = blog.hasCollect,
-            modifier = Modifier.size(22.dp).onGloballyPositioned {
+            modifier = Modifier
+                .size(22.dp)
+                .onGloballyPositioned {
                     collectY.intValue = it.positionInWindow().y.toInt()
                 },
         ) {
+//            blog.hasCollect = !blog.hasCollect
             tapCollect(collectY.intValue)
         }
         if (updateFlag<0){

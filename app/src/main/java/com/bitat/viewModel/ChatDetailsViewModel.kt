@@ -218,7 +218,10 @@ class ChatDetailsViewModel : ViewModel() {
      */
     fun canSend(toId: Long): ReplyType {
         val res = SocialRelDB.getRel(UserStore.userInfo.id, toId)
-        if (res == null) {
+        if (res.toInt() == BLACKLIST) {
+            // 拉黑
+            return ReplyType.Blocked
+        } else {
             // 陌生人
             val msgList = SingleMsgDB.findMsg(UserStore.userInfo.id, toId, 0, 30)
             // 如果我有回复过(status > 1)那随便发
@@ -238,14 +241,8 @@ class ChatDetailsViewModel : ViewModel() {
                 // 收到过，没发过
                 return ReplyType.StrangerRecipient
             } else {
-                return ReplyType.StrangerEnable
+                return ReplyType.Normal
             }
-        } else if (res.toInt() == BLACKLIST) {
-            // 拉黑
-            return ReplyType.Blocked
-        } else {
-            // 非陌生人或者拉黑
-            return ReplyType.Normal
         }
     }
 

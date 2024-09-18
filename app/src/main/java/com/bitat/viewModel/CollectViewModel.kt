@@ -73,7 +73,6 @@ class CollectViewModel : ViewModel() {
                     if (res.isEmpty()||res.size<HTTP_PAGESIZE) {
                         httpState(HttpLoadState.NoData)
                     } else {
-
                         footShow(false)
                     }
                     reqState(false)

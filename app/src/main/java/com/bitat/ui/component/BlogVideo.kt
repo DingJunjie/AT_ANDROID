@@ -37,7 +37,8 @@ fun BlogVideo(modifier: Modifier = Modifier, dto: BlogBaseDto, height: Int, isPl
     }
 
     Surface(shape = RoundedCornerShape(if (needRoundedCorner) 20.cdp else 0.cdp),
-        modifier = modifier.fillMaxWidth().height(height.dp) //            .clickable {
+        modifier = modifier.fillMaxWidth().height(height.dp)
+        //        .clickable {
         //            vm.setCurrentBlog(dto)
         //            detailsVm.setCurrentBlog(dto)
         //            AtNavigation(navController).navigateToVideo()

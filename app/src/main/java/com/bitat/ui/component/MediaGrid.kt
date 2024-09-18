@@ -90,3 +90,9 @@ fun MediaItem(blog: BlogPartDto) {
             modifier = Modifier.align(Alignment.TopEnd))
     }
 }
+
+
+
+
+
+

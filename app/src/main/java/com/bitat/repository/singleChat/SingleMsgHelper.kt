@@ -34,6 +34,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -374,6 +375,7 @@ object SingleMsgHelper {
 
         val content = msg.data.toString(Charsets.UTF_8)
         val roomVm = viewModelProvider[ChatViewModel::class]
+        val state = roomVm.state
 
         val nm = SingleMsgPo()
         nm.selfId = msg.toId
@@ -388,6 +390,13 @@ object SingleMsgHelper {
             SingleMsgDB.updateKind(msg.kind.toShort(), msg.toId, msg.fromId, originContent.time)
         } else {
             SingleMsgDB.insertOneUnique(nm)
+            val room = state.value.roomList.firstOrNull { that ->
+                that.otherId == nm.otherId
+            }
+
+            if (room == null) {
+                roomVm.createRoom(nm, false)
+            }
             roomVm.updateRoomContent(nm)
         }
         singleChatUiFlow.emit(GetNewMessage(nm))
