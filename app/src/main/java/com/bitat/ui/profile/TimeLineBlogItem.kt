@@ -214,7 +214,6 @@ fun TimeLineBlogItem(
                     }
                     if (state.flag < 0) {
                         Text("")
-
                     }
                 }
             }

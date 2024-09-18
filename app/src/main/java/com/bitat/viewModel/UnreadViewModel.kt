@@ -43,7 +43,7 @@ class UnreadViewModel : ViewModel() {
         }
     }
 
-    fun getUnreadMessage() {
+    private fun getUnreadMessage() {
         if (state.value.unreadMsgCount > 0) {
             MainCo.launch(IO) {
                 MsgReq.fetchChat(FetchChatCommon().apply {
@@ -78,14 +78,14 @@ class UnreadViewModel : ViewModel() {
                      */
 
                     unreadCountGroup.forEach {
-                        val u = SingleRoomPo().apply {
+                        val room = SingleRoomPo().apply {
                             this.selfId = UserStore.userInfo.id
                             this.otherId = it.key
                             this.unreads = it.value.v
                         }
 
                         SingleRoomDB.insertOrUpdate(
-                            u
+                            room
                         )
                     }
 
@@ -93,11 +93,11 @@ class UnreadViewModel : ViewModel() {
                         SingleMsgDB.filterDuplicate(UserStore.userInfo.id, -1, msgPoArr)
                     SingleMsgDB.insertArray(filteredList)
 
-                    _state.update { kore ->
-                        kore.copy(
+                    _state.update { that ->
+                        that.copy(
                             lastMsgId = msgRes.msgListList.last().fromId,
                             lastTime = msgRes.msgListList.last().time,
-                            unreadMsgCount = kore.unreadMsgCount - msgPoArr.size
+                            unreadMsgCount = that.unreadMsgCount - msgPoArr.size
                         )
                     }
 
@@ -132,6 +132,10 @@ class UnreadViewModel : ViewModel() {
                 }).await().map {
                     it.msgListList.map { that ->
                         SingleMsgHelper.handleNotice(that)
+                    }
+
+                    if (it.msgListList.isEmpty()) {
+                        return@launch
                     }
 
                     _state.update { kore ->

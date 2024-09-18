@@ -40,6 +40,17 @@ class DiscoveryViewModel : ViewModel() {
         }
     }
 
+    fun updateCollectStatus(item: BlogBaseDto, hasCollect: Boolean) {
+        _discoveryState.update { it ->
+            val i = it.discoveryList.indexOfFirst {
+                that ->
+                that == item
+            }
+            it.discoveryList[i].hasCollect = hasCollect
+            it
+        }
+    }
+
     fun getDiscoveryList(isRefresh: Boolean = true, pageSize: Int = 30) {
         MainCo.launch {
             SearchReq.recommendSearch(RecommendSearchDto(pageSize, labels = IntArray(0)))
@@ -57,7 +68,10 @@ class DiscoveryViewModel : ViewModel() {
                         }
                     }
                 }.errMap {
-                    CuLog.error(CuTag.Discovery,"SearchReq recommendSearch error code:${it.code},msg:${it.msg} ")
+                    CuLog.error(
+                        CuTag.Discovery,
+                        "SearchReq recommendSearch error code:${it.code},msg:${it.msg} "
+                    )
                 }
         }
     }

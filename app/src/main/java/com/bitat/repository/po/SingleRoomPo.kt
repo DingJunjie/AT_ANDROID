@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 //)
 
 class SingleRoomPo {
-    var id: Long = 0
+    var msgId: Long = 0
     var selfId: Long = 0
     var otherId: Long = 0
     var time: Long = 0
@@ -48,7 +48,7 @@ class SingleRoomPo {
             muted = cursor.getInt(5)
             cfg = cursor.getString(6)
 
-            id = cursor.getLongOrNull(7) ?: 0
+            msgId = cursor.getLongOrNull(7) ?: 0
             time = cursor.getLongOrNull(8) ?: 0
             status = cursor.getShortOrNull(9) ?: 0
             kind = cursor.getShortOrNull(10) ?: 0
@@ -64,7 +64,22 @@ class SingleRoomPo {
             muted = cursor.getInt(5)
             cfg = cursor.getString(6)
 
-            id = cursor.getLongOrNull(7) ?: 0
+            msgId = cursor.getLongOrNull(7) ?: 0
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other is SingleRoomPo) //
+            if (selfId == other.selfId && //
+                otherId == other.otherId
+            ) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = selfId.hashCode()
+        result = 31 * result + otherId.hashCode()
+        return result
     }
 }

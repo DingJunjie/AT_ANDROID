@@ -80,7 +80,9 @@ fun BitVideoPlayer(
     } else { //非指定高度则设置控件比例
         modifier.aspectRatio(ratio)
     }
-    Box(modifier = modifier) { //播放器本体
+    Box(modifier = modifier.clickable {
+
+    }) { //播放器本体
         if (isShow) {
             Box(modifier = modifier) {
                 CMPPlayer(modifier = Modifier.fillMaxSize(),
@@ -116,7 +118,8 @@ fun BitVideoPlayer(
                         onSingleTap()
                     }
                 }
-            },
+            }
+                ,
                 indication = null, interactionSource = remember { MutableInteractionSource() }
             )) {
             if (soundShow) Box(modifier = Modifier

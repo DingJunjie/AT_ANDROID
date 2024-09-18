@@ -2,7 +2,6 @@ package com.bitat.ui.chat
 
 import GroupList
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -71,12 +70,10 @@ import com.bitat.repository.singleChat.SetMute
 import com.bitat.repository.singleChat.SetTop
 import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.singleChat.SingleMsgHelper.singleChatUiFlow
-import com.bitat.repository.singleChat.UpdateRoomContent
 import com.bitat.ui.common.ToastState
 import com.bitat.ui.common.rememberToastState
 import com.bitat.router.AtNavigation
 import com.bitat.router.NavigationItem
-import com.bitat.ui.common.NotificationOps
 import com.bitat.ui.common.SwipeActionItem
 import com.bitat.ui.common.SwipeActionStyle
 import com.bitat.ui.common.SwipeActionType
@@ -189,7 +186,7 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
                     .background(Color(0xfff5f5f5))
                     .padding(horizontal = 8.dp)
                     .clickable { }) {
-                    ChatList(chatState.chatList, options, toast, setTop = {
+                    ChatList(chatState.roomList, options, toast, setTop = {
                         MainCo.launch {
                             SingleMsgHelper.setTop(it.otherId, it.top)
                         }
@@ -303,12 +300,13 @@ fun ChatList(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+//            .fillMaxHeight()
             .padding(
                 top = 4.dp,
                 bottom = 30.dp
 //                bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp
             ),
+        reverseLayout = true
     ) {
         items(roomList) { item ->
             Surface(

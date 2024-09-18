@@ -7,7 +7,6 @@ import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.UserInfoDto
 import com.bitat.repository.dto.resp.UserHomeDto
-import com.bitat.repository.dto.resp.UserPartDto
 import com.bitat.repository.http.service.UserReq
 import com.bitat.repository.po.SingleMsgPo
 import com.bitat.repository.po.SingleRoomPo
@@ -29,8 +28,8 @@ import kotlinx.coroutines.launch
 
 val comparator = Comparator<SingleRoomPo> { l, r ->
     if (r.top == l.top) {
-        (r.time - l.time).toInt()
-    } else r.top - l.top
+        (l.time - r.time).toInt()
+    } else l.top - r.top
 }
 
 class ChatViewModel : ViewModel() {
@@ -39,51 +38,17 @@ class ChatViewModel : ViewModel() {
 
     fun updateRoomInfo(msg: SingleMsgPo) {
         _state.update {
-            val index = it.chatList.indexOfFirst { that ->
+            val room = it.roomList.firstOrNull { that ->
                 that.otherId == msg.otherId
             }
-            if (index > -1) {
-                it.chatList[index].content = msg.content
-                it.chatList[index].time = msg.time
-                it.chatList[index].kind = msg.kind
+            if (room != null) {
+                room.content = msg.content
+                room.time = msg.time
+                room.kind = msg.kind
 
-                it.chatList.sortWith(comparator)
+                it.roomList.sortWith(comparator)
             } else {
-                MainCo.launch {
-                    UserReq.userInfo(UserInfoDto(userId = msg.otherId)).await().map { info ->
-                        val room = SingleRoomPo().apply {
-                            selfId = UserStore.userInfo.id
-                            otherId = msg.otherId
-                            kind = msg.kind
-                            content = msg.content
-                            time = msg.time
-                            status = 1
-                            unreads = 0
-                            nickname = info.nickname
-                            profile = info.profile
-                            alias = info.alias
-                            rel = info.rel
-                            revRel = info.revRel
-                        }
-                        SingleRoomDB.insertOrUpdate(room)
-                        val r = SingleRoomDB.getRoom(UserStore.userInfo.id, msg.otherId)
-                        if (r == null) {
-                            it.chatList.add(0, room)
-                        } else {
-                            r.apply {
-                                nickname = info.nickname
-                                profile = info.profile
-                                alias = info.alias
-                                rel = info.rel
-                                revRel = info.revRel
-                                kind = msg.kind
-                                content = msg.content
-                                time = msg.time
-                            }
-                            it.chatList.add(0, r)
-                        }
-                    }
-                }
+                createRoom(msg, false)
             }
 
             it
@@ -91,7 +56,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun muteRoom(otherId: Long, isMuted: Boolean, completeFn: () -> Unit = {}) {
-        if (_state.value.currentRoom.id > 0) {
+        if (_state.value.currentRoom.msgId > 0) {
             _state.update {
                 it.currentRoom.muted = if (isMuted) 1 else 0
                 it
@@ -99,11 +64,11 @@ class ChatViewModel : ViewModel() {
         }
 
         _state.update {
-            val i = it.chatList.indexOfFirst { that ->
+            val i = it.roomList.indexOfFirst { that ->
                 that.otherId == otherId
             }
 
-            it.chatList[i].muted = if (isMuted) 1 else 0
+            it.roomList[i].muted = if (isMuted) 1 else 0
             it.copy(flag = it.flag + 1)
         }
 
@@ -114,7 +79,7 @@ class ChatViewModel : ViewModel() {
             SingleMsgDB.clear(UserStore.userInfo.id, otherId)
         }
         _state.update { that ->
-            that.chatList.map {
+            that.roomList.map {
                 if (it.otherId == otherId) {
                     it.content = ""
                 }
@@ -127,11 +92,11 @@ class ChatViewModel : ViewModel() {
     fun setTop(otherId: Long, isTop: Boolean, completeFn: () -> Unit = {}) {
         MainCo.launch(IO) {
             _state.update { s ->
-                val i = s.chatList.indexOfFirst { it.otherId == otherId }
-                s.chatList[i].top = if (isTop) 1 else 0
-                s.chatList.sortWith(comparator)
+                val i = s.roomList.indexOfFirst { it.otherId == otherId }
+                s.roomList[i].top = if (isTop) 1 else 0
+                s.roomList.sortWith(comparator)
 
-                if (s.currentRoom.id > 0) {
+                if (s.currentRoom.msgId > 0) {
                     val updatedRoom = s.currentRoom.also {
                         it.top = if (isTop) 1 else 0
                     }
@@ -155,11 +120,11 @@ class ChatViewModel : ViewModel() {
                     it.copy(flag = it.flag + 1)
                 }
 
-                val i = _state.value.chatList.indexOfFirst {
+                val i = _state.value.roomList.indexOfFirst {
                     it.otherId == _state.value.currentRoom.otherId
                 }
                 if (i >= 0) {
-                    _state.value.chatList[i].background = key
+                    _state.value.roomList[i].background = key
 
                     SingleRoomDB.updateBg(
                         key, _state.value.currentRoom.selfId, _state.value.currentRoom.otherId
@@ -171,48 +136,46 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun createRoom(oId: Long, needUpdateCurrent: Boolean = false, completeFn: () -> Unit = {}) {
+    fun createRoom(
+        nMsg: SingleMsgPo, needUpdateCurrent: Boolean = false, completeFn: () -> Unit = {}
+    ) {
         // 不存在的话啊，数据库读，如果数据库没有就插入一条，有的话就读取插入
         MainCo.launch {
             CuLog.debug(CuTag.SingleChat, "获取数据库版本$SingleRoomDB")
 
-            UserReq.userInfo(UserInfoDto(userId = oId)).await().map { otherInfo ->
+            UserReq.userInfo(UserInfoDto(userId = nMsg.otherId)).await().map { otherInfo ->
                 val u = SingleRoomPo()
                 u.selfId = UserStore.userInfo.id
                 u.otherId = otherInfo.id
                 u.unreads = 0
                 SingleRoomDB.insertOrUpdate(u)
 
-                var r = SingleRoomDB.getRoom(selfId = UserStore.userInfo.id, otherId = otherInfo.id)
-                if (r == null) {
-                    r = SingleRoomPo().apply {
-                        selfId = UserStore.userInfo.id
-                        otherId = otherInfo.id
-                        unreads = 0
-                        profile = otherInfo.profile
-                        alias = otherInfo.alias
-                        rel = otherInfo.rel
-                        revRel = otherInfo.revRel
-                        nickname = otherInfo.nickname
-                    }
-                } else {
-                    r = r.apply {
-                        nickname = otherInfo.nickname
-                        profile = otherInfo.profile
-                        rel = otherInfo.rel
-                        revRel = otherInfo.revRel
-                        alias = otherInfo.alias
-                    }
+                var room =
+                    SingleRoomDB.getRoom(selfId = UserStore.userInfo.id, otherId = otherInfo.id)
+                        ?: SingleRoomPo().apply {
+                            selfId = UserStore.userInfo.id
+                            otherId = otherInfo.id
+                            unreads = 0
+                        }
+
+                room = room.apply {
+                    nickname = otherInfo.nickname
+                    profile = otherInfo.profile
+                    rel = otherInfo.rel
+                    revRel = otherInfo.revRel
+                    alias = otherInfo.alias
+                    content = nMsg.content
+                    time = nMsg.time
+                    kind = nMsg.kind
                 }
 
                 _state.update {
-                    it.chatList.add(0, r)
-                    it.chatList.sortWith(comparator)
+                    it.roomList.add(room)
+                    it.roomList.sortWith(comparator)
 
                     if (needUpdateCurrent) {
                         it.copy(
-                            currentRoom = r,
-                            currentUserInfo = otherInfo
+                            currentRoom = room, currentUserInfo = otherInfo
                         )
                     } else it
                 }
@@ -223,15 +186,15 @@ class ChatViewModel : ViewModel() {
     }
 
     fun createRoomByProfile(otherInfo: UserHomeDto) {
-        val i = _state.value.chatList.indexOfFirst {
+        val i = _state.value.roomList.indexOfFirst {
             it.otherId == otherInfo.id
         }
 
         if (i > -1) {
             // 如果存在
             _state.update {
-                it.currentRoom = _state.value.chatList[i]
-                it.chatList.sortWith(comparator)
+                it.currentRoom = _state.value.roomList[i]
+                it.roomList.sortWith(comparator)
 
                 it.copy(
                     currentUserInfo = otherInfo
@@ -270,12 +233,12 @@ class ChatViewModel : ViewModel() {
 
     fun chooseRoom(room: SingleRoomPo) {
         _state.update {
-            val i = it.chatList.indexOfFirst { that ->
+            val i = it.roomList.indexOfFirst { that ->
                 that.otherId == room.otherId
             }
-            it.chatList[i].unreads = 0
+            it.roomList[i].unreads = 0
             it.currentRoom.apply {
-                id = room.id
+                msgId = room.msgId
                 otherId = room.otherId
                 selfId = room.selfId
                 background = room.background
@@ -300,37 +263,33 @@ class ChatViewModel : ViewModel() {
     }
 
     fun updateRoomContent(newMsg: SingleMsgPo) {
-        MainCo.launch {
-            val i = _state.value.chatList.indexOfFirst { that ->
-                that.otherId == newMsg.otherId
-            }
+        val room = _state.value.roomList.firstOrNull { that ->
+            that.otherId == newMsg.otherId
+        }
 
-            if (i > -1) {
-                _state.update {
-                    it.chatList[i].apply {
-                        content = newMsg.content
-                        kind = newMsg.kind
-                        time = newMsg.time
-                        unreads += 1
-                    }
-
-                    it
-                }
-            } else {
-                createRoom(newMsg.otherId, false) {}
-            }
-
+        if (room != null) {
             _state.update {
-                it.chatList.sortWith(comparator)
-                it.copy(flag = it.flag + 1)
+                room.apply {
+                    content = newMsg.content
+                    kind = newMsg.kind
+                    time = newMsg.time
+                    unreads += 1
+                }
+
+                it
             }
+        }
+
+        _state.update {
+            it.roomList.sortWith(comparator)
+            it.copy(flag = it.flag + 1)
         }
     }
 
     fun updateRooms(lists: List<SingleRoomPo>) {
         _state.update {
-            it.chatList.clear()
-            it.chatList.addAll(lists)
+            it.roomList.clear()
+            it.roomList.addAll(lists)
             it
         }
     }
@@ -339,7 +298,7 @@ class ChatViewModel : ViewModel() {
         SingleRoomDB.delete(selfId = UserStore.userInfo.id, otherId)
 
         _state.update {
-            it.chatList.removeIf { that -> that.otherId == otherId }
+            it.roomList.removeIf { that -> that.otherId == otherId }
             it
         }
     }
