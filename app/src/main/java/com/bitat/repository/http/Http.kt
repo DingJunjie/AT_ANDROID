@@ -44,9 +44,6 @@ object Http {
             else {
                 cd.complete(CuRes.err(INNER_ERROR, "Not has token"))
                 CuLog.error(CuTag.Login,"当前页面$APP_CURRENT_PAGE")
-                if (APP_CURRENT_PAGE != NavigationItem.Login.route&& APP_CURRENT_PAGE!="") {
-                    DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
-                }
                 return cd
             }
         }
@@ -62,7 +59,6 @@ object Http {
                 } else {
                     cd.complete(CuRes.err(INNER_ERROR, e.message ?: "Inner error"))
                 }
-
             }
 
             override fun onResponse(call: Call, response: Response) {

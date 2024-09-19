@@ -1,5 +1,10 @@
 package  com.bitat.repository.common
 
+import com.bitat.AppConfig.APP_CURRENT_PAGE
+import com.bitat.router.NavigationItem
+import com.bitat.ui.common.DialogOps
+import com.bitat.ui.common.showDialog
+
 const val INVALID_CREDENTIAL = 101
 const val EXPIRED_CREDENTIAL = 102
 const val PERMISSION_LACKED = 103
@@ -24,7 +29,14 @@ value class CuRes<T>(val v: Any) {
     fun getOr(t: T): T = if (v is CodeErr) t else v as T
     inline fun getElse(fn: () -> T): T = if (v is CodeErr) fn() else v as T
     inline fun map(fn: (T) -> Unit) = apply { if (v !is CodeErr) fn(v as T) }
-    inline fun errMap(fn: (CodeErr) -> Unit) = apply { if (v is CodeErr) fn(v) }
+    inline fun errMap(fn: (CodeErr) -> Unit) = apply {
+        if (APP_CURRENT_PAGE != NavigationItem.Login.route && APP_CURRENT_PAGE != "") {
+            DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
+        } else {
+            if (v is CodeErr) fn(v)
+        }
+    }
+
     private fun throwMsg(msg: String): Nothing = throw RuntimeException(msg)
 
     companion object {
