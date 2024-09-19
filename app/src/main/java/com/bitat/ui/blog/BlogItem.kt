@@ -210,16 +210,12 @@ fun BlogItem(
                     .background(Color.Transparent)
             ) {
                 if (blog.content.isNotEmpty()) {
-                    Surface(modifier = Modifier
+                    Box(modifier = Modifier.fillMaxWidth()
                         .padding(
                             start = 40.dp + 15.cdp,
                             end = 30.cdp,
                             bottom = 30.cdp
-                        )
-                        .clickable(indication = null,
-                            interactionSource = remember { MutableInteractionSource() }) {
-                            contentClick(blog)
-                        }) { //                        BlogText(blog.content)
+                        )) { //                        BlogText(blog.content)
 //                        CollapseText(value = blog.content, 2, modifier = Modifier.fillMaxWidth())
                         val tagList = mutableListOf<BlogTagDto>()
                         blog.tags.map {
@@ -232,6 +228,8 @@ fun BlogItem(
                             modifier = Modifier.fillMaxWidth(),
                             tagTap = { tag ->
                                 tagTap(tag)
+                            }, contentTap = {
+                                contentClick(blog)
                             })
                     }
                 } //博文类型

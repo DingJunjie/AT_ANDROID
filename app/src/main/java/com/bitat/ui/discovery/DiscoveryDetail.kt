@@ -40,8 +40,12 @@ import com.bitat.MainCo
 import com.bitat.ext.Density
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.dto.common.toBlogTagDto
 import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.repository.dto.resp.BlogTagDto
 import com.bitat.router.AtNavigation
+import com.bitat.router.NavigationItem
+import com.bitat.state.BlogDetailsType
 import com.bitat.ui.blog.BlogContent
 import com.bitat.ui.common.rememberToastState
 import com.bitat.ui.common.statusBarHeight
@@ -54,10 +58,12 @@ import com.bitat.ui.component.CommentPopup
 import com.bitat.ui.component.UserInfoWithAvatar
 import com.bitat.utils.ImageUtils
 import com.bitat.utils.ScreenUtils
+import com.bitat.viewModel.BlogDetailsViewModel
 import com.bitat.viewModel.CollectViewModel
 import com.bitat.viewModel.CommentViewModel
 import com.bitat.viewModel.DiscoveryViewModel
 import com.bitat.viewModel.ImagePreviewViewModel
+import com.bitat.viewModel.SearchViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -311,6 +317,8 @@ fun DiscoveryItem(
     updateFlag: Int = 0
 ) {
     var height = 0
+    val detailsVm: BlogDetailsViewModel = viewModelProvider[BlogDetailsViewModel::class]
+    val searchVm = viewModelProvider[SearchViewModel::class]
     if (item.kind >= 2) {
         val size = ImageUtils.getParamsFromUrl(item.cover)
         height = ImageUtils.getHeight(size, ScreenUtils.screenWidth)
@@ -322,7 +330,19 @@ fun DiscoveryItem(
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
             UserInfoWithAvatar(nickname = item.nickname, avatar = item.profile)
         }
-        BlogText(content = item.content)
+        val tagList = mutableListOf<BlogTagDto>()
+        item.tags.map {
+            tagList.add(it.toBlogTagDto())
+        }
+        BlogText(content = item.content, tagList = tagList.toList(), tagTap = { tag ->
+            // 跳转到tag搜索页
+            searchVm.updateKeyword("#$tag")
+            navHostController.navigate(NavigationItem.SearchResult.route)
+        }, contentClick = {
+            detailsVm.pageType(BlogDetailsType.BlogList)
+            detailsVm.setCurrentBlog(item)
+            AtNavigation(navHostController).navigateToBlogDetail()
+        })
         //        Box(
         //            modifier = Modifier
         //                .fillMaxWidth()

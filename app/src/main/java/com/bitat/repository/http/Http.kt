@@ -71,7 +71,6 @@ object Http {
                     } else CuRes.err(resDto.code, resDto.msg))
                 } else cd.complete(CuRes.err(INNER_ERROR, "Http status:${response.code}"))
             }
-
         })
         return cd
     }

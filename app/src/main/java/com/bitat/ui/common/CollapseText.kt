@@ -40,14 +40,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Composable
-fun CollapseText(
-    value: String,
-    maxLines: Int,
-    modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
-    maxLength: Int = 24,
-    onCollapse: (Boolean) -> Unit = {}
-) {
+fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, onCollapse: (Boolean) -> Unit = {}) {
     var expanded by remember { mutableStateOf(false) }
 
     Column {
@@ -60,18 +53,15 @@ fun CollapseText(
         )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier
-                .background(Color.Transparent)
+            Box(modifier = Modifier.background(Color.Transparent)
                 .padding(top = 5.dp) // Background color
                 .clickable {
                     expanded = !expanded
                     onCollapse(expanded)
                 }) {
 
-                Text(
-                    text = if (!expanded) "展开" else "收起",
-                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
-                )
+                Text(text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border)))
             }
         }
     }
@@ -96,8 +86,7 @@ fun compileTag(value: String): MutableList<String> {
     return result
 }
 
-fun matchTag(value: String): BlogTagDto {
-    //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
+fun matchTag(value: String): BlogTagDto { //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
     val pattern = Pattern.compile("[0-9]+")
     val im: Matcher = pattern.matcher(value)
 
@@ -120,23 +109,16 @@ fun matchTag(value: String): BlogTagDto {
  * */
 @Composable
 @Suppress("Deprecation")
-fun CollapseReachText(
-    value: String,
-    tags: List<BlogTagDto>,
-    maxLines: Int,
-    modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
-    maxLength: Int = 24,tagTap:(String) ->Unit,
-    onCollapse: (Boolean) -> Unit = {}
-) {
+fun CollapseReachText(value: String, tags: List<BlogTagDto>, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, tagTap: (String) -> Unit, contentTap: () -> Unit, onCollapse: (Boolean) -> Unit = {}) {
     var expanded by remember { mutableStateOf(false) }
     val res = compileTag(value)
+
+    var isClickTag = false
+
     val contentWithTag = buildAnnotatedString {
-        if (res.size > 1) {
-            // 带tag
+        if (res.size > 1) { // 带tag
             res.mapIndexed { i, v ->
-                if (i % 2 == 1) {
-                    // \^#{\d+:\w+}^\
+                if (i % 2 == 1) { // \^#{\d+:\w+}^\
                     val tag = matchTag(v)
                     pushStringAnnotation(tag = tag.id.toString(), annotation = tag.name)
                     withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W500)) {
@@ -149,38 +131,47 @@ fun CollapseReachText(
                     }
                 }
             }
-        }else if (res.size ==1){
+        } else if (res.size == 1) {
             withStyle(style = SpanStyle(color = Color.Black)) {
                 append(res[0])
             }
         }
     }
     Column {
-        ClickableText(text = contentWithTag, onClick = { offset -> //可点击的文本控件
-            tags.forEach{ tag->
-                contentWithTag.getStringAnnotations(tag = "${tag.id}", start = offset, end = offset)
-                    .firstOrNull()?.let { annotation -> // 点击事件的处理
-                        CuLog.error(CuTag.Blog, "点击了文本${annotation.item}")
-                        tagTap(annotation.item)
+        ClickableText(
+            text = contentWithTag,
+            onClick = { offset -> //可点击的文本控件
+                if (tags.isNotEmpty()) {
+                    tags.forEach { tag ->
+                        contentWithTag.getStringAnnotations(tag = "${tag.id}",
+                            start = offset,
+                            end = offset).firstOrNull()?.let { annotation -> // 点击事件的处理
+                            tagTap(annotation.item)
+                            isClickTag = true
+                        }
                     }
-            }
-        },maxLines = if (expanded) Int.MAX_VALUE else maxLines, // Maximum number of lines to display
+                    if (!isClickTag){
+                        contentTap()
+                    }
+                } else {
+                    contentTap()
+                }
+            },
+            maxLines = if (expanded) Int.MAX_VALUE else maxLines, // Maximum number of lines to display
             overflow = TextOverflow.Ellipsis,
-            style = textStyle,)
+            style = textStyle,
+        )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier
-                .background(Color.Transparent)
+            Box(modifier = Modifier.background(Color.Transparent)
                 .padding(top = 5.dp) // Background color
                 .clickable {
                     expanded = !expanded
                     onCollapse(expanded)
                 }) {
 
-                Text(
-                    text = if (!expanded) "展开" else "收起",
-                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
-                )
+                Text(text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border)))
             }
         }
     }

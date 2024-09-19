@@ -164,10 +164,7 @@ fun TimeLineBlogItem(
                 ) {
                     if (blog.content.isNotEmpty()) {
                         Surface(modifier = Modifier
-                            .clickable(indication = null,
-                                interactionSource = remember { MutableInteractionSource() }) {
-                                contentClick(blog)
-                            }) { //                        BlogText(blog.content)
+                            ) { //                        BlogText(blog.content)
 //                            CollapseText(
 //                                value = blog.content,
 //                                2,
@@ -181,7 +178,7 @@ fun TimeLineBlogItem(
                             }
                             CollapseReachText(value = blog.content, tagList,2, modifier = Modifier.fillMaxWidth(), tagTap = { tag->
                                 tagTap(tag)
-                            })
+                            }, contentTap = { contentClick(blog)})
                         }
                     }
 
