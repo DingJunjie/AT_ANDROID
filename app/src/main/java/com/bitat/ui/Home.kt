@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -70,8 +71,15 @@ fun Home(navController: NavHostController, viewModelProvider: ViewModelProvider)
 
     val unreadVm = viewModelProvider[UnreadViewModel::class]
 
+
+    val isFirstFetch = remember {
+        mutableStateOf(true)
+    }
     LaunchedEffect(Unit) {
-        unreadVm.checkUnreadMessage()
+        if (isFirstFetch.value) {
+            unreadVm.checkUnreadMessage()
+            isFirstFetch.value = false
+        }
     }
     //    var selectIndex by remember {
     //        mutableIntStateOf(0)

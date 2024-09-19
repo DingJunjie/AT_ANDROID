@@ -131,6 +131,14 @@ object QiNiuUtil {
                         y = params.height,
                         d = params.duration
                     )
+                } else if (fileType == FileType.Audio) {
+                    val duration = getAudioDuration(uri.path ?: "")
+                    key = genKey(
+                        type = FileType.Audio,
+                        ownerId = UserStore.userInfo.id,
+                        number = 1,
+                        d = duration
+                    )
                 }
 
                 uploadFile(

@@ -201,7 +201,7 @@ object TcpClient {
             it.fromId = fromId
             it.time = time
         }.build()
-        val msg = genMsg(TcpMsgEvent.ACK, body.toByteArray())
+        val msg = genMsg(TcpMsgEvent.NOTICE_REC, body.toByteArray())
         if (msg != null) write(msg)
         else CuLog.error(CuTag.SingleChat, "Bad gen msg")
     }
@@ -275,9 +275,9 @@ object TcpClient {
                 TcpMsgEvent.NOTICE -> if (decryptBody != null) {
                     val msg = NoticeMsg.parseFrom(decryptBody)
                     if (msg.toId == selfId) {
-                        ack(msg.toId, msg.fromId, msg.time)
-                        TcpHandler.handleNotice(msg)
                         CuLog.info(CuTag.SingleChat, "Read notice")
+                        ack(msg.fromId, msg.toId, msg.time)
+                        TcpHandler.handleNotice(msg)
                     }
                 }
 
@@ -354,4 +354,5 @@ object TcpMsgEvent {
     const val CHAT = 3.toShort()
     const val CHAT_REC = (-CHAT).toShort()
     const val NOTICE = 4.toShort()
+    const val NOTICE_REC = (-NOTICE).toShort()
 }

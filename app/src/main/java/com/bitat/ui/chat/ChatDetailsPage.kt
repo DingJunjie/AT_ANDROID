@@ -1,9 +1,16 @@
 package com.bitat.ui.chat
 
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.camera.video.Recorder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +52,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,18 +64,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.bitat.Local
 import com.bitat.MainCo
 import com.bitat.ext.Density
 import com.bitat.ext.clickableWithoutRipple
@@ -89,6 +102,7 @@ import com.bitat.state.ReplyMessageParams
 import com.bitat.state.VideoMessageParams
 import com.bitat.ui.common.ImagePicker
 import com.bitat.ui.common.ImagePickerOption
+import com.bitat.ui.common.RecorderAudio
 import com.bitat.ui.common.SingleFuncCamera
 import com.bitat.ui.common.VideoPreview
 import com.bitat.ui.common.rememberToastState
@@ -104,8 +118,11 @@ import com.bitat.viewModel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import kotlin.concurrent.fixedRateTimer
+import kotlin.time.Duration.Companion.seconds
 
 /**
  *    author : shilu
@@ -113,6 +130,7 @@ import kotlinx.serialization.json.Json
  *    desc   : 聊天页
  */
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: ViewModelProvider) {
 
@@ -122,6 +140,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
     val chatVm = viewModelProvider[ChatViewModel::class]
     val chatState by chatVm.state.collectAsState()
 
+    val ctx = LocalContext.current
 
     val chatInput = remember { mutableStateOf("") }
     val showMsgOpt = remember {
@@ -179,6 +198,10 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
+    val audioRecording = remember {
+        mutableStateOf(false)
+    }
+
     val currentVideoUri = remember {
         mutableStateOf(Uri.EMPTY)
     }
@@ -187,23 +210,35 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
         mutableStateOf(false)
     }
 
+    var recorder: MutableState<MediaRecorder?> = remember {
+        mutableStateOf(null)
+    }
+    var recorderLeftTop = remember {
+        mutableStateOf(Pair<Int, Int>(0, 0))
+    }
+    var recorderRightBottom = remember {
+        mutableStateOf(Pair<Int, Int>(0, 0))
+    }
+    var timerDuration = remember { mutableStateOf(0) }
+
+    val isInside = remember {
+        mutableStateOf(false)
+    }
     val toast = rememberToastState()
 
     LaunchedEffect(chatListScrollState) {
-        snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { lastVisibleIndex ->
-                if (chatListScrollState.layoutInfo.visibleItemsInfo.size < 3) return@collect
-                if (isLoadingMore.value) return@collect
-                val isBottom =
-                    lastVisibleIndex == chatListScrollState.layoutInfo.totalItemsCount - 1
-                if (isBottom) {
-                    vm.getMessage(chatState.currentRoom.otherId, pageNo = state.currentPage) {
-                        isLoadingMore.value = false
-                    }
-                    val diff = state.messageList.size - msgHeight.size
-                    msgHeight.addAll(Array(diff) { Offset(x = 0f, 0f) })
+        snapshotFlow { chatListScrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }.collect { lastVisibleIndex ->
+            if (chatListScrollState.layoutInfo.visibleItemsInfo.size < 3) return@collect
+            if (isLoadingMore.value) return@collect
+            val isBottom = lastVisibleIndex == chatListScrollState.layoutInfo.totalItemsCount - 1
+            if (isBottom) {
+                vm.getMessage(chatState.currentRoom.otherId, pageNo = state.currentPage) {
+                    isLoadingMore.value = false
                 }
+                val diff = state.messageList.size - msgHeight.size
+                msgHeight.addAll(Array(diff) { Offset(x = 0f, 0f) })
             }
+        }
     }
 
     Scaffold(topBar = {
@@ -213,19 +248,77 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
                 chatVm.clearRoom()
                 navHostController.popBackStack()
             },
-            goProfile = { /*TODO*/ }, {
+            goProfile = { /*TODO*/ },
+            {
                 navHostController.navigate(NavigationItem.ChatSettings.route).apply {
 
                 }
             })
     }, bottomBar = {
-        ChatBottomContainer(
-            message = chatInput.value,
+        ChatBottomContainer(message = chatInput.value,
             replyMsg = state.replyMsg,
             nickname = chatState.currentRoom.nickname,
-            {
+            msgChange = {
                 chatInput.value = it
             },
+            isRecording = audioRecording.value,
+            {
+                val x = it.position.x.div(Density).toInt()
+                val y = ScreenUtils.screenHeight.plus(it.position.y.div(Density)).toInt()
+                if (
+//                    x in recorderLeftTop.value.first..recorderRightBottom.value.first
+//                    &&
+                    y in recorderLeftTop.value.second..recorderRightBottom.value.second) {
+                    // finger inside
+                    isInside.value = true
+                } else {
+                    isInside.value = false
+                }
+
+                println("x is $x, y is $y, y diff is ${it.position.y}, screen height is ${ScreenUtils.screenHeight}, so the finger is inside ? ${isInside.value}")
+            },
+            startRecord = {
+                audioRecording.value = true
+                recorder.value = RecorderAudio.getRecorder(ctx)
+                if (RecorderAudio.timer == null) {
+                    timerDuration.value = 60
+                    RecorderAudio.prepare(recorder.value!!)
+                    RecorderAudio.start(recorder.value!!)
+                    RecorderAudio.timer = fixedRateTimer("audio", false, 0, 1000L) {
+                        if (timerDuration.value == 0) {
+                            RecorderAudio.timer!!.cancel()
+                        } else {
+                            timerDuration.value -= 1
+                        }
+                    }
+                }
+            },
+            endRecord = {
+                if (recorder.value != null) {
+                    RecorderAudio.stop(recorder.value!!)
+                }
+                if (isInside.value) {
+                    audioRecording.value = false
+                    timerDuration.value = 60
+                    RecorderAudio.timer?.cancel()
+                    RecorderAudio.timer = null
+                    println("已取消")
+                } else {
+                    vm.sendAudio(chatState.currentRoom.otherId,
+                        RecorderAudio.path.toUri(),
+                        {},
+                        { msg ->
+                            audioRecording.value = false
+                            timerDuration.value = 60
+                            RecorderAudio.timer?.cancel()
+                            RecorderAudio.timer = null
+                            println("已结束")
+                            RecorderAudio.path = ""
+                        })
+
+                }
+            },
+            cancelRecord = {},
             {
                 if (it.trim().isEmpty()) {
                     // 为空
@@ -251,8 +344,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             })
     }, modifier = Modifier.imePadding()) { padding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
 //                .pointerInput(Unit) {
 //                    detectTapGestures(onLongPress = {
 ////                        if (canTouch.value) {
@@ -273,8 +365,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             LazyColumn(
                 state = chatListScrollState,
                 reverseLayout = true,
-                modifier = Modifier
-                    .padding(padding)
+                modifier = Modifier.padding(padding)
             ) {
                 itemsIndexed(state.messageList) { index, item ->
                     Box(modifier = Modifier
@@ -308,15 +399,13 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
                                 CHAT_Recall -> {
                                     RecallMessage(
-                                        true,
-                                        nickname = chatState.currentRoom.nickname
+                                        true, nickname = chatState.currentRoom.nickname
                                     )
                                 }
 
                                 CHAT_Reply -> {
                                     val msg = Json.decodeFromString(
-                                        ReplyMessageParams.serializer(),
-                                        item.content
+                                        ReplyMessageParams.serializer(), item.content
                                     )
                                     SenderReplyMessage(
                                         message = msg.content,
@@ -348,8 +437,7 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 
                                 CHAT_Reply -> {
                                     val msg = Json.decodeFromString(
-                                        ReplyMessageParams.serializer(),
-                                        item.content
+                                        ReplyMessageParams.serializer(), item.content
                                     )
                                     RecipientReplyMessage(
                                         message = msg.content,
@@ -380,59 +468,55 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
 //        }
     }
 
-    if (showMsgOpt.value)
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickableWithoutRipple {
-                showMsgOpt.value = false
-                canTouch.value = false
-            }) {
-            Surface(
-                shape = RoundedCornerShape(10.dp),
+    if (showMsgOpt.value) Box(modifier = Modifier
+        .fillMaxSize()
+        .clickableWithoutRipple {
+            showMsgOpt.value = false
+            canTouch.value = false
+        }) {
+        Surface(
+            shape = RoundedCornerShape(10.dp),
 //                modifier = Modifier.offset(
 //                    currentPointerOffset.value.x.div(Density).toInt().dp,
 //                    currentPointerOffset.value.y.div(Density).toInt().dp
 //                .div(Density).toInt().dp
 //                )
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .offset(
-                        x = ScreenUtils.screenWidth.times(0.05).dp,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .offset(
+                    x = ScreenUtils.screenWidth.times(0.05).dp,
 //                        y = currentPointerOffset.value.y
 //                            .div(Density)
 //                            .toInt().dp
-                        y = msgHeight[currentItemIndex.intValue].y.div(Density).dp
-                    )
-            ) {
-                val msg = state.messageList[currentItemIndex.intValue]
-                ChatMessageOpt(
-                    msg = msg,
-                    reply = {
-                        vm.setReplyMsg(msg)
-                        showMsgOpt.value = false
-                    },
-                    copy = {
-                        showMsgOpt.value = false
-                    }, recall = {
-                        if (msg.status < 0) {
-                            toast.show("无法撤回他人消息")
-                            showMsgOpt.value = false
-                            return@ChatMessageOpt
-                        }
-                        if (TimeUtils.timeDiffNowSeconds(msg.time) > CHAT_RECALL_LIMITED) {
-                            toast.show("消息超过3分钟，无法撤回")
-                            showMsgOpt.value = false
-                            return@ChatMessageOpt
-                        }
-                        vm.recallMessage(msg)
-                        showMsgOpt.value = false
-                    }, delete = {
-                        vm.deleteMessage(msg)
-                        msgHeight.removeAt(currentItemIndex.intValue)
-                        showMsgOpt.value = false
-                    })
-            }
+                    y = msgHeight[currentItemIndex.intValue].y.div(Density).dp
+                )
+        ) {
+            val msg = state.messageList[currentItemIndex.intValue]
+            ChatMessageOpt(msg = msg, reply = {
+                vm.setReplyMsg(msg)
+                showMsgOpt.value = false
+            }, copy = {
+                showMsgOpt.value = false
+            }, recall = {
+                if (msg.status < 0) {
+                    toast.show("无法撤回他人消息")
+                    showMsgOpt.value = false
+                    return@ChatMessageOpt
+                }
+                if (TimeUtils.timeDiffNowSeconds(msg.time) > CHAT_RECALL_LIMITED) {
+                    toast.show("消息超过3分钟，无法撤回")
+                    showMsgOpt.value = false
+                    return@ChatMessageOpt
+                }
+                vm.recallMessage(msg)
+                showMsgOpt.value = false
+            }, delete = {
+                vm.deleteMessage(msg)
+                msgHeight.removeAt(currentItemIndex.intValue)
+                showMsgOpt.value = false
+            })
         }
+    }
 
     if (isRecording.value) Box(modifier = Modifier.fillMaxSize()) {
         SingleFuncCamera(ImagePickerOption.VideoOnly) {
@@ -451,6 +535,43 @@ fun ChatDetailsPage(navHostController: NavHostController, viewModelProvider: Vie
             }
         }
     }
+
+
+    if (audioRecording.value) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(180.dp)
+                .onGloballyPositioned { coor ->
+                    recorderLeftTop.value = Pair(
+                        coor.positionInWindow().x
+                            .div(Density)
+                            .toInt(),
+                        coor.positionInWindow().y
+                            .div(Density)
+                            .toInt()
+                    )
+
+                    recorderRightBottom.value = Pair(
+                        coor.positionInWindow().x
+                            .plus(coor.size.width)
+                            .div(Density)
+                            .toInt(),
+                        coor.positionInWindow().y
+                            .plus(coor.size.height)
+                            .div(Density)
+                            .toInt()
+                    )
+
+                    println("so we get record left top is ${recorderLeftTop.value}, and record right bottom is ${recorderRightBottom.value}")
+                }
+                .background(Color.LightGray)) {
+
+                RecorderTimer(timerDuration.value, isInside.value)
+            }
+
+        }
+    }
 }
 
 //@Composable
@@ -464,6 +585,11 @@ fun ChatBottomContainer(
     replyMsg: SingleMsgPo?,
     nickname: String,
     msgChange: (String) -> Unit,
+    isRecording: Boolean = false,
+    dragging: (PointerInputChange) -> Unit,
+    startRecord: () -> Unit = {},
+    endRecord: (Int) -> Unit = {},
+    cancelRecord: (Int) -> Unit = {},
     sendMessage: (String) -> Unit,
     sendPicture: (Uri) -> Unit,
     sendVideo: () -> Unit
@@ -495,7 +621,7 @@ fun ChatBottomContainer(
         }, toggleOperation = {
             emojiShow.value = false
             optShow.value = !optShow.value
-        }, sendMessage)
+        }, isRecording, dragging, startRecord, endRecord, cancelRecord, sendMessage)
         if (emojiShow.value) EmojiTable(onTextAdded = {
             msgChange(message + it)
         })
@@ -516,6 +642,11 @@ fun ChatInputField(
     msgChange: (String) -> Unit,
     toggleEmoji: () -> Unit,
     toggleOperation: () -> Unit,
+    isRecording: Boolean = false,
+    dragging: (PointerInputChange) -> Unit,
+    startRecord: () -> Unit = {},
+    stopRecord: (Int) -> Unit = {},
+    cancelRecord: (Int) -> Unit = {},
     sendMessage: (String) -> Unit
 ) {
     val isText = remember {
@@ -524,6 +655,10 @@ fun ChatInputField(
 
     val canSend = remember {
         mutableStateOf(true)
+    }
+
+    val y = remember {
+        mutableStateOf(0)
     }
 
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -541,9 +676,26 @@ fun ChatInputField(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (!isText.value) Box(
-                modifier = Modifier.weight(1f), contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .weight(1f)
+                    .pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress(onDragStart = {
+                            println("drag start $it")
+                            startRecord()
+                        }, onDragEnd = {
+                            stopRecord(y.value)
+                            println("drag end")
+                        }, onDragCancel = {
+                            cancelRecord(y.value)
+                            println("drag cancel")
+                        }) { change, dragAmount ->
+                            y.value = change.position.y.toInt()
+                            dragging(change)
+//                            println("dragging, amount is ${dragAmount}")
+                        }
+                    }, contentAlignment = Alignment.Center
             ) {
-                Text("按住说话")
+                Text(if (isRecording) "松开发送" else "按住说话")
             }
             if (isText.value) Box(modifier = Modifier.weight(1f)) {
                 ChatTextField(message, msgChange)
@@ -576,6 +728,20 @@ fun ChatInputField(
 }
 
 @Composable
+fun RecorderTimer(duration: Int, isInside: Boolean, cancelRecord: () -> Unit = {}) {
+    Box(modifier = Modifier
+        .fillMaxWidth(0.8f)
+        .height(300.dp)
+        .pointerInput(Unit) {
+            detectDragGestures { change, dragAmount ->
+
+            }
+        }) {
+        Text(if (isInside) "松开手指取消录制" else "$duration 秒")
+    }
+}
+
+@Composable
 fun ChatTextField(message: String, msgChange: (String) -> Unit) {
     BasicTextField(value = message,
         onValueChange = msgChange,
@@ -604,8 +770,7 @@ fun ChatTextField(message: String, msgChange: (String) -> Unit) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChatOperations(
-    sendPicture: (Uri) -> Unit,
-    sendVideo: () -> Unit
+    sendPicture: (Uri) -> Unit, sendVideo: () -> Unit
 ) {
     FlowRow {
         OperationItem(title = "照片") {
@@ -627,8 +792,7 @@ fun ChatOperations(
         OperationItem(title = "录制视频") {
             IconButton(onClick = sendVideo) {
                 Icon(
-                    Icons.Filled.PlayArrow,
-                    contentDescription = ""
+                    Icons.Filled.PlayArrow, contentDescription = ""
                 )
             }
         }
