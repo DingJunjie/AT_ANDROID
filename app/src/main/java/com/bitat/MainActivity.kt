@@ -219,7 +219,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-
         CuLog.debug(CuTag.Login, "MainActivity----- onResume") //        MainCo= MainScope()
     }
 
@@ -235,6 +234,7 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         CuLog.debug(CuTag.Login, "MainActivity----- onDestroy")
         SqlDB.close()
+        TcpClient.close()
         MainCo.cancel()
         finishAffinity()
         android.os.Process.killProcess(android.os.Process.myPid())

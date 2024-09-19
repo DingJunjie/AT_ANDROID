@@ -233,8 +233,8 @@ fun DiscoveryTopBar(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .padding(start = 5.dp),
+                .fillMaxWidth(1f)
+                .padding(start = 5.dp, end = 5.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -250,8 +250,8 @@ fun DiscoveryTopBar(
                 SearchInputButton(navController)
             }
         }
-        IconButton(onClick = { /*TODO*/ }) {
-            Icon(Icons.Filled.Menu, contentDescription = "")
-        }
+//        IconButton(onClick = { /*TODO*/ }) {
+//            Icon(Icons.Filled.Menu, contentDescription = "")
+//        }
     }
 }
