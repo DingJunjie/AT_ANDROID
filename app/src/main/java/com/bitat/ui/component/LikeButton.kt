@@ -3,6 +3,7 @@ package com.bitat.ui.component
 import android.annotation.SuppressLint
 import androidx.collection.intListOf
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -15,8 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bitat.MainCo
+import com.bitat.R
+import com.bitat.ext.cdp
 import com.bitat.ext.toAmountUnit
 import com.bitat.helpers.LikeHelper
+import com.bitat.ui.common.LottieBox
 import com.bitat.ui.common.SvgIcon
 import com.bitat.ui.theme.Typography
 import kotlinx.coroutines.launch
@@ -37,7 +41,7 @@ fun LikeButton(
     var tmpCount = remember {
         mutableIntStateOf(count)
     }
-    Row(modifier = Modifier.clickable {
+    Box(modifier = Modifier.clickable {
         currentLike.value = !currentLike.value
         tmpCount.intValue += if (currentLike.value) 1 else -1
         if (tmpCount.intValue < 0) tmpCount.intValue = 0
@@ -55,13 +59,20 @@ fun LikeButton(
         SvgIcon(
             modifier = modifier,
             path = if (currentLike.value) "svg/like_fill.svg" else "svg/like_line.svg",
-            tint = tintColor,
+            tint = if (currentLike.value) Color.Red else tintColor,
             contentDescription = "",
         )
+
         if (tmpCount.intValue > 0) Text(
             tmpCount.intValue.toAmountUnit(), style = Typography.bodyMedium.copy(
                 fontSize = 10.sp, color = tintColor
             )
         )
+
+//        LottieBox(
+//            lottieRes = R.raw.like_ani,
+//            isRepeat = true,
+//            modifier = Modifier.size(400.cdp)
+//        )
     }
 }

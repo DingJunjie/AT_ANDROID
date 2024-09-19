@@ -10,6 +10,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 
 @Composable
 fun LottieBox(
@@ -26,6 +28,7 @@ fun LottieBox(
     )
 
     LottieAnimation(composition, progress = {
+        CuLog.error(CuTag.Blog,"进度$progress")
         progress
     }, modifier = modifier)
 }

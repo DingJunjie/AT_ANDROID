@@ -20,27 +20,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
+import com.bitat.R
 import com.bitat.repository.dto.resp.BlogBaseDto
+import com.bitat.ui.common.LottieBox
 
 @Composable
-fun BlogOperation(blog: BlogBaseDto,
-                  tapComment: () -> Unit = {},
-                  tapAt: () -> Unit = {},
-                  tapLike: () -> Unit = {},
-                  tapCollect: (Int) -> Unit = {},
-                  updateFlag: Int = 0
-) {
+fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> Unit = {}, tapLike: () -> Unit = {}, tapCollect: (Int) -> Unit = {}, updateFlag: Int = 0) {
     val collectY = remember {
         mutableIntStateOf(0)
     }
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(40.dp)
+    Row(modifier = Modifier.fillMaxWidth() //        .height(40.dp)
         .padding(end = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
-        Row(modifier = Modifier.padding( end = 10.dp),
+        Row(modifier = Modifier.padding(end = 10.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically) {
 
@@ -65,20 +59,19 @@ fun BlogOperation(blog: BlogBaseDto,
                 tintColor = Color.Black) { //刷新页面、列表状态
                 tapLike()
             }
+
+            LottieBox(lottieRes = R.raw.like_ani, isRepeat = false, modifier = Modifier.size(100.dp))
         }
 
         CollectButton(
             hasCollect = blog.hasCollect,
-            modifier = Modifier
-                .size(22.dp)
-                .onGloballyPositioned {
+            modifier = Modifier.size(22.dp).onGloballyPositioned {
                     collectY.intValue = it.positionInWindow().y.toInt()
                 },
-        ) {
-//            blog.hasCollect = !blog.hasCollect
+        ) { //            blog.hasCollect = !blog.hasCollect
             tapCollect(collectY.intValue)
         }
-        if (updateFlag<0){
+        if (updateFlag < 0) {
             Text(text = "")
         }
     }
