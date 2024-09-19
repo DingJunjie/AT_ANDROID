@@ -30,10 +30,12 @@ value class CuRes<T>(val v: Any) {
     inline fun getElse(fn: () -> T): T = if (v is CodeErr) fn() else v as T
     inline fun map(fn: (T) -> Unit) = apply { if (v !is CodeErr) fn(v as T) }
     inline fun errMap(fn: (CodeErr) -> Unit) = apply {
-        if (APP_CURRENT_PAGE != NavigationItem.Login.route && APP_CURRENT_PAGE != "") {
-            DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
-        } else {
-            if (v is CodeErr) fn(v)
+
+        if (v is CodeErr) {
+            if (APP_CURRENT_PAGE != NavigationItem.Login.route && APP_CURRENT_PAGE != "" && v.code == 106) {
+                DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
+            }
+            fn(v)
         }
     }
 
