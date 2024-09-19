@@ -51,6 +51,7 @@ import kotlin.system.exitProcess
 import androidx.navigation.compose.rememberNavController
 import com.bitat.repository.singleChat.SingleMsgHelper
 import com.bitat.repository.sqlDB.SqlDB
+import com.bitat.repository.store.FileStore
 import com.bitat.ui.common.DialogOps
 import com.bitat.ui.common.DialogProps
 import com.bitat.ui.common.NotificationOps
@@ -188,6 +189,7 @@ class MainActivity : ComponentActivity() {
                     tip = "开启通知咩"
                 )
             }
+            FileStore.initFolder(LocalContext.current)
 
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {

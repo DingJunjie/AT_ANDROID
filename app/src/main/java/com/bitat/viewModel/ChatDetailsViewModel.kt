@@ -348,8 +348,6 @@ class ChatDetailsViewModel : ViewModel() {
                     }
                 }
             }
-
-
         }
     }
 }

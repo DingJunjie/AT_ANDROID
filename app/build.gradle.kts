@@ -183,10 +183,14 @@ kotlin {
 
         implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
         implementation(files("libs/sqlite-android-3460100.aar"))
+//        implementation(files("libs/ffmpeg-kit-min-6.0-2.aar"))
+
 
         implementation(libs.androidx.foundation)
         //  二维码扫描
         implementation(libs.google.mlkit.barcode.scanning)
+
+        implementation(libs.ffmpeg.kit.min)
 
 //        implementation(compose.components.resources)
 //        implementation("network.chaintech:compose-multiplatform-media-player:1.0.19")

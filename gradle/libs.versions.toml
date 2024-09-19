@@ -7,6 +7,7 @@ cameraLifecycle = "1.4.0-rc01"
 commonsIo = "2.16.1"
 emoji2 = "1.4.0"
 emoji2Bundled = "1.4.0"
+ffmpegKitMin = "6.0-2"
 foundation = "1.8.0-alpha01"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
@@ -59,6 +60,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 
 
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
+ffmpeg-kit-min = { module = "com.arthenica:ffmpeg-kit-min", version.ref = "ffmpegKitMin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

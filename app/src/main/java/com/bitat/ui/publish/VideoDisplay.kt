@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,6 +35,7 @@ import com.bitat.router.NavigationItem
 import com.bitat.ui.component.BackButton
 import com.bitat.ui.reel.CuExoPlayer
 import com.bitat.ui.video.VideoPlayer
+import com.bitat.utils.FFMpegUtil
 import com.bitat.viewModel.PublishViewModel
 
 @Composable
@@ -65,6 +70,10 @@ fun VideoDisplay(navHostController: NavHostController, viewModelProvider: ViewMo
 
 
         }
+
+//        IconButton(onClick = { FFMpegUtil.getCover(state.localVideo.path ?: "") }) {
+//            Icon(Icons.Filled.PlayArrow, contentDescription = "")
+//        }
 
 
     }
