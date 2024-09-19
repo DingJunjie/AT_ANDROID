@@ -1,11 +1,15 @@
 package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
+import com.bitat.repository.common.tokenErrorOpt
 import com.bitat.repository.consts.RankingAts
 import com.bitat.repository.dto.common.PageDto
+import com.bitat.repository.dto.common.TagsDto
+import com.bitat.repository.dto.req.FindSearchTagDto
 import com.bitat.repository.dto.req.SearchCommonDto
 import com.bitat.repository.dto.resp.UserBase1Dto
 import com.bitat.repository.http.service.RankingReq
@@ -111,19 +115,42 @@ class SearchViewModel : ViewModel() {
             }.errMap {
                 CuLog.error(CuTag.Blog, "atRankingList fail code:${it.code},msg:${it.msg}")
             }
-
         }
     }
 
     fun updateUser(user: UserBase1Dto) {
         val index = _searchState.value.searchUserResult.indexOf(user)
-        if (index >= 0)
-            _searchState.update {
-                it.searchUserResult[index] = user
-                it
-            }
+        if (index >= 0) _searchState.update {
+            it.searchUserResult[index] = user
+            it
+        }
         _searchState.update {
             it.copy(flag = it.flag + 1)
+        }
+    }
+
+    fun search(searchStr: String) {
+        viewModelScope.launch {
+            SearchReq.search(SearchCommonDto(keyword = searchStr)).await().map { res ->
+                _searchState.update {
+                    it.searchResult.clear()
+                    it.searchResult.addAll(res)
+                    it
+                }
+            }.errMap(::tokenErrorOpt)
+        }
+
+    }
+
+    fun searchTag(tag: TagsDto, blogId: Long) {
+        viewModelScope.launch {
+            SearchReq.findSearchTag(FindSearchTagDto(tag = tag, blogId = blogId)).await()
+                .map { res ->
+                    _searchState.update {
+                        it.searchResult.addAll(res)
+                        it
+                    }
+                }.errMap(::tokenErrorOpt)
         }
     }
 }

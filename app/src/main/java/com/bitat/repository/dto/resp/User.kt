@@ -70,6 +70,24 @@ data class UserBase1Dto(
     val gender: Byte = 0,
     val followTime: Long = 0L
 )
+fun UserBase1Dto.toUserHomeDto():UserHomeDto{
+    val userHomeDto=UserHomeDto()
+    userHomeDto.id=this.id
+    userHomeDto.nickname=this.nickname
+    userHomeDto.profile=this.profile
+    userHomeDto.fans=this.fans
+    userHomeDto.blogs=this.blogs.toInt()
+    userHomeDto.agrees=this.agrees.toInt()
+    userHomeDto.address=this.address
+    userHomeDto.birthday=this.birthday
+    userHomeDto.follows=this.follows
+    userHomeDto.account=this.account
+    userHomeDto.alias=this.alias
+    userHomeDto.rel=this.rel
+    userHomeDto.revRel=this.revRel
+    userHomeDto.gender=this.gender
+   return userHomeDto
+}
 
 @Serializable
 data class UserBase2Dto(

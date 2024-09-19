@@ -15,6 +15,7 @@ import com.bitat.ui.blog.ReportUserPage
 import com.bitat.ui.chat.ChatDetailsPage
 import com.bitat.ui.chat.ChatHistoryPage
 import com.bitat.ui.chat.ChatSettingsPage
+import com.bitat.ui.chat.ContactPage
 import com.bitat.ui.chat.NotificationPage
 import com.bitat.ui.common.GDMapPage
 import com.bitat.ui.component.ImagePreviewPage
@@ -51,8 +52,8 @@ enum class Screen {
     SPLASH, LOGIN, HOME, DISCOVERY, DISCOVERY_DETAIL, PUBLISH, CHAT, PROFILE, PROFILE_OTHER, VIDEO, //
     BLOG_DETAIL, PUBLISH_DETAIL, CHAT_DETAIL, REEL_PAGE_DEMO, GD_MAP, PICTURE_DISPLAY, VIDEO_DISPLAY, //
     SEARCH, SEARCH_RESULT, IMAGE_PREVIEW, REPORT_USER, BLOG, COLLECTION_DETAIL, OTHERS, FANS, FOLLOWS, //
-    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT,//
-    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS, BLACKLIST,QRSCANNER
+    PROFILE_EDIT, SETTING, CHAT_SETTINGS, CACHE, ACCOUNTSECURE, NOTIFICATION, SIGNOUT, CANCELAGREEMENT, //
+    FEEDBACK, CHAT_HISTORY, BROWSHISTORY, PRIVACYSETTINGS, BLACKLIST, QRSCANNER, CONTACT
 }
 
 sealed class NavigationItem(val route: String) {
@@ -96,6 +97,8 @@ sealed class NavigationItem(val route: String) {
     data object BlackList : NavigationItem(Screen.BLACKLIST.name)
     data object Others : NavigationItem(Screen.OTHERS.name)
     data object QRScanner : NavigationItem(Screen.QRSCANNER.name)
+    data object Contact : NavigationItem(Screen.CONTACT.name)
+
 
 }
 
@@ -116,22 +119,22 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.Login.route) {
-            APP_CURRENT_PAGE=NavigationItem.Login.route
+            APP_CURRENT_PAGE = NavigationItem.Login.route
             LoginPage(navController, navigation.navigateToHome)
         }
 
         composable(NavigationItem.Home.route) {
-            APP_CURRENT_PAGE=NavigationItem.Home.route
+            APP_CURRENT_PAGE = NavigationItem.Home.route
             Home(navController = navController, viewModelProvider)
         }
 
         composable(NavigationItem.BlogDetail.route) {
-            APP_CURRENT_PAGE=NavigationItem.BlogDetail.route
+            APP_CURRENT_PAGE = NavigationItem.BlogDetail.route
             BlogDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.Profile.route) {
-            APP_CURRENT_PAGE=NavigationItem.Profile.route
+            APP_CURRENT_PAGE = NavigationItem.Profile.route
             ProfilePage(navController, viewModelProvider)
         }
 
@@ -142,7 +145,7 @@ fun AppNavHost(
         //        }
 
         composable(NavigationItem.Discovery.route) {
-            APP_CURRENT_PAGE=NavigationItem.Discovery.route
+            APP_CURRENT_PAGE = NavigationItem.Discovery.route
             DiscoveryPage(navController, viewModelProvider)
         }
 
@@ -150,7 +153,7 @@ fun AppNavHost(
         //            VideoPage()
         //        }
         composable(NavigationItem.ReelPageDemo.route) {
-            APP_CURRENT_PAGE=NavigationItem.ReelPageDemo.route
+            APP_CURRENT_PAGE = NavigationItem.ReelPageDemo.route
             ReelPageDemo(navController, viewModelProvider)
         }
 
@@ -159,79 +162,75 @@ fun AppNavHost(
         //        }
 
         composable(NavigationItem.Publish.route) {
-            APP_CURRENT_PAGE=NavigationItem.Publish.route
+            APP_CURRENT_PAGE = NavigationItem.Publish.route
             PublishPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.PublishDetail.route) {
-            APP_CURRENT_PAGE=NavigationItem.PublishDetail.route
+            APP_CURRENT_PAGE = NavigationItem.PublishDetail.route
             PublishDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.ChatDetails.route) {
-            APP_CURRENT_PAGE=NavigationItem.ChatDetails.route
+            APP_CURRENT_PAGE = NavigationItem.ChatDetails.route
             ChatDetailsPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.GDMap.route) {
-            APP_CURRENT_PAGE=NavigationItem.GDMap.route
+            APP_CURRENT_PAGE = NavigationItem.GDMap.route
             GDMapPage()
         }
 
         composable(NavigationItem.PictureDisplay.route) {
-            APP_CURRENT_PAGE=NavigationItem.PictureDisplay.route
+            APP_CURRENT_PAGE = NavigationItem.PictureDisplay.route
             PictureDisplay(navController, viewModelProvider)
         }
 
         composable(NavigationItem.VideoDisplay.route) {
-            APP_CURRENT_PAGE=NavigationItem.VideoDisplay.route
+            APP_CURRENT_PAGE = NavigationItem.VideoDisplay.route
             VideoDisplay(navController, viewModelProvider)
         }
 
         composable(NavigationItem.Search.route) {
-            APP_CURRENT_PAGE=NavigationItem.Search.route
+            APP_CURRENT_PAGE = NavigationItem.Search.route
             SearchPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.SearchResult.route) {
-            APP_CURRENT_PAGE=NavigationItem.SearchResult.route
+            APP_CURRENT_PAGE = NavigationItem.SearchResult.route
             SearchResultPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.DiscoveryDetail.route) {
-            APP_CURRENT_PAGE=NavigationItem.DiscoveryDetail.route
+            APP_CURRENT_PAGE = NavigationItem.DiscoveryDetail.route
             DiscoveryDetailPage(navController, viewModelProvider)
         }
 
         composable(NavigationItem.ImagePreview.route) {
-            APP_CURRENT_PAGE=NavigationItem.ImagePreview.route
+            APP_CURRENT_PAGE = NavigationItem.ImagePreview.route
             ImagePreviewPage(navController = navController, viewModelProvider)
         }
 
         composable(NavigationItem.ReportUser.route) {
-            APP_CURRENT_PAGE=NavigationItem.ReportUser.route
+            APP_CURRENT_PAGE = NavigationItem.ReportUser.route
             ReportUserPage(navHostController = navController, viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.CollectionDetail.route) {
-            APP_CURRENT_PAGE=NavigationItem.CollectionDetail.route
-            CollectionDetail(
-                navHostController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            APP_CURRENT_PAGE = NavigationItem.CollectionDetail.route
+            CollectionDetail(navHostController = navController,
+                viewModelProvider = viewModelProvider)
         }
 
-//        composable(NavigationItem.Others.route) {
-//            OthersPage(navController = navController, viewModelProvider = viewModelProvider)
-//        }
+        //        composable(NavigationItem.Others.route) {
+        //            OthersPage(navController = navController, viewModelProvider = viewModelProvider)
+        //        }
         composable<Others> { backEntry ->
             val others: Others = backEntry.toRoute()
-            APP_CURRENT_PAGE="Others"
-            OthersPage(
-                navController = navController,
+            APP_CURRENT_PAGE = "Others"
+            OthersPage(navController = navController,
                 viewModelProvider = viewModelProvider,
-                otherId = others.otherId
-            )
+                otherId = others.otherId)
         }
 
         composable(NavigationItem.Fans.route) {
@@ -243,10 +242,8 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ProfileEdit.route) {
-            ProfileEditPage(
-                navHostController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            ProfileEditPage(navHostController = navController,
+                viewModelProvider = viewModelProvider)
         }
 
         composable(NavigationItem.Setting.route) {
@@ -281,10 +278,8 @@ fun AppNavHost(
         }
 
         composable(NavigationItem.ChatHistory.route) {
-            ChatHistoryPage(
-                navHostController = navController,
-                viewModelProvider = viewModelProvider
-            )
+            ChatHistoryPage(navHostController = navController,
+                viewModelProvider = viewModelProvider)
         }
         composable(NavigationItem.BrowHistory.route) {
             BrowserHistoryPage(navController, viewModelProvider)
@@ -300,8 +295,9 @@ fun AppNavHost(
         composable(NavigationItem.QRScanner.route) {
             QRScannerPage(navController)
         }
-
-
+        composable(NavigationItem.Contact.route) {
+            ContactPage(navController, viewModelProvider)
+        }
     }
 }
 
@@ -417,7 +413,9 @@ class AtNavigation(navController: NavHostController) {
     val navigationToQRScanner: () -> Unit = {
         navController.navigate(NavigationItem.QRScanner.route)
     }
-
+    val navigationToContact: () -> Unit = {
+        navController.navigate(NavigationItem.Contact.route)
+    }
 
 
 }

@@ -30,7 +30,8 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
         mutableIntStateOf(0)
     }
 
-    Row(modifier = Modifier.fillMaxWidth() //        .height(40.dp)
+    Row(modifier = Modifier.fillMaxWidth()
+                .height(40.dp)
         .padding(end = 20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically) {
@@ -60,7 +61,7 @@ fun BlogOperation(blog: BlogBaseDto, tapComment: () -> Unit = {}, tapAt: () -> U
                 tapLike()
             }
 
-            LottieBox(lottieRes = R.raw.like_ani, isRepeat = false, modifier = Modifier.size(100.dp))
+//            LottieBox(lottieRes = R.raw.like_ani, isRepeat = false, modifier = Modifier.size(100.dp))
         }
 
         CollectButton(

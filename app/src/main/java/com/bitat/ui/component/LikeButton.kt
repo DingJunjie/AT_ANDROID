@@ -41,7 +41,7 @@ fun LikeButton(
     var tmpCount = remember {
         mutableIntStateOf(count)
     }
-    Box(modifier = Modifier.clickable {
+    Row (modifier = Modifier.clickable {
         currentLike.value = !currentLike.value
         tmpCount.intValue += if (currentLike.value) 1 else -1
         if (tmpCount.intValue < 0) tmpCount.intValue = 0

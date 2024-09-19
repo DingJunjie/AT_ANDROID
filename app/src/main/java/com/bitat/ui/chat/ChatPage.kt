@@ -156,7 +156,8 @@ fun ChatPage(navHostController: NavHostController, viewModelProvider: ViewModelP
 
                 Row {
                     IconButton(onClick = {
-                        showNotificationState.value = !showNotificationState.value
+                        AtNavigation(navHostController).navigationToContact()
+
                     }) {
                         Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
                     }

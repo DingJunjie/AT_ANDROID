@@ -37,5 +37,6 @@ data class SearchState(
     val searchType: SearchType = SearchType.BLOG,
     val searchUserResult: SnapshotStateList<UserBase1Dto> = mutableStateListOf(),
     val searchVideoResult: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
+    val searchResult: SnapshotStateList<BlogBaseDto> = mutableStateListOf(),
     val rankingList: SnapshotStateList<BlogPartDto> = mutableStateListOf(), val flag: Int = 0
 )

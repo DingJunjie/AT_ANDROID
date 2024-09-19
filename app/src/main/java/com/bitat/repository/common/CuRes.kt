@@ -32,11 +32,9 @@ value class CuRes<T>(val v: Any) {
     inline fun errMap(fn: (CodeErr) -> Unit) = apply {
 
         if (v is CodeErr) {
-            if (APP_CURRENT_PAGE != NavigationItem.Login.route && APP_CURRENT_PAGE != "" && v.code == 106) {
-                DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
-            }
             fn(v)
         }
+
     }
 
     private fun throwMsg(msg: String): Nothing = throw RuntimeException(msg)
@@ -45,7 +43,12 @@ value class CuRes<T>(val v: Any) {
         fun <T> ok(value: T): CuRes<T> = CuRes(value as Any)
         fun <T> err(code: Int, msg: String): CuRes<T> = CuRes(CodeErr(code, msg))
     }
+}
 
+fun tokenErrorOpt(err: CodeErr) {
+    if (APP_CURRENT_PAGE != NavigationItem.Login.route && APP_CURRENT_PAGE != "" && err.code == 106) {
+        DialogOps("登录过期", "获取用户信息失败，请重新登录", true, {}, {}).showDialog()
+    }
 }
 
 

@@ -103,6 +103,7 @@ fun SearchPage(navHostController: NavHostController, viewModelProvider: ViewMode
                 items(state.rankingList.size) { index -> //
                     GridItem(state.rankingList[index]) {
                         // 点击事件
+
                     }
                 }
             }

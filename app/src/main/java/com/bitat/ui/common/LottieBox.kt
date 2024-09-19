@@ -27,8 +27,8 @@ fun LottieBox(
         isPlaying = isPlaying
     )
 
+
     LottieAnimation(composition, progress = {
-        CuLog.error(CuTag.Blog,"进度$progress")
         progress
     }, modifier = modifier)
 }
