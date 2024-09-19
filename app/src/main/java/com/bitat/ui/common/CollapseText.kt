@@ -40,7 +40,14 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Composable
-fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, onCollapse: (Boolean) -> Unit = {}) {
+fun CollapseText(
+    value: String,
+    maxLines: Int,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
+    maxLength: Int = 24,
+    onCollapse: (Boolean) -> Unit = {}
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Column {
@@ -53,15 +60,18 @@ fun CollapseText(value: String, maxLines: Int, modifier: Modifier = Modifier, te
         )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier.background(Color.Transparent)
+            Box(modifier = Modifier
+                .background(Color.Transparent)
                 .padding(top = 5.dp) // Background color
                 .clickable {
                     expanded = !expanded
                     onCollapse(expanded)
                 }) {
 
-                Text(text = if (!expanded) "展开" else "收起",
-                    style = textStyle.copy(color = colorResource(id = R.color.search_border)))
+                Text(
+                    text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
+                )
             }
         }
     }
@@ -86,21 +96,25 @@ fun compileTag(value: String): MutableList<String> {
     return result
 }
 
-fun matchTag(value: String): BlogTagDto { //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
-    val pattern = Pattern.compile("[0-9]+")
-    val im: Matcher = pattern.matcher(value)
+fun matchTag(value: String): BlogTagDto? { //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
+    try {
+        val pattern = Pattern.compile("[0-9]+")
+        val im: Matcher = pattern.matcher(value)
 
-    val cp = Pattern.compile("""\p{IsHan}+""")
-    val cm: Matcher = cp.matcher(value)
+        val cp = Pattern.compile("""\p{IsHan}+""")
+        val cm: Matcher = cp.matcher(value)
 
-    im.find()
-    cm.find()
-    val idg = im.group()
-    val content = cm.group()
+        im.find()
+        cm.find()
+        val idg = im.group()
+        val content = cm.group()
 
-    return BlogTagDto().apply {
-        id = if (idg == "") 0 else idg.toLong()
-        name = content
+        return BlogTagDto().apply {
+            id = if (idg == "") 0 else idg.toLong()
+            name = content
+        }
+    } catch (e: Exception) {
+        return null
     }
 }
 
@@ -109,7 +123,17 @@ fun matchTag(value: String): BlogTagDto { //    \\\^#\{(\d+):(\p{IsHan}+)\}\^\\
  * */
 @Composable
 @Suppress("Deprecation")
-fun CollapseReachText(value: String, tags: List<BlogTagDto>, maxLines: Int, modifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(), maxLength: Int = 24, tagTap: (String) -> Unit, contentTap: () -> Unit, onCollapse: (Boolean) -> Unit = {}) {
+fun CollapseReachText(
+    value: String,
+    tags: List<BlogTagDto>,
+    maxLines: Int,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(),
+    maxLength: Int = 24,
+    tagTap: (String) -> Unit,
+    contentTap: () -> Unit,
+    onCollapse: (Boolean) -> Unit = {}
+) {
     var expanded by remember { mutableStateOf(false) }
     val res = compileTag(value)
 
@@ -117,19 +141,32 @@ fun CollapseReachText(value: String, tags: List<BlogTagDto>, maxLines: Int, modi
 
     val contentWithTag = buildAnnotatedString {
         if (res.size > 1) { // 带tag
-            res.mapIndexed { i, v ->
-                if (i % 2 == 1) { // \^#{\d+:\w+}^\
-                    val tag = matchTag(v)
+            res.map { v ->
+                val tag = matchTag(v)
+                if (tag == null) {
+                    withStyle(style = SpanStyle(color = Color.Black)) {
+                        append(v)
+                    }
+                } else {
                     pushStringAnnotation(tag = tag.id.toString(), annotation = tag.name)
                     withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W500)) {
                         append("#${tag.name}")
                     }
                     pop()
-                } else {
-                    withStyle(style = SpanStyle(color = Color.Black)) {
-                        append(v)
-                    }
                 }
+//                if (i % 2 == 1) {
+//                    // \^#{\d+:\w+}^\
+//                    val tag = matchTag(v)
+//                    pushStringAnnotation(tag = tag.id.toString(), annotation = tag.name)
+//                    withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.W500)) {
+//                        append("#${tag.name}")
+//                    }
+//                    pop()
+//                } else {
+//                    withStyle(style = SpanStyle(color = Color.Black)) {
+//                        append(v)
+//                    }
+//                }
             }
         } else if (res.size == 1) {
             withStyle(style = SpanStyle(color = Color.Black)) {
@@ -143,14 +180,16 @@ fun CollapseReachText(value: String, tags: List<BlogTagDto>, maxLines: Int, modi
             onClick = { offset -> //可点击的文本控件
                 if (tags.isNotEmpty()) {
                     tags.forEach { tag ->
-                        contentWithTag.getStringAnnotations(tag = "${tag.id}",
+                        contentWithTag.getStringAnnotations(
+                            tag = "${tag.id}",
                             start = offset,
-                            end = offset).firstOrNull()?.let { annotation -> // 点击事件的处理
+                            end = offset
+                        ).firstOrNull()?.let { annotation -> // 点击事件的处理
                             tagTap(annotation.item)
                             isClickTag = true
                         }
                     }
-                    if (!isClickTag){
+                    if (!isClickTag) {
                         contentTap()
                     }
                 } else {
@@ -163,15 +202,18 @@ fun CollapseReachText(value: String, tags: List<BlogTagDto>, maxLines: Int, modi
         )
 
         if (value.length > maxLines * maxLength) {
-            Box(modifier = Modifier.background(Color.Transparent)
+            Box(modifier = Modifier
+                .background(Color.Transparent)
                 .padding(top = 5.dp) // Background color
                 .clickable {
                     expanded = !expanded
                     onCollapse(expanded)
                 }) {
 
-                Text(text = if (!expanded) "展开" else "收起",
-                    style = textStyle.copy(color = colorResource(id = R.color.search_border)))
+                Text(
+                    text = if (!expanded) "展开" else "收起",
+                    style = textStyle.copy(color = colorResource(id = R.color.search_border))
+                )
             }
         }
     }

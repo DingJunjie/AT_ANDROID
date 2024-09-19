@@ -6,6 +6,7 @@ import com.bitat.MainCo
 import com.bitat.log.CuLog
 import com.bitat.log.CuTag
 import com.bitat.repository.consts.BLACKLIST
+import com.bitat.repository.consts.CHAT_Audio
 import com.bitat.repository.consts.CHAT_DISABLED
 import com.bitat.repository.consts.CHAT_Recall
 import com.bitat.repository.consts.CHAT_Reply
@@ -315,6 +316,19 @@ class ChatDetailsViewModel : ViewModel() {
             TcpClient.chat(toId, k, time, c.toByteArray(charset("UTF-8")))
         }
 
+    }
+
+    fun sendAudio(
+        toId: Long,
+        uri: Uri,
+        showToast: (String) -> Unit = {},
+        completeFn: (SingleMsgPo) -> Unit
+    ) {
+        MainCo.launch(IO) {
+            QiNiuUtil.uploadSingleFile(uri, ops = UPLOAD_OPS.Chat, fileType = FileType.Audio) {
+                sendMessage(toId, CHAT_Audio.toInt(), content = it, showToast, completeFn)
+            }
+        }
     }
 
     fun sendPicture(

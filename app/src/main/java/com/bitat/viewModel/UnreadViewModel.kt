@@ -2,6 +2,8 @@ package com.bitat.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.bitat.MainCo
+import com.bitat.log.CuLog
+import com.bitat.log.CuTag
 import com.bitat.repository.dto.req.FetchChatCommon
 import com.bitat.repository.http.service.MsgReq
 import com.bitat.repository.po.NoticeMsgPo
@@ -52,6 +54,10 @@ class UnreadViewModel : ViewModel() {
                     time = _state.value.lastTime
                     limit = 50
                 }).await().map { msgRes ->
+                    CuLog.info(
+                        CuTag.SingleChat,
+                        "获取到新的未读消息$msgRes, 有${msgRes.msgListList.size}条"
+                    )
                     val msgPoArr = msgRes.msgListList.map {
                         SingleMsgPo().also { po ->
                             po.selfId = it.toId
